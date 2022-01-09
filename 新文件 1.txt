@@ -1,0 +1,224 @@
+'SetScreenScale 576, 1024, 0
+'凛初始 50np
+'双C呆
+'御主 10np礼装，技能位3
+
+Log.Open
+Dim NEED_REVERSE = true
+Dim PREPARE_FRIEND_CABER_COORDINATE = Array(120, 200)
+Dim PREPARE_FRIEND_CABER_RGB_STAGE_1 = "8A4048"
+Dim PREPARE_FRIEND_CABER_RGB_STAGE_2 = "814949"
+Dim PREPARE_FRIEND_CABER_RGB_STAGE_3 = "FFF9E9"
+
+Dim 屏幕横坐标X,屏幕纵坐标Y
+屏幕横坐标X=GetScreenX()
+屏幕纵坐标Y=GetScreenY()
+TracePrint 屏幕横坐标X,屏幕纵坐标Y
+
+'SetScreenScale 576, 1024, 0
+'pre caber1: 120,200 rgb:138,64,72 #8A4048
+'pre caber2: 120,200 rgb:129,73,73 #814949
+'pre caber3: 120,200 rgb:255,249,233 #FFF9E9
+
+Function CheckAndTap(Point, RGBs)
+	Dim PointX = Point[1]
+	Dim PointY = Point[2]
+	' Dim Count = 0
+	Dim IntX,IntY
+
+	If NEED_REVERSE Then
+		For Each RGB In RGBs 
+			RGB = (Mid(RGB, 5, 2) & Mid(RGB, 3, 2) & Mid(RGB, 1, 2))
+			TracePrint RGB
+		Next
+	End If
+	TracePrint PointX, PointY, RGBs[1]
+	' Dim rColor
+	' rColor = GetPixelColor(120, 200)
+	' rColor = GetPixelColor(120, 201)
+	' TracePrint "这个点的颜色为："&rColor
+	Do While true
+		FindMultiColor PointX-1, PointY-1, PointX+1, PointY+1,RGB,"",1,1,intX,intY
+		If intX > 0 Then
+			' ShowMessage ( Count & ":" & CStr(IntX) & " a " & CStr(IntY)) ' todo
+			Exit Do
+		End If
+		Delay 500
+		' Count = Count+1
+	Loop
+	TracePrint "find out:", IntX, IntY
+	tap 120, 200
+End Function
+
+TracePrint 1
+CheckAndTap (PREPARE_FRIEND_CABER_COORDINATE, Array(PREPARE_FRIEND_CABER_RGB_STAGE_1,PREPARE_FRIEND_CABER_RGB_STAGE_2,PREPARE_FRIEND_CABER_RGB_STAGE_3))
+
+TracePrint 2
+Log.Close
+
+
+
+
+
+/*
+Delay 3000- TickCount()
+ tap 120,200
+ 
+ 
+Delay 4000- TickCount()
+ tap 120,200
+ 
+ 
+
+Delay 9629- TickCount()
+ TouchDownEvent 925,542,0
+Delay 9780- TickCount()
+ TouchUpEvent 0
+
+*/
+
+/*
+Delay 28830- TickCount()
+ TouchDownEvent 131,466,0
+Delay 28928- TickCount()
+ TouchUpEvent 0
+Delay 30493- TickCount()
+ TouchDownEvent 758,348,0
+Delay 30605- TickCount()
+ TouchUpEvent 0
+
+Delay 33789- TickCount()
+ TouchDownEvent 201,464,0
+Delay 33902- TickCount()
+ TouchUpEvent 0
+Delay 35190- TickCount()
+ TouchDownEvent 766,350,0
+Delay 35292- TickCount()
+ TouchUpEvent 0
+Delay 38838- TickCount()
+ TouchDownEvent 384,463,0
+Delay 38941- TickCount()
+ TouchUpEvent 0
+Delay 40238- TickCount()
+ TouchDownEvent 756,353,0
+Delay 40333- TickCount()
+ TouchUpEvent 0
+Delay 43239- TickCount()
+ TouchDownEvent 457,462,0
+Delay 43318- TickCount()
+ TouchUpEvent 0
+Delay 44445- TickCount()
+ TouchDownEvent 766,353,0
+Delay 44532- TickCount()
+ TouchUpEvent 0
+Delay 48190- TickCount()
+ TouchDownEvent 951,247,0
+Delay 48269- TickCount()
+ TouchUpEvent 0
+Delay 49492- TickCount()
+ TouchDownEvent 870,256,0
+Delay 49597- TickCount()
+ TouchUpEvent 0
+Delay 50685- TickCount()
+ TouchDownEvent 757,347,0
+Delay 50773- TickCount()
+ TouchUpEvent 0
+Delay 56606- TickCount()
+ TouchDownEvent 902,486,0
+Delay 56692- TickCount()
+ TouchUpEvent 0
+Delay 59205- TickCount()
+ TouchDownEvent 708,165,0
+Delay 59308- TickCount()
+ TouchUpEvent 0
+Delay 60446- TickCount()
+ TouchDownEvent 514,399,0
+Delay 60516- TickCount()
+ TouchUpEvent 0
+Delay 61304- TickCount()
+ TouchDownEvent 708,393,0
+Delay 61414- TickCount()
+ TouchUpEvent 0
+Delay 87486- TickCount()
+ TouchDownEvent 56,465,0
+Delay 87604- TickCount()
+ TouchUpEvent 0
+Delay 91510- TickCount()
+ TouchDownEvent 315,463,0
+Delay 91597- TickCount()
+ TouchUpEvent 0
+Delay 97670- TickCount()
+ TouchDownEvent 911,484,0
+Delay 97756- TickCount()
+ TouchUpEvent 0
+Delay 99861- TickCount()
+ TouchDownEvent 705,168,0
+Delay 99932- TickCount()
+ TouchUpEvent 0
+Delay 100741- TickCount()
+ TouchDownEvent 713,402,0
+Delay 100812- TickCount()
+ TouchUpEvent 0
+Delay 101702- TickCount()
+ TouchDownEvent 517,398,0
+Delay 101764- TickCount()
+ TouchUpEvent 0
+Delay 135342- TickCount()
+ TouchDownEvent 568,463,0
+Delay 135436- TickCount()
+ TouchUpEvent 0
+Delay 140806- TickCount()
+ TouchDownEvent 639,464,0
+Delay 140926- TickCount()
+ TouchUpEvent 0
+Delay 142550- TickCount()
+ TouchDownEvent 519,351,0
+Delay 142645- TickCount()
+ TouchUpEvent 0
+Delay 146462- TickCount()
+ TouchDownEvent 710,467,0
+Delay 146564- TickCount()
+ TouchUpEvent 0
+Delay 152125- TickCount()
+ TouchDownEvent 894,486,0
+Delay 152252- TickCount()
+ TouchUpEvent 0
+Delay 154493- TickCount()
+ TouchDownEvent 704,172,0
+Delay 154565- TickCount()
+ TouchUpEvent 0
+Delay 155622- TickCount()
+ TouchDownEvent 714,407,0
+Delay 155716- TickCount()
+ TouchUpEvent 0
+Delay 156606- TickCount()
+ TouchDownEvent 514,391,0
+Delay 156748- TickCount()
+ TouchUpEvent 0
+Delay 202670- TickCount()
+ TouchDownEvent 811,468,0
+Delay 202748- TickCount()
+ TouchUpEvent 0
+Delay 203334- TickCount()
+ TouchDownEvent 811,468,0
+Delay 203388- TickCount()
+ TouchUpEvent 0
+Delay 203404- TickCount()
+ TouchDownEvent 811,468,0
+Delay 203461- TickCount()
+ TouchUpEvent 0
+Delay 204805- TickCount()
+ TouchDownEvent 862,513,0
+Delay 204884- TickCount()
+ TouchUpEvent 0
+Delay 207181- TickCount()
+ TouchDownEvent 362,447,0
+Delay 207236- TickCount()
+ TouchUpEvent 0
+Delay 214693- TickCount()
+ TouchDownEvent 9,69,0
+Delay 214780- TickCount()
+ TouchUpEvent 0
+Delay 216166- TickCount()
+ 
+  */
