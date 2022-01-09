@@ -1,7 +1,7 @@
 <!DOCTYPE html>
-<html><head><meta http-equiv="Content-Type" content="text/html; charset=GBK">
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1">
-<title>RGBÑÕÉ«ÖµÓëÊ®Áù½øÖÆÑÕÉ«Âë×ª»»¹¤¾ß</title>
+<title>RGBé¢œè‰²ç è½¬æ¢å·¥å…·</title>
 
 <style>
 .rle{width:3em;}
@@ -25,9 +25,9 @@ function showRGB1() {
         if (n == "")
             n = "0";
         if (parseInt(n) != n)
-            return alert("ÇëÊäÈëÊı×Ö£¡");
+            return alert("è¯·è¾“å…¥æ•°å­—ï¼");
         if (n > 255)
-            return alert("Êı×ÖÔÚ0-255Ö®¼ä£¡");
+            return alert("æ•°å­—åœ¨0-255ä¹‹é—´ï¼");
         var c = "0123456789ABCDEF",
         b = "",
         a = n % 16;
@@ -41,7 +41,7 @@ function showRGB1() {
 	const input = document.querySelector('#a_mo1');
 	input.select();
 	if (document.execCommand('copy')) {
-		console.log('¸´ÖÆ³É¹¦');
+		console.log('å¤åˆ¶æˆåŠŸ');
 	}
 
 }
@@ -53,9 +53,9 @@ function showRGB2() {
         if (n == "")
             n = "0";
         if (parseInt(n) != n)
-            return alert("ÇëÊäÈëÊı×Ö£¡");
+            return alert("è¯·è¾“å…¥æ•°å­—ï¼");
         if (n > 255)
-            return alert("Êı×ÖÔÚ0-255Ö®¼ä£¡");
+            return alert("æ•°å­—åœ¨0-255ä¹‹é—´ï¼");
         var c = "0123456789ABCDEF",
         b = "",
         a = n % 16;
@@ -70,7 +70,7 @@ function showRGB3() { ;
     if (a.substr(0, 1) == "#")
         a = a.substring(1);
     if (a.length != 6)
-        return alert("ÇëÊäÈëÕıÈ·µÄÊ®Áù½øÖÆÑÕÉ«Âë£¡")
+        return alert("è¯·è¾“å…¥æ­£ç¡®çš„åå…­è¿›åˆ¶é¢œè‰²ç ï¼")
         document.getElementById("color3").bgColor = "#" + a;
     a = a.toLowerCase()
         b = new Array();
@@ -115,13 +115,13 @@ function getkey(e, n) {
           <tbody>
             <tr>
 
-              <td><div>RGBÑÕÉ«Öµ×ª»»³ÉÊ®Áù½øÖÆÑÕÉ«Âë£º</div>
+              <td><div>RGBé¢œè‰²å€¼è½¬æ¢æˆåå…­è¿›åˆ¶é¢œè‰²ç ï¼š</div>
                 <table border="0" cellpadding="0" cellspacing="4">
                   <tbody>
                     <tr>
                       <td width="350">
                         R,G,B <input name="r1es" value="255,180,0" class="rles" maxlength="11" onfocus="selectInput(event);">
-                        <input onclick="showRGB1()" type="button" value="×ª»»²¢¸´ÖÆÊ®Áù½øÖÆÂë" name="button">
+                        <input onclick="showRGB1()" type="button" value="è½¬æ¢å¹¶å¤åˆ¶åå…­è¿›åˆ¶ç " name="button">
                       </td>
                       <td id="color1" width="50" bgcolor="#FFB4A6"></td>
                     </tr>
@@ -131,7 +131,7 @@ function getkey(e, n) {
             </tr>
 			<tr>
 
-              <td><div>RGBÑÕÉ«Öµ×ª»»³ÉÊ®Áù½øÖÆÑÕÉ«Âë£º</div>
+              <td><div>RGBé¢œè‰²å€¼è½¬æ¢æˆåå…­è¿›åˆ¶é¢œè‰²ç ï¼š</div>
                 <table border="0" cellpadding="0" cellspacing="4">
                   <tbody>
                     <tr>
@@ -139,7 +139,7 @@ function getkey(e, n) {
                         R&nbsp;<input name="r1e" value="255" class="rle" maxlength="3" onkeypress="getkey(event,0);">&nbsp;
                         G&nbsp;<input name="r1e" value="180" class="rle" maxlength="3" onkeypress="getkey(event,0);">&nbsp;
                         B&nbsp;<input name="r1e" value="0" class="rle" maxlength="3" onkeypress="getkey(event,0);">
-                        <input onclick="showRGB2()" type="button" value="×ª»»" name="button">
+                        <input onclick="showRGB2()" type="button" value="è½¬æ¢" name="button">
                       </td>
                       <td id="color2" width="50" bgcolor="#FFB4A6"></td>
                     </tr>
@@ -148,13 +148,13 @@ function getkey(e, n) {
                 <div id="a_mo2">#FFB4A6</div></td>
             </tr>
             <tr>
-              <td><div>Ê®Áù½øÖÆÑÕÉ«Âë×ª»»³ÉRGBÑÕÉ«Öµ£º</div>
+              <td><div>åå…­è¿›åˆ¶é¢œè‰²ç è½¬æ¢æˆRGBé¢œè‰²å€¼ï¼š</div>
                 <table border="0" cellpadding="0" cellspacing="4">
                   <tbody>
                     <tr>
                       <td width="300">
                         <input name="rgb2" value="#CC00FF" size="8" maxlength="20" onkeypress="getkey(event,1);">
-                        <input onclick="showRGB3()" type="button" value="×ª»»" name="button">
+                        <input onclick="showRGB3()" type="button" value="è½¬æ¢" name="button">
                       </td>
                       <td id="color3" width="50" bgcolor="#CC00FF"></td>
                     </tr>
