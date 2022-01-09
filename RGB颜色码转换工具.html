@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=GBK">
+<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1">
+<title>RGB颜色值与十六进制颜色码转换工具</title>
+
+<style>
+.rle{width:3em;}
+.rles{width:9em;}
+.a_mo1{color:red;font-weight:400;}
+#a_mo2,#a_mo3{color:red;font-weight:400;}
+@media screen and (max-width:480px) {
+#color tr td:nth-of-type(2),#color tr td:nth-of-type(3){display:none;}
+}
+
+</style>
+<script>
+
+function showRGB1() {
+    hexcode = "";
+    var rles = document.getElementsByName("r1es")[0].value;
+	let arr = rles.split(',')
+	var n
+    for (x = 0; x < 3; x++) { ;
+		n = arr[x]
+        if (n == "")
+            n = "0";
+        if (parseInt(n) != n)
+            return alert("请输入数字！");
+        if (n > 255)
+            return alert("数字在0-255之间！");
+        var c = "0123456789ABCDEF",
+        b = "",
+        a = n % 16;
+        b = c.substr(a, 1);
+        a = (n - a) / 16;
+        hexcode += c.substr(a, 1) + b
+    }
+	document.querySelector('#a_mo1').value = hexcode
+    document.getElementById("color1").bgColor = "#" + hexcode
+	
+	const input = document.querySelector('#a_mo1');
+	input.select();
+	if (document.execCommand('copy')) {
+		console.log('复制成功');
+	}
+
+}
+
+function showRGB2() {
+    hexcode = "#";
+    for (x = 0; x < 3; x++) { ;
+        var n = document.getElementsByName("r1e")[x].value;
+        if (n == "")
+            n = "0";
+        if (parseInt(n) != n)
+            return alert("请输入数字！");
+        if (n > 255)
+            return alert("数字在0-255之间！");
+        var c = "0123456789ABCDEF",
+        b = "",
+        a = n % 16;
+        b = c.substr(a, 1);
+        a = (n - a) / 16;
+        hexcode += c.substr(a, 1) + b
+    }
+    document.getElementById("color2").bgColor = a_mo2.innerHTML = hexcode
+}
+function showRGB3() { ;
+    var a = document.getElementsByName("rgb2")[0].value;
+    if (a.substr(0, 1) == "#")
+        a = a.substring(1);
+    if (a.length != 6)
+        return alert("请输入正确的十六进制颜色码！")
+        document.getElementById("color3").bgColor = "#" + a;
+    a = a.toLowerCase()
+        b = new Array();
+    for (x = 0; x < 3; x++) {
+        b[0] = a.substr(x * 2, 2)
+            b[3] = "0123456789abcdef";
+        b[1] = b[0].substr(0, 1)
+            b[2] = b[0].substr(1, 1)
+            b[20 + x] = b[3].indexOf(b[1]) * 16 + b[3].indexOf(b[2])
+    }
+    a_mo3.innerHTML = b[20] + "," + b[21] + "," + b[22];
+}
+function selectInput(e){
+	e.currentTarget.select()
+	console.log(e.currentTarget)
+}
+function getkey(e, n) {
+    var keynum;
+    if (window.event)
+        keynum = e.keyCode;
+    else if (e.which)
+        keynum = e.which;
+    if (keynum == 13) {
+        if (n == 0)
+            showRGB();
+        else
+            showRGB2();
+    }
+}
+
+</script>
+
+</head>
+<body> 
+<div class="main" style="height: auto !important;"> 
+  <table width="100%" border="0" cellspacing="0" cellpadding="0" class="content" style="height: auto !important;"> 
+    <tbody><tr> 
+    </tr>
+    <tr style="height: auto !important;">
+      <td valign="top" class="area" style="height: auto !important;">
+	  </ins></ins></ins><table style="border-collapse: collapse" bordercolor="#d9d9d9" cellspacing="0" cellpadding="8" width="100%" bgcolor="#fcfcfc" border="1">
+          <tbody>
+            <tr>
+
+              <td><div>RGB颜色值转换成十六进制颜色码：</div>
+                <table border="0" cellpadding="0" cellspacing="4">
+                  <tbody>
+                    <tr>
+                      <td width="350">
+                        R,G,B <input name="r1es" value="255,180,0" class="rles" maxlength="11" onfocus="selectInput(event);">
+                        <input onclick="showRGB1()" type="button" value="转换并复制十六进制码" name="button">
+                      </td>
+                      <td id="color1" width="50" bgcolor="#FFB4A6"></td>
+                    </tr>
+                  </tbody>
+                </table>
+                <input id="a_mo1" class="a_mo1" value="FFB4A6" /></td>
+            </tr>
+			<tr>
+
+              <td><div>RGB颜色值转换成十六进制颜色码：</div>
+                <table border="0" cellpadding="0" cellspacing="4">
+                  <tbody>
+                    <tr>
+                      <td width="350">
+                        R&nbsp;<input name="r1e" value="255" class="rle" maxlength="3" onkeypress="getkey(event,0);">&nbsp;
+                        G&nbsp;<input name="r1e" value="180" class="rle" maxlength="3" onkeypress="getkey(event,0);">&nbsp;
+                        B&nbsp;<input name="r1e" value="0" class="rle" maxlength="3" onkeypress="getkey(event,0);">
+                        <input onclick="showRGB2()" type="button" value="转换" name="button">
+                      </td>
+                      <td id="color2" width="50" bgcolor="#FFB4A6"></td>
+                    </tr>
+                  </tbody>
+                </table>
+                <div id="a_mo2">#FFB4A6</div></td>
+            </tr>
+            <tr>
+              <td><div>十六进制颜色码转换成RGB颜色值：</div>
+                <table border="0" cellpadding="0" cellspacing="4">
+                  <tbody>
+                    <tr>
+                      <td width="300">
+                        <input name="rgb2" value="#CC00FF" size="8" maxlength="20" onkeypress="getkey(event,1);">
+                        <input onclick="showRGB3()" type="button" value="转换" name="button">
+                      </td>
+                      <td id="color3" width="50" bgcolor="#CC00FF"></td>
+                    </tr>
+                  </tbody>
+                </table>
+                <div id="a_mo3">204,0,255</div></td>
+            </tr>
+          </tbody>
+      </table>
+   </tr> 
+ 
+
+
+</tbody></table></div>
+
+</body></html>
