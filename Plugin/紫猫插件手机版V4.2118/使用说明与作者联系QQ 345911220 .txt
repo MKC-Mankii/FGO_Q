@@ -1,0 +1,17 @@
+紫猫学院官网:	https://zimaoxy.com/
+报名咨询QQ:	345911220
+插件文档地址:	https://zimaoxy.com/m/post/zm.about/
+
+
+使用方法:
+1. 请解压所有文件到按键精灵手机助手安装目录的Plugin文件夹中。
+2. 在脚本第一行写上Import "zm.luae"
+3. 在脚本第二行写上zm.Init()命令初始化运行环境后，即可调用本插件所有命令。
+4. 发布小精灵时，无需添加插件到附件，直接正常发布即可。
+
+
+代码例子:
+Import "zm.luae" //导入插件,只需执行一次
+zm.Init  //初始化插件,只需执行一次
+
+Call zm.About()
