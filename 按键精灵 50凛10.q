@@ -17,6 +17,7 @@ Dim PREPARE_FRIEND_CABER_RGB = "8A4048|814949|FFF9E9"
 ' START
 Dim START_COORD = Array(900, 536)
 Dim START_RGB = "0E0E1D" ' 14,14,29
+Dim START_TAPED_DELAY = 15000
 
 ' BATTLE: SKILL
 Dim BATTLE_CABER_1_SKILL_1_COORD = Array(61, 460)
@@ -166,7 +167,7 @@ If IsFirstBattle Then
 End If
 
 TracePrint "Delay to battle"
-Delay 15000
+Delay START_TAPED_DELAY
 
 ' Round 1
 TracePrint "Round 1"
