@@ -5,13 +5,19 @@
 
 Log.Open
 Dim NEED_REVERSE = true
+
+' PREPARE
 Dim PREPARE_FRIEND_CABER_COORD = Array(120, 200)
 Dim PREPARE_FRIEND_CABER_RGB_STAGE_1 = "8A4048"	' 138,64,72
 Dim PREPARE_FRIEND_CABER_RGB_STAGE_2 = "814949" ' 129,73,73
 Dim PREPARE_FRIEND_CABER_RGB_STAGE_3 = "FFF9E9" ' 255,249,233
 Dim PREPARE_FRIEND_CABER_RGB = "8A4048|814949|FFF9E9"
+
+' START
 Dim START_COORD = Array(900, 536)
 Dim START_RGB = "0E0E1D" ' 14,14,29
+
+' BATTLE: SKILL
 Dim BATTLE_CABER_1_SKILL_1_COORD = Array(61, 460)
 Dim BATTLE_CABER_1_SKILL_1_RGB = "5B5B5B" ' 91,91,91
 Dim BATTLE_CABER_1_SKILL_2_COORD = Array(130, 465)
@@ -33,18 +39,27 @@ Dim BATTLE_LIN_SKILL_2_RGB = "F2E148" ' 242,225,72
 Dim BATTLE_LIN_SKILL_3_COORD = Array(709, 465)
 Dim BATTLE_LIN_SKILL_3_RGB = "A1B1D0" ' 161,177,208
 
-Dim ATTACK_COORD = Array(905,485)
-Dim ATTACK_RGB = "00B3E5" ' 0,179,229
-Dim MASTER_SKILL_SHOW_COORD = Array(955,250)
-Dim MASTER_SKILL_SHOW_RGB = "0E2F69" ' 14,47,105
+Dim BATTLE_MASTER_SKILL_OPEN_COORD = Array(955,250)
+Dim BATTLE_MASTER_SKILL_OPEN_RGB = "0E2F69" ' 14,47,105
+Dim BATTLE_MASTER_SKILL_AWAIT_MS = 200
+Dim BATTLE_MASTER_SKILL_1_DISPLAY_COORD = Array(725,222) ' Display Reference by skill 1 top
+Dim BATTLE_MASTER_SKILL_1_DISPLAY_RGB_1 = "FEFEFE" ' 254,254,254
+Dim BATTLE_MASTER_SKILL_1_DISPLAY_RGB_2 = "FFFFFF" ' 255,255,255
+Dim BATTLE_MASTER_SKILL_1_COORD = Array(725,250)
+Dim BATTLE_MASTER_SKILL_2_COORD = Array(800,250)
+Dim BATTLE_MASTER_SKILL_3_COORD = Array(870,250)
 
-Dim MASTER_SKILL_1_DISPLAY_COORD = Array(725,222)
-Dim MASTER_SKILL_1_DISPLAY_RGB_1 = "FEFEFE" ' 254,254,254
-Dim MASTER_SKILL_1_DISPLAY_RGB_2 = "FFFFFF" ' 255,255,255
-Dim MASTER_SKILL_1_COORD = Array(725,250)
-Dim MASTER_SKILL_2_COORD = Array(800,250)
-Dim MASTER_SKILL_3_COORD = Array(870,250)
-Dim MASTER_SKILL_AWAIT_MS = 200
+Dim BATTLE_SKILL_GRANT_DISPLAY_COORD = Array(878,120) ' Display Reference by close btn
+Dim BATTLE_SKILL_GRANT_DISPLAY_RGB = "2B336C" ' 43,51,108
+Dim BATTLE_SKILL_GRANT_HREO_1_COORD = Array(260,330)
+Dim BATTLE_SKILL_GRANT_HREO_2_COORD = Array(510,330)
+Dim BATTLE_SKILL_GRANT_HREO_3_COORD = Array(760,330)
+
+
+' BATTLE: ATTACK
+Dim BATTLE_ATTACK_COORD = Array(905,485)
+Dim BATTLE_ATTACK_RGB = "00B3E5" ' 0,179,229
+
 
 Dim 屏幕横坐标X,屏幕纵坐标Y
 屏幕横坐标X=GetScreenX()
@@ -54,7 +69,7 @@ TracePrint 屏幕横坐标X,屏幕纵坐标Y
 ' SetScreenScale 576, 1024, 0
 
 Function RGBToBGR(RGBs)
-	RGBArr = Split(RGBs, "|")
+	Dim RGBArr = Split(RGBs, "|")
 	Dim BGRArr = Array()
 	For Each RGB_SINGLE In RGBArr
 		RGB_SINGLE = Mid(RGB_SINGLE, 5, 2) & Mid(RGB_SINGLE, 3, 2) & Mid(RGB_SINGLE, 1, 2)
@@ -63,44 +78,80 @@ Function RGBToBGR(RGBs)
 	RGBToBGR = Join(BGRArr, "|")
 End Function
 
-Function CheckAndTapRGBS(Point, RGBArr)
-	Dim PointX = Point[1]
-	Dim PointY = Point[2]
-	' Dim Count = 0
-	Dim IntX,IntY
-	Dim RGBs
-	If NEED_REVERSE Then
-		Dim Reverse_RGBArr = Array()
-		For Each RGB_SINGLE In RGBArr
-			RGB_SINGLE = Mid(RGB_SINGLE, 5, 2) & Mid(RGB_SINGLE, 3, 2) & Mid(RGB_SINGLE, 1, 2)
-			Reverse_RGBArr[UBound(Reverse_RGBArr)+2] = RGB_SINGLE
-		Next
-		RGBs = Join(Reverse_RGBArr, "|")
-	Else
-		RGBs = Join(RGBArr, "|")
-	End If
-	TracePrint PointX, PointY, RGBs
+Function CheckPointBGR(PointX, PointY, BGRs)
 	' Dim rColor
 	' rColor = GetPixelColor(120, 200)
 	' rColor = GetPixelColor(120, 201)
 	' TracePrint "这个点的颜色为："&rColor
+	Dim IntX,IntY
+	' Dim Count = 0
 	Do While true
-		FindMultiColor PointX-1, PointY-1, PointX+1, PointY+1,RGBs,"",1,1,intX,intY
+		FindMultiColor PointX-1, PointY-1, PointX+1, PointY+1,BGRs,"",1,1,intX,intY
 		If intX > 0 Then
-			' ShowMessage ( Count & ":" & CStr(IntX) & " a " & CStr(IntY)) ' todo
+			' ShowMessage ( Count & ":" & CStr(IntX) & " a " & CStr(IntY))
 			Exit Do
 		End If
 		Delay 500
 		' Count = Count+1
 	Loop
 	TracePrint "find out:", IntX, IntY
-	tap 120, 200
 End Function
 
-TracePrint "Choose Friend"
-CheckAndTapRGBS(PREPARE_FRIEND_CABER_COORD, Array(PREPARE_FRIEND_CABER_RGB_STAGE_1,PREPARE_FRIEND_CABER_RGB_STAGE_2,PREPARE_FRIEND_CABER_RGB_STAGE_3))
+Function CheckAndTapRGB(Point, RGBs, TapPoint)
+	Dim CheckPointX = Point[1]
+	Dim CheckPointY = Point[2]
+	Dim TapPointX
+	Dim TapPointY
+	If TapPoint Then
+		TapPointX = TapPoint[1]
+		TapPointY = TapPoint[2]
+	Else
+		TapPointX = Point[1]
+		TapPointY = Point[2]
+	End If
 
-TracePrint "Prepare to Start"
-' CheckAndTap()
+	Dim BGRs = RGBToBGR(RGBs)
+	' Dim RGBs
+	' If NEED_REVERSE Then
+	' 	Dim Reverse_RGBArr = Array()
+	' 	For Each RGB_SINGLE In RGBArr
+	' 		RGB_SINGLE = Mid(RGB_SINGLE, 5, 2) & Mid(RGB_SINGLE, 3, 2) & Mid(RGB_SINGLE, 1, 2)
+	' 		Reverse_RGBArr[UBound(Reverse_RGBArr)+2] = RGB_SINGLE
+	' 	Next
+	' 	RGBs = Join(Reverse_RGBArr, "|")
+	' Else
+	' 	RGBs = Join(RGBArr, "|")
+	' End If
+	
+	TracePrint CheckPointX, CheckPointY, BGRs
+	CheckPointBGR(CheckPointX, CheckPointY, BGRs)
+
+	tap TapPointX, TapPointY
+End Function
+
+
+TracePrint "Choose Friend"
+CheckAndTapRGB(PREPARE_FRIEND_CABER_COORD, PREPARE_FRIEND_CABER_RGB, null)
+
+TracePrint "Start"
+CheckAndTapRGB(START_COORD, START_RGB, null)
+
+TracePrint "Delay to battle"
+Delay 15000
+
+TracePrint "use hero skill"
+TracePrint "skill 2"
+CheckAndTapRGB(BATTLE_CABER_1_SKILL_2_COORD, BATTLE_CABER_1_SKILL_2_RGB, null)
+CheckAndTapRGB(BATTLE_SKILL_GRANT_DISPLAY_COORD, BATTLE_SKILL_GRANT_DISPLAY_RGB, BATTLE_SKILL_GRANT_HREO_3_COORD)
+TracePrint "skill 3"
+CheckAndTapRGB(BATTLE_CABER_1_SKILL_3_COORD, BATTLE_CABER_1_SKILL_3_RGB, null)
+CheckAndTapRGB(BATTLE_SKILL_GRANT_DISPLAY_COORD, BATTLE_SKILL_GRANT_DISPLAY_RGB, BATTLE_SKILL_GRANT_HREO_3_COORD)
+TracePrint "skill 5"
+CheckAndTapRGB(BATTLE_CABER_2_SKILL_2_COORD, BATTLE_CABER_2_SKILL_2_RGB, null)
+CheckAndTapRGB(BATTLE_SKILL_GRANT_DISPLAY_COORD, BATTLE_SKILL_GRANT_DISPLAY_RGB, BATTLE_SKILL_GRANT_HREO_3_COORD)
+TracePrint "skill 6"
+CheckAndTapRGB(BATTLE_CABER_2_SKILL_3_COORD, BATTLE_CABER_2_SKILL_3_RGB, null)
+CheckAndTapRGB(BATTLE_SKILL_GRANT_DISPLAY_COORD, BATTLE_SKILL_GRANT_DISPLAY_RGB, BATTLE_SKILL_GRANT_HREO_3_COORD)
+
 
 Log.Close
