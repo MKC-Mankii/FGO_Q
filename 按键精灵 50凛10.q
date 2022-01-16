@@ -91,12 +91,13 @@ Dim AGAIN_ALERT_CLOSE_RGB = "767676" ' 118,118,118
 Dim AGAIN_ALERT_CLOSE_AGAGIN = Array(669, 451)
 
 ' APPLE
-Dim APPLE_GLODEN_COORD = Array()
-Dim APPLE_GLODEN_RGB = "" ' 
-Dim APPLE_EAT_CONFIRM_COORD = Array()
-Dim APPLE_EAT_CONFIRM_RGB = "" '
+Dim APPLE_GLODEN_COORD = Array(300, 250)
+Dim APPLE_GLODEN_RGB = "FAE950" ' 250,233,80
+Dim APPLE_EAT_CONFIRM_COORD = Array(670, 450)
+Dim APPLE_EAT_CONFIRM_RGB = "C0C0C0" ' 192,192,192
 
-
+' VARIATE
+Dim IsFirstBattle = true
 
 ' Dim 屏幕横坐标X,屏幕纵坐标Y
 ' 屏幕横坐标X=GetScreenX()
@@ -158,8 +159,11 @@ End Function
 TracePrint "Choose Friend"
 CheckAndTapRGB(PREPARE_FRIEND_CABER_COORD, PREPARE_FRIEND_CABER_RGB, null)
 
-TracePrint "Start"
-CheckAndTapRGB(START_COORD, START_RGB, null)
+If IsFirstBattle Then
+	TracePrint "Start"
+	CheckAndTapRGB(START_COORD, START_RGB, null)
+	IsFirstBattle = false
+End If
 
 TracePrint "Delay to battle"
 Delay 15000
@@ -248,7 +252,9 @@ TracePrint "award treasure"
 CheckAndTapRGB(AWARD_TREASURE_COORD, AWARD_TREASURE_RGB, null)
 
 ' Again
-TracePrint "again: close"
-CheckAndTapRGB(AGAIN_ALERT_CLOSE_COORD, AGAIN_ALERT_CLOSE_RGB, null)
+' TracePrint "again: close"
+' CheckAndTapRGB(AGAIN_ALERT_CLOSE_COORD, AGAIN_ALERT_CLOSE_RGB, null)
+TracePrint "again: yes"
+CheckAndTapRGB(AGAIN_ALERT_CLOSE_COORD, AGAIN_ALERT_CLOSE_RGB, AGAIN_ALERT_CLOSE_AGAGIN)
 
 Log.Close
