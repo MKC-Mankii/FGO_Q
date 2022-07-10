@@ -5,7 +5,8 @@
 Log.Open
 
 ' USER CONFIG
-Dim RoundCount = 3
+Dim RoundCount = 3 ' configurable
+Dim BATTLE_COUNT = 20
 
 
 ' BASIC CONFIG
@@ -19,7 +20,7 @@ Dim PREPARE_FRIEND_CABER_RGB = "8A4048|814949|FFF9E9"	' 138,64,72 129,73,73 255,
 ' START
 Dim START_COORD = Array(900, 536)
 Dim START_RGB = "0E0E1D" ' 14,14,29
-Dim START_TAPED_DELAY = 15000
+Dim START_TAPED_DELAY = 12000
 
 ' BATTLE: SKILL
 ' Hero skill
@@ -344,7 +345,7 @@ Function DoBattle()
 	Delay BATTLE_CARD_TAPED_AWAIT_MS
 	CheckAndTapRGB(BATTLE_ATTACK_CARD_4_SECOND_TAPED_COORD, BATTLE_ATTACK_CARD_4_SECOND_TAPED_RGB, BATTLE_ATTACK_CARD_5_COORD)
 
-	Delay BATTLE_ULTIMATE_PLAY_AWAIT_MS
+	Delay BATTLE_ULTIMATE_PLAY_LAST_AWAIT_MS
 
 
 	' Award
@@ -369,7 +370,7 @@ Function DoBattle()
 
 	Delay APPLE_CHECK_AWAIT_MS
 	Dim CheckSuccess = CheckPoint(APPLE_SILVER_COORD, APPLE_SILVER_RGB)
-	if CheckSuccess Then
+	If CheckSuccess Then
 		CheckAndTapRGB(APPLE_SILVER_COORD, APPLE_SILVER_RGB, null)
 		CheckAndTapRGB(APPLE_EAT_CONFIRM_COORD, APPLE_EAT_CONFIRM_RGB, null)
 	End If
@@ -378,6 +379,13 @@ End Function
 
 Do While true
 	DoBattle()
+	BATTLE_COUNT = BATTLE_COUNT - 1
+
+	TracePrint "remaining BATTLE_COUNT = ", BATTLE_COUNT
+	If BATTLE_COUNT < 1 Then
+		TracePrint "END"
+		Exit Do
+	End If
 Loop
 
 Log.Close
