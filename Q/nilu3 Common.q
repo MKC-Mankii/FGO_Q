@@ -93,9 +93,11 @@ Dim BATTLE_ULTIMATE_PLAY_LAST_AWAIT_MS = 20000
 ' AWARD
 Dim AWARD_TIE_COORD = Array(74, 149)
 Dim AWARD_TIE_RGB = "ECBC29|DBAB2A" ' 236,188,41| 219,171,42
+Dim AWARD_TIE_TAP_COORD = Array(204, 149)
 Dim AWARD_NORMAL_TAP_AWAIT_MS = 300
 Dim AWARD_MASTER_EXP_COORD = Array(529, 163)
 Dim AWARD_MASTER_EXP_RGB = "EEBC20" ' 238,188,32
+Dim AWARD_MASTER_EXP_TAP_COORD = Array(659, 163)
 Dim AWARD_TREASURE_COORD = Array(864, 510)
 Dim AWARD_TREASURE_RGB = "435073" ' 67,80,115
 
@@ -112,6 +114,8 @@ Dim APPLE_SILVER_COORD = Array(300, 368)
 Dim APPLE_SILVER_RGB = "E7FEFE" ' 231,254,254
 Dim APPLE_EAT_CONFIRM_COORD = Array(670, 450)
 Dim APPLE_EAT_CONFIRM_RGB = "C0C0C0" ' 192,192,192
+Dim APPLE_CLOSE_COORD = Array(509, 495)
+Dim APPLE_CLOSE_RGB = "72809B" ' 114,128,155
 
 ' VARIATE
 Dim IsFirstBattle = true
@@ -231,6 +235,40 @@ Function CheckPoint(Point, RGBs)
 End Function
 
 
+Function CheckTapUtilDisappear(Point, RGBs, TapPoint)
+	Dim CheckPointX = Point[1]
+	Dim CheckPointY = Point[2]
+	Dim TapPointX
+	Dim TapPointY
+	Dim ClickedCount = 0
+	If TapPoint Then
+		TapPointX = TapPoint[1]
+		TapPointY = TapPoint[2]
+	Else
+		TapPointX = Point[1]
+		TapPointY = Point[2]
+	End If
+
+	Dim BGRs = RGBToBGR(RGBs)
+	
+	Do While true
+	
+		Dim CheckPointBGRSuccess = CheckPointBGR(CheckPointX, CheckPointY, BGRs)
+		TracePrint "find out success:", CheckPointBGRSuccess
+		If CheckPointBGRSuccess Then
+			tap TapPointX, TapPointY
+			ClickedCount = ClickedCount + 1
+			Delay 200
+		Else
+			If ClickedCount > 0 Then
+				Exit Do
+			Else
+				Delay 300
+			End If
+		End If
+	Loop
+	
+End Function
 
 
 Function DoBattle()
@@ -349,15 +387,12 @@ Function DoBattle()
 
 
 	' Award
+
 	TracePrint "award tie"
-	CheckAndTapRGB(AWARD_TIE_COORD, AWARD_TIE_RGB, null)
-	Delay AWARD_NORMAL_TAP_AWAIT_MS
-	CheckNoPointAndTapRGB(AWARD_MASTER_EXP_COORD, AWARD_MASTER_EXP_RGB, null)
+	CheckTapUtilDisappear(AWARD_TIE_COORD, AWARD_TIE_RGB, AWARD_TIE_TAP_COORD)
 
 	TracePrint "award master exp"
-	CheckAndTapRGB(AWARD_MASTER_EXP_COORD, AWARD_MASTER_EXP_RGB, null)
-	Delay AWARD_NORMAL_TAP_AWAIT_MS
-	' CheckNoPointAndTapRGB(AWARD_TREASURE_COORD, AWARD_TREASURE_RGB, null)
+	CheckTapUtilDisappear(AWARD_MASTER_EXP_COORD, AWARD_MASTER_EXP_RGB, AWARD_MASTER_EXP_TAP_COORD)
 
 	TracePrint "award treasure"
 	CheckAndTapRGB(AWARD_TREASURE_COORD, AWARD_TREASURE_RGB, null)
@@ -371,8 +406,12 @@ Function DoBattle()
 	Delay APPLE_CHECK_AWAIT_MS
 	Dim CheckSuccess = CheckPoint(APPLE_SILVER_COORD, APPLE_SILVER_RGB)
 	If CheckSuccess Then
-		CheckAndTapRGB(APPLE_SILVER_COORD, APPLE_SILVER_RGB, null)
-		CheckAndTapRGB(APPLE_EAT_CONFIRM_COORD, APPLE_EAT_CONFIRM_RGB, null)
+		If BATTLE_COUNT > 1  Then
+			CheckAndTapRGB(APPLE_SILVER_COORD, APPLE_SILVER_RGB, null)
+			CheckAndTapRGB(APPLE_EAT_CONFIRM_COORD, APPLE_EAT_CONFIRM_RGB, null)
+		Else
+			CheckAndTapRGB(APPLE_CLOSE_COORD, APPLE_CLOSE_RGB, null)
+		End If
 	End If
 
 End Function
