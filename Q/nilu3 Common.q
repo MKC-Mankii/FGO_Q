@@ -92,12 +92,12 @@ Dim BATTLE_ULTIMATE_PLAY_LAST_AWAIT_MS = 20000
 
 ' AWARD
 Dim AWARD_TIE_COORD = Array(74, 149)
-Dim AWARD_TIE_RGB = "ECBC29|DBAB2A" ' 236,188,41| 219,171,42
-Dim AWARD_TIE_TAP_COORD = Array(204, 149)
+Dim AWARD_TIE_RGB = "DCAB2A|DBAB2A" ' 219,171,42
+Dim AWARD_TIE_TAP_COORD = Array(324, 149)
 Dim AWARD_NORMAL_TAP_AWAIT_MS = 300
 Dim AWARD_MASTER_EXP_COORD = Array(529, 163)
 Dim AWARD_MASTER_EXP_RGB = "EEBC20" ' 238,188,32
-Dim AWARD_MASTER_EXP_TAP_COORD = Array(659, 163)
+Dim AWARD_MASTER_EXP_TAP_COORD = Array(779, 163)
 Dim AWARD_TREASURE_COORD = Array(864, 510)
 Dim AWARD_TREASURE_RGB = "435073" ' 67,80,115
 
@@ -158,10 +158,11 @@ End Function
 
 Function CheckPointBGR(PointX, PointY, BGRs)
 	TracePrint "check:", PointX, PointY, BGRs
-	' Dim rColor
-	' rColor = GetPixelColor(120, 200)
-	' rColor = GetPixelColor(120, 201)
-	' TracePrint "这个点的颜色为: "&rColor
+
+	Dim rColor
+	rColor = GetPixelColor(PointX, PointY)
+	TracePrint "这个点的颜色为: "&rColor
+
 	Dim IntX,IntY
 	' Dim Count = 0
 	
