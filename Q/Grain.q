@@ -13,6 +13,7 @@ Dim BATTLE_COUNT = 1
 ' BASIC CONFIG
 ' CONST
 Dim NEED_REVERSE = true
+Dim COLOR_SIM = 0.9
 
 ' PREPARE
 Dim PREPARE_FRIEND_CABER_COORD = Array(120, 200)
@@ -91,8 +92,10 @@ Dim BATTLE_ATTACK_CARD_4_SECOND_TAPED_COORD = Array(717, 404)
 Dim BATTLE_ATTACK_CARD_4_SECOND_TAPED_RGB = "FFFFFE" ' 255,255,254
 Dim BATTLE_ATTACK_CARD_5_COORD = Array(922, 404)
 Dim BATTLE_CARD_TAPED_AWAIT_MS = 500
-Dim BATTLE_ULTIMATE_PLAY_AWAIT_MS = 26000
-Dim BATTLE_ULTIMATE_PLAY_LAST_AWAIT_MS = 20000
+Dim ROUND_CHANGE_AWAIT_MS = 6000
+Dim BATTLE_ULTIMATE_PLAY_1_AWAIT_MS = 12000 + ROUND_CHANGE_AWAIT_MS
+Dim BATTLE_ULTIMATE_PLAY_2_AWAIT_MS = 18000 + ROUND_CHANGE_AWAIT_MS
+Dim BATTLE_ULTIMATE_PLAY_LAST_AWAIT_MS = 18000
 
 ' AWARD
 Dim AWARD_TIE_COORD = Array(74, 149)
@@ -130,29 +133,35 @@ Dim IsFirstBattle = true
 ' TracePrint 屏幕横坐标X,屏幕纵坐标Y
 ' SetScreenScale 576, 1024, 0
 
-Function RGBToBGR(RGBs)
+Function ReverseColor(RGBs) 'RGBs or BGRs
 	Dim RGBArr = Split(RGBs, "|")
 	Dim BGRArr = Array()
 	For Each RGB_SINGLE In RGBArr
 		RGB_SINGLE = Mid(RGB_SINGLE, 5, 2) & Mid(RGB_SINGLE, 3, 2) & Mid(RGB_SINGLE, 1, 2)
 		BGRArr[UBound(BGRArr)+2] = RGB_SINGLE
 	Next
-	RGBToBGR = Join(BGRArr, "|")
+	ReverseColor = Join(BGRArr, "|")
+End Function
+Function RGBToBGR(RGBs)
+	RGBToBGR = ReverseColor(RGBs)
+End Function
+Function BGRToRGB(BGRs)
+	BGRToRGB = ReverseColor(BGRs) 
 End Function
 
 Function ContinuousCheckPointBGR(PointX, PointY, BGRs)
-	TracePrint "check:", PointX, PointY, BGRs
-	' Dim rColor
-	' rColor = GetPixelColor(120, 200)
-	' rColor = GetPixelColor(120, 201)
-	' TracePrint "这个点的颜色为: "&rColor
+	TracePrint "check: ", BGRs, PointX, PointY
 	Dim IntX,IntY
 	' Dim Count = 0
 	Do While true
-		FindMultiColor PointX-1, PointY-1, PointX+1, PointY+1,BGRs,"", 1, 0.9, intX, intY
+		FindMultiColor PointX-1, PointY-1, PointX+1, PointY+1,BGRs,"", 1, COLOR_SIM, intX, intY
 		If intX > 0 Then
 			' ShowMessage ( Count & ":" & CStr(IntX) & " a " & CStr(IntY))
 			Exit Do
+		Else
+			Dim rColor
+			rColor = GetPixelColor(PointX, PointY)
+			TracePrint "actual: " & BGRToRGB(rColor)
 		End If
 		Delay 500
 		' Count = Count+1
@@ -161,21 +170,21 @@ Function ContinuousCheckPointBGR(PointX, PointY, BGRs)
 End Function
 
 Function CheckPointBGR(PointX, PointY, BGRs)
-	TracePrint "check:", PointX, PointY, BGRs
+	TracePrint "check: ", BGRs, PointX, PointY
 
-	Dim rColor
-	rColor = GetPixelColor(PointX, PointY)
-	TracePrint "这个点的颜色为: "&rColor
 
 	Dim IntX,IntY
 	' Dim Count = 0
 	
-	FindMultiColor PointX-1, PointY-1, PointX+1, PointY+1,BGRs,"", 1, 0.9, intX,intY
+	FindMultiColor PointX-1, PointY-1, PointX+1, PointY+1,BGRs,"", 1, COLOR_SIM, intX,intY
 	If intX > 0 Then
 		' ShowMessage ( Count & ":" & CStr(IntX) & " a " & CStr(IntY))
 		TracePrint "find out:", IntX, IntY
 		CheckPointBGR = true
 	Else
+		Dim rColor
+		rColor = GetPixelColor(PointX, PointY)
+		TracePrint "actual: " & BGRToRGB(rColor)
 		CheckPointBGR = false
 	End If
 	
