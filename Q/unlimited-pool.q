@@ -5,7 +5,7 @@ Log.Open
 
 ' USER CONFIG
 Dim RoundCount = 3 ' configurable
-Dim BATTLE_COUNT = 20
+Dim BATTLE_COUNT = 12
 
 
 ' BASIC CONFIG
