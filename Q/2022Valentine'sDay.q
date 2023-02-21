@@ -1,13 +1,11 @@
 ' SetScreenScale 576, 1024, 0
 ' v4
-' 极 狗粮本
-' 期望往“可配置技能顺序”方向调整
 
 Log.Open
 
 ' USER CONFIG
 Dim RoundCount = 3 ' configurable
-Dim BATTLE_COUNT = 1
+Dim BATTLE_COUNT = 20
 
 
 ' BASIC CONFIG
@@ -23,7 +21,7 @@ Dim PREPARE_FRIEND_CDAI = "Attachment:friendCDai.png"
 ' START
 Dim START_AREA = Array(1200, 700, 1420, 800)
 Dim START_BTN_ATT = "Attachment:START_BTN.png"
-Dim START_TAPED_DELAY = 12000
+Dim START_TAPED_DELAY = 10000
 
 ' BATTLE: SKILL
 ' Hero skill
@@ -108,8 +106,8 @@ Dim BATTLE_ATTACK_CARD_5_COORD = Array(1278, 581)
 
 Dim BATTLE_CARD_TAPED_AWAIT_MS = 300
 Dim ROUND_CHANGE_AWAIT_MS = 6000
-Dim BATTLE_ULTIMATE_PLAY_1_AWAIT_MS = 12000 + ROUND_CHANGE_AWAIT_MS
-Dim BATTLE_ULTIMATE_PLAY_2_AWAIT_MS = 18000 + ROUND_CHANGE_AWAIT_MS
+Dim BATTLE_ULTIMATE_PLAY_1_AWAIT_MS = 10000 + ROUND_CHANGE_AWAIT_MS
+Dim BATTLE_ULTIMATE_PLAY_2_AWAIT_MS = 15000 + ROUND_CHANGE_AWAIT_MS
 Dim BATTLE_ULTIMATE_PLAY_LAST_AWAIT_MS = 18000
 
 ' AWARD
@@ -120,6 +118,11 @@ Dim AWARD_TREASURE_NEXT_AREA = Array(1178, 696, 1282, 740)
 Dim AWARD_TREASURE_NEXT_ATT = "Attachment:AWARD_TREASURE_NEXT.png"
 Dim AWARD_NORMAL_TAP_AWAIT_MS = 300
 
+' Activity AWARD
+Dim AWARD_ACTIVITY_NEXT_AREA = Array(1178, 696, 1282, 740)
+Dim AWARD_ACTIVITY_NEXT_ATT = "Attachment:AWARD_TREASURE_NEXT.png"
+
+
 
 ' AGAIN
 Dim AGAIN_ALERT_AGAIN_AREA = Array(860, 614, 946, 658)
@@ -127,14 +130,15 @@ Dim AGAIN_ALERT_AGAIN_ATT = "Attachment:AGAIN_ALERT_AGAIN.png"
 
 ' APPLE
 Dim APPLE_CHECK_AWAIT_MS = 500
-Dim APPLE_GLODEN_COORD = Array(300, 250)
-Dim APPLE_GLODEN_RGB = "FAE950" ' 250,233,80
-Dim APPLE_SILVER_COORD = Array(300, 368)
-Dim APPLE_SILVER_RGB = "E7FEFE" ' 231,254,254
-Dim APPLE_EAT_CONFIRM_COORD = Array(670, 450)
-Dim APPLE_EAT_CONFIRM_RGB = "C0C0C0" ' 192,192,192
-Dim APPLE_CLOSE_COORD = Array(509, 495)
-Dim APPLE_CLOSE_RGB = "72809B" ' 114,128,155
+Dim APPLE_DISPLAY_AREA = Array(634, 37, 743, 83)
+Dim APPLE_DISPLAY_ATT = "Attachment:APPLE_DISPLAY.png"
+Dim APPLE_GLODEN_COORD = Array(420, 360)
+Dim APPLE_SILVER_COORD = Array(420, 520)
+Dim APPLE_CONFIRM_AREA = Array(895, 608, 992, 660)
+Dim APPLE_CONFIRM_ATT = "Attachment:APPLE_CONFIRM.png"
+Dim APPLE_CLOSE_COORD = Array(490, 630)
+
+
 
 ' VARIATE
 Dim IsFirstBattle = true
@@ -150,157 +154,6 @@ Dim IsFirstBattle = true
 
 
 
-
-Function ReverseColor(RGBs) 'RGBs or BGRs
-	Dim RGBArr = Split(RGBs, "|")
-	Dim BGRArr = Array()
-	For Each RGB_SINGLE In RGBArr
-		RGB_SINGLE = Mid(RGB_SINGLE, 5, 2) & Mid(RGB_SINGLE, 3, 2) & Mid(RGB_SINGLE, 1, 2)
-		BGRArr[UBound(BGRArr)+2] = RGB_SINGLE
-	Next
-	ReverseColor = Join(BGRArr, "|")
-End Function
-Function RGBToBGR(RGBs)
-	RGBToBGR = ReverseColor(RGBs)
-End Function
-Function BGRToRGB(BGRs)
-	BGRToRGB = ReverseColor(BGRs) 
-End Function
-
-Function ContinuousCheckPointBGR(PointX, PointY, BGRs)
-	TracePrint "check: ", BGRs, PointX, PointY
-	Dim IntX,IntY
-	' Dim Count = 0
-	Do While true
-		FindMultiColor PointX-1, PointY-1, PointX+1, PointY+1,BGRs,"", 1, COLOR_SIM, intX, intY
-		If intX > 0 Then
-			' ShowMessage ( Count & ":" & CStr(IntX) & " a " & CStr(IntY))
-			Exit Do
-		Else
-			Dim rColor
-			rColor = GetPixelColor(PointX, PointY)
-			TracePrint "actual: " & BGRToRGB(rColor)
-		End If
-		Delay 500
-		' Count = Count+1
-	Loop
-	TracePrint "find out:", IntX, IntY
-End Function
-
-Function CheckPointBGR(PointX, PointY, BGRs)
-	TracePrint "check: ", BGRs, PointX, PointY
-
-
-	Dim IntX,IntY
-	' Dim Count = 0
-	
-	FindMultiColor PointX-1, PointY-1, PointX+1, PointY+1,BGRs,"", 1, COLOR_SIM, intX,intY
-	If intX > 0 Then
-		' ShowMessage ( Count & ":" & CStr(IntX) & " a " & CStr(IntY))
-		TracePrint "find out:", IntX, IntY
-		CheckPointBGR = true
-	Else
-		Dim rColor
-		rColor = GetPixelColor(PointX, PointY)
-		TracePrint "actual: " & BGRToRGB(rColor)
-		CheckPointBGR = false
-	End If
-	
-	
-End Function
-
-Function CheckAndTapRGB(Point, RGBs, TapPoint)
-	Dim CheckPointX = Point[1]
-	Dim CheckPointY = Point[2]
-	Dim TapPointX
-	Dim TapPointY
-	If TapPoint Then
-		TapPointX = TapPoint[1]
-		TapPointY = TapPoint[2]
-	Else
-		TapPointX = Point[1]
-		TapPointY = Point[2]
-	End If
-
-	Dim BGRs = RGBToBGR(RGBs)
-	
-	ContinuousCheckPointBGR(CheckPointX, CheckPointY, BGRs)
-
-	tap TapPointX, TapPointY
-End Function
-
-Function CheckNoPointAndTapRGB(Point, RGBs, TapPoint)
-	Dim CheckPointX = Point[1]
-	Dim CheckPointY = Point[2]
-	Dim TapPointX
-	Dim TapPointY
-	If TapPoint Then
-		TapPointX = TapPoint[1]
-		TapPointY = TapPoint[2]
-	Else
-		TapPointX = Point[1]
-		TapPointY = Point[2]
-	End If
-
-	Dim BGRs = RGBToBGR(RGBs)
-	
-	Dim CheckPointBGRSuccess = CheckPointBGR(CheckPointX, CheckPointY, BGRs)
-
-	TracePrint "find out success:", CheckPointBGRSuccess
-	If not CheckPointBGRSuccess Then
-		TracePrint "click"
-		tap TapPointX, TapPointY
-	End If
-	
-End Function
-
-Function CheckPoint(Point, RGBs)
-	Dim CheckPointX = Point[1]
-	Dim CheckPointY = Point[2]
-	Dim TapPointX
-	Dim TapPointY
-
-	Dim BGRs = RGBToBGR(RGBs)
-	
-	CheckPoint = CheckPointBGR(CheckPointX, CheckPointY, BGRs)
-
-End Function
-
-
-Function CheckTapUtilDisappear(Point, RGBs, TapPoint)
-	Dim CheckPointX = Point[1]
-	Dim CheckPointY = Point[2]
-	Dim TapPointX
-	Dim TapPointY
-	Dim ClickedCount = 0
-	If TapPoint Then
-		TapPointX = TapPoint[1]
-		TapPointY = TapPoint[2]
-	Else
-		TapPointX = Point[1]
-		TapPointY = Point[2]
-	End If
-
-	Dim BGRs = RGBToBGR(RGBs)
-	
-	Do While true
-	
-		Dim CheckPointBGRSuccess = CheckPointBGR(CheckPointX, CheckPointY, BGRs)
-		TracePrint "find out success:", CheckPointBGRSuccess
-		If CheckPointBGRSuccess Then
-			tap TapPointX, TapPointY
-			ClickedCount = ClickedCount + 1
-			Delay 200
-		Else
-			If ClickedCount > 0 Then
-				Exit Do
-			Else
-				Delay 300
-			End If
-		End If
-	Loop
-	
-End Function
 
 Function clickAndWaitSkillAction()
 	Delay BATTLE_SKILL_SPEEDUP_AWAIT_MS
@@ -333,17 +186,16 @@ Function CheckAndTapImg(Area, AttachedImg, TapPoint)
 End Function
 
 Function ContinuousCheckImg(Area, AttachedImg)
-	TracePrint "check: ", Area[1], Area[2], Area[3], Area[4], AttachedImg
-	Dim intX, intY
+	Dim GetImgCoord
 	Do While true
-		FindPic Area[1], Area[2], Area[3], Area[4], AttachedImg, "000000", 0, 0.9, intX, intY
-		If intX > -1 And intY > -1 Then
-			ContinuousCheckImg = Array(intX, intY)
+		GetImgCoord = CheckImg(Area, AttachedImg)
+		If GetImgCoord <> null Then
+			ContinuousCheckImg = Array(GetImgCoord[1], GetImgCoord[2])
 			Exit Do
 		End If
 		Delay 500
 	Loop
-	TracePrint "found: ", IntX, IntY
+	TracePrint "found: ", GetImgCoord[1], GetImgCoord[2]
 End Function
 
 Function CheckNoImgAndTap(Area, AttachedImg, TapPoint)
@@ -360,6 +212,7 @@ Function CheckNoImgAndTap(Area, AttachedImg, TapPoint)
 End Function
 
 Function CheckImg(Area, AttachedImg)
+	TracePrint "check: ", Area[1], Area[2], Area[3], Area[4], AttachedImg
 	Dim intX, intY
 	FindPic Area[1], Area[2], Area[3], Area[4], AttachedImg, "000000", 0, 0.9, intX, intY
 	If intX > -1 And intY > -1 Then
@@ -384,11 +237,14 @@ Function DoBattle()
 	' Round 1
 
 	TracePrint "Round 1"
+	TracePrint "skill 3"
+	CheckAndTapImg(BATTLE_HERO_SKILL_CHECK_AREA, BATTLE_HERO_SKILL_CHECK_ATT, BATTLE_HERO_SKILL_3_COORD)
+	clickAndWaitSkillAction()
 	TracePrint "skill 2"
 	CheckAndTapImg(BATTLE_HERO_SKILL_CHECK_AREA, BATTLE_HERO_SKILL_CHECK_ATT, BATTLE_HERO_SKILL_2_COORD)
 	clickAndWaitSkillAction()
-	TracePrint "skill 3"
-	CheckAndTapImg(BATTLE_HERO_SKILL_CHECK_AREA, BATTLE_HERO_SKILL_CHECK_ATT, BATTLE_HERO_SKILL_3_COORD)
+	TracePrint "skill 1"
+	CheckAndTapImg(BATTLE_HERO_SKILL_CHECK_AREA, BATTLE_HERO_SKILL_CHECK_ATT, BATTLE_HERO_SKILL_1_COORD)
 	clickAndWaitSkillAction()
 
 	TracePrint "skill 7"
@@ -396,12 +252,19 @@ Function DoBattle()
 	clickAndWaitSkillAction()
 	TracePrint "skill 8"
 	CheckAndTapImg(BATTLE_HERO_SKILL_CHECK_AREA, BATTLE_HERO_SKILL_CHECK_ATT, BATTLE_HERO_SKILL_8_COORD)
-	CheckAndTapImg(BATTLE_SKILL_GRANT_CHECK_AREA, BATTLE_SKILL_GRANT_CHECK_ATT, BATTLE_SKILL_GRANT_HREO_2_COORD)
+	CheckAndTapImg(BATTLE_SKILL_GRANT_CHECK_AREA, BATTLE_SKILL_GRANT_CHECK_ATT, BATTLE_SKILL_GRANT_HREO_1_COORD)
 	clickAndWaitSkillAction()
 	TracePrint "skill 9"
 	CheckAndTapImg(BATTLE_HERO_SKILL_CHECK_AREA, BATTLE_HERO_SKILL_CHECK_ATT, BATTLE_HERO_SKILL_9_COORD)
 	CheckAndTapImg(BATTLE_SKILL_GRANT_CHECK_AREA, BATTLE_SKILL_GRANT_CHECK_ATT, BATTLE_SKILL_GRANT_HREO_2_COORD)
 	clickAndWaitSkillAction()
+
+	TracePrint "skill master 2"
+	CheckAndTapImg(BATTLE_MASTER_SKILL_OPEN_AREA, BATTLE_MASTER_SKILL_OPEN_ATT, null)
+	Delay BATTLE_MASTER_SKILL_AWAIT_MS
+	CheckAndTapImg(BATTLE_MASTER_SKILL_DISPLAY_AREA, BATTLE_MASTER_SKILL_DISPLAY_ATT, BATTLE_MASTER_SKILL_2_COORD)
+	CheckAndTapImg(BATTLE_SKILL_GRANT_CHECK_AREA, BATTLE_SKILL_GRANT_CHECK_ATT, BATTLE_SKILL_GRANT_HREO_1_COORD)
+	Delay BATTLE_SKILL_NORMAL_AWAIT_MS
 
 	TracePrint "attack"
 	CheckAndTapImg(BATTLE_HERO_SKILL_CHECK_AREA, BATTLE_HERO_SKILL_CHECK_ATT, null)
@@ -436,13 +299,6 @@ Function DoBattle()
 	CheckAndTapImg(BATTLE_HERO_SKILL_CHECK_AREA, BATTLE_HERO_SKILL_CHECK_ATT, BATTLE_HERO_SKILL_5_COORD)
 	clickAndWaitSkillAction()
 
-	TracePrint "skill master 2"
-	CheckAndTapImg(BATTLE_MASTER_SKILL_OPEN_AREA, BATTLE_MASTER_SKILL_OPEN_ATT, null)
-	Delay BATTLE_MASTER_SKILL_AWAIT_MS
-	CheckAndTapImg(BATTLE_MASTER_SKILL_DISPLAY_AREA, BATTLE_MASTER_SKILL_DISPLAY_ATT, BATTLE_MASTER_SKILL_2_COORD)
-	CheckAndTapImg(BATTLE_SKILL_GRANT_CHECK_AREA, BATTLE_SKILL_GRANT_CHECK_ATT, BATTLE_SKILL_GRANT_HREO_2_COORD)
-	Delay BATTLE_SKILL_NORMAL_AWAIT_MS
-
 
 	TracePrint "attack"
 	CheckAndTapImg(BATTLE_HERO_SKILL_CHECK_AREA, BATTLE_HERO_SKILL_CHECK_ATT, null)
@@ -461,26 +317,35 @@ Function DoBattle()
 	TracePrint "award tie"
 	CheckAndTapImg(AWARD_TIE_AREA, AWARD_TIE_ATT, AWARD_TAP_COORD)
 	Delay AWARD_NORMAL_TAP_AWAIT_MS
+	TracePrint "award before treasure"
 	CheckNoImgAndTap(AWARD_TREASURE_NEXT_AREA, AWARD_TREASURE_NEXT_ATT, AWARD_TAP_COORD)
 	Delay AWARD_NORMAL_TAP_AWAIT_MS
+	TracePrint "award treasure"
 	CheckAndTapImg(AWARD_TREASURE_NEXT_AREA, AWARD_TREASURE_NEXT_ATT, null)
+	
+	' Activity Award
+
+	TracePrint "activity award"
+	Delay AWARD_NORMAL_TAP_AWAIT_MS
+	CheckAndTapImg(AWARD_ACTIVITY_NEXT_AREA, AWARD_ACTIVITY_NEXT_ATT, null)
 
 
 	' Again?
 	' TracePrint "again: close"
-	' CheckAndTapRGB(AGAIN_ALERT_CLOSE_COORD, AGAIN_ALERT_CLOSE_RGB, null)
 
 	TracePrint "again: yes"
 	CheckAndTapImg(AGAIN_ALERT_AGAIN_AREA, AGAIN_ALERT_AGAIN_ATT, null)
 
+
+
 	Delay APPLE_CHECK_AWAIT_MS
-	Dim CheckSuccess = CheckImg(APPLE_SILVER_COORD, APPLE_SILVER_RGB)
-	If CheckSuccess Then
+	Dim CheckSuccess = CheckImg(APPLE_DISPLAY_AREA, APPLE_DISPLAY_ATT)
+	If CheckSuccess <> null Then
 		If BATTLE_COUNT > 1  Then
-			CheckAndTapRGB(APPLE_SILVER_COORD, APPLE_SILVER_RGB, null)
-			CheckAndTapRGB(APPLE_EAT_CONFIRM_COORD, APPLE_EAT_CONFIRM_RGB, null)
+			CheckAndTapImg(APPLE_DISPLAY_AREA, APPLE_DISPLAY_ATT, APPLE_GLODEN_COORD)
+			CheckAndTapImg(APPLE_CONFIRM_AREA, APPLE_CONFIRM_ATT, null)
 		Else
-			CheckAndTapRGB(APPLE_CLOSE_COORD, APPLE_CLOSE_RGB, null)
+			CheckAndTapImg(APPLE_CONFIRM_AREA, APPLE_CONFIRM_ATT, APPLE_CLOSE_COORD)
 		End If
 	End If
 
