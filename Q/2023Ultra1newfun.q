@@ -5,7 +5,7 @@ Log.Open
 
 ' USER CONFIG
 Dim RoundCount = 3 ' configurable
-Dim BATTLE_COUNT = 20
+Dim BATTLE_COUNT = 30
 
 
 ' BASIC CONFIG
@@ -63,8 +63,7 @@ Dim BATTLE_SKILL_CHANGE_SELECTEED_CHECK_COORD = Array(512, 498)
 Dim BATTLE_SKILL_CHANGE_SELECTEED__CHECK_RGB = "67759A" ' 103,117,154
 
 ' Master skill
-Dim BATTLE_MASTER_SKILL_OPEN_AREA = Array(1317, 325, 1370, 376)
-Dim BATTLE_MASTER_SKILL_OPEN_ATT = "Attachment:BATTLE_MASTER_SKILL_OPEN2.png"
+Dim BATTLE_MASTER_SKILL_OPEN_TAR = Array(1317, 325, 1370, 376, "Attachment:BATTLE_MASTER_SKILL_OPEN2.png")
 Dim BATTLE_MASTER_SKILL_AWAIT_MS = 200
 Dim BATTLE_MASTER_SKILL_1_COORD = Array(1020, 350)
 Dim BATTLE_MASTER_SKILL_2_COORD = Array(1120, 350)
@@ -126,17 +125,15 @@ Dim ADD_FRIEND_CHECK_AWAIT_MS = 500
 Dim ADD_FRIEND_TAR = Array(325, 670, 415, 715, "Attachment:ADD_FRIEND_CLOSE.png")
 
 ' AGAIN
-Dim AGAIN_ALERT_AGAIN_AREA = Array(860, 614, 946, 658)
-Dim AGAIN_ALERT_AGAIN_ATT = "Attachment:AGAIN_ALERT_AGAIN.png"
+Dim AGAIN_ALERT_AGAIN_TAR = Array(860, 614, 946, 658, "Attachment:AGAIN_ALERT_AGAIN.png")
+Dim AGAIN_ALERT_CLOSE_TAR = Array(450, 612, 545, 658, "Attachment:AGAIN_ALERT_CLOSE.png")
 
 ' APPLE
 Dim APPLE_CHECK_AWAIT_MS = 500
-Dim APPLE_DISPLAY_AREA = Array(634, 37, 743, 83)
-Dim APPLE_DISPLAY_ATT = "Attachment:APPLE_DISPLAY.png"
+Dim APPLE_DISPLAY_TAR = Array(634, 37, 743, 83, "Attachment:APPLE_DISPLAY.png")
 Dim APPLE_GLODEN_COORD = Array(420, 360)
 Dim APPLE_SILVER_COORD = Array(420, 520)
-Dim APPLE_CONFIRM_AREA = Array(895, 608, 992, 660)
-Dim APPLE_CONFIRM_ATT = "Attachment:APPLE_CONFIRM.png"
+Dim APPLE_CONFIRM_TAR = Array(895, 608, 992, 660, "Attachment:APPLE_CONFIRM.png")
 Dim APPLE_CLOSE_COORD = Array(490, 630)
 
 
@@ -180,11 +177,7 @@ End Function
 // 取图法>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
 Function CheckAndTapImg2(Target, TapPoint)
-	CheckAndTapImg(Target, Target[5], TapPoint)
-End Function
-
-Function CheckAndTapImg(Area, AttachedImg, TapPoint)
-	Dim Point = ContinuousCheckImg(Area, AttachedImg)
+	Dim Point = ContinuousCheckImg(Target)
 	Dim TapPointX
 	Dim TapPointY
 	If TapPoint Then
@@ -197,10 +190,10 @@ Function CheckAndTapImg(Area, AttachedImg, TapPoint)
 	tap TapPointX, TapPointY
 End Function
 
-Function ContinuousCheckImg(Area, AttachedImg)
+Function ContinuousCheckImg(Target)
 	Dim GetImgCoord
 	Do While true
-		GetImgCoord = CheckImg(Area, AttachedImg)
+		GetImgCoord = CheckImg2(Target)
 		If GetImgCoord <> null Then
 			ContinuousCheckImg = Array(GetImgCoord[1], GetImgCoord[2])
 			Exit Do
@@ -211,13 +204,11 @@ Function ContinuousCheckImg(Area, AttachedImg)
 End Function
 
 Function CheckNoImgAndTap2(Target, TapPoint)
-	CheckNoImgAndTap(Target, Target[5], TapPoint)
-End Function
-Function CheckNoImgAndTap(Area, AttachedImg, TapPoint)
+	Dim AttachedImg = Target[5]
 	Do While true
-		Dim GetImgCoord = CheckImg(Area, AttachedImg)
+		Dim GetImgCoord = CheckImg2(Target)
 		If GetImgCoord = null Then
-			TracePrint "cannot find ", AttachedImg, "Then tap", TapPoint[1], TapPoint[2]
+			TracePrint "cannot find ", AttachedImg, "then tap", TapPoint[1], TapPoint[2]
 			tap TapPoint[1], TapPoint[2]
 		Else
 			Exit Do
@@ -227,27 +218,34 @@ Function CheckNoImgAndTap(Area, AttachedImg, TapPoint)
 End Function
 
 Function CheckImg2(Target)
-	CheckImg(Target, Target[5])
-End Function
-Function CheckImg(Area, AttachedImg)
+	Dim Area = Target
+	Dim AttachedImg = Target[5]
 	TracePrint "check: ", Area[1], Area[2], Area[3], Area[4], AttachedImg
 	Dim intX, intY
 	FindPic Area[1], Area[2], Area[3], Area[4], AttachedImg, "000000", 0, 0.9, intX, intY
 	If intX > -1 And intY > -1 Then
-		CheckImg = Array(intX, intY)
+		CheckImg2 = Array(intX, intY)
 	End If
 End Function
 
 // do Battle >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-Function DoBattle()
+Function ChooseFriend()
 	BattlePrint("Choose Friend")
 	CheckAndTapImg2(PREPARE_FRIEND_TAR, null)
-
+End Function
+Function CheckFirstBattle2Start()
 	If IsFirstBattle Then
-		TracePrint "Start"
+		TracePrint "First Battle Start"
 		CheckAndTapImg2(START_TAR, null)
 		IsFirstBattle = false
 	End If
+End Function
+
+
+Function DoBattle()
+	
+	ChooseFriend()
+	CheckFirstBattle2Start()
 
 	BattlePrint("Delay to battle")
 	Delay START_TAPED_DELAY
@@ -317,7 +315,7 @@ Function DoBattle()
 	CheckAndTapImg2(BATTLE_SKILL_GRANT_CHECK_TAR, BATTLE_SKILL_GRANT_HREO_3_COORD)
 	clickAndWaitSkillAction()
 '	TracePrint "skill master 3"
-'	CheckAndTapImg(BATTLE_MASTER_SKILL_OPEN_AREA, BATTLE_MASTER_SKILL_OPEN_ATT, null)
+'	CheckAndTapImg2(BATTLE_MASTER_SKILL_OPEN_TAR, null)
 '	Delay BATTLE_MASTER_SKILL_AWAIT_MS
 '	CheckAndTapImg2(BATTLE_MASTER_SKILL_DISPLAY_TAR, BATTLE_MASTER_SKILL_3_COORD)
 '	CheckAndTapImg2(BATTLE_SKILL_GRANT_CHECK_TAR, BATTLE_SKILL_GRANT_HREO_3_COORD)
@@ -364,20 +362,23 @@ Function DoBattle()
 
 	' Again?
 	BattlePrint("again?")
-	TracePrint "again: yes"
-	CheckAndTapImg(AGAIN_ALERT_AGAIN_AREA, AGAIN_ALERT_AGAIN_ATT, null)
+	If CurrentBattleCount < BATTLE_COUNT  Then
+		TracePrint "again: yes"
+		CheckAndTapImg2(AGAIN_ALERT_AGAIN_TAR, null)
+	Else
+		TracePrint "again: no"
+		CheckAndTapImg2(AGAIN_ALERT_CLOSE_TAR, null)
+	End If
 
 
-	' Apple
-
-	Delay APPLE_CHECK_AWAIT_MS
-	Dim CheckAppleAlertSuccess = CheckImg(APPLE_DISPLAY_AREA, APPLE_DISPLAY_ATT)
-	If CheckAppleAlertSuccess <> null Then
-		If CurrentBattleCount < BATTLE_COUNT  Then
-			CheckAndTapImg(APPLE_DISPLAY_AREA, APPLE_DISPLAY_ATT, APPLE_GLODEN_COORD)
-			CheckAndTapImg(APPLE_CONFIRM_AREA, APPLE_CONFIRM_ATT, null)
-		Else
-			CheckAndTapImg(APPLE_CONFIRM_AREA, APPLE_CONFIRM_ATT, APPLE_CLOSE_COORD)
+	' Apple?
+	BattlePrint("apple?")
+	If CurrentBattleCount < BATTLE_COUNT  Then
+		Delay APPLE_CHECK_AWAIT_MS
+		Dim CheckAppleAlertSuccess = CheckImg2(APPLE_DISPLAY_TAR)
+		If CheckAppleAlertSuccess <> null Then
+			CheckAndTapImg2(APPLE_DISPLAY_TAR, APPLE_GLODEN_COORD)
+			CheckAndTapImg2(APPLE_CONFIRM_TAR, null)
 		End If
 	End If
 
