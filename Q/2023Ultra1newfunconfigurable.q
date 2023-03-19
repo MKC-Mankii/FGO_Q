@@ -358,17 +358,6 @@ Function DoBattle()
 	Next
 
 
-
-
-'	TracePrint "skill master 3"
-'	CheckAndTapImg2(BATTLE_MASTER_SKILL_OPEN_TAR, null)
-'	Delay BATTLE_MASTER_SKILL_AWAIT_MS
-'	CheckAndTapImg2(BATTLE_MASTER_SKILL_DISPLAY_TAR, BATTLE_MASTER_SKILL_3_COORD)
-'	CheckAndTapImg2(BATTLE_SKILL_GRANT_CHECK_TAR, BATTLE_SKILL_GRANT_HREO_3_COORD)
-'	clickAndWaitSkillAction()
-
-
-
 	' Award
 
 	BattlePrint("award tie")
