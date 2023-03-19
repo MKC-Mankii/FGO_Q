@@ -4,9 +4,23 @@
 Log.Open
 
 ' USER CONFIG
-Dim RoundCount = 3 ' configurable
 Dim BATTLE_COUNT = 30
-
+Dim AllActionRound = Array(_
+	Array(_
+		Array("skill",  2,3, 3,3, 5,3, 6,3, 9,0),_
+		Array("master"),_
+		Array("attack", 3,4,5)_
+	),_
+	Array(_
+		Array("skill",  7,0),_
+		Array("attack", 8,4,5)_
+	),_
+	Array(_
+		Array("skill",  1,3, 4,3),_
+		Array("attack", 8,4,5)_
+	)_
+ )
+' SKILL:Change undefined
 
 ' BASIC CONFIG
 ' CONST
@@ -26,35 +40,39 @@ Dim START_TAPED_DELAY = 8000
 
 ' BATTLE: SKILL
 ' Hero skill
-Dim BATTLE_HERO_SKILL_1_COORD = Array(84, 650)
-Dim BATTLE_HERO_SKILL_2_COORD = Array(183, 650) //+99
-Dim BATTLE_HERO_SKILL_3_COORD = Array(282, 650)
-Dim BATTLE_HERO_SKILL_4_COORD = Array(441, 650) //+357
-Dim BATTLE_HERO_SKILL_5_COORD = Array(540, 650)
-Dim BATTLE_HERO_SKILL_6_COORD = Array(639, 650)
-Dim BATTLE_HERO_SKILL_7_COORD = Array(799, 650)
-Dim BATTLE_HERO_SKILL_8_COORD = Array(897, 650)
-Dim BATTLE_HERO_SKILL_9_COORD = Array(996, 650)
+Dim BATTLE_HERO_SKILL_COORDS = Array(_
+	Array(84, 650),_
+	Array(183, 650),_
+	Array(282, 650),_
+	Array(441, 650),_
+	Array(540, 650),_
+	Array(639, 650),_
+	Array(799, 650),_
+	Array(897, 650),_
+	Array(996, 650)_
+ )
 ' Hero Skill display check: attack button
-
 Dim BATTLE_HERO_SKILL_CHECK_TAR = Array(1200, 700, 1350, 750, "Attachment:ATTACK_BTN.png")
 
 ' Skill Grant
-Dim BATTLE_SKILL_GRANT_HREO_1_COORD = Array(360, 500)
-Dim BATTLE_SKILL_GRANT_HREO_2_COORD = Array(717, 500)
-Dim BATTLE_SKILL_GRANT_HREO_3_COORD = Array(1074, 500)
+Dim BATTLE_SKILL_GRANT_HREO_COORDS = Array(_
+	Array(360, 500),_
+	Array(717, 500),_
+	Array(1074, 500)_
+ )
 ' Skill Grant display check: close button
 Dim BATTLE_SKILL_GRANT_CHECK_TAR = Array(1205, 142, 1267, 198, "Attachment:BATTLE_SKILL_GRANT_CHECK.png")
 
 
-
 ' Skill Change
-Dim BATTLE_SKILL_CHANGE_HERO_1_COORD = Array(110, 270)
-Dim BATTLE_SKILL_CHANGE_HERO_2_COORD = Array(270, 270)
-Dim BATTLE_SKILL_CHANGE_HERO_3_COORD = Array(430, 270)
-Dim BATTLE_SKILL_CHANGE_HERO_4_COORD = Array(590, 270)
-Dim BATTLE_SKILL_CHANGE_HERO_5_COORD = Array(750, 270)
-Dim BATTLE_SKILL_CHANGE_HERO_6_COORD = Array(910, 270)
+Dim BATTLE_SKILL_CHANGE_HERO_COORDS = Array(_
+	Array(110, 270),_
+	Array(270, 270),_
+	Array(430, 270),_
+	Array(590, 270),_
+	Array(750, 270),_
+	Array(910, 270)_
+ )
 ' Skill Change: display check: change button
 Dim BATTLE_SKILL_CHANGE_CHECK_COORD = Array(512, 498)
 Dim BATTLE_SKILL_CHANGE_CHECK_RGB = "38466B" ' 56,70,107
@@ -65,9 +83,11 @@ Dim BATTLE_SKILL_CHANGE_SELECTEED__CHECK_RGB = "67759A" ' 103,117,154
 ' Master skill
 Dim BATTLE_MASTER_SKILL_OPEN_TAR = Array(1317, 325, 1370, 376, "Attachment:BATTLE_MASTER_SKILL_OPEN2.png")
 Dim BATTLE_MASTER_SKILL_AWAIT_MS = 200
-Dim BATTLE_MASTER_SKILL_1_COORD = Array(1020, 350)
-Dim BATTLE_MASTER_SKILL_2_COORD = Array(1120, 350)
-Dim BATTLE_MASTER_SKILL_3_COORD = Array(1220, 350)
+Dim BATTLE_MASTER_SKILL_COORDS = Array(_
+	Array(1020, 350),_
+	Array(1120, 350),_
+	Array(1220, 350)_
+ )
 ' Master skill display check: skill 1 top
 Dim BATTLE_MASTER_SKILL_DISPLAY_TAR = Array(980, 310, 1059, 316, "Attachment:BATTLE_MASTER_SKILL_DISPLAY.png") 
 ' Display Reference by skill 1 top
@@ -86,21 +106,37 @@ Dim BATTLE_ULTIMATE_DISPLAY_AWAIT_MS = 1000
 
 Dim BATTLE_ATTACK_BACK_TAR = Array(1300, 750, 1390, 785, "Attachment:BATTLE_ATTACK_BACK2.png") 
 
-Dim BATTLE_ATTACK_ULTIMATE_1_COORD = Array(412, 322)
-Dim BATTLE_ATTACK_ULTIMATE_1_FIRST_TAPED_TAR = Array(400, 315, 550, 352, "Attachment:ULT_Taped_Red1.png")   ' first text line
-Dim BATTLE_ATTACK_ULTIMATE_2_COORD = Array(699, 322)
-Dim BATTLE_ATTACK_ULTIMATE_2_FIRST_TAPED_TAR = Array(680, 315, 790, 352, "Attachment:ULT_Taped_Blue2.png")
-Dim BATTLE_ATTACK_ULTIMATE_3_COORD = Array(986, 322)
-Dim BATTLE_ATTACK_ULTIMATE_3_FIRST_TAPED_TAR = Array(986, 315, 1042, 352, "Attachment:ULT_Taped_Red3.png")
+Dim BATTLE_ATTACK_CARD_COORDS = Array(_
+	Array(118, 581),_
+	Array(408, 581),_
+	Array(698, 581),_
+	Array(991, 581),_
+	Array(1278, 581),_
+	Array(412, 322),_
+	Array(699, 322),_
+	Array(986, 322)_
+ )
+Dim BATTLE_ATTACK_CARD_FIRST_TAPED_TARS = Array(_
+	Array(),_
+	Array(),_
+	Array(698, 581, 722, 588, "Attachment:BATTLE_ATTACK_CARD_3_FIRST_TAPED.png"),_
+	Array(),_
+	Array(),_
+	Array(400, 315, 550, 352, "Attachment:ULT_Taped_Red1.png"),_
+	Array(680, 315, 790, 352, "Attachment:ULT_Taped_Blue2.png"),_
+	Array(986, 315, 1042, 352, "Attachment:ULT_Taped_Red3.png")_
+ )
 '	"Attachment:ULT_Taped_Green3.png"
-
-Dim BATTLE_ATTACK_CARD_3_COORD = Array(698, 581)
-Dim BATTLE_ATTACK_CARD_3_FIRST_TAPED_TAR = Array(698, 581, 722, 588, "Attachment:BATTLE_ATTACK_CARD_3_FIRST_TAPED.png")
-Dim BATTLE_ATTACK_CARD_4_COORD = Array(991, 581)
-Dim BATTLE_ATTACK_CARD_4_SECOND_TAPED_TAR = Array(991, 581, 1016, 588, "Attachment:BATTLE_ATTACK_CARD_4_SECOND_TAPED.png")
-Dim BATTLE_ATTACK_CARD_5_COORD = Array(1278, 581)
-
-
+Dim BATTLE_ATTACK_CARD_SECON_TAPED_TARS = Array(_
+	Array(),_
+	Array(),_
+	Array(),_
+	Array(991, 581, 1016, 588, "Attachment:BATTLE_ATTACK_CARD_4_SECOND_TAPED.png"),_
+	Array(),_
+	Array(),_
+	Array(),_
+	Array()_
+ )
 
 
 Dim BATTLE_CARD_TAPED_AWAIT_MS = 300
@@ -241,6 +277,65 @@ Function CheckFirstBattle2Start()
 	End If
 End Function
 
+Function DoSkillActions(ActionsGroup)
+	TracePrint "skill"
+	Dim ActionsCount = (UBound(ActionsGroup))/2
+	For ActionIndex = 1 To ActionsCount
+		Dim SkillIndex = ActionsGroup[ActionIndex*2]
+		TracePrint "skill", SkillIndex
+		Dim SkillTargetIndex = ActionsGroup[ActionIndex*2 + 1]
+		CheckAndTapImg2(BATTLE_HERO_SKILL_CHECK_TAR, BATTLE_HERO_SKILL_COORDS[SkillIndex])
+		If SkillTargetIndex > 0 Then
+			CheckAndTapImg2(BATTLE_SKILL_GRANT_CHECK_TAR, BATTLE_SKILL_GRANT_HREO_COORDS[SkillTargetIndex])
+		End If
+		clickAndWaitSkillAction()
+	Next
+End Function
+
+Function DoMasterActions(ActionsGroup)
+	Dim ActionsCount = (UBound(ActionsGroup))/2
+	For ActionIndex = 1 To ActionsCount
+		Dim SkillIndex = ActionsGroup[ActionIndex*2]
+		TracePrint "master", SkillIndex
+		Dim SkillTargetIndex = ActionsGroup[ActionIndex*2 + 1]
+		
+		CheckAndTapImg2(BATTLE_MASTER_SKILL_OPEN_TAR, null)
+		Delay BATTLE_MASTER_SKILL_AWAIT_MS
+		CheckAndTapImg2(BATTLE_MASTER_SKILL_DISPLAY_TAR, BATTLE_MASTER_SKILL_COORDS[SkillIndex])
+		If SkillTargetIndex > 0 Then
+			CheckAndTapImg2(BATTLE_SKILL_GRANT_CHECK_TAR, BATTLE_SKILL_GRANT_HREO_COORDS[SkillTargetIndex])
+		End If
+		clickAndWaitSkillAction()
+	Next
+End Function
+
+Function DoAttackActions(ActionsGroup)
+	TracePrint "attack"
+	CheckAndTapImg2(BATTLE_HERO_SKILL_CHECK_TAR, null)
+	Delay BATTLE_ULTIMATE_DISPLAY_AWAIT_MS
+	
+	Dim FirstCardIndex = ActionsGroup[2]
+	CheckAndTapImg2(BATTLE_ATTACK_BACK_TAR, BATTLE_ATTACK_CARD_COORDS[FirstCardIndex])
+	Delay BATTLE_CARD_TAPED_AWAIT_MS
+
+	Dim SecondCardIndex = ActionsGroup[3]
+	CheckAndTapImg2(BATTLE_ATTACK_CARD_FIRST_TAPED_TARS[FirstCardIndex], BATTLE_ATTACK_CARD_COORDS[SecondCardIndex])
+	Delay BATTLE_CARD_TAPED_AWAIT_MS
+
+	Dim ThirdCardIndex = ActionsGroup[4]
+	CheckAndTapImg2(BATTLE_ATTACK_CARD_SECON_TAPED_TARS[SecondCardIndex], BATTLE_ATTACK_CARD_COORDS[ThirdCardIndex])
+	Delay BATTLE_NORMAL_ATTACK_PLAY_AWAIT_MS
+End Function
+
+Function DoGroupActions(ActionsGroup)
+	If ActionsGroup[1] = "skill" Then
+		DoSkillActions(ActionsGroup)
+	ElseIf ActionsGroup[1] = "master" Then
+		DoMasterActions(ActionsGroup)
+	ElseIf ActionsGroup[1] = "attack" Then
+		DoAttackActions(ActionsGroup)
+	End If
+End Function
 
 Function DoBattle()
 	
@@ -250,70 +345,21 @@ Function DoBattle()
 	BattlePrint("Delay to battle")
 	Delay START_TAPED_DELAY
 
-	' Round 1
-
-	BattlePrint("Round 1")
-	TracePrint "skill 2"
-	CheckAndTapImg2(BATTLE_HERO_SKILL_CHECK_TAR, BATTLE_HERO_SKILL_2_COORD)
-	CheckAndTapImg2(BATTLE_SKILL_GRANT_CHECK_TAR, BATTLE_SKILL_GRANT_HREO_3_COORD)
-	clickAndWaitSkillAction()
-	TracePrint "skill 3"
-	CheckAndTapImg2(BATTLE_HERO_SKILL_CHECK_TAR, BATTLE_HERO_SKILL_3_COORD)
-	CheckAndTapImg2(BATTLE_SKILL_GRANT_CHECK_TAR, BATTLE_SKILL_GRANT_HREO_3_COORD)
-	clickAndWaitSkillAction()
-	TracePrint "skill 5"
-	CheckAndTapImg2(BATTLE_HERO_SKILL_CHECK_TAR, BATTLE_HERO_SKILL_5_COORD)
-	CheckAndTapImg2(BATTLE_SKILL_GRANT_CHECK_TAR, BATTLE_SKILL_GRANT_HREO_3_COORD)
-	clickAndWaitSkillAction()
-	TracePrint "skill 6"
-	CheckAndTapImg2(BATTLE_HERO_SKILL_CHECK_TAR, BATTLE_HERO_SKILL_6_COORD)
-	CheckAndTapImg2(BATTLE_SKILL_GRANT_CHECK_TAR, BATTLE_SKILL_GRANT_HREO_3_COORD)
-	clickAndWaitSkillAction()
-	TracePrint "skill 9"
-	CheckAndTapImg2(BATTLE_HERO_SKILL_CHECK_TAR, BATTLE_HERO_SKILL_9_COORD)
-	clickAndWaitSkillAction()
+	Dim RoundCount = UBound(AllActionRound)+1
+	For RoundIndex = 1 To RoundCount
+		BattlePrint("Round " & RoundIndex)
+		Dim ActionsRound = AllActionRound[RoundIndex]
+		' ActionsGroup
+		Dim ActionsGroupCount = UBound(ActionsRound)+1
+		For ActionsGroupIndex = 1 To ActionsGroupCount
+			Dim ActionsGroup = ActionsRound[ActionsGroupIndex]
+			DoGroupActions(ActionsGroup)
+		Next
+	Next
 
 
-	TracePrint "attack"
-	CheckAndTapImg2(BATTLE_HERO_SKILL_CHECK_TAR, null)
-	Delay BATTLE_ULTIMATE_DISPLAY_AWAIT_MS
-	CheckAndTapImg2(BATTLE_ATTACK_BACK_TAR, BATTLE_ATTACK_CARD_3_COORD)
-	Delay BATTLE_CARD_TAPED_AWAIT_MS
-	CheckAndTapImg2(BATTLE_ATTACK_CARD_3_FIRST_TAPED_TAR, BATTLE_ATTACK_CARD_4_COORD)
-	Delay BATTLE_CARD_TAPED_AWAIT_MS
-	CheckAndTapImg2(BATTLE_ATTACK_CARD_4_SECOND_TAPED_TAR, BATTLE_ATTACK_CARD_5_COORD)
-	Delay BATTLE_NORMAL_ATTACK_PLAY_AWAIT_MS
 
 
-	' Round 2
-
-	BattlePrint("Round 2")
-	TracePrint "skill 7"
-	CheckAndTapImg2(BATTLE_HERO_SKILL_CHECK_TAR, BATTLE_HERO_SKILL_7_COORD)
-	clickAndWaitSkillAction()
-
-	TracePrint "attack"
-	CheckAndTapImg2(BATTLE_HERO_SKILL_CHECK_TAR, null)
-	Delay BATTLE_ULTIMATE_DISPLAY_AWAIT_MS
-	CheckAndTapImg2(BATTLE_ATTACK_BACK_TAR, BATTLE_ATTACK_ULTIMATE_3_COORD)
-	Delay BATTLE_CARD_TAPED_AWAIT_MS
-	CheckAndTapImg2(BATTLE_ATTACK_ULTIMATE_3_FIRST_TAPED_TAR, BATTLE_ATTACK_CARD_4_COORD)
-	Delay BATTLE_CARD_TAPED_AWAIT_MS
-	CheckAndTapImg2(BATTLE_ATTACK_CARD_4_SECOND_TAPED_TAR, BATTLE_ATTACK_CARD_5_COORD)
-	Delay BATTLE_ULTIMATE_PLAY_2_AWAIT_MS
-
-
-	' Round 3
-
-	BattlePrint("Round 3")
-	TracePrint "skill 1"
-	CheckAndTapImg2(BATTLE_HERO_SKILL_CHECK_TAR, BATTLE_HERO_SKILL_1_COORD)
-	CheckAndTapImg2(BATTLE_SKILL_GRANT_CHECK_TAR, BATTLE_SKILL_GRANT_HREO_3_COORD)
-	clickAndWaitSkillAction()
-	TracePrint "skill 4"
-	CheckAndTapImg2(BATTLE_HERO_SKILL_CHECK_TAR, BATTLE_HERO_SKILL_4_COORD)
-	CheckAndTapImg2(BATTLE_SKILL_GRANT_CHECK_TAR, BATTLE_SKILL_GRANT_HREO_3_COORD)
-	clickAndWaitSkillAction()
 '	TracePrint "skill master 3"
 '	CheckAndTapImg2(BATTLE_MASTER_SKILL_OPEN_TAR, null)
 '	Delay BATTLE_MASTER_SKILL_AWAIT_MS
@@ -321,18 +367,6 @@ Function DoBattle()
 '	CheckAndTapImg2(BATTLE_SKILL_GRANT_CHECK_TAR, BATTLE_SKILL_GRANT_HREO_3_COORD)
 '	clickAndWaitSkillAction()
 
-
-
-	TracePrint "attack"
-	CheckAndTapImg2(BATTLE_HERO_SKILL_CHECK_TAR, null)
-	Delay BATTLE_ULTIMATE_DISPLAY_AWAIT_MS
-	CheckAndTapImg2(BATTLE_ATTACK_BACK_TAR, BATTLE_ATTACK_ULTIMATE_3_COORD)
-	Delay BATTLE_CARD_TAPED_AWAIT_MS
-	CheckAndTapImg2(BATTLE_ATTACK_ULTIMATE_3_FIRST_TAPED_TAR, BATTLE_ATTACK_CARD_4_COORD)
-	Delay BATTLE_CARD_TAPED_AWAIT_MS
-	CheckAndTapImg2(BATTLE_ATTACK_CARD_4_SECOND_TAPED_TAR, BATTLE_ATTACK_CARD_5_COORD)
-
-	Delay BATTLE_ULTIMATE_PLAY_LAST_AWAIT_MS
 
 
 	' Award
