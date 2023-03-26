@@ -1,22 +1,24 @@
-' SetScreenScale 576, 1024, 0
+' SetScreenScale 810, 1440, 0
 ' v5
 
 Log.Open
 
 ' USER CONFIG
-Dim BATTLE_COUNT = 30
+Dim BATTLE_COUNT = 50
 Dim AllActionRound = Array(_
 	Array(_
-		Array("skill",  2,3, 3,3, 5,3, 6,3, 9,0),_
+		Array("skill",  1,0, 2,3, 3,3, 7,0),_
 		Array("master"),_
-		Array("attack", 3,4,5)_
-	),_
-	Array(_
-		Array("skill",  7,0),_
 		Array("attack", 8,4,5)_
 	),_
 	Array(_
-		Array("skill",  1,3, 4,3),_
+		Array("skill",  5,0, 6,0),_
+		Array("master"),_
+		Array("attack", 7,4,5)_
+	),_
+	Array(_
+		Array("skill",  8,2, 9,0),_
+		Array("master", 2,3),_
 		Array("attack", 8,4,5)_
 	)_
  )
@@ -28,10 +30,11 @@ Dim NEED_REVERSE = true
 Dim COLOR_SIM = 0.95
 
 ' PREPARE
-Dim PREPARE_FRIEND_TAR = Array(40, 180, 920, 800, "Attachment:friendShaHu2.png")
-' "Attachment:friendtaigong.png"
-' "Attachment:friendCDai.png"
-' "Attachment:friendAobao.png"
+Dim ATT_Taigong = "Attachment:friendtaigong.png"
+Dim ATT_CDai = "Attachment:friendCDai.png|Attachment:friendCDai2.png|Attachment:friendCDai3.png"
+Dim ATT_Aobao = "Attachment:friendAobao.png"
+Dim ATT_Shahu = "Attachment:friendShaHu2.png"
+Dim PREPARE_FRIEND_TAR = Array(40, 180, 920, 800, ATT_CDai)
 
 
 ' START
@@ -123,10 +126,9 @@ Dim BATTLE_ATTACK_CARD_FIRST_TAPED_TARS = Array(_
 	Array(),_
 	Array(),_
 	Array(400, 315, 550, 352, "Attachment:ULT_Taped_Red1.png"),_
-	Array(680, 315, 790, 352, "Attachment:ULT_Taped_Blue2.png"),_
-	Array(986, 315, 1042, 352, "Attachment:ULT_Taped_Red3.png")_
+	Array(680, 315, 790, 352, "Attachment:ULT_Taped_Red2.png|Attachment:ULT_Taped_Blue2.png"),_
+	Array(940, 314, 1042, 352, "Attachment:ULT_Taped_Red3.png|Attachment:ULT_Taped_Blue3.png|Attachment:ULT_Taped_Green3.png")_
  )
-'	"Attachment:ULT_Taped_Green3.png"
 Dim BATTLE_ATTACK_CARD_SECON_TAPED_TARS = Array(_
 	Array(),_
 	Array(),_
