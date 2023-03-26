@@ -1,5 +1,5 @@
 ' SetScreenScale 576, 1024, 0
-' v4
+' v5
 
 Log.Open
 
