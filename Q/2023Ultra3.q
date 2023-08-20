@@ -175,8 +175,13 @@ Dim APPLE_CONFIRM_TAR = Array(895, 608, 992, 660, "Attachment:APPLE_CONFIRM.png"
 Dim APPLE_CLOSE_COORD = Array(490, 630)
 
 
+' OTHERS
 Dim INFINITE_ROLL_TAR = Array(330, 388, 570, 455, "Attachment:ROLL100.png") ' ROLL10 ROLL100
 
+Dim ENHANCE_RECOMMAND_TAR = Array(1240, 150, 1370, 208, "Attachment:ENHANCE_RECOMMAND.png")
+Dim ENHANCE_RECOMMAND_CONFIRM_TAR = Array(880, 680, 1006, 745, "Attachment:ENHANCE_RECOMMAND_CONFIRM.png")
+Dim ENHANCE_ENHANCE_TAR = Array(1340, 716, 1438, 798, "Attachment:ENHANCE_ENHANCE.png")
+Dim ENHANCE_ENHANCE_CONFIRM_TAR = Array(877, 632, 1006, 698, "Attachment:ENHANCE_ENHANCE_CONFIRM.png")
 
 
 ' VARIATE
@@ -415,11 +420,24 @@ Function DoRoll()
 	CheckNoImgAndTap2(INFINITE_ROLL_TAR, INFINITE_ROLL_TAR)
 End Function
 
+Function DoEnhance()
+	CheckAndTapImg2(ENHANCE_RECOMMAND_TAR, null)
+	Delay 500
+	CheckAndTapImg2(ENHANCE_RECOMMAND_CONFIRM_TAR, null)
+	Delay 500
+	CheckAndTapImg2(ENHANCE_ENHANCE_TAR, null)
+	Delay 500
+	CheckAndTapImg2(ENHANCE_ENHANCE_CONFIRM_TAR, null)
+	Delay 500
+	CheckNoImgAndTap2(ENHANCE_RECOMMAND_TAR, ENHANCE_ENHANCE_CONFIRM_TAR)
+	Delay 500
+End Function
 
 Do While true
 	CurrentBattleCount = CurrentBattleCount + 1
 	DoBattle()
 	'DoRoll()
+	'DoEnhance()
 
 	TracePrint "BattleCount Current =", CurrentBattleCount, "Max = ", BATTLE_COUNT
 	If CurrentBattleCount >= BATTLE_COUNT Then
