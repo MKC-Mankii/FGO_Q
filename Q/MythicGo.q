@@ -184,6 +184,15 @@ Dim ENHANCE_ENHANCE_TAR = Array(1340, 716, 1438, 798, "Attachment:ENHANCE_ENHANC
 Dim ENHANCE_ENHANCE_CONFIRM_TAR = Array(877, 632, 1006, 698, "Attachment:ENHANCE_ENHANCE_CONFIRM.png")
 
 
+Dim GET_GIFT_TAR = Array(1058, 620, 1120, 676, "Attachment:GET_GIFT.png")
+Dim GET_GIFT_GOT_TAR = Array(111, 22, 146, 57, "Attachment:GET_GIFT_GOT.png")
+Dim GET_GIFT_GOT_COORD = Array(150, 150)
+Dim GET_GIFT_CLOSE_TAR = Array(111, 22, 146, 57, "Attachment:GET_GIFT_CLOSE.png")
+
+
+'Dim GET_GIFT_TAR = Array(128, 1048, 192, 1124, "Attachment:GET_GIFT.png")
+'Dim GET_GIFT_CLOSE_TAR = Array(750, 111, 787, 146, "Attachment:GET_GIFT_CLOSE.png")
+
 ' VARIATE
 Dim IsFirstBattle = true
 
@@ -220,6 +229,7 @@ End Function
 // 取图法>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
 Function CheckAndTapImg2(Target, TapPoint)
+	TracePrint "CheckAndTapImg2", Target[1], Target[2], Target[5]
 	Dim Point = ContinuousCheckImg(Target)
 	Dim TapPointX
 	Dim TapPointY
@@ -246,6 +256,19 @@ Function ContinuousCheckImg(Target)
 	TracePrint "found: ", GetImgCoord[1], GetImgCoord[2]
 End Function
 
+Function ContinuousCheckImgMiss(Target)
+	Dim GetImgCoord
+	Do While true
+		GetImgCoord = CheckImg2(Target)
+		If GetImgCoord = null Then
+			ContinuousCheckImgMiss = null
+			Exit Do
+		End If
+		Delay 250
+	Loop
+	TracePrint "missed: ", Target[1], Target[2]
+End Function
+
 Function CheckNoImgAndTap2(Target, TapPoint)
 	Dim AttachedImg = Target[5]
 	Do While true
@@ -263,7 +286,7 @@ End Function
 Function CheckImg2(Target)
 	Dim Area = Target
 	Dim AttachedImg = Target[5]
-	TracePrint "check: ", Area[1], Area[2], Area[3], Area[4], AttachedImg
+	'TracePrint "check: ", Area[1], Area[2], Area[3], Area[4], AttachedImg
 	Dim intX, intY
 	FindPic Area[1], Area[2], Area[3], Area[4], AttachedImg, "000000", 0, 0.9, intX, intY
 	If intX > -1 And intY > -1 Then
@@ -271,148 +294,33 @@ Function CheckImg2(Target)
 	End If
 End Function
 
-// do Battle >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-Function ChooseFriend()
-	BattlePrint("Choose Friend")
-	CheckAndTapImg2(PREPARE_FRIEND_TAR, null)
-End Function
-Function CheckFirstBattle2Start()
-	If IsFirstBattle Then
-		TracePrint "First Battle Start"
-		CheckAndTapImg2(START_TAR, null)
-		IsFirstBattle = false
-	End If
-End Function
-
-Function DoSkillActions(ActionsGroup)
-	TracePrint "skill"
-	Dim ActionsCount = (UBound(ActionsGroup))/2
-	For ActionIndex = 1 To ActionsCount
-		Dim SkillIndex = ActionsGroup[ActionIndex*2]
-		TracePrint "skill", SkillIndex
-		Dim SkillTargetIndex = ActionsGroup[ActionIndex*2 + 1]
-		CheckAndTapImg2(BATTLE_HERO_SKILL_CHECK_TAR, BATTLE_HERO_SKILL_COORDS[SkillIndex])
-		If SkillTargetIndex > 0 Then
-			CheckAndTapImg2(BATTLE_SKILL_GRANT_CHECK_TAR, BATTLE_SKILL_GRANT_HREO_COORDS[SkillTargetIndex])
-		End If
-		clickAndWaitSkillAction()
-	Next
-End Function
-
-Function DoMasterActions(ActionsGroup)
-	Dim ActionsCount = (UBound(ActionsGroup))/2
-	For ActionIndex = 1 To ActionsCount
-		Dim SkillIndex = ActionsGroup[ActionIndex*2]
-		TracePrint "master", SkillIndex
-		Dim SkillTargetIndex = ActionsGroup[ActionIndex*2 + 1]
-		
-		CheckAndTapImg2(BATTLE_MASTER_SKILL_OPEN_TAR, null)
-		Delay BATTLE_MASTER_SKILL_AWAIT_MS
-		CheckAndTapImg2(BATTLE_MASTER_SKILL_DISPLAY_TAR, BATTLE_MASTER_SKILL_COORDS[SkillIndex])
-		If SkillTargetIndex > 0 Then
-			CheckAndTapImg2(BATTLE_SKILL_GRANT_CHECK_TAR, BATTLE_SKILL_GRANT_HREO_COORDS[SkillTargetIndex])
-		End If
-		clickAndWaitSkillAction()
-	Next
-End Function
-
-Function DoAttackActions(ActionsGroup)
-	TracePrint "attack"
-	CheckAndTapImg2(BATTLE_HERO_SKILL_CHECK_TAR, null)
-	Delay BATTLE_ULTIMATE_DISPLAY_AWAIT_MS
-	
-	Dim FirstCardIndex = ActionsGroup[2]
-	CheckAndTapImg2(BATTLE_ATTACK_BACK_TAR, BATTLE_ATTACK_CARD_COORDS[FirstCardIndex])
-	Delay BATTLE_CARD_TAPED_AWAIT_MS
-
-	Dim SecondCardIndex = ActionsGroup[3]
-	CheckAndTapImg2(BATTLE_ATTACK_CARD_FIRST_TAPED_TARS[FirstCardIndex], BATTLE_ATTACK_CARD_COORDS[SecondCardIndex])
-	Delay BATTLE_CARD_TAPED_AWAIT_MS
-
-	Dim ThirdCardIndex = ActionsGroup[4]
-	CheckAndTapImg2(BATTLE_ATTACK_CARD_SECON_TAPED_TARS[SecondCardIndex], BATTLE_ATTACK_CARD_COORDS[ThirdCardIndex])
-	Delay BATTLE_NORMAL_ATTACK_PLAY_AWAIT_MS
-End Function
-
-Function DoGroupActions(ActionsGroup)
-	If ActionsGroup[1] = "skill" Then
-		DoSkillActions(ActionsGroup)
-	ElseIf ActionsGroup[1] = "master" Then
-		DoMasterActions(ActionsGroup)
-	ElseIf ActionsGroup[1] = "attack" Then
-		DoAttackActions(ActionsGroup)
-	End If
-End Function
-
-Function DoBattle()
-	
-	ChooseFriend()
-	CheckFirstBattle2Start()
-
-	BattlePrint("Delay to battle")
-	Delay START_TAPED_DELAY
-
-	Dim RoundCount = UBound(AllActionRound)+1
-	For RoundIndex = 1 To RoundCount
-		BattlePrint("Round " & RoundIndex)
-		Dim ActionsRound = AllActionRound[RoundIndex]
-		' ActionsGroup
-		Dim ActionsGroupCount = UBound(ActionsRound)+1
-		For ActionsGroupIndex = 1 To ActionsGroupCount
-			Dim ActionsGroup = ActionsRound[ActionsGroupIndex]
-			DoGroupActions(ActionsGroup)
-		Next
-	Next
-
-
-	' Award
-
-	BattlePrint("award tie")
-	CheckAndTapImg2(AWARD_TIE_TAR, AWARD_TAP_COORD)
-	Delay AWARD_NORMAL_TAP_AWAIT_MS
-	TracePrint "award before treasure"
-	CheckNoImgAndTap2(AWARD_TREASURE_NEXT_TAR, AWARD_TAP_COORD)
-	Delay AWARD_NORMAL_TAP_AWAIT_MS
-	TracePrint "award treasure"
-	CheckAndTapImg2(AWARD_TREASURE_NEXT_TAR, null)
-	
-	' Activity Award
-
-	'TracePrint "activity award"
-	'Delay AWARD_NORMAL_TAP_AWAIT_MS
-	'CheckAndTapImg2(AWARD_ACTIVITY_NEXT_TAR, null)
-
-
-	' Add Friend?
-	Delay ADD_FRIEND_CHECK_AWAIT_MS
-	Dim CheckAddFriendSuccess = CheckImg2(ADD_FRIEND_TAR)
-	If CheckAddFriendSuccess <> null Then
-		CheckAndTapImg2(ADD_FRIEND_TAR, null)
-	End If
-
-	' Again?
-	BattlePrint("again?")
-	If CurrentBattleCount < BATTLE_COUNT  Then
-		TracePrint "again: yes"
-		CheckAndTapImg2(AGAIN_ALERT_AGAIN_TAR, null)
+Function CheckNoImgAndTapOnce(Target, TapPoint)
+	Dim AttachedImg = Target[5]
+	Dim GetImgCoord = CheckImg2(Target)
+	If GetImgCoord = null Then
+		TracePrint "CheckNoImgAndTapOnce ", AttachedImg, TapPoint[1], TapPoint[2]
+		tap TapPoint[1], TapPoint[2]
 	Else
-		TracePrint "again: no"
-		CheckAndTapImg2(AGAIN_ALERT_CLOSE_TAR, null)
 	End If
-
-
-	' Apple?
-	BattlePrint("apple?")
-	If CurrentBattleCount < BATTLE_COUNT  Then
-		Delay APPLE_CHECK_AWAIT_MS
-		Dim CheckAppleAlertSuccess = CheckImg2(APPLE_DISPLAY_TAR)
-		If CheckAppleAlertSuccess <> null Then
-			CheckAndTapImg2(APPLE_DISPLAY_TAR, APPLE_GLODEN_COORD)
-			CheckAndTapImg2(APPLE_CONFIRM_TAR, null)
-		End If
-	End If
-
 End Function
+
+Function CheckMissImgAndTap(Target, TapPoint)
+	TracePrint "CheckMissImgAndTap", Target[1], Target[2], Target[5]
+	Dim AttachedImg = Target[5]
+	Dim TapPointX
+	Dim TapPointY
+	If TapPoint Then
+		TapPointX = TapPoint[1]
+		TapPointY = TapPoint[2]
+	Else
+		TapPointX = Target[1]
+		TapPointY = Target[2]
+	End If
+	ContinuousCheckImgMiss(Target)
+	tap TapPointX, TapPointY
+End Function
+
+// do Battle >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
 Function DoRoll()
 	CheckAndTapImg2(INFINITE_ROLL_TAR, null)
@@ -433,13 +341,24 @@ Function DoEnhance()
 	Delay 500
 End Function
 
+Function GetGift()
+	CheckMissImgAndTap(GET_GIFT_TAR, null)
+	Delay 1500
+	CheckNoImgAndTapOnce(GET_GIFT_CLOSE_TAR, GET_GIFT_GOT_COORD)
+	Delay 500
+	CheckAndTapImg2(GET_GIFT_CLOSE_TAR, null)
+	Delay 1000
+End Function
+
+Traceprint "START FROM", DateTime.Format()
+
 Do While true
 	CurrentBattleCount = CurrentBattleCount + 1
-	DoBattle()
+	'DoBattle()
 	'DoRoll()
-	'DoEnhance()
+	GetGift()
 
-	TracePrint "BattleCount Current =", CurrentBattleCount, "Max = ", BATTLE_COUNT
+	TracePrint "BattleCount Current =", CurrentBattleCount, "Max = ", BATTLE_COUNT, ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"
 	If CurrentBattleCount >= BATTLE_COUNT Then
 		TracePrint "END"
 		Exit Do

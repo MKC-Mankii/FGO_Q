@@ -7,18 +7,16 @@ Log.Open
 Dim BATTLE_COUNT = 50
 Dim AllActionRound = Array(_
 	Array(_
-		Array("skill",  1,0, 2,3, 3,3, 7,0),_
-		Array("master"),_
+		Array("skill",  2,3, 3,3, 5,3, 6,3),_
 		Array("attack", 8,4,5)_
 	),_
 	Array(_
-		Array("skill",  5,0, 6,0),_
-		Array("master"),_
-		Array("attack", 7,4,5)_
+		Array("skill",  1,0),_
+		Array("master", 2,3),_
+		Array("attack", 8,4,5)_
 	),_
 	Array(_
-		Array("skill",  8,2, 9,0),_
-		Array("master", 2,3),_
+		Array("skill",  4,0, 8,0),_
 		Array("attack", 8,4,5)_
 	)_
  )
@@ -220,6 +218,7 @@ End Function
 // 取图法>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
 Function CheckAndTapImg2(Target, TapPoint)
+	TracePrint "CheckAndTapImg2", Target[1], Target[2], Target[5]
 	Dim Point = ContinuousCheckImg(Target)
 	Dim TapPointX
 	Dim TapPointY
@@ -246,6 +245,19 @@ Function ContinuousCheckImg(Target)
 	TracePrint "found: ", GetImgCoord[1], GetImgCoord[2]
 End Function
 
+Function ContinuousCheckImgMiss(Target)
+	Dim GetImgCoord
+	Do While true
+		GetImgCoord = CheckImg2(Target)
+		If GetImgCoord = null Then
+			ContinuousCheckImgMiss = null
+			Exit Do
+		End If
+		Delay 500
+	Loop
+	TracePrint "missed: ", Target[1], Target[2]
+End Function
+
 Function CheckNoImgAndTap2(Target, TapPoint)
 	Dim AttachedImg = Target[5]
 	Do While true
@@ -263,12 +275,38 @@ End Function
 Function CheckImg2(Target)
 	Dim Area = Target
 	Dim AttachedImg = Target[5]
-	TracePrint "check: ", Area[1], Area[2], Area[3], Area[4], AttachedImg
+	'TracePrint "check: ", Area[1], Area[2], Area[3], Area[4], AttachedImg
 	Dim intX, intY
 	FindPic Area[1], Area[2], Area[3], Area[4], AttachedImg, "000000", 0, 0.9, intX, intY
 	If intX > -1 And intY > -1 Then
 		CheckImg2 = Array(intX, intY)
 	End If
+End Function
+
+Function CheckNoImgAndTapOnce(Target, TapPoint)
+	Dim AttachedImg = Target[5]
+	Dim GetImgCoord = CheckImg2(Target)
+	If GetImgCoord = null Then
+		TracePrint "CheckNoImgAndTapOnce ", AttachedImg, TapPoint[1], TapPoint[2]
+		tap TapPoint[1], TapPoint[2]
+	Else
+	End If
+End Function
+
+Function CheckMissImgAndTap(Target, TapPoint)
+	TracePrint "CheckMissImgAndTap", Target[1], Target[2], Target[5]
+	Dim AttachedImg = Target[5]
+	Dim TapPointX
+	Dim TapPointY
+	If TapPoint Then
+		TapPointX = TapPoint[1]
+		TapPointY = TapPoint[2]
+	Else
+		TapPointX = Target[1]
+		TapPointY = Target[2]
+	End If
+	ContinuousCheckImgMiss(Target)
+	tap TapPointX, TapPointY
 End Function
 
 // do Battle >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
@@ -432,6 +470,9 @@ Function DoEnhance()
 	CheckNoImgAndTap2(ENHANCE_RECOMMAND_TAR, ENHANCE_ENHANCE_CONFIRM_TAR)
 	Delay 500
 End Function
+
+// START
+Traceprint "START FROM", DateTime.Format()
 
 Do While true
 	CurrentBattleCount = CurrentBattleCount + 1

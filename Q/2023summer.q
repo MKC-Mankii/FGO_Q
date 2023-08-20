@@ -4,21 +4,19 @@
 Log.Open
 
 ' USER CONFIG
-Dim BATTLE_COUNT = 50
+Dim BATTLE_COUNT = 1
 Dim AllActionRound = Array(_
 	Array(_
-		Array("skill",  1,0, 2,3, 3,3, 7,0),_
-		Array("master"),_
+		Array("skill",  2,3, 3,3, 6,0, 7,0, 9,0),_
 		Array("attack", 8,4,5)_
 	),_
 	Array(_
-		Array("skill",  5,0, 6,0),_
-		Array("master"),_
-		Array("attack", 7,4,5)_
+		Array("skill",  1,0, 4,3, 5,0),_
+		Array("attack", 8,4,5)_
 	),_
 	Array(_
-		Array("skill",  8,2, 9,0),_
-		Array("master", 2,3),_
+		Array("master", 3,204, 1,0),_
+		Array("skill",  4,0, 5,3, 6,3),_
 		Array("attack", 8,4,5)_
 	)_
  )
@@ -69,22 +67,21 @@ Dim BATTLE_SKILL_GRANT_CHECK_TAR = Array(1205, 142, 1267, 198, "Attachment:BATTL
 
 ' Skill Change
 Dim BATTLE_SKILL_CHANGE_HERO_COORDS = Array(_
-	Array(110, 270),_
-	Array(270, 270),_
-	Array(430, 270),_
-	Array(590, 270),_
-	Array(750, 270),_
-	Array(910, 270)_
+	Array(150, 390),_
+	Array(375, 390),_
+	Array(600, 390),_
+	Array(825, 390),_
+	Array(1050, 390),_
+	Array(1275, 390)_
  )
 ' Skill Change: display check: change button
-Dim BATTLE_SKILL_CHANGE_CHECK_COORD = Array(512, 498)
-Dim BATTLE_SKILL_CHANGE_CHECK_RGB = "38466B" ' 56,70,107
+Dim BATTLE_SKILL_CHANGE_CHECK_TAR = Array(723, 685, 777, 719, "Attachment:BATTLE_SKILL_CHANGE_CHECK.png")
 ' Skill Change: selected check: change button
-Dim BATTLE_SKILL_CHANGE_SELECTEED_CHECK_COORD = Array(512, 498)
-Dim BATTLE_SKILL_CHANGE_SELECTEED__CHECK_RGB = "67759A" ' 103,117,154
+Dim BATTLE_SKILL_CHANGE_SELECTEED_CHECK_TAR = Array(723, 685, 777, 719, "Attachment:BATTLE_SKILL_CHANGE_SELECTEED_CHECK.png")
+Dim BATTLE_SKILL_CHANGE_SELECTED_AWAIT_MS = 200
 
 ' Master skill
-Dim BATTLE_MASTER_SKILL_OPEN_TAR = Array(1317, 325, 1370, 376, "Attachment:BATTLE_MASTER_SKILL_OPEN2.png")
+Dim BATTLE_MASTER_SKILL_OPEN_TAR = Array(1317, 325, 1370, 376, "Attachment:BATTLE_MASTER_SKILL_OPEN3.png")
 Dim BATTLE_MASTER_SKILL_AWAIT_MS = 200
 Dim BATTLE_MASTER_SKILL_COORDS = Array(_
 	Array(1020, 350),_
@@ -220,6 +217,7 @@ End Function
 // 取图法>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
 Function CheckAndTapImg2(Target, TapPoint)
+	TracePrint "CheckAndTapImg2", Target[1], Target[2], Target[5]
 	Dim Point = ContinuousCheckImg(Target)
 	Dim TapPointX
 	Dim TapPointY
@@ -246,6 +244,19 @@ Function ContinuousCheckImg(Target)
 	TracePrint "found: ", GetImgCoord[1], GetImgCoord[2]
 End Function
 
+Function ContinuousCheckImgMiss(Target)
+	Dim GetImgCoord
+	Do While true
+		GetImgCoord = CheckImg2(Target)
+		If GetImgCoord = null Then
+			ContinuousCheckImgMiss = null
+			Exit Do
+		End If
+		Delay 500
+	Loop
+	TracePrint "missed: ", Target[1], Target[2]
+End Function
+
 Function CheckNoImgAndTap2(Target, TapPoint)
 	Dim AttachedImg = Target[5]
 	Do While true
@@ -263,12 +274,38 @@ End Function
 Function CheckImg2(Target)
 	Dim Area = Target
 	Dim AttachedImg = Target[5]
-	TracePrint "check: ", Area[1], Area[2], Area[3], Area[4], AttachedImg
+	'TracePrint "check: ", Area[1], Area[2], Area[3], Area[4], AttachedImg
 	Dim intX, intY
 	FindPic Area[1], Area[2], Area[3], Area[4], AttachedImg, "000000", 0, 0.9, intX, intY
 	If intX > -1 And intY > -1 Then
 		CheckImg2 = Array(intX, intY)
 	End If
+End Function
+
+Function CheckNoImgAndTapOnce(Target, TapPoint)
+	Dim AttachedImg = Target[5]
+	Dim GetImgCoord = CheckImg2(Target)
+	If GetImgCoord = null Then
+		TracePrint "CheckNoImgAndTapOnce ", AttachedImg, TapPoint[1], TapPoint[2]
+		tap TapPoint[1], TapPoint[2]
+	Else
+	End If
+End Function
+
+Function CheckMissImgAndTap(Target, TapPoint)
+	TracePrint "CheckMissImgAndTap", Target[1], Target[2], Target[5]
+	Dim AttachedImg = Target[5]
+	Dim TapPointX
+	Dim TapPointY
+	If TapPoint Then
+		TapPointX = TapPoint[1]
+		TapPointY = TapPoint[2]
+	Else
+		TapPointX = Target[1]
+		TapPointY = Target[2]
+	End If
+	ContinuousCheckImgMiss(Target)
+	tap TapPointX, TapPointY
 End Function
 
 // do Battle >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
@@ -305,11 +342,22 @@ Function DoMasterActions(ActionsGroup)
 		Dim SkillIndex = ActionsGroup[ActionIndex*2]
 		TracePrint "master", SkillIndex
 		Dim SkillTargetIndex = ActionsGroup[ActionIndex*2 + 1]
+		Dim SkillChangeTargetIndex1
+		Dim SkillChangeTargetIndex2
+		If SkillTargetIndex > 100 Then
+			SkillChangeTargetIndex1 = Fix(SkillTargetIndex/100)
+			SkillChangeTargetIndex2 = SkillTargetIndex - SkillChangeTargetIndex1*100
+		End If
 		
 		CheckAndTapImg2(BATTLE_MASTER_SKILL_OPEN_TAR, null)
 		Delay BATTLE_MASTER_SKILL_AWAIT_MS
 		CheckAndTapImg2(BATTLE_MASTER_SKILL_DISPLAY_TAR, BATTLE_MASTER_SKILL_COORDS[SkillIndex])
-		If SkillTargetIndex > 0 Then
+		If SkillTargetIndex > 100 Then
+			CheckAndTapImg2(BATTLE_SKILL_CHANGE_CHECK_TAR, BATTLE_SKILL_CHANGE_HERO_COORDS[SkillChangeTargetIndex1])
+			Delay BATTLE_SKILL_CHANGE_SELECTED_AWAIT_MS
+			CheckAndTapImg2(BATTLE_SKILL_CHANGE_CHECK_TAR, BATTLE_SKILL_CHANGE_HERO_COORDS[SkillChangeTargetIndex2])
+			CheckAndTapImg2(BATTLE_SKILL_CHANGE_SELECTEED_CHECK_TAR, null)
+		ElseIf SkillTargetIndex > 0 Then
 			CheckAndTapImg2(BATTLE_SKILL_GRANT_CHECK_TAR, BATTLE_SKILL_GRANT_HREO_COORDS[SkillTargetIndex])
 		End If
 		clickAndWaitSkillAction()
@@ -366,7 +414,6 @@ Function DoBattle()
 
 
 	' Award
-
 	BattlePrint("award tie")
 	CheckAndTapImg2(AWARD_TIE_TAR, AWARD_TAP_COORD)
 	Delay AWARD_NORMAL_TAP_AWAIT_MS
@@ -375,9 +422,13 @@ Function DoBattle()
 	Delay AWARD_NORMAL_TAP_AWAIT_MS
 	TracePrint "award treasure"
 	CheckAndTapImg2(AWARD_TREASURE_NEXT_TAR, null)
+
+	' Normal Activity Award (Next)
+	TracePrint "activity award"
+	Delay AWARD_NORMAL_TAP_AWAIT_MS
+	CheckAndTapImg2(AWARD_TREASURE_NEXT_TAR, null)
 	
 	' Activity Award
-
 	'TracePrint "activity award"
 	'Delay AWARD_NORMAL_TAP_AWAIT_MS
 	'CheckAndTapImg2(AWARD_ACTIVITY_NEXT_TAR, null)
@@ -432,6 +483,9 @@ Function DoEnhance()
 	CheckNoImgAndTap2(ENHANCE_RECOMMAND_TAR, ENHANCE_ENHANCE_CONFIRM_TAR)
 	Delay 500
 End Function
+
+// START
+Traceprint "START FROM", DateTime.Format()
 
 Do While true
 	CurrentBattleCount = CurrentBattleCount + 1
