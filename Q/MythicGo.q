@@ -109,7 +109,7 @@ Function ContinuousCheckImgMiss(Target)
 			ContinuousCheckImgMiss = null
 			Exit Do
 		End If
-		Delay 250
+		Delay 150
 	Loop
 	TracePrint "missed: ", Target[1], Target[2]
 End Function
