@@ -5,20 +5,22 @@ Log.Open
 
 ' USER CONFIG
 Dim BATTLE_COUNT = 1
-Dim DEBUGE_MODULE_BATTLE = 1	'1 or 0
+Dim DEBUGE_MODULE_BATTLE = 0	'1 or 0
 Dim AllActionRound = Array(_
 	Array(_
-		Array("skill",  1,0, 2,1, 4,0, 5,0, 7,0, 8,3, 9,1),_
-		Array("attack", 6,4,5)_
+		Array("skill",  1,0, 4,0, 5,3, 7,0, 8,0),_
+		Array("attack", 7,4,5)_
 	),_
 	Array(_
-		Array("skill",  6,1),_
-		Array("attack", 6,4,5)_
+		Array("skill",  2,2, 3,2),_
+		Array("master", 3,104),_
+		Array("skill",  1,0, 2,2),_
+		Array("attack", 7,4,5)_
 	),_
 	Array(_
-		Array("skill",  3,0),_
-		Array("master", 2,1),_
-		Array("attack", 6,4,5)_
+		Array("skill",  3,3, 9,0),_
+		Array("master", 1,0),_
+		Array("attack", 8,4,5)_
 	)_
  )
 ' SKILL:Change undefined
@@ -174,7 +176,7 @@ Dim APPLE_CLOSE_COORD = Array(490, 630)
 
 
 ' OTHERS
-Dim INFINITE_ROLL_TAR = Array(330, 388, 570, 455, "Attachment:ROLL100.png") ' ROLL10 ROLL100
+Dim INFINITE_ROLL_TAR = Array(330, 388, 570, 567, "Attachment:ROLL100.png|Attachment:ROLL10.png") ' ROLL10 ROLL100
 
 Dim ENHANCE_RECOMMAND_TAR = Array(1240, 150, 1370, 208, "Attachment:ENHANCE_RECOMMAND.png")
 Dim ENHANCE_RECOMMAND_CONFIRM_TAR = Array(880, 680, 1006, 745, "Attachment:ENHANCE_RECOMMAND_CONFIRM.png")
@@ -426,6 +428,16 @@ Function DoBattle()
 	TracePrint "award treasure"
 	CheckAndTapImg2(AWARD_TREASURE_NEXT_TAR, null)
 
+	' Normal Activity Award (Next)
+	'TracePrint "activity award"
+	'Delay AWARD_NORMAL_TAP_AWAIT_MS
+	'CheckAndTapImg2(AWARD_TREASURE_NEXT_TAR, null)
+	
+	' Activity Award
+	'TracePrint "activity award"
+	'Delay AWARD_NORMAL_TAP_AWAIT_MS
+	'CheckAndTapImg2(AWARD_ACTIVITY_NEXT_TAR, null)
+
 
 	' Add Friend?
 	Delay ADD_FRIEND_CHECK_AWAIT_MS
@@ -434,6 +446,15 @@ Function DoBattle()
 		CheckAndTapImg2(ADD_FRIEND_TAR, null)
 	End If
 
+	' Again?
+	BattlePrint("again?")
+	If CurrentBattleCount < BATTLE_COUNT  Then
+		TracePrint "again: yes"
+		CheckAndTapImg2(AGAIN_ALERT_AGAIN_TAR, null)
+	Else
+		TracePrint "again: no"
+		CheckAndTapImg2(AGAIN_ALERT_CLOSE_TAR, null)
+	End If
 
 
 	' Apple?
@@ -474,8 +495,8 @@ Traceprint "START FROM", DateTime.Format()
 
 Do While true
 	CurrentBattleCount = CurrentBattleCount + 1
-	DoBattle()
-	'DoRoll()
+	'DoBattle()
+	DoRoll()
 	'DoEnhance()
 
 	TracePrint "BattleCount Current =", CurrentBattleCount, "Max = ", BATTLE_COUNT
