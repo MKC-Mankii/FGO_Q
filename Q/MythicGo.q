@@ -1,4 +1,5 @@
 ' SetScreenScale 810, 1440, 0
+' SetScreenScale 720, 1280, 0
 ' v5
 
 Log.Open
@@ -12,35 +13,23 @@ Dim NEED_REVERSE = true
 Dim COLOR_SIM = 0.9
 
 
-' OTHERS
-Dim INFINITE_ROLL_TAR = Array(330, 388, 570, 455, "Attachment:ROLL100.png") ' ROLL10 ROLL100
-
-Dim ENHANCE_RECOMMAND_TAR = Array(1240, 150, 1370, 208, "Attachment:ENHANCE_RECOMMAND.png")
-Dim ENHANCE_RECOMMAND_CONFIRM_TAR = Array(880, 680, 1006, 745, "Attachment:ENHANCE_RECOMMAND_CONFIRM.png")
-Dim ENHANCE_ENHANCE_TAR = Array(1340, 716, 1438, 798, "Attachment:ENHANCE_ENHANCE.png")
-Dim ENHANCE_ENHANCE_CONFIRM_TAR = Array(877, 632, 1006, 698, "Attachment:ENHANCE_ENHANCE_CONFIRM.png")
-
 ' Mythic heros
 
 
-Dim GET_GIFT_TAR = Array(1058, 620, 1120, 676, "Attachment:GET_GIFT.png")
-'Dim GET_GIFT_GOT_TAR = Array(111, 22, 146, 57, "Attachment:GET_GIFT_GOT.png")
-Dim GET_GIFT_GOT_COORD = Array(150, 150)
-Dim GET_GIFT_CLOSE_TAR = Array(111, 22, 146, 57, "Attachment:GET_GIFT_CLOSE.png")
-Dim GET_GIFT_OPENED_TAR = Array(111, 22, 146, 57, "Attachment:GET_GIFT_CLOSE.png|Attachment:GET_GIFT_GOT_CLOSE.png")
+Dim GET_GIFT_TAR = Array(130, 950, 160, 990, "Attachment:GET_GIFT.png")
+Dim GET_GIFT_GOT_COORD = Array(120, 120)
+Dim GET_GIFT_OPENED_TAR = Array(665, 96, 700, 130, "Attachment:GET_GIFT_CLOSE.png|Attachment:GET_GIFT_GOT_CLOSE.png")
+Dim GET_GIFT_CLOSE_TAR = Array(665, 96, 700, 130, "Attachment:GET_GIFT_CLOSE.png")
+Dim GET_GIFT_GOT_CLOSE_TAR = Array(665, 96, 700, 130, "Attachment:GET_GIFT_GOT_CLOSE.png")
+Dim GET_GIFT_GOT_ITEM_TAR = Array(328, 610, 380, 670, "Attachment:GET_GIFT_GOT_VOUCHER.png|Attachment:GET_GIFT_GOT_DIAMOND.png")
 
-
-'Dim GET_GIFT_TAR = Array(128, 1048, 192, 1124, "Attachment:GET_GIFT.png")
-'Dim GET_GIFT_CLOSE_TAR = Array(750, 111, 787, 146, "Attachment:GET_GIFT_CLOSE.png")
-
-Dim LIKE_GIFT_TAR = Array(466, 200, 680, 360, "Attachment:LIKE_GIFT6.png")
+Dim LIKE_GIFT_TAR = Array(414, 178, 604, 320, "Attachment:LIKE_GIFT6.png")
 Dim LIKE_GIFT_TAR_H_OFFSET = 30
 Dim LIKE_GIFT_BOTTOM_H_OFFSET = 166
-Dim LIKE_GIFT_DETAIL_TAR = Array(208, 321, 267, 406, "Attachment:LIKE_GIFT_DETAIL.png")
-Dim LIKE_GIFT_DETAIL_LIKE_COORD = Array(400, 130)
-Dim LIKE_LIKED_TAR = Array(371, 106, 416, 154, "Attachment:LIKE_LIKED.png")
-Dim LIKE_CLOSE_COORD = Array(111, 22)
-
+Dim LIKE_GIFT_DETAIL_TAR = Array(185, 285, 237, 361, "Attachment:LIKE_GIFT_DETAIL.png")
+Dim LIKE_GIFT_DETAIL_LIKE_COORD = Array(356, 116)
+Dim LIKE_LIKED_TAR = Array(330, 94, 370, 137, "Attachment:LIKE_LIKED.png")
+Dim LIKE_CLOSE_COORD = Array(99, 20)
 
 
 
@@ -68,7 +57,11 @@ End Function
 
 
 
-
+Function Tap2(TapPointX, TapPointY)
+	TouchDown TapPointX, TapPointY
+	Delay 100
+	TouchUp
+End Function
 
 
 // 取图法>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
@@ -85,7 +78,7 @@ Function CheckAndTapImg2(Target, TapPoint)
 		TapPointX = Point[1]
 		TapPointY = Point[2]
 	End If
-	tap TapPointX, TapPointY
+	Tap2 TapPointX, TapPointY
 End Function
 
 Function ContinuousCheckImg(Target)
@@ -120,7 +113,7 @@ Function CheckNoImgAndTap2(Target, TapPoint)
 		Dim GetImgCoord = CheckImg2(Target)
 		If GetImgCoord = null Then
 			TracePrint "cannot find ", AttachedImg, "then tap", TapPoint[1], TapPoint[2]
-			tap TapPoint[1], TapPoint[2]
+			Tap2 TapPoint[1], TapPoint[2]
 		Else
 			Exit Do
 		End If
@@ -140,12 +133,12 @@ Function CheckImg2(Target)
 End Function
 
 Function CheckNoImgAndTapOnce(Target, TapPoint)
-	TracePrint "CheckNoImgAndTapOnce ", AttachedImg, TapPoint[1], TapPoint[2]
 	Dim AttachedImg = Target[5]
+	TracePrint "CheckNoImgAndTapOnce ", AttachedImg, TapPoint[1], TapPoint[2]
 	Dim GetImgCoord = CheckImg2(Target)
 	If GetImgCoord = null Then
 		TracePrint "no img"
-		tap TapPoint[1], TapPoint[2]
+		Tap2 TapPoint[1], TapPoint[2]
 		CheckNoImgAndTapOnce = true
 	Else
 		CheckNoImgAndTapOnce = false
@@ -165,50 +158,43 @@ Function CheckMissImgAndTap(Target, TapPoint)
 		TapPointY = Target[2]
 	End If
 	ContinuousCheckImgMiss(Target)
-	tap TapPointX, TapPointY
+	Tap2 TapPointX, TapPointY
 End Function
 
 
 Function CheckTapImgAndReturnCoord(Target)
 	TracePrint "CheckTapImgAndReturnCoord", Target[1], Target[2], Target[5]
 	Dim Point = ContinuousCheckImg(Target)
-	tap Point[1], Point[2]
+	Tap2 Point[1], Point[2]
 	CheckTapImgAndReturnCoord = Point
 End Function
 
 // do Battle >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
 
-Function DoRoll()
-	CheckAndTapImg2(INFINITE_ROLL_TAR, null)
-	Delay 500
-	CheckNoImgAndTap2(INFINITE_ROLL_TAR, INFINITE_ROLL_TAR)
-End Function
-
-Function DoEnhance()
-	CheckAndTapImg2(ENHANCE_RECOMMAND_TAR, null)
-	Delay 500
-	CheckAndTapImg2(ENHANCE_RECOMMAND_CONFIRM_TAR, null)
-	Delay 500
-	CheckAndTapImg2(ENHANCE_ENHANCE_TAR, null)
-	Delay 500
-	CheckAndTapImg2(ENHANCE_ENHANCE_CONFIRM_TAR, null)
-	Delay 500
-	CheckNoImgAndTap2(ENHANCE_RECOMMAND_TAR, ENHANCE_ENHANCE_CONFIRM_TAR)
-	Delay 500
-End Function
-
 Function GetGift()
 	CheckMissImgAndTap(GET_GIFT_TAR, null)
 	Delay 1500
 	TracePrint "Checking Gift panel opened"
 	ContinuousCheckImg(GET_GIFT_OPENED_TAR)
-	Dim GotGift = CheckNoImgAndTapOnce(GET_GIFT_CLOSE_TAR, GET_GIFT_GOT_COORD)
-	If GotGift Then
+
+	TracePrint "Checking Gift got"
+	Dim GetImgCoord = CheckImg2(GET_GIFT_GOT_CLOSE_TAR)
+	'SnapShot "/storage/emulated/0/$MuMu共享文件夹/test" & DateTime.Format("%Y%m%d%H%M%S") &".png"
+	SnapShot "/sdcard/$MuMu12Shared/test" & DateTime.Format("%Y%m%d%H%M%S") &".png"
+	If GetImgCoord <> null Then
+		TracePrint "Got, wait for gift displayed"
+		ContinuousCheckImg(GET_GIFT_GOT_ITEM_TAR)
 		BattleSuccessCount = BattleSuccessCount + 1
+	Else
+		TracePrint "Not got"
 	End If
 	BattleTraceMsg = "Got Gift:" & BattleSuccessCount
+
+	TracePrint "Tap,if got"
+	CheckNoImgAndTapOnce(GET_GIFT_CLOSE_TAR, GET_GIFT_GOT_COORD)
 	Delay 500
+	TracePrint "Close panel"
 	CheckAndTapImg2(GET_GIFT_CLOSE_TAR, null)
 	Delay 1000
 End Function

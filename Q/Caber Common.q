@@ -1,101 +1,186 @@
-' SetScreenScale 576, 1024, 0
-' v2
-' 双C呆 通用
-' 可配置技能顺序
+' SetScreenScale 810, 1440, 0
+' v5
 
 Log.Open
 
 ' USER CONFIG
-Dim RoundCount = 3
-Dim RoundOperation1 = Array(
-	{"o":1, "t":1}, _
-	{"o":2, "t":1}, 
-)
-
+Dim BATTLE_COUNT = 1
+Dim DEBUGE_MODULE_BATTLE = 1	'1 or 0
+Dim AllActionRound = Array(_
+	Array(_
+		Array("skill",  1,0, 2,1, 4,0, 5,0, 7,0, 8,3, 9,1),_
+		Array("attack", 6,4,5)_
+	),_
+	Array(_
+		Array("skill",  6,1),_
+		Array("attack", 6,4,5)_
+	),_
+	Array(_
+		Array("skill",  3,0),_
+		Array("master", 2,1),_
+		Array("attack", 6,4,5)_
+	)_
+ )
+' SKILL:Change undefined
 
 ' BASIC CONFIG
 ' CONST
 Dim NEED_REVERSE = true
+Dim COLOR_SIM = 0.95
 
 ' PREPARE
-Dim PREPARE_FRIEND_CABER_COORD = Array(120, 200)
-Dim PREPARE_FRIEND_CABER_RGB = "8A4048|814949|FFF9E9"	' 138,64,72 129,73,73 255,249,233
+Dim ATT_Taigong = "Attachment:friendtaigong.png"
+Dim ATT_CDai = "Attachment:friendCDai.png|Attachment:friendCDai2.png|Attachment:friendCDai3.png"
+Dim ATT_Aobao = "Attachment:friendAobao.png|Attachment:friendAobao1.png"
+Dim ATT_Shahu = "Attachment:friendShaHu2.png"
+Dim PREPARE_FRIEND_TAR = Array(40, 180, 920, 800, ATT_Aobao)
+
 
 ' START
-Dim START_COORD = Array(900, 536)
-Dim START_RGB = "0E0E1D" ' 14,14,29
-Dim START_TAPED_DELAY = 15000
+Dim START_TAR = Array(1200, 700, 1420, 800, "Attachment:START_BTN.png")
+Dim START_TAPED_DELAY = 8000
 
 ' BATTLE: SKILL
 ' Hero skill
-Dim BATTLE_HERO_SKILL_1_COORD = Array(61, 460)
-Dim BATTLE_HERO_SKILL_2_COORD = Array(130, 465)
-Dim BATTLE_HERO_SKILL_3_COORD = Array(204, 463)
-Dim BATTLE_HERO_SKILL_4_COORD = Array(315, 460)
-Dim BATTLE_HERO_SKILL_5_COORD = Array(384, 465)
-Dim BATTLE_HERO_SKILL_6_COORD = Array(458, 463)
-Dim BATTLE_HERO_SKILL_7_COORD = Array(569, 460)
-Dim BATTLE_HERO_SKILL_8_COORD = Array(638, 462)
-Dim BATTLE_HERO_SKILL_9_COORD = Array(709, 465)
+Dim BATTLE_HERO_SKILL_COORDS = Array(_
+	Array(84, 650),_
+	Array(183, 650),_
+	Array(282, 650),_
+	Array(441, 650),_
+	Array(540, 650),_
+	Array(639, 650),_
+	Array(799, 650),_
+	Array(897, 650),_
+	Array(996, 650)_
+ )
 ' Hero Skill display check: attack button
-Dim BATTLE_HERO_SKILL_CHECK_COORD = Array(905, 485)
-Dim BATTLE_HERO_SKILL_CHECK_RGB = "00B3E5" ' 0,179,229
-' Skill Grant
-Dim BATTLE_SKILL_GRANT_HREO_1_COORD = Array(260, 330)
-Dim BATTLE_SKILL_GRANT_HREO_2_COORD = Array(510, 330)
-Dim BATTLE_SKILL_GRANT_HREO_3_COORD = Array(760, 330)
-' Skill Grant display check: close button
-Dim BATTLE_SKILL_GRANT_CHECK_COORD = Array(878, 120) '
-Dim BATTLE_SKILL_GRANT_CHECK_RGB = "2B336C" ' 43,51,108
-' Master skill
-Dim BATTLE_MASTER_SKILL_OPEN_COORD = Array(955, 250)
-Dim BATTLE_MASTER_SKILL_OPEN_RGB = "0E2F69" ' 14,47,105
-Dim BATTLE_MASTER_SKILL_AWAIT_MS = 200
-Dim BATTLE_MASTER_SKILL_1_COORD = Array(725, 250)
-Dim BATTLE_MASTER_SKILL_2_COORD = Array(800, 250)
-Dim BATTLE_MASTER_SKILL_3_COORD = Array(870, 250)
-' Master skill display check: skill 1 top
-Dim BATTLE_MASTER_SKILL_DISPLAY_COORD = Array(725, 222) ' Display Reference by skill 1 top
-Dim BATTLE_MASTER_SKILL_DISPLAY_RGB = "FEFEFE|FFFFFF" ' 254,254,254
+Dim BATTLE_HERO_SKILL_CHECK_TAR = Array(1200, 700, 1350, 750, "Attachment:ATTACK_BTN.png")
 
+' Skill Grant
+Dim BATTLE_SKILL_GRANT_HREO_COORDS = Array(_
+	Array(360, 500),_
+	Array(717, 500),_
+	Array(1074, 500)_
+ )
+' Skill Grant display check: close button
+Dim BATTLE_SKILL_GRANT_CHECK_TAR = Array(1205, 142, 1267, 198, "Attachment:BATTLE_SKILL_GRANT_CHECK.png")
+
+
+' Skill Change
+Dim BATTLE_SKILL_CHANGE_HERO_COORDS = Array(_
+	Array(150, 390),_
+	Array(375, 390),_
+	Array(600, 390),_
+	Array(825, 390),_
+	Array(1050, 390),_
+	Array(1275, 390)_
+ )
+' Skill Change: display check: change button
+Dim BATTLE_SKILL_CHANGE_CHECK_TAR = Array(723, 685, 777, 719, "Attachment:BATTLE_SKILL_CHANGE_CHECK.png")
+' Skill Change: selected check: change button
+Dim BATTLE_SKILL_CHANGE_SELECTEED_CHECK_TAR = Array(723, 685, 777, 719, "Attachment:BATTLE_SKILL_CHANGE_SELECTEED_CHECK.png")
+Dim BATTLE_SKILL_CHANGE_SELECTED_AWAIT_MS = 200
+
+' Master skill
+Dim BATTLE_MASTER_SKILL_OPEN_TAR = Array(1317, 325, 1370, 376, "Attachment:BATTLE_MASTER_SKILL_OPEN3.png")
+Dim BATTLE_MASTER_SKILL_AWAIT_MS = 200
+Dim BATTLE_MASTER_SKILL_COORDS = Array(_
+	Array(1020, 350),_
+	Array(1120, 350),_
+	Array(1220, 350)_
+ )
+' Master skill display check: skill 1 top
+Dim BATTLE_MASTER_SKILL_DISPLAY_TAR = Array(980, 310, 1059, 316, "Attachment:BATTLE_MASTER_SKILL_DISPLAY.png") 
+' Display Reference by skill 1 top
+
+
+Dim BATTLE_SKILL_SPEEDUP_AWAIT_MS = 50
 Dim BATTLE_SKILL_NORMAL_AWAIT_MS = 500
 
 ' BATTLE: ATTACK
-Dim BATTLE_ATTACK_COORD = Array(905, 485)
-Dim BATTLE_ATTACK_RGB = "00B3E5" ' 0,179,229
-Dim BATTLE_ULTIMATE_DISPLAY_AWAIT_MS = 2000
-Dim BATTLE_ATTACK_BACK_COORD = Array(958, 544) 
-Dim BATTLE_ATTACK_BACK_RGB = "87A9DC" ' 135,169,220
-Dim BATTLE_ATTACK_ULTIMATE_3_COORD = Array(699, 165)
-Dim BATTLE_ATTACK_ULTIMATE_3_FIRST_TAPED_COORD = Array(699, 165)
-Dim BATTLE_ATTACK_ULTIMATE_3_FIRST_TAPED_RGB = "EFE2C3" ' 239,226,195 ' Maybe different with other hero
-Dim BATTLE_ATTACK_CARD_4_COORD = Array(717, 404)
-Dim BATTLE_ATTACK_CARD_4_SECOND_TAPED_COORD = Array(717, 404)
-Dim BATTLE_ATTACK_CARD_4_SECOND_TAPED_RGB = "FFFFFE" ' 255,255,254
-Dim BATTLE_ATTACK_CARD_5_COORD = Array(922, 404)
-Dim BATTLE_CARD_TAPED_AWAIT_MS = 500
-Dim BATTLE_ULTIMATE_PLAY_AWAIT_MS = 26000
-Dim BATTLE_ULTIMATE_PLAY_LAST_AWAIT_MS = 20000
+
+
+
+
+
+Dim BATTLE_ULTIMATE_DISPLAY_AWAIT_MS = 1000
+
+Dim BATTLE_ATTACK_BACK_TAR = Array(1300, 750, 1390, 785, "Attachment:BATTLE_ATTACK_BACK2.png") 
+
+Dim BATTLE_ATTACK_CARD_COORDS = Array(_
+	Array(118, 581),_
+	Array(408, 581),_
+	Array(698, 581),_
+	Array(991, 581),_
+	Array(1278, 581),_
+	Array(412, 322),_
+	Array(699, 322),_
+	Array(986, 322)_
+ )
+Dim BATTLE_ATTACK_CARD_FIRST_TAPED_TARS = Array(_
+	Array(),_
+	Array(),_
+	Array(698, 581, 722, 588, "Attachment:BATTLE_ATTACK_CARD_3_FIRST_TAPED.png"),_
+	Array(),_
+	Array(),_
+	Array(400, 315, 550, 352, "Attachment:ULT_Taped_Red1.png|Attachment:ULT_Taped_Blue1.png"),_
+	Array(680, 315, 790, 352, "Attachment:ULT_Taped_Red2.png|Attachment:ULT_Taped_Blue2.png"),_
+	Array(940, 314, 1042, 352, "Attachment:ULT_Taped_Red3.png|Attachment:ULT_Taped_Blue3.png|Attachment:ULT_Taped_Green3.png")_
+ )
+Dim BATTLE_ATTACK_CARD_SECON_TAPED_TARS = Array(_
+	Array(),_
+	Array(),_
+	Array(),_
+	Array(991, 581, 1016, 588, "Attachment:BATTLE_ATTACK_CARD_4_SECOND_TAPED.png"),_
+	Array(),_
+	Array(),_
+	Array(704, 227, 727, 238, "Attachment:BATTLE_ATTACK_CARD_7_SECOND_TAPED.png"),_
+	Array(962, 227, 987, 238, "Attachment:BATTLE_ATTACK_CARD_8_SECOND_TAPED.png")_
+ )
+
+
+Dim BATTLE_CARD_TAPED_AWAIT_MS = 300
+Dim BATTLE_ROUND_CHANGE_AWAIT_MS = 6000
+Dim BATTLE_NORMAL_ATTACK_PLAY_AWAIT_MS = 5000 + BATTLE_ROUND_CHANGE_AWAIT_MS
+Dim BATTLE_ULTIMATE_PLAY_1_AWAIT_MS = 10000 + BATTLE_ROUND_CHANGE_AWAIT_MS
+Dim BATTLE_ULTIMATE_PLAY_2_AWAIT_MS = 13000 + BATTLE_ROUND_CHANGE_AWAIT_MS
+Dim BATTLE_LAST_ROUND_END_AWAIT_MS = 3000
+Dim BATTLE_ULTIMATE_PLAY_LAST_AWAIT_MS = 18000 + BATTLE_LAST_ROUND_END_AWAIT_MS
 
 ' AWARD
-Dim AWARD_TIE_COORD = Array(74, 149)
-Dim AWARD_TIE_RGB = "ECBC29" ' 236,188,41
+Dim AWARD_TIE_TAR = Array(180, 120, 250, 260, "Attachment:AWARD_TIE.png") ' normal:TIE, special:TIE2
+Dim AWARD_TAP_COORD = Array(166, 60)
+Dim AWARD_TREASURE_NEXT_TAR = Array(1178, 696, 1282, 740, "Attachment:AWARD_TREASURE_NEXT.png")
 Dim AWARD_NORMAL_TAP_AWAIT_MS = 300
-Dim AWARD_MASTER_EXP_COORD = Array(529, 163)
-Dim AWARD_MASTER_EXP_RGB = "EEBC20" ' 238,188,32
-Dim AWARD_TREASURE_COORD = Array(864, 510)
-Dim AWARD_TREASURE_RGB = "435073" ' 67,80,115
+
+' Activity AWARD
+Dim AWARD_ACTIVITY_NEXT_TAR = Array(1178, 696, 1282, 740, "Attachment:AWARD_TREASURE_NEXT.png")
+
+' ADD FRIEND
+Dim ADD_FRIEND_CHECK_AWAIT_MS = 500
+Dim ADD_FRIEND_TAR = Array(325, 670, 415, 715, "Attachment:ADD_FRIEND_CLOSE.png")
 
 ' AGAIN
-Dim AGAIN_ALERT_CLOSE_COORD = Array(352, 451)
-Dim AGAIN_ALERT_CLOSE_RGB = "767676" ' 118,118,118
-Dim AGAIN_ALERT_CLOSE_AGAGIN = Array(669, 451)
+Dim AGAIN_ALERT_AGAIN_TAR = Array(860, 614, 946, 658, "Attachment:AGAIN_ALERT_AGAIN.png")
+Dim AGAIN_ALERT_CLOSE_TAR = Array(450, 612, 545, 658, "Attachment:AGAIN_ALERT_CLOSE.png")
 
 ' APPLE
-Dim APPLE_GLODEN_COORD = Array(300, 250)
-Dim APPLE_GLODEN_RGB = "FAE950" ' 250,233,80
-Dim APPLE_EAT_CONFIRM_COORD = Array(670, 450)
-Dim APPLE_EAT_CONFIRM_RGB = "C0C0C0" ' 192,192,192
+Dim APPLE_CHECK_AWAIT_MS = 500
+Dim APPLE_DISPLAY_TAR = Array(634, 37, 743, 83, "Attachment:APPLE_DISPLAY.png")
+Dim APPLE_GLODEN_COORD = Array(420, 360)
+Dim APPLE_SILVER_COORD = Array(420, 520)
+Dim APPLE_CONFIRM_TAR = Array(895, 608, 992, 660, "Attachment:APPLE_CONFIRM.png")
+Dim APPLE_CLOSE_COORD = Array(490, 630)
+
+
+' OTHERS
+Dim INFINITE_ROLL_TAR = Array(330, 388, 570, 455, "Attachment:ROLL100.png") ' ROLL10 ROLL100
+
+Dim ENHANCE_RECOMMAND_TAR = Array(1240, 150, 1370, 208, "Attachment:ENHANCE_RECOMMAND.png")
+Dim ENHANCE_RECOMMAND_CONFIRM_TAR = Array(880, 680, 1006, 745, "Attachment:ENHANCE_RECOMMAND_CONFIRM.png")
+Dim ENHANCE_ENHANCE_TAR = Array(1340, 716, 1438, 798, "Attachment:ENHANCE_ENHANCE.png")
+Dim ENHANCE_ENHANCE_CONFIRM_TAR = Array(877, 632, 1006, 698, "Attachment:ENHANCE_ENHANCE_CONFIRM.png")
+
 
 ' VARIATE
 Dim IsFirstBattle = true
@@ -104,41 +189,37 @@ Dim IsFirstBattle = true
 ' 屏幕横坐标X=GetScreenX()
 ' 屏幕纵坐标Y=GetScreenY()
 ' TracePrint 屏幕横坐标X,屏幕纵坐标Y
-' SetScreenScale 576, 1024, 0
+' SetScreenScale 810, 1440, 0
 
-Function RGBToBGR(RGBs)
-	Dim RGBArr = Split(RGBs, "|")
-	Dim BGRArr = Array()
-	For Each RGB_SINGLE In RGBArr
-		RGB_SINGLE = Mid(RGB_SINGLE, 5, 2) & Mid(RGB_SINGLE, 3, 2) & Mid(RGB_SINGLE, 1, 2)
-		BGRArr[UBound(BGRArr)+2] = RGB_SINGLE
-	Next
-	RGBToBGR = Join(BGRArr, "|")
+
+Dim CurrentBattleCount = 0
+
+
+
+
+Function BattlePrint(Msg)
+	TracePrint "Battle", CurrentBattleCount, Msg
 End Function
 
-Function CheckPointBGR(PointX, PointY, BGRs)
-	TracePrint "check:", PointX, PointY, BGRs
-	' Dim rColor
-	' rColor = GetPixelColor(120, 200)
-	' rColor = GetPixelColor(120, 201)
-	' TracePrint "这个点的颜色为："&rColor
-	Dim IntX,IntY
-	' Dim Count = 0
-	Do While true
-		FindMultiColor PointX-1, PointY-1, PointX+1, PointY+1,BGRs,"",1,1,intX,intY
-		If intX > 0 Then
-			' ShowMessage ( Count & ":" & CStr(IntX) & " a " & CStr(IntY))
-			Exit Do
-		End If
-		Delay 500
-		' Count = Count+1
-	Loop
-	TracePrint "find out:", IntX, IntY
+Function clickAndWaitSkillAction()
+	Delay BATTLE_SKILL_SPEEDUP_AWAIT_MS
+	tap 144, 512
+	Delay BATTLE_SKILL_NORMAL_AWAIT_MS
 End Function
 
-Function CheckAndTapRGB(Point, RGBs, TapPoint)
-	Dim CheckPointX = Point[1]
-	Dim CheckPointY = Point[2]
+
+
+
+
+
+
+
+
+// 取图法>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+Function CheckAndTapImg2(Target, TapPoint)
+	TracePrint "CheckAndTapImg2", Target[1], Target[2], Target[5]
+	Dim Point = ContinuousCheckImg(Target)
 	Dim TapPointX
 	Dim TapPointY
 	If TapPoint Then
@@ -148,50 +229,260 @@ Function CheckAndTapRGB(Point, RGBs, TapPoint)
 		TapPointX = Point[1]
 		TapPointY = Point[2]
 	End If
-
-	Dim BGRs = RGBToBGR(RGBs)
-	
-	CheckPointBGR(CheckPointX, CheckPointY, BGRs)
-
 	tap TapPointX, TapPointY
 End Function
 
+Function ContinuousCheckImg(Target)
+	Dim GetImgCoord
+	Do While true
+		GetImgCoord = CheckImg2(Target)
+		If GetImgCoord <> null Then
+			ContinuousCheckImg = Array(GetImgCoord[1], GetImgCoord[2])
+			Exit Do
+		End If
+		Delay 500
+	Loop
+	TracePrint "found: ", GetImgCoord[1], GetImgCoord[2]
+End Function
+
+Function ContinuousCheckImgMiss(Target)
+	Dim GetImgCoord
+	Do While true
+		GetImgCoord = CheckImg2(Target)
+		If GetImgCoord = null Then
+			ContinuousCheckImgMiss = null
+			Exit Do
+		End If
+		Delay 500
+	Loop
+	TracePrint "missed: ", Target[1], Target[2]
+End Function
+
+Function CheckNoImgAndTap2(Target, TapPoint)
+	Dim AttachedImg = Target[5]
+	Do While true
+		Dim GetImgCoord = CheckImg2(Target)
+		If GetImgCoord = null Then
+			TracePrint "cannot find ", AttachedImg, "then tap", TapPoint[1], TapPoint[2]
+			tap TapPoint[1], TapPoint[2]
+		Else
+			Exit Do
+		End If
+		Delay 300
+	Loop
+End Function
+
+Function CheckImg2(Target)
+	Dim Area = Target
+	Dim AttachedImg = Target[5]
+	'TracePrint "check: ", Area[1], Area[2], Area[3], Area[4], AttachedImg
+	Dim intX, intY
+	FindPic Area[1], Area[2], Area[3], Area[4], AttachedImg, "000000", 0, 0.9, intX, intY
+	If intX > -1 And intY > -1 Then
+		CheckImg2 = Array(intX, intY)
+	End If
+End Function
+
+Function CheckNoImgAndTapOnce(Target, TapPoint)
+	Dim AttachedImg = Target[5]
+	Dim GetImgCoord = CheckImg2(Target)
+	If GetImgCoord = null Then
+		TracePrint "CheckNoImgAndTapOnce ", AttachedImg, TapPoint[1], TapPoint[2]
+		tap TapPoint[1], TapPoint[2]
+	Else
+	End If
+End Function
+
+Function CheckMissImgAndTap(Target, TapPoint)
+	TracePrint "CheckMissImgAndTap", Target[1], Target[2], Target[5]
+	Dim AttachedImg = Target[5]
+	Dim TapPointX
+	Dim TapPointY
+	If TapPoint Then
+		TapPointX = TapPoint[1]
+		TapPointY = TapPoint[2]
+	Else
+		TapPointX = Target[1]
+		TapPointY = Target[2]
+	End If
+	ContinuousCheckImgMiss(Target)
+	tap TapPointX, TapPointY
+End Function
+
+// do Battle >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+Function ChooseFriend()
+	BattlePrint("Choose Friend")
+	CheckAndTapImg2(PREPARE_FRIEND_TAR, null)
+End Function
+Function CheckFirstBattle2Start()
+	If IsFirstBattle Then
+		TracePrint "First Battle Start"
+		CheckAndTapImg2(START_TAR, null)
+		IsFirstBattle = false
+	End If
+End Function
+
+Function DoSkillActions(ActionsGroup)
+	TracePrint "skill"
+	Dim ActionsCount = (UBound(ActionsGroup))/2
+	For ActionIndex = 1 To ActionsCount
+		Dim SkillIndex = ActionsGroup[ActionIndex*2]
+		TracePrint "skill", SkillIndex
+		Dim SkillTargetIndex = ActionsGroup[ActionIndex*2 + 1]
+		CheckAndTapImg2(BATTLE_HERO_SKILL_CHECK_TAR, BATTLE_HERO_SKILL_COORDS[SkillIndex])
+		If SkillTargetIndex > 0 Then
+			CheckAndTapImg2(BATTLE_SKILL_GRANT_CHECK_TAR, BATTLE_SKILL_GRANT_HREO_COORDS[SkillTargetIndex])
+		End If
+		clickAndWaitSkillAction()
+	Next
+End Function
+
+Function DoMasterActions(ActionsGroup)
+	Dim ActionsCount = (UBound(ActionsGroup))/2
+	For ActionIndex = 1 To ActionsCount
+		Dim SkillIndex = ActionsGroup[ActionIndex*2]
+		TracePrint "master", SkillIndex
+		Dim SkillTargetIndex = ActionsGroup[ActionIndex*2 + 1]
+		Dim SkillChangeTargetIndex1
+		Dim SkillChangeTargetIndex2
+		If SkillTargetIndex > 100 Then
+			SkillChangeTargetIndex1 = Fix(SkillTargetIndex/100)
+			SkillChangeTargetIndex2 = SkillTargetIndex - SkillChangeTargetIndex1*100
+		End If
+		
+		CheckAndTapImg2(BATTLE_MASTER_SKILL_OPEN_TAR, null)
+		Delay BATTLE_MASTER_SKILL_AWAIT_MS
+		CheckAndTapImg2(BATTLE_MASTER_SKILL_DISPLAY_TAR, BATTLE_MASTER_SKILL_COORDS[SkillIndex])
+		If SkillTargetIndex > 100 Then
+			CheckAndTapImg2(BATTLE_SKILL_CHANGE_CHECK_TAR, BATTLE_SKILL_CHANGE_HERO_COORDS[SkillChangeTargetIndex1])
+			Delay BATTLE_SKILL_CHANGE_SELECTED_AWAIT_MS
+			CheckAndTapImg2(BATTLE_SKILL_CHANGE_CHECK_TAR, BATTLE_SKILL_CHANGE_HERO_COORDS[SkillChangeTargetIndex2])
+			CheckAndTapImg2(BATTLE_SKILL_CHANGE_SELECTEED_CHECK_TAR, null)
+		ElseIf SkillTargetIndex > 0 Then
+			CheckAndTapImg2(BATTLE_SKILL_GRANT_CHECK_TAR, BATTLE_SKILL_GRANT_HREO_COORDS[SkillTargetIndex])
+		End If
+		clickAndWaitSkillAction()
+	Next
+End Function
+
+Function DoAttackActions(ActionsGroup)
+	TracePrint "attack"
+	CheckAndTapImg2(BATTLE_HERO_SKILL_CHECK_TAR, null)
+	Delay BATTLE_ULTIMATE_DISPLAY_AWAIT_MS
+	
+	Dim FirstCardIndex = ActionsGroup[2]
+	CheckAndTapImg2(BATTLE_ATTACK_BACK_TAR, BATTLE_ATTACK_CARD_COORDS[FirstCardIndex])
+	Delay BATTLE_CARD_TAPED_AWAIT_MS
+
+	Dim SecondCardIndex = ActionsGroup[3]
+	CheckAndTapImg2(BATTLE_ATTACK_CARD_FIRST_TAPED_TARS[FirstCardIndex], BATTLE_ATTACK_CARD_COORDS[SecondCardIndex])
+	Delay BATTLE_CARD_TAPED_AWAIT_MS
+
+	Dim ThirdCardIndex = ActionsGroup[4]
+	CheckAndTapImg2(BATTLE_ATTACK_CARD_SECON_TAPED_TARS[SecondCardIndex], BATTLE_ATTACK_CARD_COORDS[ThirdCardIndex])
+	Delay BATTLE_NORMAL_ATTACK_PLAY_AWAIT_MS
+End Function
+
+Function DoGroupActions(ActionsGroup)
+	If ActionsGroup[1] = "skill" Then
+		DoSkillActions(ActionsGroup)
+	ElseIf ActionsGroup[1] = "master" Then
+		DoMasterActions(ActionsGroup)
+	ElseIf ActionsGroup[1] = "attack" Then
+		DoAttackActions(ActionsGroup)
+	End If
+End Function
+
+Function DoBattle()
+	
+	If DEBUGE_MODULE_BATTLE = 0 Then
+		ChooseFriend()
+		CheckFirstBattle2Start()
+
+		BattlePrint("Delay to battle")
+		Delay START_TAPED_DELAY
+	End If
+
+	Dim RoundCount = UBound(AllActionRound)+1
+	For RoundIndex = 1 To RoundCount
+		BattlePrint("Round " & RoundIndex)
+		Dim ActionsRound = AllActionRound[RoundIndex]
+		' ActionsGroup
+		Dim ActionsGroupCount = UBound(ActionsRound)+1
+		For ActionsGroupIndex = 1 To ActionsGroupCount
+			Dim ActionsGroup = ActionsRound[ActionsGroupIndex]
+			DoGroupActions(ActionsGroup)
+		Next
+	Next
+
+
+	' Award
+	BattlePrint("award tie")
+	CheckAndTapImg2(AWARD_TIE_TAR, AWARD_TAP_COORD)
+	Delay AWARD_NORMAL_TAP_AWAIT_MS
+	TracePrint "award before treasure"
+	CheckNoImgAndTap2(AWARD_TREASURE_NEXT_TAR, AWARD_TAP_COORD)
+	Delay AWARD_NORMAL_TAP_AWAIT_MS
+	TracePrint "award treasure"
+	CheckAndTapImg2(AWARD_TREASURE_NEXT_TAR, null)
+
+
+	' Add Friend?
+	Delay ADD_FRIEND_CHECK_AWAIT_MS
+	Dim CheckAddFriendSuccess = CheckImg2(ADD_FRIEND_TAR)
+	If CheckAddFriendSuccess <> null Then
+		CheckAndTapImg2(ADD_FRIEND_TAR, null)
+	End If
 
 
 
+	' Apple?
+	BattlePrint("apple?")
+	If CurrentBattleCount < BATTLE_COUNT  Then
+		Delay APPLE_CHECK_AWAIT_MS
+		Dim CheckAppleAlertSuccess = CheckImg2(APPLE_DISPLAY_TAR)
+		If CheckAppleAlertSuccess <> null Then
+			CheckAndTapImg2(APPLE_DISPLAY_TAR, APPLE_GLODEN_COORD)
+			CheckAndTapImg2(APPLE_CONFIRM_TAR, null)
+		End If
+	End If
 
-TracePrint "Choose Friend"
-CheckAndTapRGB(PREPARE_FRIEND_CABER_COORD, PREPARE_FRIEND_CABER_RGB, null)
 
-If IsFirstBattle Then
-	TracePrint "Start"
-	CheckAndTapRGB(START_COORD, START_RGB, null)
-	IsFirstBattle = false
-End If
+End Function
 
-TracePrint "Delay to battle"
-Delay START_TAPED_DELAY
+Function DoRoll()
+	CheckAndTapImg2(INFINITE_ROLL_TAR, null)
+	Delay 500
+	CheckNoImgAndTap2(INFINITE_ROLL_TAR, INFINITE_ROLL_TAR)
+End Function
 
-' Round 1
+Function DoEnhance()
+	CheckAndTapImg2(ENHANCE_RECOMMAND_TAR, null)
+	Delay 500
+	CheckAndTapImg2(ENHANCE_RECOMMAND_CONFIRM_TAR, null)
+	Delay 500
+	CheckAndTapImg2(ENHANCE_ENHANCE_TAR, null)
+	Delay 500
+	CheckAndTapImg2(ENHANCE_ENHANCE_CONFIRM_TAR, null)
+	Delay 500
+	CheckNoImgAndTap2(ENHANCE_RECOMMAND_TAR, ENHANCE_ENHANCE_CONFIRM_TAR)
+	Delay 500
+End Function
 
-' Award
-TracePrint "award tie"
-CheckAndTapRGB(AWARD_TIE_COORD, AWARD_TIE_RGB, null)
-Delay AWARD_NORMAL_TAP_AWAIT_MS
-CheckAndTapRGB(AWARD_TIE_COORD, AWARD_TIE_RGB, null)
-Delay AWARD_NORMAL_TAP_AWAIT_MS
-TracePrint "award master exp"
-CheckAndTapRGB(AWARD_MASTER_EXP_COORD, AWARD_MASTER_EXP_RGB, null)
-Delay AWARD_NORMAL_TAP_AWAIT_MS
-CheckAndTapRGB(AWARD_MASTER_EXP_COORD, AWARD_MASTER_EXP_RGB, null)
-Delay AWARD_NORMAL_TAP_AWAIT_MS
-TracePrint "award treasure"
-CheckAndTapRGB(AWARD_TREASURE_COORD, AWARD_TREASURE_RGB, null)
+// START
+Traceprint "START FROM", DateTime.Format()
 
-' Again
-' TracePrint "again: close"
-' CheckAndTapRGB(AGAIN_ALERT_CLOSE_COORD, AGAIN_ALERT_CLOSE_RGB, null)
-TracePrint "again: yes"
-CheckAndTapRGB(AGAIN_ALERT_CLOSE_COORD, AGAIN_ALERT_CLOSE_RGB, AGAIN_ALERT_CLOSE_AGAGIN)
+Do While true
+	CurrentBattleCount = CurrentBattleCount + 1
+	DoBattle()
+	'DoRoll()
+	'DoEnhance()
+
+	TracePrint "BattleCount Current =", CurrentBattleCount, "Max = ", BATTLE_COUNT
+	If CurrentBattleCount >= BATTLE_COUNT Then
+		TracePrint "END"
+		Exit Do
+	End If
+Loop
 
 Log.Close
