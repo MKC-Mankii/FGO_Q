@@ -5,23 +5,23 @@ Log.Open
 
 ' USER CONFIG
 Dim BATTLE_COUNT = 1
-Dim DEBUGE_MODULE_BATTLE = 1	'1 or 0
+Dim DEBUGE_MODULE_BATTLE = 0	'1 or 0
 Dim AllActionRound = Array(_
 	Array(_
-		Array("skill",  1,0, 2,1, 4,0, 5,0, 7,0, 8,3, 9,1),_
-		Array("attack", 6,4,5)_
+	Array("skill",  2,3, 3,3, 5,3, 6,3, 8,0),_
+		Array("attack", 8,4,5)_
 	),_
 	Array(_
-		Array("skill",  6,1),_
-		Array("attack", 6,4,5)_
+		Array("skill",  1,0),_
+		Array("attack", 8,4,5)_
 	),_
 	Array(_
-		Array("skill",  3,0),_
-		Array("master", 2,1),_
-		Array("attack", 6,4,5)_
+		Array("skill",  4,0),_
+		Array("attack", 8,4,5)_
 	)_
  )
-' SKILL:Change undefined
+
+' SKILL:Change: Array("master", 3,104),_
 
 ' BASIC CONFIG
 ' CONST
@@ -33,7 +33,9 @@ Dim ATT_Taigong = "Attachment:friendtaigong.png"
 Dim ATT_CDai = "Attachment:friendCDai.png|Attachment:friendCDai2.png|Attachment:friendCDai3.png"
 Dim ATT_Aobao = "Attachment:friendAobao.png|Attachment:friendAobao1.png"
 Dim ATT_Shahu = "Attachment:friendShaHu2.png"
-Dim PREPARE_FRIEND_TAR = Array(40, 180, 920, 800, ATT_Aobao)
+Dim ATT_Princess = "Attachment:friendPrincess.png|Attachment:friendPrincess2.png"
+Dim ATT_Princess120 = "Attachment:friendPrincess120.png|Attachment:friendPrincess1202.png|Attachment:friendPrincess1203.png"
+Dim PREPARE_FRIEND_TAR = Array(40, 180, 920, 800, ATT_CDai)
 
 
 ' START
@@ -82,8 +84,8 @@ Dim BATTLE_SKILL_CHANGE_SELECTEED_CHECK_TAR = Array(723, 685, 777, 719, "Attachm
 Dim BATTLE_SKILL_CHANGE_SELECTED_AWAIT_MS = 200
 
 ' Master skill
-Dim BATTLE_MASTER_SKILL_OPEN_TAR = Array(1317, 325, 1370, 376, "Attachment:BATTLE_MASTER_SKILL_OPEN3.png")
-Dim BATTLE_MASTER_SKILL_AWAIT_MS = 200
+Dim BATTLE_MASTER_SKILL_OPEN_TAR = Array(1317, 325, 1370, 376, "Attachment:BATTLE_MASTER_SKILL_OPEN.png")
+Dim BATTLE_MASTER_SKILL_AWAIT_MS = 300
 Dim BATTLE_MASTER_SKILL_COORDS = Array(_
 	Array(1020, 350),_
 	Array(1120, 350),_
@@ -105,7 +107,7 @@ Dim BATTLE_SKILL_NORMAL_AWAIT_MS = 500
 
 Dim BATTLE_ULTIMATE_DISPLAY_AWAIT_MS = 1000
 
-Dim BATTLE_ATTACK_BACK_TAR = Array(1300, 750, 1390, 785, "Attachment:BATTLE_ATTACK_BACK2.png") 
+Dim BATTLE_ATTACK_BACK_TAR = Array(1300, 750, 1390, 785, "Attachment:BATTLE_ATTACK_BACK.png") 
 
 Dim BATTLE_ATTACK_CARD_COORDS = Array(_
 	Array(118, 581),_
@@ -123,18 +125,18 @@ Dim BATTLE_ATTACK_CARD_FIRST_TAPED_TARS = Array(_
 	Array(698, 581, 722, 588, "Attachment:BATTLE_ATTACK_CARD_3_FIRST_TAPED.png"),_
 	Array(),_
 	Array(),_
-	Array(400, 315, 550, 352, "Attachment:ULT_Taped_Red1.png|Attachment:ULT_Taped_Blue1.png"),_
+	Array(400, 315, 550, 352, "Attachment:ULT_Taped_Red1.png|Attachment:ULT_Taped_Blue1.png|Attachment:ULT_Taped_Green1.png"),_
 	Array(680, 315, 790, 352, "Attachment:ULT_Taped_Red2.png|Attachment:ULT_Taped_Blue2.png"),_
-	Array(940, 314, 1042, 352, "Attachment:ULT_Taped_Red3.png|Attachment:ULT_Taped_Blue3.png|Attachment:ULT_Taped_Green3.png")_
+	Array(930, 221, 1048, 259, "Attachment:ULT_Taped_Red3.png|Attachment:ULT_Taped_Blue3.png|Attachment:ULT_Taped_Green3.png")_
  )
 Dim BATTLE_ATTACK_CARD_SECON_TAPED_TARS = Array(_
 	Array(),_
 	Array(),_
 	Array(),_
-	Array(991, 581, 1016, 588, "Attachment:BATTLE_ATTACK_CARD_4_SECOND_TAPED.png"),_
+	Array(950, 560, 1071, 600, "Attachment:BATTLE_ATTACK_CARD_4_SECOND_TAPED.png"),_
 	Array(),_
 	Array(),_
-	Array(704, 227, 727, 238, "Attachment:BATTLE_ATTACK_CARD_7_SECOND_TAPED.png"),_
+	Array(704, 227, 727, 238, "Attachment:BATTLE_ATTACK_CARD_7_SECOND_TAPED.png|Attachment:BATTLE_ATTACK_CARD_7_SECOND_TAPED2.png"),_
 	Array(962, 227, 987, 238, "Attachment:BATTLE_ATTACK_CARD_8_SECOND_TAPED.png")_
  )
 
@@ -154,6 +156,7 @@ Dim AWARD_TREASURE_NEXT_TAR = Array(1178, 696, 1282, 740, "Attachment:AWARD_TREA
 Dim AWARD_NORMAL_TAP_AWAIT_MS = 300
 
 ' Activity AWARD
+Dim BEFORE_ACTIVITY_AWAIT_MS = 500
 Dim AWARD_ACTIVITY_NEXT_TAR = Array(1178, 696, 1282, 740, "Attachment:AWARD_TREASURE_NEXT.png")
 
 ' ADD FRIEND
@@ -163,6 +166,7 @@ Dim ADD_FRIEND_TAR = Array(325, 670, 415, 715, "Attachment:ADD_FRIEND_CLOSE.png"
 ' AGAIN
 Dim AGAIN_ALERT_AGAIN_TAR = Array(860, 614, 946, 658, "Attachment:AGAIN_ALERT_AGAIN.png")
 Dim AGAIN_ALERT_CLOSE_TAR = Array(450, 612, 545, 658, "Attachment:AGAIN_ALERT_CLOSE.png")
+Dim AGAIN_ORDEAL_NO_TICKET_TAR = Array(600, 600, 850, 670, "Attachment:AGAIN_ORDEAL_NO_TICKET.png")
 
 ' APPLE
 Dim APPLE_CHECK_AWAIT_MS = 500
@@ -174,12 +178,17 @@ Dim APPLE_CLOSE_COORD = Array(490, 630)
 
 
 ' OTHERS
-Dim INFINITE_ROLL_TAR = Array(330, 388, 570, 455, "Attachment:ROLL100.png") ' ROLL10 ROLL100
+Dim INFINITE_ROLL_TAR = Array(330, 388, 570, 567, "Attachment:ROLL100.png|Attachment:ROLL10.png") ' ROLL10 ROLL100
 
 Dim ENHANCE_RECOMMAND_TAR = Array(1240, 150, 1370, 208, "Attachment:ENHANCE_RECOMMAND.png")
 Dim ENHANCE_RECOMMAND_CONFIRM_TAR = Array(880, 680, 1006, 745, "Attachment:ENHANCE_RECOMMAND_CONFIRM.png")
 Dim ENHANCE_ENHANCE_TAR = Array(1340, 716, 1438, 798, "Attachment:ENHANCE_ENHANCE.png")
 Dim ENHANCE_ENHANCE_CONFIRM_TAR = Array(877, 632, 1006, 698, "Attachment:ENHANCE_ENHANCE_CONFIRM.png")
+
+
+Dim POOLFRIEND_CONTINUE_TAR = Array(720, 720, 990, 800, "Attachment:POOLFRIEND_CONTINUE.png")
+Dim POOLFRIEND_GO_TAR = Array(830, 600, 1080, 670, "Attachment:POOLFRIEND_GO.png")
+
 
 
 ' VARIATE
@@ -193,6 +202,7 @@ Dim IsFirstBattle = true
 
 
 Dim CurrentBattleCount = 0
+Dim HasTicket = true   'true: ticket enought or no need ticket
 
 
 
@@ -243,6 +253,29 @@ Function ContinuousCheckImg(Target)
 		Delay 500
 	Loop
 	TracePrint "found: ", GetImgCoord[1], GetImgCoord[2]
+End Function
+
+Function ContinuousCheckImgTags(Targets)
+	Dim GetImgCoord
+	Dim TargetIndex
+	Dim TargetCount = UBound(Targets) + 1
+	TracePrint "CheckMissImgAndTap", TargetCount
+	Do While true
+		For TargetIndex = 1 To TargetCount
+			TracePrint TargetIndex
+			GetImgCoord = CheckImg2(Targets[TargetIndex])
+			If GetImgCoord <> null Then
+				ContinuousCheckImgTags = TargetIndex
+				Exit Do
+			End If
+			Delay 100
+		Next
+		If GetImgCoord <> null Then
+			Exit Do
+		End If
+		Delay 300
+	Loop
+	TracePrint "found: ", TargetIndex, GetImgCoord[1], GetImgCoord[2]
 End Function
 
 Function ContinuousCheckImgMiss(Target)
@@ -350,7 +383,10 @@ Function DoMasterActions(ActionsGroup)
 			SkillChangeTargetIndex2 = SkillTargetIndex - SkillChangeTargetIndex1*100
 		End If
 		
-		CheckAndTapImg2(BATTLE_MASTER_SKILL_OPEN_TAR, null)
+		
+		CheckAndTapImg2(BATTLE_HERO_SKILL_CHECK_TAR, BATTLE_MASTER_SKILL_OPEN_TAR)
+
+		'CheckAndTapImg2(BATTLE_MASTER_SKILL_OPEN_TAR, null)
 		Delay BATTLE_MASTER_SKILL_AWAIT_MS
 		CheckAndTapImg2(BATTLE_MASTER_SKILL_DISPLAY_TAR, BATTLE_MASTER_SKILL_COORDS[SkillIndex])
 		If SkillTargetIndex > 100 Then
@@ -426,6 +462,20 @@ Function DoBattle()
 	TracePrint "award treasure"
 	CheckAndTapImg2(AWARD_TREASURE_NEXT_TAR, null)
 
+	' Normal Activity Award (Next)
+	TracePrint "activity award"
+	Delay AWARD_NORMAL_TAP_AWAIT_MS
+	'Delay BEFORE_ACTIVITY_AWAIT_MS
+	Dim CheckActivityAwardSuccess = CheckImg2(AWARD_TREASURE_NEXT_TAR)
+	If CheckActivityAwardSuccess <> null Then
+		CheckAndTapImg2(AWARD_TREASURE_NEXT_TAR, null)
+	End If
+	
+	' Activity Award
+	'TracePrint "activity award"
+	'Delay AWARD_NORMAL_TAP_AWAIT_MS
+	'CheckAndTapImg2(AWARD_ACTIVITY_NEXT_TAR, null)
+
 
 	' Add Friend?
 	Delay ADD_FRIEND_CHECK_AWAIT_MS
@@ -434,11 +484,27 @@ Function DoBattle()
 		CheckAndTapImg2(ADD_FRIEND_TAR, null)
 	End If
 
+	'Ordeal End
+
+	' Again?
+	BattlePrint("again?")
+	Dim ContinuousCheckImgTagsResult = ContinuousCheckImgTags(Array(AGAIN_ALERT_AGAIN_TAR, AGAIN_ALERT_CLOSE_TAR, AGAIN_ORDEAL_NO_TICKET_TAR))
+	If ContinuousCheckImgTagsResult = 3 Then
+		TracePrint "again: no ticket"
+		CheckAndTapImg2(AGAIN_ORDEAL_NO_TICKET_TAR, null)
+		HasTicket = false
+	ElseIf CurrentBattleCount < BATTLE_COUNT  Then
+		TracePrint "again: yes"
+		CheckAndTapImg2(AGAIN_ALERT_AGAIN_TAR, null)
+	Else
+		TracePrint "again: no"
+		CheckAndTapImg2(AGAIN_ALERT_CLOSE_TAR, null)
+	End If
 
 
 	' Apple?
 	BattlePrint("apple?")
-	If CurrentBattleCount < BATTLE_COUNT  Then
+	If CurrentBattleCount < BATTLE_COUNT And HasTicket  Then
 		Delay APPLE_CHECK_AWAIT_MS
 		Dim CheckAppleAlertSuccess = CheckImg2(APPLE_DISPLAY_TAR)
 		If CheckAppleAlertSuccess <> null Then
@@ -469,6 +535,14 @@ Function DoEnhance()
 	Delay 500
 End Function
 
+Function DoFriendPool()
+	CheckAndTapImg2(POOLFRIEND_CONTINUE_TAR, null)
+	Delay 500
+	CheckAndTapImg2(POOLFRIEND_GO_TAR, null)
+	Delay 500
+	CheckNoImgAndTap2(POOLFRIEND_CONTINUE_TAR, POOLFRIEND_CONTINUE_TAR)
+End Function
+
 // START
 Traceprint "START FROM", DateTime.Format()
 
@@ -477,9 +551,10 @@ Do While true
 	DoBattle()
 	'DoRoll()
 	'DoEnhance()
+	'DoFriendPool()
 
 	TracePrint "BattleCount Current =", CurrentBattleCount, "Max = ", BATTLE_COUNT
-	If CurrentBattleCount >= BATTLE_COUNT Then
+	If CurrentBattleCount >= BATTLE_COUNT Or HasTicket = false Then
 		TracePrint "END"
 		Exit Do
 	End If

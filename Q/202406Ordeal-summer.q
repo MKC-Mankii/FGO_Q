@@ -34,7 +34,7 @@ Dim COLOR_SIM = 0.95
 ' PREPARE
 Dim ATT_Taigong = "Attachment:friendtaigong.png"
 Dim ATT_CDai = "Attachment:friendCDai.png|Attachment:friendCDai2.png|Attachment:friendCDai3.png"
-Dim ATT_Aobao = "Attachment:friendAobao.png|Attachment:friendAobao1.png"
+Dim ATT_Aobao = "Attachment:friendAobao.png|Attachment:friendAobao1.png|Attachment:friendAobao5.png"
 Dim ATT_Shahu = "Attachment:friendShaHu2.png"
 Dim ATT_Princess = "Attachment:friendPrincess.png|Attachment:friendPrincess2.png"
 Dim ATT_Princess120 = "Attachment:friendPrincess120.png|Attachment:friendPrincess1202.png|Attachment:friendPrincess1203.png"
@@ -87,7 +87,8 @@ Dim BATTLE_SKILL_CHANGE_SELECTEED_CHECK_TAR = Array(723, 685, 777, 719, "Attachm
 Dim BATTLE_SKILL_CHANGE_SELECTED_AWAIT_MS = 200
 
 ' Master skill
-Dim BATTLE_MASTER_SKILL_OPEN_TAR = Array(1317, 325, 1370, 376, "Attachment:BATTLE_MASTER_SKILL_OPEN.png")
+Dim BATTLE_MASTER_SKILL_OPEN_TAR = Array(1280, 300, 1410, 420, "Attachment:BATTLE_MASTER_SKILL_OPEN.png")
+Dim BATTLE_MASTER_SKILL_OPEN_COORDS = Array(1317, 325)
 Dim BATTLE_MASTER_SKILL_AWAIT_MS = 200
 Dim BATTLE_MASTER_SKILL_COORDS = Array(_
 	Array(1020, 350),_
@@ -386,7 +387,7 @@ Function DoMasterActions(ActionsGroup)
 			SkillChangeTargetIndex2 = SkillTargetIndex - SkillChangeTargetIndex1*100
 		End If
 		
-		CheckAndTapImg2(BATTLE_MASTER_SKILL_OPEN_TAR, null)
+		CheckAndTapImg2(BATTLE_HERO_SKILL_CHECK_TAR, BATTLE_MASTER_SKILL_OPEN_COORDS)
 		Delay BATTLE_MASTER_SKILL_AWAIT_MS
 		CheckAndTapImg2(BATTLE_MASTER_SKILL_DISPLAY_TAR, BATTLE_MASTER_SKILL_COORDS[SkillIndex])
 		If SkillTargetIndex > 100 Then
