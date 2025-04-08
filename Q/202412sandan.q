@@ -4,22 +4,66 @@
 Log.Open
 
 ' USER CONFIG
-Dim BATTLE_COUNT = 1
-Dim DEBUGE_MODULE_BATTLE = 0	'1 or 0
-Dim AllActionRound = Array(_
+Dim BATTLE_COUNT = 3
+'debug:	1:true or 0:false
+Dim DEBUGE_MODULE_BATTLE = 0
+Dim ACTIVITY_REWARD = 0
+Dim ActionRoundIndex = 1
+Dim ActvityActionRounds = Array(_
 	Array(_
-	Array("skill",  2,3, 3,3, 5,3, 6,3, 8,0),_
-		Array("attack", 8,4,5)_
+		Array(_
+			Array("skill",  1,0, 3,0, 4,0, 6,1, 7,0, 8,1, 9,1),_
+			Array("master", 2,1),_
+			Array("attack", 6,4,5)_
+		)_
 	),_
 	Array(_
-		Array("skill",  1,0),_
-		Array("attack", 8,4,5)_
-	),_
-	Array(_
-		Array("skill",  4,0),_
-		Array("attack", 8,4,5)_
+		Array(_
+			Array("skill",  1,0, 2,0, 3,0, 7,0, 9,1, 5,0, 6,0),_
+			Array("attack", 7,4,5)_
+		),_
+		Array(_
+			Array("attack", 6,4,5)_
+		),_
+		Array(_
+			Array("skill",  4,0),_
+			Array("master", 1,0, 3,204),_
+			Array("skill",  4,0, 5,1, 6,1, 8,1),_
+			Array("attack", 6,4,5)_
+		)_
 	)_
  )
+Dim ArtActionRounds = Array(_
+	Array(_
+		Array(_
+			Array("skill",  1,0, 2,3, 3,3, 4,0, 5,0, 6,3, 7,0, 8,0, 9,0),_
+			Array("attack", 8,4,5)_
+		),_
+		Array(_
+			Array("attack", 8,4,5)_
+		),_
+		Array(_
+			Array("master", 1,3, 3,3),_
+			Array("attack", 8,4,5)_
+		)_
+	),_
+	Array(_
+		Array(_
+			Array("skill",  3,3, 4,0, 5,0, 8,0),_
+			Array("attack", 8,4,5)_
+		),_
+		Array(_
+			Array("skill",  1,0, 2,3),_
+			Array("attack", 8,4,5)_
+		),_
+		Array(_
+			Array("skill",  6,3),_
+			Array("master", 1,3),_
+			Array("attack", 8,4,5)_
+		)_
+	)_
+ )
+Dim AllActionRound = ActvityActionRounds[ActionRoundIndex]
 
 ' SKILL:Change: Array("master", 3,104),_
 
@@ -30,12 +74,14 @@ Dim COLOR_SIM = 0.95
 
 ' PREPARE
 Dim ATT_Taigong = "Attachment:friendtaigong.png"
+Dim ATT_RBA = "Attachment:friendRba1.png|Attachment:friendRba2.png|Attachment:friendRba3.png|Attachment:friendRba4.png"
 Dim ATT_CDai = "Attachment:friendCDai.png|Attachment:friendCDai2.png|Attachment:friendCDai3.png"
-Dim ATT_Aobao = "Attachment:friendAobao.png|Attachment:friendAobao1.png"
+Dim ATT_Aobao = "Attachment:friendAobao.png|Attachment:friendAobao1.png|Attachment:friendAobao5.png"
 Dim ATT_Shahu = "Attachment:friendShaHu2.png"
 Dim ATT_Princess = "Attachment:friendPrincess.png|Attachment:friendPrincess2.png"
 Dim ATT_Princess120 = "Attachment:friendPrincess120.png|Attachment:friendPrincess1202.png|Attachment:friendPrincess1203.png"
-Dim PREPARE_FRIEND_TAR = Array(40, 180, 920, 800, ATT_CDai)
+Dim ATT_QP = "Attachment:friendQP.png"
+Dim PREPARE_FRIEND_TAR = Array(40, 180, 920, 800, ATT_Aobao)
 
 
 ' START
@@ -84,7 +130,8 @@ Dim BATTLE_SKILL_CHANGE_SELECTEED_CHECK_TAR = Array(723, 685, 777, 719, "Attachm
 Dim BATTLE_SKILL_CHANGE_SELECTED_AWAIT_MS = 200
 
 ' Master skill
-Dim BATTLE_MASTER_SKILL_OPEN_TAR = Array(1317, 325, 1370, 376, "Attachment:BATTLE_MASTER_SKILL_OPEN.png")
+Dim BATTLE_MASTER_SKILL_OPEN_TAR = Array(1280, 300, 1410, 420, "Attachment:BATTLE_MASTER_SKILL_OPEN.png")
+Dim BATTLE_MASTER_SKILL_OPEN_COORDS = Array(1317, 325)
 Dim BATTLE_MASTER_SKILL_AWAIT_MS = 300
 Dim BATTLE_MASTER_SKILL_COORDS = Array(_
 	Array(1020, 350),_
@@ -122,12 +169,12 @@ Dim BATTLE_ATTACK_CARD_COORDS = Array(_
 Dim BATTLE_ATTACK_CARD_FIRST_TAPED_TARS = Array(_
 	Array(),_
 	Array(),_
-	Array(698, 581, 722, 588, "Attachment:BATTLE_ATTACK_CARD_3_FIRST_TAPED.png"),_
+	Array(650, 550, 780, 600, "Attachment:BATTLE_ATTACK_CARD_3_FIRST_TAPED.png"),_
 	Array(),_
 	Array(),_
-	Array(400, 315, 550, 352, "Attachment:ULT_Taped_Red1.png|Attachment:ULT_Taped_Blue1.png|Attachment:ULT_Taped_Green1.png"),_
-	Array(680, 315, 790, 352, "Attachment:ULT_Taped_Red2.png|Attachment:ULT_Taped_Blue2.png"),_
-	Array(930, 221, 1048, 259, "Attachment:ULT_Taped_Red3.png|Attachment:ULT_Taped_Blue3.png|Attachment:ULT_Taped_Green3.png")_
+	Array(400, 210, 550, 352, "Attachment:ULT_Taped_Red1.png|Attachment:ULT_Taped_Blue1.png|Attachment:ULT_Taped_Green1.png"),_
+	Array(680, 210, 790, 352, "Attachment:ULT_Taped_Red2.png|Attachment:ULT_Taped_Blue2.png|Attachment:ULT_Taped_Green2.png"),_
+	Array(930, 210, 1048, 259, "Attachment:ULT_Taped_Red3.png|Attachment:ULT_Taped_Blue3.png|Attachment:ULT_Taped_Green3.png")_
  )
 Dim BATTLE_ATTACK_CARD_SECON_TAPED_TARS = Array(_
 	Array(),_
@@ -150,7 +197,7 @@ Dim BATTLE_LAST_ROUND_END_AWAIT_MS = 3000
 Dim BATTLE_ULTIMATE_PLAY_LAST_AWAIT_MS = 18000 + BATTLE_LAST_ROUND_END_AWAIT_MS
 
 ' AWARD
-Dim AWARD_TIE_TAR = Array(180, 120, 250, 260, "Attachment:AWARD_TIE.png") ' normal:TIE, special:TIE2
+Dim AWARD_TIE_TAR = Array(80, 180, 250, 260, "Attachment:AWARD_TIE.png") ' normal:TIE, special:TIE2
 Dim AWARD_TAP_COORD = Array(166, 60)
 Dim AWARD_TREASURE_NEXT_TAR = Array(1178, 696, 1282, 740, "Attachment:AWARD_TREASURE_NEXT.png")
 Dim AWARD_NORMAL_TAP_AWAIT_MS = 300
@@ -178,7 +225,8 @@ Dim APPLE_CLOSE_COORD = Array(490, 630)
 
 
 ' OTHERS
-Dim INFINITE_ROLL_TAR = Array(330, 388, 570, 567, "Attachment:ROLL100.png|Attachment:ROLL10.png") ' ROLL10 ROLL100
+Dim INFINITE_ROLL_TAR = Array(330, 370, 620, 610, "Attachment:ROLL100.png|Attachment:ROLL100-1.png|Attachment:ROLL10.png|Attachment:ROLL10-1.png") ' ROLL10 ROLL100
+Dim INFINITE_ROLL_FAST_COORD = Array(300, 300)
 
 Dim ENHANCE_RECOMMAND_TAR = Array(1240, 150, 1370, 208, "Attachment:ENHANCE_RECOMMAND.png")
 Dim ENHANCE_RECOMMAND_CONFIRM_TAR = Array(880, 680, 1006, 745, "Attachment:ENHANCE_RECOMMAND_CONFIRM.png")
@@ -384,7 +432,7 @@ Function DoMasterActions(ActionsGroup)
 		End If
 		
 		
-		CheckAndTapImg2(BATTLE_HERO_SKILL_CHECK_TAR, BATTLE_MASTER_SKILL_OPEN_TAR)
+		CheckAndTapImg2(BATTLE_HERO_SKILL_CHECK_TAR, BATTLE_MASTER_SKILL_OPEN_COORDS)
 
 		'CheckAndTapImg2(BATTLE_MASTER_SKILL_OPEN_TAR, null)
 		Delay BATTLE_MASTER_SKILL_AWAIT_MS
@@ -411,12 +459,16 @@ Function DoAttackActions(ActionsGroup)
 	Delay BATTLE_CARD_TAPED_AWAIT_MS
 
 	Dim SecondCardIndex = ActionsGroup[3]
-	CheckAndTapImg2(BATTLE_ATTACK_CARD_FIRST_TAPED_TARS[FirstCardIndex], BATTLE_ATTACK_CARD_COORDS[SecondCardIndex])
-	Delay BATTLE_CARD_TAPED_AWAIT_MS
+	If SecondCardIndex <> null Then
+		CheckAndTapImg2(BATTLE_ATTACK_CARD_FIRST_TAPED_TARS[FirstCardIndex], BATTLE_ATTACK_CARD_COORDS[SecondCardIndex])
+		Delay BATTLE_CARD_TAPED_AWAIT_MS
+	End If
 
 	Dim ThirdCardIndex = ActionsGroup[4]
-	CheckAndTapImg2(BATTLE_ATTACK_CARD_SECON_TAPED_TARS[SecondCardIndex], BATTLE_ATTACK_CARD_COORDS[ThirdCardIndex])
-	Delay BATTLE_NORMAL_ATTACK_PLAY_AWAIT_MS
+	If ThirdCardIndex <> null Then
+		CheckAndTapImg2(BATTLE_ATTACK_CARD_SECON_TAPED_TARS[SecondCardIndex], BATTLE_ATTACK_CARD_COORDS[ThirdCardIndex])
+		Delay BATTLE_NORMAL_ATTACK_PLAY_AWAIT_MS
+	End If
 End Function
 
 Function DoGroupActions(ActionsGroup)
@@ -472,9 +524,11 @@ Function DoBattle()
 	End If
 	
 	' Activity Award
-	'TracePrint "activity award"
-	'Delay AWARD_NORMAL_TAP_AWAIT_MS
-	'CheckAndTapImg2(AWARD_ACTIVITY_NEXT_TAR, null)
+	If ACTIVITY_REWARD <> 0 Then
+		TracePrint "activity award"
+		Delay AWARD_NORMAL_TAP_AWAIT_MS
+		CheckAndTapImg2(AWARD_ACTIVITY_NEXT_TAR, null)
+	End If
 
 
 	' Add Friend?
@@ -519,7 +573,7 @@ End Function
 Function DoRoll()
 	CheckAndTapImg2(INFINITE_ROLL_TAR, null)
 	Delay 500
-	CheckNoImgAndTap2(INFINITE_ROLL_TAR, INFINITE_ROLL_TAR)
+	CheckNoImgAndTap2(INFINITE_ROLL_TAR, INFINITE_ROLL_FAST_COORD)
 End Function
 
 Function DoEnhance()

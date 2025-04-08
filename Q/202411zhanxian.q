@@ -4,20 +4,23 @@
 Log.Open
 
 ' USER CONFIG
-Dim BATTLE_COUNT = 1
+Dim BATTLE_COUNT = 3
 Dim DEBUGE_MODULE_BATTLE = 0	'1 or 0
 Dim AllActionRound = Array(_
 	Array(_
-	Array("skill",  2,3, 3,3, 5,3, 6,3, 8,0),_
-		Array("attack", 8,4,5)_
+	Array("skill",  2,2, 3,2, 7,2, 4,0, 6,0),_
+		Array("attack", 7,4,5)_
 	),_
 	Array(_
 		Array("skill",  1,0),_
-		Array("attack", 8,4,5)_
+		Array("master", 3,104),_
+		Array("skill",  1,0, 5,0),_
+		Array("attack", 7,4,5)_
 	),_
 	Array(_
-		Array("skill",  4,0),_
-		Array("attack", 8,4,5)_
+		Array("master", 1,0),_
+		Array("skill",  2,2, 3,2, 8,0),_
+		Array("attack", 7,4,5)_
 	)_
  )
 
