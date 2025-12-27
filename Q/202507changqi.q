@@ -9,22 +9,24 @@ Dim BATTLE_COUNT = 1
 Dim DEBUGE_MODULE_BATTLE = 0
 Dim APPLE_ENABLE = 0
 Dim ACTIVITY_REWARD = 1
-Dim ActionRoundGroupIndex = 2
+Dim ActionRoundGroupIndex = 1
 Dim ActionRoundIndex = 1
 Dim ActvityActionRounds = Array(_
 	Array(_
 		Array(_
-			Array("skill",  70, 80, 40, 30, 20, 10),_
+			Array("skill",  70, 81, 91, 10, 21, 30),_
 			Array("attack", 6,4,5)_
 		),_
 		Array(_
-			Array("skill",  50),_
-			Array("attack", 7,4,5)_
+			Array("skill",  51, 60),_
+			Array("master", 30034),_
+			Array("skill",  70, 81),_
+			Array("attack", 6,4,5)_
 		),_
 		Array(_
-			Array("master", 30024, 10),_
-			Array("skill",  40, 51, 63, 90),_
-			Array("attack", 6,8,5)_
+			Array("master", 10),_
+			Array("skill",  92, 42),_
+			Array("attack", 7,4,5)_
 		)_
 	),_
 	Array(_
@@ -61,31 +63,16 @@ Dim ArtActionRounds = Array(_
 	),_
 	Array(_
 		Array(_
-			Array("skill",  23, 33, 53, 63, 70, 83, 90),_
+			Array("skill",  3,3, 4,0, 5,0, 8,0),_
 			Array("attack", 8,4,5)_
 		),_
 		Array(_
-			Array("skill",  10),_
+			Array("skill",  1,0, 2,3),_
 			Array("attack", 8,4,5)_
 		),_
 		Array(_
-			Array("skill", 40),_
-			Array("master", 10),_
-			Array("attack", 8,4,5)_
-		)_
-	),_
-	Array(_
-		Array(_
-			Array("skill",  23, 33, 40, 50, 80),_
-			Array("attack", 8,4,5)_
-		),_
-		Array(_
-			Array("skill",  10),_
-			Array("attack", 8,4,5)_
-		),_
-		Array(_
-			Array("skill",  63),_
-			Array("master", 10),_
+			Array("skill",  6,3),_
+			Array("master", 1,3),_
 			Array("attack", 8,4,5)_
 		)_
 	)_
@@ -103,14 +90,14 @@ Dim COLOR_SIM = 0.95
 
 ' PREPARE
 Dim ATT_CDai = "Attachment:friendCDai.png|Attachment:friendCDai2.png|Attachment:friendCDai3.png"
-Dim ATT_Aobao = "Attachment:friendAobao.png|Attachment:friendAobao1.png|Attachment:friendAobao3.png|Attachment:friendAobao5.png"
+Dim ATT_Aobao = "Attachment:friendAobao.png|Attachment:friendAobao1.png|Attachment:friendAobao5.png"
 Dim ATT_RBA = "Attachment:friendRba1.png|Attachment:friendRba2.png|Attachment:friendRba3.png|Attachment:friendRba4.png"
 Dim ATT_Shahu = "Attachment:friendShaHu2.png"
 Dim ATT_Taigong = "Attachment:friendtaigong.png"
-Dim ATT_Princess = "Attachment:friendPrincess.png|Attachment:friendPrincess2.png|Attachment:friendPrincess3.png"
+Dim ATT_Princess = "Attachment:friendPrincess.png|Attachment:friendPrincess2.png"
 Dim ATT_Princess120 = "Attachment:friendPrincess120.png|Attachment:friendPrincess1202.png|Attachment:friendPrincess1203.png"
 Dim ATT_QP = "Attachment:friendQP.png"
-Dim PREPARE_FRIEND_TAR = Array(40, 180, 920, 800, ATT_CDai)
+Dim PREPARE_FRIEND_TAR = Array(40, 180, 920, 800, ATT_Aobao)
 
 
 ' START
@@ -248,8 +235,8 @@ Dim ADD_FRIEND_CHECK_AWAIT_MS = 500
 Dim ADD_FRIEND_TAR = Array(325, 670, 415, 715, "Attachment:ADD_FRIEND_CLOSE.png")
 
 ' AGAIN
-Dim AGAIN_ALERT_AGAIN_TAR = Array(795, 620, 1030, 700, "Attachment:AGAIN_ALERT_AGAIN.png")
-Dim AGAIN_ALERT_CLOSE_TAR = Array(370, 620, 620, 700, "Attachment:AGAIN_ALERT_CLOSE.png")
+Dim AGAIN_ALERT_AGAIN_TAR = Array(860, 614, 946, 658, "Attachment:AGAIN_ALERT_AGAIN.png")
+Dim AGAIN_ALERT_CLOSE_TAR = Array(450, 612, 545, 658, "Attachment:AGAIN_ALERT_CLOSE.png")
 Dim AGAIN_ORDEAL_NO_TICKET_TAR = Array(600, 600, 850, 670, "Attachment:AGAIN_ORDEAL_NO_TICKET.png")
 
 ' APPLE
