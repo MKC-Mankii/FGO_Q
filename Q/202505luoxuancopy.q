@@ -10,23 +10,23 @@ Dim DEBUGE_MODULE_BATTLE = 0
 Dim APPLE_ENABLE = 0
 Dim ACTIVITY_REWARD = 1
 Dim ActionRoundGroupIndex = 1
-Dim ActionRoundIndex = 2
+Dim ActionRoundIndex = 1
 Dim ActvityActionRounds = Array(_
 	Array(_
 		Array(_
-			Array("skill",  70, 81, 91, 10, 21, 30),_
-			Array("attack", 6,4,5)_
+			Array("skill",  70, 82, 92),_
+			Array("master", 30035),_
+			Array("skill",  70, 82, 90, 30, 10, 40, 50, 60),_
+			Array("attack", 7,4,5)_
 		),_
 		Array(_
-			Array("skill",  51, 60),_
-			Array("master", 30034),_
-			Array("skill",  70, 81),_
+			Array("skill",  20),_
 			Array("attack", 6,4,5)_
 		),_
 		Array(_
 			Array("master", 10),_
-			Array("skill",  92, 42),_
-			Array("attack", 7,4,5)_
+			Array("skill",  70, 81, 92),_
+			Array("attack", 6,7,5)_
 		)_
 	),_
 	Array(_
