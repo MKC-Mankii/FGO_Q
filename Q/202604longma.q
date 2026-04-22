@@ -1,37 +1,46 @@
 ' SetScreenScale 810, 1440, 0
-' v5
+' future autohotkey
 
 Log.Open
 
 ' USER CONFIG
-Dim BATTLE_COUNT = 300
+Dim BATTLE_COUNT = 3
 'debug:	1:true or 0:false
 Dim DEBUGE_MODULE_BATTLE = 0
-Dim APPLE_ENABLE = 01
+Dim APPLE_ENABLE = 0
 Dim ACTIVITY_REWARD = 1
 Dim ActionRoundGroupIndex = 1
-Dim ActionRoundIndex = 1
+Dim ActionRoundIndex = 2
 Dim ActvityActionRounds = Array(_
 	Array(_
 		Array(_
-			Array("skill",  10, 20, 40, 50, 62, 70, 92),_
-			Array("master", 22),_
-			Array("attack", 7, 4, 5)_
+			Array("skill",  40, 50, 62, 10, 20),_
+			Array("attack", 6, 4, 5)_
+		),_
+		Array(_
+			Array("skill",  30, 82, 92),_
+			Array("attack", 8, 7, 5)_
+		),_
+		Array(_
+			Array("skill", 72),_
+			Array("master", 32),_
+			Array("skill", 40, 50, 62),_
+			Array("attack", 6, 7, 5)_
 		)_
 	),_
 	Array(_
 		Array(_
-			Array("skill",  92, 40, 50, 60, 30),_
+			Array("skill",  70, 80, 30),_
+			Array("attack", 6, 4, 5)_
+		),_
+		Array(_
+			Array("skill",  40, 50, 60, 12, 22, 32),_
 			Array("attack", 7, "B", "B")_
 		),_
 		Array(_
-			Array("skill",  72),_
+			Array("skill", 92),_
 			Array("master", 32),_
-			Array("skill",  50),_
-			Array("attack", "B", 7, "B")_
-		),_
-		Array(_
-			Array("skill", 82, 60),_
+			Array("skill", 50, 60),_
 			Array("attack", 7, "B", "B")_
 		)_
 	),_
@@ -44,52 +53,6 @@ Dim ActvityActionRounds = Array(_
 	)_
  )
 Dim ArtActionRounds = Array(_
-	Array(_
-		Array(_
-			Array("skill",  23, 33, 53, 63, 70, 90),_
-			Array("master", 33),_
-			Array("attack", 8,4,5)_
-		),_
-		Array(_
-			Array("skill",  10),_
-			Array("attack", 8,4,5)_
-		),_
-		Array(_
-			Array("skill", 40, 80),_
-			Array("master", 13),_
-			Array("attack", 8,4,5)_
-		)_
-	),_
-	Array(_
-		Array(_
-			Array("skill",  23, 33, 53, 63, 70, 90, 83),_
-			Array("attack", 8,4,5)_
-		),_
-		Array(_
-			Array("skill",  10),_
-			Array("attack", 8,4,5)_
-		),_
-		Array(_
-			Array("skill", 40),_
-			Array("master", 13),_
-			Array("attack", 8,4,5)_
-		)_
-	),_
-	Array(_
-		Array(_
-			Array("skill",  23, 33, 40, 50, 80),_
-			Array("attack", 8,4,5)_
-		),_
-		Array(_
-			Array("skill",  10),_
-			Array("attack", 8,4,5)_
-		),_
-		Array(_
-			Array("skill",  63),_
-			Array("master", 10),_
-			Array("attack", 8,4,5)_
-		)_
-	)_
  )
 Dim ActionRoundGroup =Array(ActvityActionRounds, ArtActionRounds)
 Dim AllActionRound = ActionRoundGroup[ActionRoundGroupIndex][ActionRoundIndex]
@@ -116,7 +79,7 @@ Dim ATT_Taigong = "Attachment:friendtaigong.png"
 Dim ATT_Princess = "Attachment:friendPrincess.png|Attachment:friendPrincess2.png|Attachment:friendPrincess3.png"
 Dim ATT_Princess120 = "Attachment:friendPrincess120.png|Attachment:friendPrincess1202.png|Attachment:friendPrincess1203.png"
 Dim ATT_QP = "Attachment:friendQP.png"
-Dim PREPARE_FRIEND_TAR = Array(40, 180, 920, 800, ATT_AobaoShan)
+Dim PREPARE_FRIEND_TAR = Array(40, 180, 920, 800, ATT_Shahu)
 
 Dim ATT_EQUIP_Goodness = "Attachment:friend_equip_goodness.png"
 Dim PREPARE_FRIEND_EQUIP_TAR = Array(40, 180, 920, 800, ATT_EQUIP_Goodness)
@@ -367,7 +330,7 @@ Function ContinuousCheckImgTags(Targets)
 	Dim GetImgCoord
 	Dim TargetIndex
 	Dim TargetCount = UBound(Targets) + 1
-	TracePrint "CheckMissImgAndTap", TargetCount
+	TracePrint "ContinuousCheckImgTags", TargetCount
 	Do While true
 		For TargetIndex = 1 To TargetCount
 			TracePrint TargetIndex
@@ -736,6 +699,8 @@ Function DoEquipEnhance()
 	Delay 500
 	CheckAndTapImg2(ENHANCE_ENHANCE_CONFIRM_TAR, null)
 	Delay 500
+	CheckNoImgAndTap2(EQUIP_ENHANCE_START_TAR, ENHANCE_ENHANCE_CONFIRM_TAR)
+	Delay 200
 	CheckNoImgAndTap2(EQUIP_ENHANCE_START_TAR, ENHANCE_ENHANCE_CONFIRM_TAR)
 	
 End Function
