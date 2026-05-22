@@ -1,5 +1,5 @@
 ' SetScreenScale 810, 1440, 0
-' v5 DSL
+' v5
 
 Log.Open
 
@@ -9,100 +9,98 @@ Dim BATTLE_COUNT = 7
 Dim DEBUGE_MODULE_BATTLE = 0
 Dim APPLE_ENABLE = 0
 Dim ACTIVITY_REWARD = 1
-
-' --- NEW DSL BATTLE CONFIG ---
 Dim ActionRoundGroupIndex = 1
 Dim ActionRoundIndex = 3
-
-Dim ActvityActionRounds_DSL = Array(_
+Dim ActvityActionRounds = Array(_
 	Array(_
-		"s10, 20, 40, 50, 62, 70, 92 | m22 | a7, 4, 5"_
+		Array(_
+			Array("skill",  10, 20, 40, 50, 62, 70, 92),_
+			Array("master", 22),_
+			Array("attack", 7, 4, 5)_
+		)_
 	),_
 	Array(_
-		"s92, 40, 50, 60, 30 | a7, B, B",_
-		"s72 | m32 | s50 | aB, 7, B",_
-		"s82, 60 | a7, B, B"_
+		Array(_
+			Array("skill",  92, 40, 50, 60, 30),_
+			Array("attack", 7, "B", "B")_
+		),_
+		Array(_
+			Array("skill",  72),_
+			Array("master", 32),_
+			Array("skill",  50),_
+			Array("attack", "B", 7, "B")_
+		),_
+		Array(_
+			Array("skill", 82, 60),_
+			Array("attack", 7, "B", "B")_
+		)_
 	),_
 	Array(_
-		"s80 | a3, 4, 5",_
-		"s10, 20, 30, 51, 61, 70, 91 | m31 | aB, 6, B",_
-		"s41, 10, 20, 30 | a6, B, B"_
+		Array(_
+			Array("skill",  80),_
+			Array("attack", 3,4,5)_
+		),_
+		Array(_
+			Array("skill",  10, 20, 30, 51, 61, 70, 91),_
+			Array("master", 31),_
+			Array("attack", "B", 6, "B")_
+		),_
+		Array(_
+			Array("skill",  41, 10, 20, 30),_
+			Array("attack", 6, "B", "B")_
+		)_
 	)_
-)
-
-Dim ArtActionRounds_DSL = Array(_
+ )
+Dim ArtActionRounds = Array(_
 	Array(_
-		"s23, 33, 53, 63, 70, 90 | m33 | a8, 4, 5",_
-		"s10 | a8, 4, 5",_
-		"s40, 80 | m13 | a8, 4, 5"_
+		Array(_
+			Array("skill",  23, 33, 53, 63, 70, 90),_
+			Array("master", 33),_
+			Array("attack", 8,4,5)_
+		),_
+		Array(_
+			Array("skill",  10),_
+			Array("attack", 8,4,5)_
+		),_
+		Array(_
+			Array("skill", 40, 80),_
+			Array("master", 13),_
+			Array("attack", 8,4,5)_
+		)_
 	),_
 	Array(_
-		"s23, 33, 53, 63, 70, 90, 83 | a8, 4, 5",_
-		"s10 | a8, 4, 5",_
-		"s40 | m13 | a8, 4, 5"_
+		Array(_
+			Array("skill",  23, 33, 53, 63, 70, 90, 83),_
+			Array("attack", 8,4,5)_
+		),_
+		Array(_
+			Array("skill",  10),_
+			Array("attack", 8,4,5)_
+		),_
+		Array(_
+			Array("skill", 40),_
+			Array("master", 13),_
+			Array("attack", 8,4,5)_
+		)_
 	),_
 	Array(_
-		"s23, 33, 40, 50, 80 | a8, 4, 5",_
-		"s10 | a8, 4, 5",_
-		"s63 | m10 | a8, 4, 5"_
+		Array(_
+			Array("skill",  23, 33, 40, 50, 80),_
+			Array("attack", 8,4,5)_
+		),_
+		Array(_
+			Array("skill",  10),_
+			Array("attack", 8,4,5)_
+		),_
+		Array(_
+			Array("skill",  63),_
+			Array("master", 10),_
+			Array("attack", 8,4,5)_
+		)_
 	)_
-)
-
-
-Function ParseBattleSequence(sequenceArray)
-	Dim finalRounds = Array()
-	Dim roundIndex = 1
-	For Each roundStr In sequenceArray
-		Dim groupStrs = Split(roundStr, "|")
-		Dim roundGroups = Array()
-		Dim groupIndex = 1
-		For Each groupStr In groupStrs
-			Dim acts = Split(Trim(groupStr), ",")
-			Dim actGroup = Array()
-			Dim actIndex = 1
-			For Each act In acts
-				act = Trim(act)
-				If actIndex = 1 Then
-					Dim prefix = LCase(Mid(act, 1, 1))
-					If prefix = "s" Then
-						actGroup[1] = "skill"
-					ElseIf prefix = "a" Then
-						actGroup[1] = "attack"
-					ElseIf prefix = "m" Then
-						actGroup[1] = "master"
-					End If
-				End If
-				
-				Dim valStr = ""
-				Dim firstChar = LCase(Mid(act, 1, 1))
-				If firstChar = "s" Or firstChar = "a" Or firstChar = "m" Then
-					valStr = Mid(act, 2, Len(act) - 1)
-				Else
-					valStr = act
-				End If
-				
-				If LCase(valStr) = "b" Then
-					actGroup[actIndex + 1] = "B"
-				ElseIf IsNumeric(valStr) Then
-					actGroup[actIndex + 1] = CInt(valStr)
-				Else
-					actGroup[actIndex + 1] = valStr
-				End If
-				
-				actIndex = actIndex + 1
-			Next
-			roundGroups[groupIndex] = actGroup
-			groupIndex = groupIndex + 1
-		Next
-		finalRounds[roundIndex] = roundGroups
-		roundIndex = roundIndex + 1
-	Next
-	ParseBattleSequence = finalRounds
-End Function
-
-Dim ActionRoundGroup_DSL = Array(ActvityActionRounds_DSL, ArtActionRounds_DSL)
-Dim CurrentBattleSequence = ActionRoundGroup_DSL[ActionRoundGroupIndex][ActionRoundIndex]
-Dim AllActionRound = ParseBattleSequence(CurrentBattleSequence)
+ )
+Dim ActionRoundGroup =Array(ActvityActionRounds, ArtActionRounds)
+Dim AllActionRound = ActionRoundGroup[ActionRoundGroupIndex][ActionRoundIndex]
 
 ' Skill(0):Change: Array("master", 30034),_
 ' Skill(1):CaoShiLang: Array("skill",  3013),_
@@ -129,7 +127,7 @@ Dim ATT_QP = "Attachment:friendQP.png"
 Dim PREPARE_FRIEND_TAR = Array(40, 180, 920, 800, ATT_ShahuShan)
 
 Dim ATT_EQUIP_Goodness = "Attachment:friend_equip_goodness.png"
-Dim PREPARE_FRIEND_EQUIP_TAR = Array(40, 180, 920, 800, ATT_Shahu)
+Dim PREPARE_FRIEND_EQUIP_TAR = Array(40, 180, 920, 800, ATT_EQUIP_Goodness)
 
 
 ' START
@@ -300,6 +298,12 @@ Dim EQUIP_ENHANCE_SELECT_COORD = Array(150, 390, 1050, 710)
 Dim EQUIP_ENHANCE_SELECT_CONFIRM_TAR = Array(1200, 725, 1260, 790, "Attachment:EQUIP_ENHANCE_SELECT_CONFIRM.png")
 Dim EQUIP_ENHANCE_SELECT_STOP_TAR = Array(80, 530, 1116, 809, "Attachment:EQUIP_ENHANCE_SELECT_STOP.png|Attachment:EQUIP_ENHANCE_SELECT_STOP2.png")
 
+Dim ENHANCE_SKILL_ENHANCE_TAR = Array(1185, 725, 1230, 785, "Attachment:ENHANCE_SKILL_ENHANCE.png")
+Dim ENHANCE_SKILL_ENHANCE_CONFIRM_TAR = Array(820, 640, 890, 690, "Attachment:ENHANCE_SKILL_ENHANCE_CONFIRM.png")
+Dim ENHANCE_SKILL_ENHANCE_L10_TAR = Array(450, 490, 610, 630, "Attachment:ENHANCE_SKILL_ENHANCE_L10.png")
+Dim ENHANCE_SKILL_CLICK_COORD = Array(1100, 765)
+
+
 
 
 
@@ -371,7 +375,7 @@ Function ContinuousCheckImgTags(Targets)
 	Dim GetImgCoord
 	Dim TargetIndex
 	Dim TargetCount = UBound(Targets) + 1
-	TracePrint "ContinuousCheckImgTags", TargetCount
+	TracePrint "CheckMissImgAndTap", TargetCount
 	Do While true
 		For TargetIndex = 1 To TargetCount
 			TracePrint TargetIndex
@@ -699,6 +703,14 @@ Function DoRoll()
 	CheckNoImgAndTap2(INFINITE_ROLL_TAR, INFINITE_ROLL_FAST_COORD)
 End Function
 
+Function DoFriendPool()
+	CheckAndTapImg2(POOLFRIEND_CONTINUE_TAR, null)
+	Delay 500
+	CheckAndTapImg2(POOLFRIEND_GO_TAR, null)
+	Delay 800
+	CheckNoImgAndTap2(POOLFRIEND_CONTINUE_TAR, POOLFRIEND_CONTINUE_TAR)
+End Function
+
 Function DoEnhance()
 	CheckAndTapImg2(ENHANCE_RECOMMAND_TAR, null)
 	Delay 500
@@ -710,14 +722,6 @@ Function DoEnhance()
 	Delay 500
 	CheckNoImgAndTap2(ENHANCE_RECOMMAND_TAR, ENHANCE_ENHANCE_CONFIRM_TAR)
 	Delay 500
-End Function
-
-Function DoFriendPool()
-	CheckAndTapImg2(POOLFRIEND_CONTINUE_TAR, null)
-	Delay 500
-	CheckAndTapImg2(POOLFRIEND_GO_TAR, null)
-	Delay 800
-	CheckNoImgAndTap2(POOLFRIEND_CONTINUE_TAR, POOLFRIEND_CONTINUE_TAR)
 End Function
 
 Function DoEquipEnhance()
@@ -742,9 +746,24 @@ Function DoEquipEnhance()
 	Delay 500
 	CheckNoImgAndTap2(EQUIP_ENHANCE_START_TAR, ENHANCE_ENHANCE_CONFIRM_TAR)
 	
-	
-	
+End Function
 
+Function DoSkillEnhance(MaxLevel)
+	
+	ContinuousCheckImg(ENHANCE_SKILL_ENHANCE_TAR)
+	If MaxLevel <> 10 Then
+		Dim CheckSkillEnhance10TarSuccess = CheckImg2(ENHANCE_SKILL_ENHANCE_L10_TAR)
+		If CheckSkillEnhance10TarSuccess <> null Then
+			HasTicket = false
+			Traceprint "ENHANCE_SKILL_10_STOP"
+			Exit Function
+		End If
+	End If
+	CheckAndTapImg2(ENHANCE_SKILL_ENHANCE_TAR, null)
+	CheckAndTapImg2(ENHANCE_SKILL_ENHANCE_CONFIRM_TAR, null)
+	Delay 700
+	CheckNoImgAndTap2(ENHANCE_SKILL_ENHANCE_TAR, ENHANCE_SKILL_CLICK_COORD)
+	
 End Function
 
 // START
@@ -754,9 +773,10 @@ Do While true
 	CurrentBattleCount = CurrentBattleCount + 1
 	DoBattle()
 	'DoRoll()
-	'DoEnhance()
 	'DoFriendPool()
+	'DoEnhance()
 	'DoEquipEnhance()
+	'DoSkillEnhance(9)
 
 	TracePrint "BattleCount Current =", CurrentBattleCount, "Max = ", BATTLE_COUNT, "HasTicket = ", HasTicket
 	If CurrentBattleCount >= BATTLE_COUNT Or HasTicket = false Then

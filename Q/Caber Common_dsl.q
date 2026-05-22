@@ -4,50 +4,36 @@
 Log.Open
 
 ' USER CONFIG
-Dim BATTLE_COUNT = 7
+Dim BATTLE_COUNT = 1
 'debug:	1:true or 0:false
-Dim DEBUGE_MODULE_BATTLE = 0
+Dim DEBUGE_MODULE_BATTLE = 01
 Dim APPLE_ENABLE = 0
 Dim ACTIVITY_REWARD = 1
 
 ' --- NEW DSL BATTLE CONFIG ---
-Dim ActionRoundGroupIndex = 1
+Dim ActionRoundGroupIndex = 2
 Dim ActionRoundIndex = 3
 
 Dim ActvityActionRounds_DSL = Array(_
-	Array(_
-		"s10, 20, 40, 50, 62, 70, 92 | m22 | a7, 4, 5"_
-	),_
-	Array(_
-		"s92, 40, 50, 60, 30 | a7, B, B",_
-		"s72 | m32 | s50 | aB, 7, B",_
-		"s82, 60 | a7, B, B"_
-	),_
-	Array(_
-		"s80 | a3, 4, 5",_
-		"s10, 20, 30, 51, 61, 70, 91 | m31 | aB, 6, B",_
-		"s41, 10, 20, 30 | a6, B, B"_
-	)_
 )
 
 Dim ArtActionRounds_DSL = Array(_
 	Array(_
-		"s23, 33, 53, 63, 70, 90 | m33 | a8, 4, 5",_
-		"s10 | a8, 4, 5",_
-		"s40, 80 | m13 | a8, 4, 5"_
-	),_
-	Array(_
-		"s23, 33, 53, 63, 70, 90, 83 | a8, 4, 5",_
+		"s23, 33, 53, 63, 70, 90, 83 | m30 | a8, 4, 5",_
 		"s10 | a8, 4, 5",_
 		"s40 | m13 | a8, 4, 5"_
 	),_
 	Array(_
-		"s23, 33, 40, 50, 80 | a8, 4, 5",_
-		"s10 | a8, 4, 5",_
-		"s63 | m10 | a8, 4, 5"_
+		"s10, 20, 53, 63, 70, 90, 83 | m30 | a8, 4, 5",_
+		"s40 | a8, 4, 5",_
+		"s33 | m10 | a8, 4, 5"_
+	),_
+	Array(_
+		"s10, 20, 53, 63, 80, 90 | a8, 4, 5",_
+		"s40 | a8, 4, 5",_
+		"s33 | m10, 30 | a8, 4, 5"_
 	)_
 )
-
 
 Function ParseBattleSequence(sequenceArray)
 	Dim finalRounds = Array()
@@ -126,10 +112,10 @@ Dim ATT_Taigong = "Attachment:friendtaigong.png"
 Dim ATT_Princess = "Attachment:friendPrincess.png|Attachment:friendPrincess2.png|Attachment:friendPrincess3.png"
 Dim ATT_Princess120 = "Attachment:friendPrincess120.png|Attachment:friendPrincess1202.png|Attachment:friendPrincess1203.png"
 Dim ATT_QP = "Attachment:friendQP.png"
-Dim PREPARE_FRIEND_TAR = Array(40, 180, 920, 800, ATT_ShahuShan)
+Dim PREPARE_FRIEND_TAR = Array(40, 180, 920, 800, ATT_CDai)
 
 Dim ATT_EQUIP_Goodness = "Attachment:friend_equip_goodness.png"
-Dim PREPARE_FRIEND_EQUIP_TAR = Array(40, 180, 920, 800, ATT_Shahu)
+Dim PREPARE_FRIEND_EQUIP_TAR = Array(40, 180, 920, 800, ATT_EQUIP_Goodness)
 
 
 ' START

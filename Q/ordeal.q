@@ -1,5 +1,5 @@
 ' SetScreenScale 810, 1440, 0
-' v5 DSL
+' v5
 
 Log.Open
 
@@ -9,8 +9,6 @@ Dim BATTLE_COUNT = 7
 Dim DEBUGE_MODULE_BATTLE = 0
 Dim APPLE_ENABLE = 0
 Dim ACTIVITY_REWARD = 1
-
-' --- NEW DSL BATTLE CONFIG ---
 Dim ActionRoundGroupIndex = 1
 Dim ActionRoundIndex = 3
 
@@ -47,7 +45,6 @@ Dim ArtActionRounds_DSL = Array(_
 		"s63 | m10 | a8, 4, 5"_
 	)_
 )
-
 
 Function ParseBattleSequence(sequenceArray)
 	Dim finalRounds = Array()
@@ -129,7 +126,7 @@ Dim ATT_QP = "Attachment:friendQP.png"
 Dim PREPARE_FRIEND_TAR = Array(40, 180, 920, 800, ATT_ShahuShan)
 
 Dim ATT_EQUIP_Goodness = "Attachment:friend_equip_goodness.png"
-Dim PREPARE_FRIEND_EQUIP_TAR = Array(40, 180, 920, 800, ATT_Shahu)
+Dim PREPARE_FRIEND_EQUIP_TAR = Array(40, 180, 920, 800, ATT_EQUIP_Goodness)
 
 
 ' START
@@ -300,6 +297,12 @@ Dim EQUIP_ENHANCE_SELECT_COORD = Array(150, 390, 1050, 710)
 Dim EQUIP_ENHANCE_SELECT_CONFIRM_TAR = Array(1200, 725, 1260, 790, "Attachment:EQUIP_ENHANCE_SELECT_CONFIRM.png")
 Dim EQUIP_ENHANCE_SELECT_STOP_TAR = Array(80, 530, 1116, 809, "Attachment:EQUIP_ENHANCE_SELECT_STOP.png|Attachment:EQUIP_ENHANCE_SELECT_STOP2.png")
 
+Dim ENHANCE_SKILL_ENHANCE_TAR = Array(1185, 725, 1230, 785, "Attachment:ENHANCE_SKILL_ENHANCE.png")
+Dim ENHANCE_SKILL_ENHANCE_CONFIRM_TAR = Array(820, 640, 890, 690, "Attachment:ENHANCE_SKILL_ENHANCE_CONFIRM.png")
+Dim ENHANCE_SKILL_ENHANCE_L10_TAR = Array(450, 490, 610, 630, "Attachment:ENHANCE_SKILL_ENHANCE_L10.png")
+Dim ENHANCE_SKILL_CLICK_COORD = Array(1100, 765)
+
+
 
 
 
@@ -371,7 +374,7 @@ Function ContinuousCheckImgTags(Targets)
 	Dim GetImgCoord
 	Dim TargetIndex
 	Dim TargetCount = UBound(Targets) + 1
-	TracePrint "ContinuousCheckImgTags", TargetCount
+	TracePrint "CheckMissImgAndTap", TargetCount
 	Do While true
 		For TargetIndex = 1 To TargetCount
 			TracePrint TargetIndex
@@ -699,6 +702,14 @@ Function DoRoll()
 	CheckNoImgAndTap2(INFINITE_ROLL_TAR, INFINITE_ROLL_FAST_COORD)
 End Function
 
+Function DoFriendPool()
+	CheckAndTapImg2(POOLFRIEND_CONTINUE_TAR, null)
+	Delay 500
+	CheckAndTapImg2(POOLFRIEND_GO_TAR, null)
+	Delay 800
+	CheckNoImgAndTap2(POOLFRIEND_CONTINUE_TAR, POOLFRIEND_CONTINUE_TAR)
+End Function
+
 Function DoEnhance()
 	CheckAndTapImg2(ENHANCE_RECOMMAND_TAR, null)
 	Delay 500
@@ -710,14 +721,6 @@ Function DoEnhance()
 	Delay 500
 	CheckNoImgAndTap2(ENHANCE_RECOMMAND_TAR, ENHANCE_ENHANCE_CONFIRM_TAR)
 	Delay 500
-End Function
-
-Function DoFriendPool()
-	CheckAndTapImg2(POOLFRIEND_CONTINUE_TAR, null)
-	Delay 500
-	CheckAndTapImg2(POOLFRIEND_GO_TAR, null)
-	Delay 800
-	CheckNoImgAndTap2(POOLFRIEND_CONTINUE_TAR, POOLFRIEND_CONTINUE_TAR)
 End Function
 
 Function DoEquipEnhance()
@@ -742,9 +745,24 @@ Function DoEquipEnhance()
 	Delay 500
 	CheckNoImgAndTap2(EQUIP_ENHANCE_START_TAR, ENHANCE_ENHANCE_CONFIRM_TAR)
 	
-	
-	
+End Function
 
+Function DoSkillEnhance(MaxLevel)
+	
+	ContinuousCheckImg(ENHANCE_SKILL_ENHANCE_TAR)
+	If MaxLevel <> 10 Then
+		Dim CheckSkillEnhance10TarSuccess = CheckImg2(ENHANCE_SKILL_ENHANCE_L10_TAR)
+		If CheckSkillEnhance10TarSuccess <> null Then
+			HasTicket = false
+			Traceprint "ENHANCE_SKILL_10_STOP"
+			Exit Function
+		End If
+	End If
+	CheckAndTapImg2(ENHANCE_SKILL_ENHANCE_TAR, null)
+	CheckAndTapImg2(ENHANCE_SKILL_ENHANCE_CONFIRM_TAR, null)
+	Delay 700
+	CheckNoImgAndTap2(ENHANCE_SKILL_ENHANCE_TAR, ENHANCE_SKILL_CLICK_COORD)
+	
 End Function
 
 // START
@@ -754,9 +772,10 @@ Do While true
 	CurrentBattleCount = CurrentBattleCount + 1
 	DoBattle()
 	'DoRoll()
-	'DoEnhance()
 	'DoFriendPool()
+	'DoEnhance()
 	'DoEquipEnhance()
+	'DoSkillEnhance(9)
 
 	TracePrint "BattleCount Current =", CurrentBattleCount, "Max = ", BATTLE_COUNT, "HasTicket = ", HasTicket
 	If CurrentBattleCount >= BATTLE_COUNT Or HasTicket = false Then
