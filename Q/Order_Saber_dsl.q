@@ -4,9 +4,9 @@
 Log.Open
 
 ' USER CONFIG
-Dim BATTLE_COUNT = 1
+Dim BATTLE_COUNT = 3
 'debug:	1:true or 0:false
-Dim DEBUGE_MODULE_BATTLE = 01
+Dim DEBUGE_MODULE_BATTLE = 0
 Dim APPLE_ENABLE = 0
 Dim ACTIVITY_REWARD = 1
 
@@ -16,7 +16,7 @@ Dim ActionRoundIndex = 1
 
 Dim ActvityActionRounds_DSL = Array(_
 	Array(_
-		"s40, 53, 60 | m30024, 10 | s41, 51, 61, 10, 20, 30, 70, 80, 90 | a8, 6, B"_
+		"s40, 53, 60 | m30024, 10 | s40, 10, 20, 30, 70, 80, 90 | a8, 6, B"_
 	),_
 	Array(_
 		"s10, 20, 53, 63, 70, 90, 83 | m30 | a8, 4, 5",_
@@ -228,6 +228,9 @@ Dim BATTLE_ATTACK_CARD_SECON_TAPED_TARS = Array(_
 	Array(960, 227, 987, 238, "Attachment:BATTLE_ATTACK_CARD_8_SECOND_TAPED.png")_
  )
 Dim BATTLE_ATTACK_CARD_BUSTER_TAR = Array(55, 460, 1390, 690, "Attachment:BATTLE_ATTACK_CARD_BUSTER.png")
+Dim BATTLE_ATTACK_CARD_PRIORITY_TARS = Array()
+BATTLE_ATTACK_CARD_PRIORITY_TARS[1] = "Attachment:BATTLE_ATTACK_Hero_Card_okita.png"
+BATTLE_ATTACK_CARD_PRIORITY_TARS[2] = "Attachment:BATTLE_ATTACK_Hero_Card_beni.png"
 
 
 Dim BATTLE_CARD_TAPED_AWAIT_MS = 300
@@ -528,13 +531,60 @@ Function DoMasterActions(ActionsGroup)
 	Next
 End Function
 
+Function SelectPriorityBusterCard()
+	Dim PriorityCount = UBound(BATTLE_ATTACK_CARD_PRIORITY_TARS)
+	Dim BusterCards = Array()
+	Dim BusterCount = 0
+	Dim i
+	For i = 1 To 5
+		Dim cx = BATTLE_ATTACK_CARD_COORDS[i][1]
+		Dim busterArea = Array(cx - 130, 460, cx + 130, 750, "Attachment:BATTLE_ATTACK_CARD_BUSTER.png")
+		Dim getBuster = CheckImg2(busterArea)
+		If getBuster <> null Then
+			BusterCount = BusterCount + 1
+			BusterCards[BusterCount] = i
+		End If
+	Next
+	
+	If BusterCount = 0 Then
+		TracePrint "No Buster Card found, fallback to default"
+		CheckAndTapImg2(BATTLE_ATTACK_CARD_BUSTER_TAR, null)
+		Exit Function
+	End If
+	
+	Dim p
+	If PriorityCount >= 1 Then
+		For p = 1 To PriorityCount
+			If BATTLE_ATTACK_CARD_PRIORITY_TARS[p] <> null Then
+				Dim b
+				For b = 1 To BusterCount
+					Dim cIdx = BusterCards[b]
+					cx = BATTLE_ATTACK_CARD_COORDS[cIdx][1]
+					Dim heroTar = Array(cx - 100, 350, cx + 100, 550, BATTLE_ATTACK_CARD_PRIORITY_TARS[p])
+					Dim getHero = CheckImg2(heroTar)
+					If getHero <> null Then
+						TracePrint "Found Priority Buster Card:", BATTLE_ATTACK_CARD_PRIORITY_TARS[p], "at card", cIdx
+						tap BATTLE_ATTACK_CARD_COORDS[cIdx][1], BATTLE_ATTACK_CARD_COORDS[cIdx][2]
+						Exit Function
+					End If
+				Next
+			End If
+		Next
+	End If
+	
+	' Fallback
+	Dim firstBusterIdx = BusterCards[1]
+	TracePrint "No priority matched, tap first Buster Card:", firstBusterIdx
+	tap BATTLE_ATTACK_CARD_COORDS[firstBusterIdx][1], BATTLE_ATTACK_CARD_COORDS[firstBusterIdx][2]
+End Function
+
 Function SelectAttackCard(CardIndex)
 	If IsNumeric(CardIndex) Then
 		CheckAndTapImg2(BATTLE_ATTACK_BACK_TAR, BATTLE_ATTACK_CARD_COORDS[CardIndex])
 	Else
 		If CardIndex = "B" Then
 		TracePrint "B"
-			CheckAndTapImg2(BATTLE_ATTACK_CARD_BUSTER_TAR, null)
+			SelectPriorityBusterCard()
 		End If
 	End If
 	
