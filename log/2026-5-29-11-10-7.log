@@ -1,0 +1,339 @@
+11:10:07	脚本第_266行	DEBUG SCRIPT START 2026-05-29 11:10:07
+11:10:07	脚本第_267行	WAIT_ATTACK_SCREEN = 0 TAP_RESULT_CARD = 0 BUSTER_SIM = 0.9 PRIORITY_SIM = 0.9
+11:10:07	脚本第_145行	================ DEBUG SELECT PRIORITY BUSTER CARD ================
+11:10:07	脚本第_146行	BUSTER_SIM = 0.9 PRIORITY_SIM = 0.9 PRIORITY_COUNT = 2
+11:10:07	脚本第_147行	BUSTER_MOTION_PAD = 10 20 HERO_MOTION_PAD = 20 30
+11:10:07	脚本第_148行	Priority 1 = Attachment:BATTLE_ATTACK_Hero_Card_okita_face.png
+11:10:07	脚本第_149行	Priority 2 = Attachment:BATTLE_ATTACK_Hero_Card_beni.png
+11:10:07	脚本第_158行	---- CARD 1 BUSTER CHECK ----
+11:10:07	脚本第_159行	STANDARD WINDOW
+11:10:07	脚本第_89行	BUSTER CARD 1 STD sim 0.95 MISS area -12 460 248 750 img Attachment:BATTLE_ATTACK_CARD_BUSTER.png
+11:10:07	脚本第_89行	BUSTER CARD 1 STD sim 0.93 MISS area -12 460 248 750 img Attachment:BATTLE_ATTACK_CARD_BUSTER.png
+11:10:07	脚本第_89行	BUSTER CARD 1 STD sim 0.9 MISS area -12 460 248 750 img Attachment:BATTLE_ATTACK_CARD_BUSTER.png
+11:10:07	脚本第_89行	BUSTER CARD 1 STD sim 0.88 MISS area -12 460 248 750 img Attachment:BATTLE_ATTACK_CARD_BUSTER.png
+11:10:07	脚本第_89行	BUSTER CARD 1 STD sim 0.85 MISS area -12 460 248 750 img Attachment:BATTLE_ATTACK_CARD_BUSTER.png
+11:10:07	脚本第_161行	MOTION WINDOW
+11:10:07	脚本第_89行	BUSTER CARD 1 MOTION sim 0.95 MISS area -12 450 248 770 img Attachment:BATTLE_ATTACK_CARD_BUSTER.png
+11:10:07	脚本第_89行	BUSTER CARD 1 MOTION sim 0.93 MISS area -12 450 248 770 img Attachment:BATTLE_ATTACK_CARD_BUSTER.png
+11:10:07	脚本第_89行	BUSTER CARD 1 MOTION sim 0.9 MISS area -12 450 248 770 img Attachment:BATTLE_ATTACK_CARD_BUSTER.png
+11:10:07	脚本第_89行	BUSTER CARD 1 MOTION sim 0.88 MISS area -12 450 248 770 img Attachment:BATTLE_ATTACK_CARD_BUSTER.png
+11:10:08	脚本第_89行	BUSTER CARD 1 MOTION sim 0.85 MISS area -12 450 248 770 img Attachment:BATTLE_ATTACK_CARD_BUSTER.png
+11:10:08	脚本第_170行	BUSTER DEFAULT MISS card 1
+11:10:08	脚本第_158行	---- CARD 2 BUSTER CHECK ----
+11:10:08	脚本第_159行	STANDARD WINDOW
+11:10:08	脚本第_87行	BUSTER CARD 2 STD sim 0.95 HIT 416 591 area 278 460 538 750 img Attachment:BATTLE_ATTACK_CARD_BUSTER.png
+11:10:08	脚本第_87行	BUSTER CARD 2 STD sim 0.93 HIT 416 590 area 278 460 538 750 img Attachment:BATTLE_ATTACK_CARD_BUSTER.png
+11:10:08	脚本第_87行	BUSTER CARD 2 STD sim 0.9 HIT 415 589 area 278 460 538 750 img Attachment:BATTLE_ATTACK_CARD_BUSTER.png
+11:10:08	脚本第_87行	BUSTER CARD 2 STD sim 0.88 HIT 412 583 area 278 460 538 750 img Attachment:BATTLE_ATTACK_CARD_BUSTER.png
+11:10:08	脚本第_87行	BUSTER CARD 2 STD sim 0.85 HIT 413 584 area 278 460 538 750 img Attachment:BATTLE_ATTACK_CARD_BUSTER.png
+11:10:08	脚本第_161行	MOTION WINDOW
+11:10:08	脚本第_87行	BUSTER CARD 2 MOTION sim 0.95 HIT 416 590 area 278 450 538 770 img Attachment:BATTLE_ATTACK_CARD_BUSTER.png
+11:10:08	脚本第_87行	BUSTER CARD 2 MOTION sim 0.93 HIT 416 589 area 278 450 538 770 img Attachment:BATTLE_ATTACK_CARD_BUSTER.png
+11:10:08	脚本第_87行	BUSTER CARD 2 MOTION sim 0.9 HIT 415 587 area 278 450 538 770 img Attachment:BATTLE_ATTACK_CARD_BUSTER.png
+11:10:08	脚本第_87行	BUSTER CARD 2 MOTION sim 0.88 HIT 413 583 area 278 450 538 770 img Attachment:BATTLE_ATTACK_CARD_BUSTER.png
+11:10:08	脚本第_87行	BUSTER CARD 2 MOTION sim 0.85 HIT 412 581 area 278 450 538 770 img Attachment:BATTLE_ATTACK_CARD_BUSTER.png
+11:10:08	脚本第_168行	BUSTER DEFAULT HIT card 2 coord 415 587
+11:10:08	脚本第_158行	---- CARD 3 BUSTER CHECK ----
+11:10:08	脚本第_159行	STANDARD WINDOW
+11:10:08	脚本第_89行	BUSTER CARD 3 STD sim 0.95 MISS area 568 460 828 750 img Attachment:BATTLE_ATTACK_CARD_BUSTER.png
+11:10:08	脚本第_89行	BUSTER CARD 3 STD sim 0.93 MISS area 568 460 828 750 img Attachment:BATTLE_ATTACK_CARD_BUSTER.png
+11:10:08	脚本第_89行	BUSTER CARD 3 STD sim 0.9 MISS area 568 460 828 750 img Attachment:BATTLE_ATTACK_CARD_BUSTER.png
+11:10:08	脚本第_89行	BUSTER CARD 3 STD sim 0.88 MISS area 568 460 828 750 img Attachment:BATTLE_ATTACK_CARD_BUSTER.png
+11:10:08	脚本第_89行	BUSTER CARD 3 STD sim 0.85 MISS area 568 460 828 750 img Attachment:BATTLE_ATTACK_CARD_BUSTER.png
+11:10:08	脚本第_161行	MOTION WINDOW
+11:10:08	脚本第_89行	BUSTER CARD 3 MOTION sim 0.95 MISS area 568 450 828 770 img Attachment:BATTLE_ATTACK_CARD_BUSTER.png
+11:10:08	脚本第_89行	BUSTER CARD 3 MOTION sim 0.93 MISS area 568 450 828 770 img Attachment:BATTLE_ATTACK_CARD_BUSTER.png
+11:10:08	脚本第_89行	BUSTER CARD 3 MOTION sim 0.9 MISS area 568 450 828 770 img Attachment:BATTLE_ATTACK_CARD_BUSTER.png
+11:10:08	脚本第_89行	BUSTER CARD 3 MOTION sim 0.88 MISS area 568 450 828 770 img Attachment:BATTLE_ATTACK_CARD_BUSTER.png
+11:10:08	脚本第_89行	BUSTER CARD 3 MOTION sim 0.85 MISS area 568 450 828 770 img Attachment:BATTLE_ATTACK_CARD_BUSTER.png
+11:10:08	脚本第_170行	BUSTER DEFAULT MISS card 3
+11:10:08	脚本第_158行	---- CARD 4 BUSTER CHECK ----
+11:10:08	脚本第_159行	STANDARD WINDOW
+11:10:08	脚本第_87行	BUSTER CARD 4 STD sim 0.95 HIT 993 592 area 861 460 1121 750 img Attachment:BATTLE_ATTACK_CARD_BUSTER.png
+11:10:08	脚本第_87行	BUSTER CARD 4 STD sim 0.93 HIT 992 591 area 861 460 1121 750 img Attachment:BATTLE_ATTACK_CARD_BUSTER.png
+11:10:08	脚本第_87行	BUSTER CARD 4 STD sim 0.9 HIT 992 592 area 861 460 1121 750 img Attachment:BATTLE_ATTACK_CARD_BUSTER.png
+11:10:08	脚本第_87行	BUSTER CARD 4 STD sim 0.88 HIT 991 590 area 861 460 1121 750 img Attachment:BATTLE_ATTACK_CARD_BUSTER.png
+11:10:08	脚本第_87行	BUSTER CARD 4 STD sim 0.85 HIT 990 589 area 861 460 1121 750 img Attachment:BATTLE_ATTACK_CARD_BUSTER.png
+11:10:08	脚本第_161行	MOTION WINDOW
+11:10:08	脚本第_87行	BUSTER CARD 4 MOTION sim 0.95 HIT 993 596 area 861 450 1121 770 img Attachment:BATTLE_ATTACK_CARD_BUSTER.png
+11:10:09	脚本第_87行	BUSTER CARD 4 MOTION sim 0.93 HIT 992 595 area 861 450 1121 770 img Attachment:BATTLE_ATTACK_CARD_BUSTER.png
+11:10:09	脚本第_87行	BUSTER CARD 4 MOTION sim 0.9 HIT 992 595 area 861 450 1121 770 img Attachment:BATTLE_ATTACK_CARD_BUSTER.png
+11:10:09	脚本第_87行	BUSTER CARD 4 MOTION sim 0.88 HIT 991 594 area 861 450 1121 770 img Attachment:BATTLE_ATTACK_CARD_BUSTER.png
+11:10:09	脚本第_87行	BUSTER CARD 4 MOTION sim 0.85 HIT 989 590 area 861 450 1121 770 img Attachment:BATTLE_ATTACK_CARD_BUSTER.png
+11:10:09	脚本第_168行	BUSTER DEFAULT HIT card 4 coord 992 596
+11:10:09	脚本第_158行	---- CARD 5 BUSTER CHECK ----
+11:10:09	脚本第_159行	STANDARD WINDOW
+11:10:09	脚本第_89行	BUSTER CARD 5 STD sim 0.95 MISS area 1148 460 1408 750 img Attachment:BATTLE_ATTACK_CARD_BUSTER.png
+11:10:09	脚本第_89行	BUSTER CARD 5 STD sim 0.93 MISS area 1148 460 1408 750 img Attachment:BATTLE_ATTACK_CARD_BUSTER.png
+11:10:09	脚本第_89行	BUSTER CARD 5 STD sim 0.9 MISS area 1148 460 1408 750 img Attachment:BATTLE_ATTACK_CARD_BUSTER.png
+11:10:09	脚本第_89行	BUSTER CARD 5 STD sim 0.88 MISS area 1148 460 1408 750 img Attachment:BATTLE_ATTACK_CARD_BUSTER.png
+11:10:09	脚本第_89行	BUSTER CARD 5 STD sim 0.85 MISS area 1148 460 1408 750 img Attachment:BATTLE_ATTACK_CARD_BUSTER.png
+11:10:09	脚本第_161行	MOTION WINDOW
+11:10:09	脚本第_89行	BUSTER CARD 5 MOTION sim 0.95 MISS area 1148 450 1408 770 img Attachment:BATTLE_ATTACK_CARD_BUSTER.png
+11:10:09	脚本第_89行	BUSTER CARD 5 MOTION sim 0.93 MISS area 1148 450 1408 770 img Attachment:BATTLE_ATTACK_CARD_BUSTER.png
+11:10:09	脚本第_89行	BUSTER CARD 5 MOTION sim 0.9 MISS area 1148 450 1408 770 img Attachment:BATTLE_ATTACK_CARD_BUSTER.png
+11:10:09	脚本第_89行	BUSTER CARD 5 MOTION sim 0.88 MISS area 1148 450 1408 770 img Attachment:BATTLE_ATTACK_CARD_BUSTER.png
+11:10:09	脚本第_89行	BUSTER CARD 5 MOTION sim 0.85 MISS area 1148 450 1408 770 img Attachment:BATTLE_ATTACK_CARD_BUSTER.png
+11:10:09	脚本第_170行	BUSTER DEFAULT MISS card 5
+11:10:09	脚本第_174行	BUSTER CARD LIST = 2,4
+11:10:09	脚本第_117行	==== HERO CANDIDATE CANDIDATE 1 Attachment:BATTLE_ATTACK_Hero_Card_okita.png ====
+11:10:09	脚本第_121行	-- CARD 1 STANDARD WINDOW --
+11:10:09	脚本第_89行	CANDIDATE 1 CARD 1 STD sim 0.95 MISS area 18 350 218 550 img Attachment:BATTLE_ATTACK_Hero_Card_okita.png
+11:10:09	脚本第_89行	CANDIDATE 1 CARD 1 STD sim 0.93 MISS area 18 350 218 550 img Attachment:BATTLE_ATTACK_Hero_Card_okita.png
+11:10:09	脚本第_89行	CANDIDATE 1 CARD 1 STD sim 0.9 MISS area 18 350 218 550 img Attachment:BATTLE_ATTACK_Hero_Card_okita.png
+11:10:09	脚本第_89行	CANDIDATE 1 CARD 1 STD sim 0.88 MISS area 18 350 218 550 img Attachment:BATTLE_ATTACK_Hero_Card_okita.png
+11:10:09	脚本第_87行	CANDIDATE 1 CARD 1 STD sim 0.85 HIT 108 498 area 18 350 218 550 img Attachment:BATTLE_ATTACK_Hero_Card_okita.png
+11:10:09	脚本第_123行	-- CARD 1 MOTION WINDOW --
+11:10:09	脚本第_89行	CANDIDATE 1 CARD 1 MOTION sim 0.95 MISS area 18 330 218 580 img Attachment:BATTLE_ATTACK_Hero_Card_okita.png
+11:10:09	脚本第_89行	CANDIDATE 1 CARD 1 MOTION sim 0.93 MISS area 18 330 218 580 img Attachment:BATTLE_ATTACK_Hero_Card_okita.png
+11:10:09	脚本第_89行	CANDIDATE 1 CARD 1 MOTION sim 0.9 MISS area 18 330 218 580 img Attachment:BATTLE_ATTACK_Hero_Card_okita.png
+11:10:09	脚本第_89行	CANDIDATE 1 CARD 1 MOTION sim 0.88 MISS area 18 330 218 580 img Attachment:BATTLE_ATTACK_Hero_Card_okita.png
+11:10:09	脚本第_89行	CANDIDATE 1 CARD 1 MOTION sim 0.85 MISS area 18 330 218 580 img Attachment:BATTLE_ATTACK_Hero_Card_okita.png
+11:10:09	脚本第_121行	-- CARD 2 STANDARD WINDOW --
+11:10:09	脚本第_89行	CANDIDATE 1 CARD 2 STD sim 0.95 MISS area 308 350 508 550 img Attachment:BATTLE_ATTACK_Hero_Card_okita.png
+11:10:09	脚本第_89行	CANDIDATE 1 CARD 2 STD sim 0.93 MISS area 308 350 508 550 img Attachment:BATTLE_ATTACK_Hero_Card_okita.png
+11:10:09	脚本第_89行	CANDIDATE 1 CARD 2 STD sim 0.9 MISS area 308 350 508 550 img Attachment:BATTLE_ATTACK_Hero_Card_okita.png
+11:10:09	脚本第_87行	CANDIDATE 1 CARD 2 STD sim 0.88 HIT 396 498 area 308 350 508 550 img Attachment:BATTLE_ATTACK_Hero_Card_okita.png
+11:10:09	脚本第_89行	CANDIDATE 1 CARD 2 STD sim 0.85 MISS area 308 350 508 550 img Attachment:BATTLE_ATTACK_Hero_Card_okita.png
+11:10:09	脚本第_123行	-- CARD 2 MOTION WINDOW --
+11:10:09	脚本第_89行	CANDIDATE 1 CARD 2 MOTION sim 0.95 MISS area 308 330 508 580 img Attachment:BATTLE_ATTACK_Hero_Card_okita.png
+11:10:09	脚本第_89行	CANDIDATE 1 CARD 2 MOTION sim 0.93 MISS area 308 330 508 580 img Attachment:BATTLE_ATTACK_Hero_Card_okita.png
+11:10:09	脚本第_89行	CANDIDATE 1 CARD 2 MOTION sim 0.9 MISS area 308 330 508 580 img Attachment:BATTLE_ATTACK_Hero_Card_okita.png
+11:10:09	脚本第_89行	CANDIDATE 1 CARD 2 MOTION sim 0.88 MISS area 308 330 508 580 img Attachment:BATTLE_ATTACK_Hero_Card_okita.png
+11:10:09	脚本第_89行	CANDIDATE 1 CARD 2 MOTION sim 0.85 MISS area 308 330 508 580 img Attachment:BATTLE_ATTACK_Hero_Card_okita.png
+11:10:09	脚本第_121行	-- CARD 3 STANDARD WINDOW --
+11:10:09	脚本第_89行	CANDIDATE 1 CARD 3 STD sim 0.95 MISS area 598 350 798 550 img Attachment:BATTLE_ATTACK_Hero_Card_okita.png
+11:10:09	脚本第_89行	CANDIDATE 1 CARD 3 STD sim 0.93 MISS area 598 350 798 550 img Attachment:BATTLE_ATTACK_Hero_Card_okita.png
+11:10:09	脚本第_89行	CANDIDATE 1 CARD 3 STD sim 0.9 MISS area 598 350 798 550 img Attachment:BATTLE_ATTACK_Hero_Card_okita.png
+11:10:09	脚本第_89行	CANDIDATE 1 CARD 3 STD sim 0.88 MISS area 598 350 798 550 img Attachment:BATTLE_ATTACK_Hero_Card_okita.png
+11:10:09	脚本第_89行	CANDIDATE 1 CARD 3 STD sim 0.85 MISS area 598 350 798 550 img Attachment:BATTLE_ATTACK_Hero_Card_okita.png
+11:10:09	脚本第_123行	-- CARD 3 MOTION WINDOW --
+11:10:09	脚本第_89行	CANDIDATE 1 CARD 3 MOTION sim 0.95 MISS area 598 330 798 580 img Attachment:BATTLE_ATTACK_Hero_Card_okita.png
+11:10:09	脚本第_89行	CANDIDATE 1 CARD 3 MOTION sim 0.93 MISS area 598 330 798 580 img Attachment:BATTLE_ATTACK_Hero_Card_okita.png
+11:10:09	脚本第_87行	CANDIDATE 1 CARD 3 MOTION sim 0.9 HIT 683 494 area 598 330 798 580 img Attachment:BATTLE_ATTACK_Hero_Card_okita.png
+11:10:09	脚本第_89行	CANDIDATE 1 CARD 3 MOTION sim 0.88 MISS area 598 330 798 580 img Attachment:BATTLE_ATTACK_Hero_Card_okita.png
+11:10:10	脚本第_87行	CANDIDATE 1 CARD 3 MOTION sim 0.85 HIT 683 493 area 598 330 798 580 img Attachment:BATTLE_ATTACK_Hero_Card_okita.png
+11:10:10	脚本第_121行	-- CARD 4 STANDARD WINDOW --
+11:10:10	脚本第_89行	CANDIDATE 1 CARD 4 STD sim 0.95 MISS area 891 350 1091 550 img Attachment:BATTLE_ATTACK_Hero_Card_okita.png
+11:10:10	脚本第_89行	CANDIDATE 1 CARD 4 STD sim 0.93 MISS area 891 350 1091 550 img Attachment:BATTLE_ATTACK_Hero_Card_okita.png
+11:10:10	脚本第_89行	CANDIDATE 1 CARD 4 STD sim 0.9 MISS area 891 350 1091 550 img Attachment:BATTLE_ATTACK_Hero_Card_okita.png
+11:10:10	脚本第_89行	CANDIDATE 1 CARD 4 STD sim 0.88 MISS area 891 350 1091 550 img Attachment:BATTLE_ATTACK_Hero_Card_okita.png
+11:10:10	脚本第_89行	CANDIDATE 1 CARD 4 STD sim 0.85 MISS area 891 350 1091 550 img Attachment:BATTLE_ATTACK_Hero_Card_okita.png
+11:10:10	脚本第_123行	-- CARD 4 MOTION WINDOW --
+11:10:10	脚本第_89行	CANDIDATE 1 CARD 4 MOTION sim 0.95 MISS area 891 330 1091 580 img Attachment:BATTLE_ATTACK_Hero_Card_okita.png
+11:10:10	脚本第_89行	CANDIDATE 1 CARD 4 MOTION sim 0.93 MISS area 891 330 1091 580 img Attachment:BATTLE_ATTACK_Hero_Card_okita.png
+11:10:10	脚本第_89行	CANDIDATE 1 CARD 4 MOTION sim 0.9 MISS area 891 330 1091 580 img Attachment:BATTLE_ATTACK_Hero_Card_okita.png
+11:10:10	脚本第_89行	CANDIDATE 1 CARD 4 MOTION sim 0.88 MISS area 891 330 1091 580 img Attachment:BATTLE_ATTACK_Hero_Card_okita.png
+11:10:10	脚本第_89行	CANDIDATE 1 CARD 4 MOTION sim 0.85 MISS area 891 330 1091 580 img Attachment:BATTLE_ATTACK_Hero_Card_okita.png
+11:10:10	脚本第_121行	-- CARD 5 STANDARD WINDOW --
+11:10:10	脚本第_89行	CANDIDATE 1 CARD 5 STD sim 0.95 MISS area 1178 350 1378 550 img Attachment:BATTLE_ATTACK_Hero_Card_okita.png
+11:10:10	脚本第_89行	CANDIDATE 1 CARD 5 STD sim 0.93 MISS area 1178 350 1378 550 img Attachment:BATTLE_ATTACK_Hero_Card_okita.png
+11:10:10	脚本第_89行	CANDIDATE 1 CARD 5 STD sim 0.9 MISS area 1178 350 1378 550 img Attachment:BATTLE_ATTACK_Hero_Card_okita.png
+11:10:10	脚本第_89行	CANDIDATE 1 CARD 5 STD sim 0.88 MISS area 1178 350 1378 550 img Attachment:BATTLE_ATTACK_Hero_Card_okita.png
+11:10:10	脚本第_89行	CANDIDATE 1 CARD 5 STD sim 0.85 MISS area 1178 350 1378 550 img Attachment:BATTLE_ATTACK_Hero_Card_okita.png
+11:10:10	脚本第_123行	-- CARD 5 MOTION WINDOW --
+11:10:10	脚本第_89行	CANDIDATE 1 CARD 5 MOTION sim 0.95 MISS area 1178 330 1378 580 img Attachment:BATTLE_ATTACK_Hero_Card_okita.png
+11:10:10	脚本第_89行	CANDIDATE 1 CARD 5 MOTION sim 0.93 MISS area 1178 330 1378 580 img Attachment:BATTLE_ATTACK_Hero_Card_okita.png
+11:10:10	脚本第_89行	CANDIDATE 1 CARD 5 MOTION sim 0.9 MISS area 1178 330 1378 580 img Attachment:BATTLE_ATTACK_Hero_Card_okita.png
+11:10:10	脚本第_89行	CANDIDATE 1 CARD 5 MOTION sim 0.88 MISS area 1178 330 1378 580 img Attachment:BATTLE_ATTACK_Hero_Card_okita.png
+11:10:10	脚本第_87行	CANDIDATE 1 CARD 5 MOTION sim 0.85 HIT 1265 490 area 1178 330 1378 580 img Attachment:BATTLE_ATTACK_Hero_Card_okita.png
+11:10:10	脚本第_117行	==== HERO CANDIDATE CANDIDATE 2 Attachment:BATTLE_ATTACK_Hero_Card_okita_face.png ====
+11:10:10	脚本第_121行	-- CARD 1 STANDARD WINDOW --
+11:10:10	脚本第_89行	CANDIDATE 2 CARD 1 STD sim 0.95 MISS area 18 350 218 550 img Attachment:BATTLE_ATTACK_Hero_Card_okita_face.png
+11:10:10	脚本第_89行	CANDIDATE 2 CARD 1 STD sim 0.93 MISS area 18 350 218 550 img Attachment:BATTLE_ATTACK_Hero_Card_okita_face.png
+11:10:10	脚本第_89行	CANDIDATE 2 CARD 1 STD sim 0.9 MISS area 18 350 218 550 img Attachment:BATTLE_ATTACK_Hero_Card_okita_face.png
+11:10:10	脚本第_89行	CANDIDATE 2 CARD 1 STD sim 0.88 MISS area 18 350 218 550 img Attachment:BATTLE_ATTACK_Hero_Card_okita_face.png
+11:10:10	脚本第_87行	CANDIDATE 2 CARD 1 STD sim 0.85 HIT 108 491 area 18 350 218 550 img Attachment:BATTLE_ATTACK_Hero_Card_okita_face.png
+11:10:10	脚本第_123行	-- CARD 1 MOTION WINDOW --
+11:10:10	脚本第_89行	CANDIDATE 2 CARD 1 MOTION sim 0.95 MISS area 18 330 218 580 img Attachment:BATTLE_ATTACK_Hero_Card_okita_face.png
+11:10:10	脚本第_89行	CANDIDATE 2 CARD 1 MOTION sim 0.93 MISS area 18 330 218 580 img Attachment:BATTLE_ATTACK_Hero_Card_okita_face.png
+11:10:10	脚本第_89行	CANDIDATE 2 CARD 1 MOTION sim 0.9 MISS area 18 330 218 580 img Attachment:BATTLE_ATTACK_Hero_Card_okita_face.png
+11:10:10	脚本第_89行	CANDIDATE 2 CARD 1 MOTION sim 0.88 MISS area 18 330 218 580 img Attachment:BATTLE_ATTACK_Hero_Card_okita_face.png
+11:10:10	脚本第_89行	CANDIDATE 2 CARD 1 MOTION sim 0.85 MISS area 18 330 218 580 img Attachment:BATTLE_ATTACK_Hero_Card_okita_face.png
+11:10:10	脚本第_121行	-- CARD 2 STANDARD WINDOW --
+11:10:10	脚本第_89行	CANDIDATE 2 CARD 2 STD sim 0.95 MISS area 308 350 508 550 img Attachment:BATTLE_ATTACK_Hero_Card_okita_face.png
+11:10:10	脚本第_89行	CANDIDATE 2 CARD 2 STD sim 0.93 MISS area 308 350 508 550 img Attachment:BATTLE_ATTACK_Hero_Card_okita_face.png
+11:10:10	脚本第_89行	CANDIDATE 2 CARD 2 STD sim 0.9 MISS area 308 350 508 550 img Attachment:BATTLE_ATTACK_Hero_Card_okita_face.png
+11:10:10	脚本第_89行	CANDIDATE 2 CARD 2 STD sim 0.88 MISS area 308 350 508 550 img Attachment:BATTLE_ATTACK_Hero_Card_okita_face.png
+11:10:10	脚本第_87行	CANDIDATE 2 CARD 2 STD sim 0.85 HIT 396 493 area 308 350 508 550 img Attachment:BATTLE_ATTACK_Hero_Card_okita_face.png
+11:10:10	脚本第_123行	-- CARD 2 MOTION WINDOW --
+11:10:10	脚本第_89行	CANDIDATE 2 CARD 2 MOTION sim 0.95 MISS area 308 330 508 580 img Attachment:BATTLE_ATTACK_Hero_Card_okita_face.png
+11:10:10	脚本第_89行	CANDIDATE 2 CARD 2 MOTION sim 0.93 MISS area 308 330 508 580 img Attachment:BATTLE_ATTACK_Hero_Card_okita_face.png
+11:10:10	脚本第_89行	CANDIDATE 2 CARD 2 MOTION sim 0.9 MISS area 308 330 508 580 img Attachment:BATTLE_ATTACK_Hero_Card_okita_face.png
+11:10:10	脚本第_89行	CANDIDATE 2 CARD 2 MOTION sim 0.88 MISS area 308 330 508 580 img Attachment:BATTLE_ATTACK_Hero_Card_okita_face.png
+11:10:10	脚本第_89行	CANDIDATE 2 CARD 2 MOTION sim 0.85 MISS area 308 330 508 580 img Attachment:BATTLE_ATTACK_Hero_Card_okita_face.png
+11:10:11	脚本第_121行	-- CARD 3 STANDARD WINDOW --
+11:10:11	脚本第_89行	CANDIDATE 2 CARD 3 STD sim 0.95 MISS area 598 350 798 550 img Attachment:BATTLE_ATTACK_Hero_Card_okita_face.png
+11:10:11	脚本第_89行	CANDIDATE 2 CARD 3 STD sim 0.93 MISS area 598 350 798 550 img Attachment:BATTLE_ATTACK_Hero_Card_okita_face.png
+11:10:11	脚本第_89行	CANDIDATE 2 CARD 3 STD sim 0.9 MISS area 598 350 798 550 img Attachment:BATTLE_ATTACK_Hero_Card_okita_face.png
+11:10:11	脚本第_87行	CANDIDATE 2 CARD 3 STD sim 0.88 HIT 683 499 area 598 350 798 550 img Attachment:BATTLE_ATTACK_Hero_Card_okita_face.png
+11:10:11	脚本第_89行	CANDIDATE 2 CARD 3 STD sim 0.85 MISS area 598 350 798 550 img Attachment:BATTLE_ATTACK_Hero_Card_okita_face.png
+11:10:11	脚本第_123行	-- CARD 3 MOTION WINDOW --
+11:10:11	脚本第_89行	CANDIDATE 2 CARD 3 MOTION sim 0.95 MISS area 598 330 798 580 img Attachment:BATTLE_ATTACK_Hero_Card_okita_face.png
+11:10:11	脚本第_89行	CANDIDATE 2 CARD 3 MOTION sim 0.93 MISS area 598 330 798 580 img Attachment:BATTLE_ATTACK_Hero_Card_okita_face.png
+11:10:11	脚本第_89行	CANDIDATE 2 CARD 3 MOTION sim 0.9 MISS area 598 330 798 580 img Attachment:BATTLE_ATTACK_Hero_Card_okita_face.png
+11:10:11	脚本第_87行	CANDIDATE 2 CARD 3 MOTION sim 0.88 HIT 683 500 area 598 330 798 580 img Attachment:BATTLE_ATTACK_Hero_Card_okita_face.png
+11:10:11	脚本第_87行	CANDIDATE 2 CARD 3 MOTION sim 0.85 HIT 683 500 area 598 330 798 580 img Attachment:BATTLE_ATTACK_Hero_Card_okita_face.png
+11:10:11	脚本第_121行	-- CARD 4 STANDARD WINDOW --
+11:10:11	脚本第_89行	CANDIDATE 2 CARD 4 STD sim 0.95 MISS area 891 350 1091 550 img Attachment:BATTLE_ATTACK_Hero_Card_okita_face.png
+11:10:11	脚本第_89行	CANDIDATE 2 CARD 4 STD sim 0.93 MISS area 891 350 1091 550 img Attachment:BATTLE_ATTACK_Hero_Card_okita_face.png
+11:10:11	脚本第_89行	CANDIDATE 2 CARD 4 STD sim 0.9 MISS area 891 350 1091 550 img Attachment:BATTLE_ATTACK_Hero_Card_okita_face.png
+11:10:11	脚本第_89行	CANDIDATE 2 CARD 4 STD sim 0.88 MISS area 891 350 1091 550 img Attachment:BATTLE_ATTACK_Hero_Card_okita_face.png
+11:10:11	脚本第_89行	CANDIDATE 2 CARD 4 STD sim 0.85 MISS area 891 350 1091 550 img Attachment:BATTLE_ATTACK_Hero_Card_okita_face.png
+11:10:11	脚本第_123行	-- CARD 4 MOTION WINDOW --
+11:10:11	脚本第_89行	CANDIDATE 2 CARD 4 MOTION sim 0.95 MISS area 891 330 1091 580 img Attachment:BATTLE_ATTACK_Hero_Card_okita_face.png
+11:10:11	脚本第_89行	CANDIDATE 2 CARD 4 MOTION sim 0.93 MISS area 891 330 1091 580 img Attachment:BATTLE_ATTACK_Hero_Card_okita_face.png
+11:10:11	脚本第_89行	CANDIDATE 2 CARD 4 MOTION sim 0.9 MISS area 891 330 1091 580 img Attachment:BATTLE_ATTACK_Hero_Card_okita_face.png
+11:10:11	脚本第_89行	CANDIDATE 2 CARD 4 MOTION sim 0.88 MISS area 891 330 1091 580 img Attachment:BATTLE_ATTACK_Hero_Card_okita_face.png
+11:10:11	脚本第_89行	CANDIDATE 2 CARD 4 MOTION sim 0.85 MISS area 891 330 1091 580 img Attachment:BATTLE_ATTACK_Hero_Card_okita_face.png
+11:10:11	脚本第_121行	-- CARD 5 STANDARD WINDOW --
+11:10:11	脚本第_89行	CANDIDATE 2 CARD 5 STD sim 0.95 MISS area 1178 350 1378 550 img Attachment:BATTLE_ATTACK_Hero_Card_okita_face.png
+11:10:11	脚本第_89行	CANDIDATE 2 CARD 5 STD sim 0.93 MISS area 1178 350 1378 550 img Attachment:BATTLE_ATTACK_Hero_Card_okita_face.png
+11:10:11	脚本第_89行	CANDIDATE 2 CARD 5 STD sim 0.9 MISS area 1178 350 1378 550 img Attachment:BATTLE_ATTACK_Hero_Card_okita_face.png
+11:10:11	脚本第_89行	CANDIDATE 2 CARD 5 STD sim 0.88 MISS area 1178 350 1378 550 img Attachment:BATTLE_ATTACK_Hero_Card_okita_face.png
+11:10:11	脚本第_89行	CANDIDATE 2 CARD 5 STD sim 0.85 MISS area 1178 350 1378 550 img Attachment:BATTLE_ATTACK_Hero_Card_okita_face.png
+11:10:11	脚本第_123行	-- CARD 5 MOTION WINDOW --
+11:10:11	脚本第_89行	CANDIDATE 2 CARD 5 MOTION sim 0.95 MISS area 1178 330 1378 580 img Attachment:BATTLE_ATTACK_Hero_Card_okita_face.png
+11:10:11	脚本第_89行	CANDIDATE 2 CARD 5 MOTION sim 0.93 MISS area 1178 330 1378 580 img Attachment:BATTLE_ATTACK_Hero_Card_okita_face.png
+11:10:11	脚本第_89行	CANDIDATE 2 CARD 5 MOTION sim 0.9 MISS area 1178 330 1378 580 img Attachment:BATTLE_ATTACK_Hero_Card_okita_face.png
+11:10:11	脚本第_89行	CANDIDATE 2 CARD 5 MOTION sim 0.88 MISS area 1178 330 1378 580 img Attachment:BATTLE_ATTACK_Hero_Card_okita_face.png
+11:10:11	脚本第_89行	CANDIDATE 2 CARD 5 MOTION sim 0.85 MISS area 1178 330 1378 580 img Attachment:BATTLE_ATTACK_Hero_Card_okita_face.png
+11:10:11	脚本第_186行	---- PRIORITY TEMPLATE 1 Attachment:BATTLE_ATTACK_Hero_Card_okita_face.png CHECK ALL 5 CARDS ----
+11:10:11	脚本第_191行	CARD 1 STANDARD WINDOW
+11:10:11	脚本第_89行	PRIORITY 1 CARD 1 STD sim 0.95 MISS area 18 350 218 550 img Attachment:BATTLE_ATTACK_Hero_Card_okita_face.png
+11:10:11	脚本第_89行	PRIORITY 1 CARD 1 STD sim 0.93 MISS area 18 350 218 550 img Attachment:BATTLE_ATTACK_Hero_Card_okita_face.png
+11:10:11	脚本第_89行	PRIORITY 1 CARD 1 STD sim 0.9 MISS area 18 350 218 550 img Attachment:BATTLE_ATTACK_Hero_Card_okita_face.png
+11:10:11	脚本第_89行	PRIORITY 1 CARD 1 STD sim 0.88 MISS area 18 350 218 550 img Attachment:BATTLE_ATTACK_Hero_Card_okita_face.png
+11:10:12	脚本第_87行	PRIORITY 1 CARD 1 STD sim 0.85 HIT 108 492 area 18 350 218 550 img Attachment:BATTLE_ATTACK_Hero_Card_okita_face.png
+11:10:12	脚本第_193行	CARD 1 MOTION WINDOW
+11:10:12	脚本第_89行	PRIORITY 1 CARD 1 MOTION sim 0.95 MISS area 18 330 218 580 img Attachment:BATTLE_ATTACK_Hero_Card_okita_face.png
+11:10:12	脚本第_89行	PRIORITY 1 CARD 1 MOTION sim 0.93 MISS area 18 330 218 580 img Attachment:BATTLE_ATTACK_Hero_Card_okita_face.png
+11:10:12	脚本第_89行	PRIORITY 1 CARD 1 MOTION sim 0.9 MISS area 18 330 218 580 img Attachment:BATTLE_ATTACK_Hero_Card_okita_face.png
+11:10:12	脚本第_89行	PRIORITY 1 CARD 1 MOTION sim 0.88 MISS area 18 330 218 580 img Attachment:BATTLE_ATTACK_Hero_Card_okita_face.png
+11:10:12	脚本第_89行	PRIORITY 1 CARD 1 MOTION sim 0.85 MISS area 18 330 218 580 img Attachment:BATTLE_ATTACK_Hero_Card_okita_face.png
+11:10:12	脚本第_191行	CARD 2 STANDARD WINDOW
+11:10:12	脚本第_89行	PRIORITY 1 CARD 2 STD sim 0.95 MISS area 308 350 508 550 img Attachment:BATTLE_ATTACK_Hero_Card_okita_face.png
+11:10:12	脚本第_89行	PRIORITY 1 CARD 2 STD sim 0.93 MISS area 308 350 508 550 img Attachment:BATTLE_ATTACK_Hero_Card_okita_face.png
+11:10:12	脚本第_89行	PRIORITY 1 CARD 2 STD sim 0.9 MISS area 308 350 508 550 img Attachment:BATTLE_ATTACK_Hero_Card_okita_face.png
+11:10:12	脚本第_89行	PRIORITY 1 CARD 2 STD sim 0.88 MISS area 308 350 508 550 img Attachment:BATTLE_ATTACK_Hero_Card_okita_face.png
+11:10:12	脚本第_87行	PRIORITY 1 CARD 2 STD sim 0.85 HIT 396 491 area 308 350 508 550 img Attachment:BATTLE_ATTACK_Hero_Card_okita_face.png
+11:10:12	脚本第_193行	CARD 2 MOTION WINDOW
+11:10:12	脚本第_89行	PRIORITY 1 CARD 2 MOTION sim 0.95 MISS area 308 330 508 580 img Attachment:BATTLE_ATTACK_Hero_Card_okita_face.png
+11:10:12	脚本第_89行	PRIORITY 1 CARD 2 MOTION sim 0.93 MISS area 308 330 508 580 img Attachment:BATTLE_ATTACK_Hero_Card_okita_face.png
+11:10:12	脚本第_89行	PRIORITY 1 CARD 2 MOTION sim 0.9 MISS area 308 330 508 580 img Attachment:BATTLE_ATTACK_Hero_Card_okita_face.png
+11:10:12	脚本第_89行	PRIORITY 1 CARD 2 MOTION sim 0.88 MISS area 308 330 508 580 img Attachment:BATTLE_ATTACK_Hero_Card_okita_face.png
+11:10:12	脚本第_87行	PRIORITY 1 CARD 2 MOTION sim 0.85 HIT 396 490 area 308 330 508 580 img Attachment:BATTLE_ATTACK_Hero_Card_okita_face.png
+11:10:12	脚本第_191行	CARD 3 STANDARD WINDOW
+11:10:12	脚本第_89行	PRIORITY 1 CARD 3 STD sim 0.95 MISS area 598 350 798 550 img Attachment:BATTLE_ATTACK_Hero_Card_okita_face.png
+11:10:12	脚本第_89行	PRIORITY 1 CARD 3 STD sim 0.93 MISS area 598 350 798 550 img Attachment:BATTLE_ATTACK_Hero_Card_okita_face.png
+11:10:12	脚本第_89行	PRIORITY 1 CARD 3 STD sim 0.9 MISS area 598 350 798 550 img Attachment:BATTLE_ATTACK_Hero_Card_okita_face.png
+11:10:12	脚本第_89行	PRIORITY 1 CARD 3 STD sim 0.88 MISS area 598 350 798 550 img Attachment:BATTLE_ATTACK_Hero_Card_okita_face.png
+11:10:12	脚本第_87行	PRIORITY 1 CARD 3 STD sim 0.85 HIT 683 490 area 598 350 798 550 img Attachment:BATTLE_ATTACK_Hero_Card_okita_face.png
+11:10:12	脚本第_193行	CARD 3 MOTION WINDOW
+11:10:12	脚本第_89行	PRIORITY 1 CARD 3 MOTION sim 0.95 MISS area 598 330 798 580 img Attachment:BATTLE_ATTACK_Hero_Card_okita_face.png
+11:10:12	脚本第_89行	PRIORITY 1 CARD 3 MOTION sim 0.93 MISS area 598 330 798 580 img Attachment:BATTLE_ATTACK_Hero_Card_okita_face.png
+11:10:12	脚本第_89行	PRIORITY 1 CARD 3 MOTION sim 0.9 MISS area 598 330 798 580 img Attachment:BATTLE_ATTACK_Hero_Card_okita_face.png
+11:10:12	脚本第_87行	PRIORITY 1 CARD 3 MOTION sim 0.88 HIT 683 491 area 598 330 798 580 img Attachment:BATTLE_ATTACK_Hero_Card_okita_face.png
+11:10:12	脚本第_87行	PRIORITY 1 CARD 3 MOTION sim 0.85 HIT 683 491 area 598 330 798 580 img Attachment:BATTLE_ATTACK_Hero_Card_okita_face.png
+11:10:12	脚本第_191行	CARD 4 STANDARD WINDOW
+11:10:12	脚本第_89行	PRIORITY 1 CARD 4 STD sim 0.95 MISS area 891 350 1091 550 img Attachment:BATTLE_ATTACK_Hero_Card_okita_face.png
+11:10:12	脚本第_89行	PRIORITY 1 CARD 4 STD sim 0.93 MISS area 891 350 1091 550 img Attachment:BATTLE_ATTACK_Hero_Card_okita_face.png
+11:10:12	脚本第_89行	PRIORITY 1 CARD 4 STD sim 0.9 MISS area 891 350 1091 550 img Attachment:BATTLE_ATTACK_Hero_Card_okita_face.png
+11:10:12	脚本第_89行	PRIORITY 1 CARD 4 STD sim 0.88 MISS area 891 350 1091 550 img Attachment:BATTLE_ATTACK_Hero_Card_okita_face.png
+11:10:12	脚本第_89行	PRIORITY 1 CARD 4 STD sim 0.85 MISS area 891 350 1091 550 img Attachment:BATTLE_ATTACK_Hero_Card_okita_face.png
+11:10:12	脚本第_193行	CARD 4 MOTION WINDOW
+11:10:12	脚本第_89行	PRIORITY 1 CARD 4 MOTION sim 0.95 MISS area 891 330 1091 580 img Attachment:BATTLE_ATTACK_Hero_Card_okita_face.png
+11:10:12	脚本第_89行	PRIORITY 1 CARD 4 MOTION sim 0.93 MISS area 891 330 1091 580 img Attachment:BATTLE_ATTACK_Hero_Card_okita_face.png
+11:10:12	脚本第_89行	PRIORITY 1 CARD 4 MOTION sim 0.9 MISS area 891 330 1091 580 img Attachment:BATTLE_ATTACK_Hero_Card_okita_face.png
+11:10:12	脚本第_89行	PRIORITY 1 CARD 4 MOTION sim 0.88 MISS area 891 330 1091 580 img Attachment:BATTLE_ATTACK_Hero_Card_okita_face.png
+11:10:13	脚本第_89行	PRIORITY 1 CARD 4 MOTION sim 0.85 MISS area 891 330 1091 580 img Attachment:BATTLE_ATTACK_Hero_Card_okita_face.png
+11:10:13	脚本第_191行	CARD 5 STANDARD WINDOW
+11:10:13	脚本第_89行	PRIORITY 1 CARD 5 STD sim 0.95 MISS area 1178 350 1378 550 img Attachment:BATTLE_ATTACK_Hero_Card_okita_face.png
+11:10:13	脚本第_89行	PRIORITY 1 CARD 5 STD sim 0.93 MISS area 1178 350 1378 550 img Attachment:BATTLE_ATTACK_Hero_Card_okita_face.png
+11:10:13	脚本第_89行	PRIORITY 1 CARD 5 STD sim 0.9 MISS area 1178 350 1378 550 img Attachment:BATTLE_ATTACK_Hero_Card_okita_face.png
+11:10:13	脚本第_89行	PRIORITY 1 CARD 5 STD sim 0.88 MISS area 1178 350 1378 550 img Attachment:BATTLE_ATTACK_Hero_Card_okita_face.png
+11:10:13	脚本第_89行	PRIORITY 1 CARD 5 STD sim 0.85 MISS area 1178 350 1378 550 img Attachment:BATTLE_ATTACK_Hero_Card_okita_face.png
+11:10:13	脚本第_193行	CARD 5 MOTION WINDOW
+11:10:13	脚本第_89行	PRIORITY 1 CARD 5 MOTION sim 0.95 MISS area 1178 330 1378 580 img Attachment:BATTLE_ATTACK_Hero_Card_okita_face.png
+11:10:13	脚本第_89行	PRIORITY 1 CARD 5 MOTION sim 0.93 MISS area 1178 330 1378 580 img Attachment:BATTLE_ATTACK_Hero_Card_okita_face.png
+11:10:13	脚本第_89行	PRIORITY 1 CARD 5 MOTION sim 0.9 MISS area 1178 330 1378 580 img Attachment:BATTLE_ATTACK_Hero_Card_okita_face.png
+11:10:13	脚本第_89行	PRIORITY 1 CARD 5 MOTION sim 0.88 MISS area 1178 330 1378 580 img Attachment:BATTLE_ATTACK_Hero_Card_okita_face.png
+11:10:13	脚本第_87行	PRIORITY 1 CARD 5 MOTION sim 0.85 HIT 1265 500 area 1178 330 1378 580 img Attachment:BATTLE_ATTACK_Hero_Card_okita_face.png
+11:10:13	脚本第_186行	---- PRIORITY TEMPLATE 2 Attachment:BATTLE_ATTACK_Hero_Card_beni.png CHECK ALL 5 CARDS ----
+11:10:13	脚本第_191行	CARD 1 STANDARD WINDOW
+11:10:13	脚本第_89行	PRIORITY 2 CARD 1 STD sim 0.95 MISS area 18 350 218 550 img Attachment:BATTLE_ATTACK_Hero_Card_beni.png
+11:10:13	脚本第_89行	PRIORITY 2 CARD 1 STD sim 0.93 MISS area 18 350 218 550 img Attachment:BATTLE_ATTACK_Hero_Card_beni.png
+11:10:13	脚本第_89行	PRIORITY 2 CARD 1 STD sim 0.9 MISS area 18 350 218 550 img Attachment:BATTLE_ATTACK_Hero_Card_beni.png
+11:10:13	脚本第_89行	PRIORITY 2 CARD 1 STD sim 0.88 MISS area 18 350 218 550 img Attachment:BATTLE_ATTACK_Hero_Card_beni.png
+11:10:13	脚本第_89行	PRIORITY 2 CARD 1 STD sim 0.85 MISS area 18 350 218 550 img Attachment:BATTLE_ATTACK_Hero_Card_beni.png
+11:10:13	脚本第_193行	CARD 1 MOTION WINDOW
+11:10:13	脚本第_89行	PRIORITY 2 CARD 1 MOTION sim 0.95 MISS area 18 330 218 580 img Attachment:BATTLE_ATTACK_Hero_Card_beni.png
+11:10:13	脚本第_89行	PRIORITY 2 CARD 1 MOTION sim 0.93 MISS area 18 330 218 580 img Attachment:BATTLE_ATTACK_Hero_Card_beni.png
+11:10:13	脚本第_89行	PRIORITY 2 CARD 1 MOTION sim 0.9 MISS area 18 330 218 580 img Attachment:BATTLE_ATTACK_Hero_Card_beni.png
+11:10:13	脚本第_89行	PRIORITY 2 CARD 1 MOTION sim 0.88 MISS area 18 330 218 580 img Attachment:BATTLE_ATTACK_Hero_Card_beni.png
+11:10:13	脚本第_89行	PRIORITY 2 CARD 1 MOTION sim 0.85 MISS area 18 330 218 580 img Attachment:BATTLE_ATTACK_Hero_Card_beni.png
+11:10:13	脚本第_191行	CARD 2 STANDARD WINDOW
+11:10:13	脚本第_89行	PRIORITY 2 CARD 2 STD sim 0.95 MISS area 308 350 508 550 img Attachment:BATTLE_ATTACK_Hero_Card_beni.png
+11:10:13	脚本第_89行	PRIORITY 2 CARD 2 STD sim 0.93 MISS area 308 350 508 550 img Attachment:BATTLE_ATTACK_Hero_Card_beni.png
+11:10:13	脚本第_89行	PRIORITY 2 CARD 2 STD sim 0.9 MISS area 308 350 508 550 img Attachment:BATTLE_ATTACK_Hero_Card_beni.png
+11:10:13	脚本第_89行	PRIORITY 2 CARD 2 STD sim 0.88 MISS area 308 350 508 550 img Attachment:BATTLE_ATTACK_Hero_Card_beni.png
+11:10:13	脚本第_89行	PRIORITY 2 CARD 2 STD sim 0.85 MISS area 308 350 508 550 img Attachment:BATTLE_ATTACK_Hero_Card_beni.png
+11:10:13	脚本第_193行	CARD 2 MOTION WINDOW
+11:10:13	脚本第_89行	PRIORITY 2 CARD 2 MOTION sim 0.95 MISS area 308 330 508 580 img Attachment:BATTLE_ATTACK_Hero_Card_beni.png
+11:10:13	脚本第_89行	PRIORITY 2 CARD 2 MOTION sim 0.93 MISS area 308 330 508 580 img Attachment:BATTLE_ATTACK_Hero_Card_beni.png
+11:10:13	脚本第_89行	PRIORITY 2 CARD 2 MOTION sim 0.9 MISS area 308 330 508 580 img Attachment:BATTLE_ATTACK_Hero_Card_beni.png
+11:10:13	脚本第_89行	PRIORITY 2 CARD 2 MOTION sim 0.88 MISS area 308 330 508 580 img Attachment:BATTLE_ATTACK_Hero_Card_beni.png
+11:10:13	脚本第_89行	PRIORITY 2 CARD 2 MOTION sim 0.85 MISS area 308 330 508 580 img Attachment:BATTLE_ATTACK_Hero_Card_beni.png
+11:10:13	脚本第_191行	CARD 3 STANDARD WINDOW
+11:10:13	脚本第_89行	PRIORITY 2 CARD 3 STD sim 0.95 MISS area 598 350 798 550 img Attachment:BATTLE_ATTACK_Hero_Card_beni.png
+11:10:13	脚本第_89行	PRIORITY 2 CARD 3 STD sim 0.93 MISS area 598 350 798 550 img Attachment:BATTLE_ATTACK_Hero_Card_beni.png
+11:10:13	脚本第_89行	PRIORITY 2 CARD 3 STD sim 0.9 MISS area 598 350 798 550 img Attachment:BATTLE_ATTACK_Hero_Card_beni.png
+11:10:13	脚本第_89行	PRIORITY 2 CARD 3 STD sim 0.88 MISS area 598 350 798 550 img Attachment:BATTLE_ATTACK_Hero_Card_beni.png
+11:10:13	脚本第_89行	PRIORITY 2 CARD 3 STD sim 0.85 MISS area 598 350 798 550 img Attachment:BATTLE_ATTACK_Hero_Card_beni.png
+11:10:13	脚本第_193行	CARD 3 MOTION WINDOW
+11:10:14	脚本第_89行	PRIORITY 2 CARD 3 MOTION sim 0.95 MISS area 598 330 798 580 img Attachment:BATTLE_ATTACK_Hero_Card_beni.png
+11:10:14	脚本第_89行	PRIORITY 2 CARD 3 MOTION sim 0.93 MISS area 598 330 798 580 img Attachment:BATTLE_ATTACK_Hero_Card_beni.png
+11:10:14	脚本第_89行	PRIORITY 2 CARD 3 MOTION sim 0.9 MISS area 598 330 798 580 img Attachment:BATTLE_ATTACK_Hero_Card_beni.png
+11:10:14	脚本第_89行	PRIORITY 2 CARD 3 MOTION sim 0.88 MISS area 598 330 798 580 img Attachment:BATTLE_ATTACK_Hero_Card_beni.png
+11:10:14	脚本第_89行	PRIORITY 2 CARD 3 MOTION sim 0.85 MISS area 598 330 798 580 img Attachment:BATTLE_ATTACK_Hero_Card_beni.png
+11:10:14	脚本第_191行	CARD 4 STANDARD WINDOW
+11:10:14	脚本第_89行	PRIORITY 2 CARD 4 STD sim 0.95 MISS area 891 350 1091 550 img Attachment:BATTLE_ATTACK_Hero_Card_beni.png
+11:10:14	脚本第_89行	PRIORITY 2 CARD 4 STD sim 0.93 MISS area 891 350 1091 550 img Attachment:BATTLE_ATTACK_Hero_Card_beni.png
+11:10:14	脚本第_89行	PRIORITY 2 CARD 4 STD sim 0.9 MISS area 891 350 1091 550 img Attachment:BATTLE_ATTACK_Hero_Card_beni.png
+11:10:14	脚本第_89行	PRIORITY 2 CARD 4 STD sim 0.88 MISS area 891 350 1091 550 img Attachment:BATTLE_ATTACK_Hero_Card_beni.png
+11:10:14	脚本第_89行	PRIORITY 2 CARD 4 STD sim 0.85 MISS area 891 350 1091 550 img Attachment:BATTLE_ATTACK_Hero_Card_beni.png
+11:10:14	脚本第_193行	CARD 4 MOTION WINDOW
+11:10:14	脚本第_89行	PRIORITY 2 CARD 4 MOTION sim 0.95 MISS area 891 330 1091 580 img Attachment:BATTLE_ATTACK_Hero_Card_beni.png
+11:10:14	脚本第_89行	PRIORITY 2 CARD 4 MOTION sim 0.93 MISS area 891 330 1091 580 img Attachment:BATTLE_ATTACK_Hero_Card_beni.png
+11:10:14	脚本第_89行	PRIORITY 2 CARD 4 MOTION sim 0.9 MISS area 891 330 1091 580 img Attachment:BATTLE_ATTACK_Hero_Card_beni.png
+11:10:14	脚本第_89行	PRIORITY 2 CARD 4 MOTION sim 0.88 MISS area 891 330 1091 580 img Attachment:BATTLE_ATTACK_Hero_Card_beni.png
+11:10:14	脚本第_89行	PRIORITY 2 CARD 4 MOTION sim 0.85 MISS area 891 330 1091 580 img Attachment:BATTLE_ATTACK_Hero_Card_beni.png
+11:10:14	脚本第_191行	CARD 5 STANDARD WINDOW
+11:10:14	脚本第_89行	PRIORITY 2 CARD 5 STD sim 0.95 MISS area 1178 350 1378 550 img Attachment:BATTLE_ATTACK_Hero_Card_beni.png
+11:10:14	脚本第_89行	PRIORITY 2 CARD 5 STD sim 0.93 MISS area 1178 350 1378 550 img Attachment:BATTLE_ATTACK_Hero_Card_beni.png
+11:10:14	脚本第_89行	PRIORITY 2 CARD 5 STD sim 0.9 MISS area 1178 350 1378 550 img Attachment:BATTLE_ATTACK_Hero_Card_beni.png
+11:10:14	脚本第_89行	PRIORITY 2 CARD 5 STD sim 0.88 MISS area 1178 350 1378 550 img Attachment:BATTLE_ATTACK_Hero_Card_beni.png
+11:10:14	脚本第_89行	PRIORITY 2 CARD 5 STD sim 0.85 MISS area 1178 350 1378 550 img Attachment:BATTLE_ATTACK_Hero_Card_beni.png
+11:10:14	脚本第_193行	CARD 5 MOTION WINDOW
+11:10:14	脚本第_89行	PRIORITY 2 CARD 5 MOTION sim 0.95 MISS area 1178 330 1378 580 img Attachment:BATTLE_ATTACK_Hero_Card_beni.png
+11:10:14	脚本第_89行	PRIORITY 2 CARD 5 MOTION sim 0.93 MISS area 1178 330 1378 580 img Attachment:BATTLE_ATTACK_Hero_Card_beni.png
+11:10:14	脚本第_89行	PRIORITY 2 CARD 5 MOTION sim 0.9 MISS area 1178 330 1378 580 img Attachment:BATTLE_ATTACK_Hero_Card_beni.png
+11:10:14	脚本第_89行	PRIORITY 2 CARD 5 MOTION sim 0.88 MISS area 1178 330 1378 580 img Attachment:BATTLE_ATTACK_Hero_Card_beni.png
+11:10:14	脚本第_89行	PRIORITY 2 CARD 5 MOTION sim 0.85 MISS area 1178 330 1378 580 img Attachment:BATTLE_ATTACK_Hero_Card_beni.png
+11:10:14	脚本第_206行	---- ORIGINAL PRIORITY LOOP 1 Attachment:BATTLE_ATTACK_Hero_Card_okita_face.png ----
+11:10:14	脚本第_223行	ORIGINAL LOOP MISS priority 1 card 2 area 308 350 508 550
+11:10:14	脚本第_223行	ORIGINAL LOOP MISS priority 1 card 4 area 891 350 1091 550
+11:10:14	脚本第_206行	---- ORIGINAL PRIORITY LOOP 2 Attachment:BATTLE_ATTACK_Hero_Card_beni.png ----
+11:10:14	脚本第_223行	ORIGINAL LOOP MISS priority 2 card 2 area 308 350 508 550
+11:10:14	脚本第_223行	ORIGINAL LOOP MISS priority 2 card 4 area 891 350 1091 550
+11:10:14	脚本第_230行	RESULT: No priority matched, original logic would tap first Buster Card 2
+11:10:14	脚本第_235行	ACTION: TAP_RESULT_CARD = 0, not tapping fallback card
+11:10:14	脚本第_238行	---- PROPOSED PRIORITY LOOP (explicit count + priority sim) ----
+11:10:14	脚本第_241行	---- PROPOSED PRIORITY 1 Attachment:BATTLE_ATTACK_Hero_Card_okita_face.png sim 0.9 motion window ----
+11:10:14	脚本第_257行	PROPOSED LOOP MISS priority 1 card 2 area 308 330 508 580
+11:10:14	脚本第_257行	PROPOSED LOOP MISS priority 1 card 4 area 891 330 1091 580
+11:10:14	脚本第_241行	---- PROPOSED PRIORITY 2 Attachment:BATTLE_ATTACK_Hero_Card_beni.png sim 0.9 motion window ----
+11:10:14	脚本第_257行	PROPOSED LOOP MISS priority 2 card 2 area 308 330 508 580
+11:10:14	脚本第_257行	PROPOSED LOOP MISS priority 2 card 4 area 891 330 1091 580
+11:10:14	脚本第_263行	PROPOSED RESULT: No priority matched, would still fallback to first Buster Card 2
+11:10:14	脚本第_277行	DEBUG SCRIPT END 2026-05-29 11:10:14
