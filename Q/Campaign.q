@@ -4,7 +4,7 @@
 Log.Open
 
 ' USER CONFIG
-Dim BATTLE_COUNT = 7
+Dim BATTLE_COUNT = 3
 'debug:	1:true or 0:false
 Dim DEBUGE_MODULE_BATTLE = 0
 Dim APPLE_ENABLE = 0
@@ -12,42 +12,26 @@ Dim ACTIVITY_REWARD = 1
 
 ' --- NEW DSL BATTLE CONFIG ---
 Dim ActionRoundGroupIndex = 1
-Dim ActionRoundIndex = 3
+Dim ActionRoundIndex = 1
 
 Dim ActvityActionRounds_DSL = Array(_
 	Array(_
-		"s10, 20, 40, 50, 62, 70, 92 | m22 | a7, 4, 5"_
+		"s70, 90 | m30034 | s70, 40, 50, 62| a6, 4, 5",_
+		"s10 | a7, 4, 5",_
+		"m10 | s20, 30, 82, 92 | a6, 7, 5"_
 	),_
 	Array(_
-		"s92, 40, 50, 60, 30 | a7, B, B",_
-		"s72 | m32 | s50 | aB, 7, B",_
-		"s82, 60 | a7, B, B"_
+		"aB, B"_
 	),_
 	Array(_
-		"s80 | a3, 4, 5",_
-		"s10, 20, 30, 51, 61, 70, 91 | m31 | aB, 6, B",_
-		"s41, 10, 20, 30 | a6, B, B"_
+		"s20, 30, 40, 52, 70, 83 | a7, 8, 5",_
+		"s10 | a6, 4, 5",_
+		"s92, 50 | m22 | a7, 4, 5"_
 	)_
 )
 
 Dim ArtActionRounds_DSL = Array(_
-	Array(_
-		"s23, 33, 53, 63, 70, 90 | m33 | a8, 4, 5",_
-		"s10 | a8, 4, 5",_
-		"s40, 80 | m13 | a8, 4, 5"_
-	),_
-	Array(_
-		"s23, 33, 53, 63, 70, 90, 83 | a8, 4, 5",_
-		"s10 | a8, 4, 5",_
-		"s40 | m13 | a8, 4, 5"_
-	),_
-	Array(_
-		"s23, 33, 40, 50, 80 | a8, 4, 5",_
-		"s10 | a8, 4, 5",_
-		"s63 | m10 | a8, 4, 5"_
-	)_
 )
-
 
 Function ParseBattleSequence(sequenceArray)
 	Dim finalRounds = Array()
@@ -126,10 +110,11 @@ Dim ATT_Taigong = "Attachment:friendtaigong.png"
 Dim ATT_Princess = "Attachment:friendPrincess.png|Attachment:friendPrincess2.png|Attachment:friendPrincess3.png"
 Dim ATT_Princess120 = "Attachment:friendPrincess120.png|Attachment:friendPrincess1202.png|Attachment:friendPrincess1203.png"
 Dim ATT_QP = "Attachment:friendQP.png"
-Dim PREPARE_FRIEND_TAR = Array(40, 180, 920, 800, ATT_ShahuShan)
+Dim ATT_Sparrow = "Attachment:friendSparrow.png"
+Dim PREPARE_FRIEND_TAR = Array(40, 180, 920, 800, ATT_Aobao)
 
 Dim ATT_EQUIP_Goodness = "Attachment:friend_equip_goodness.png"
-Dim PREPARE_FRIEND_EQUIP_TAR = Array(40, 180, 920, 800, ATT_Shahu)
+Dim PREPARE_FRIEND_EQUIP_TAR = Array(40, 180, 920, 800, ATT_EQUIP_Goodness)
 
 
 ' START
@@ -243,6 +228,11 @@ Dim BATTLE_ATTACK_CARD_SECON_TAPED_TARS = Array(_
 	Array(960, 227, 987, 238, "Attachment:BATTLE_ATTACK_CARD_8_SECOND_TAPED.png")_
  )
 Dim BATTLE_ATTACK_CARD_BUSTER_TAR = Array(55, 460, 1390, 690, "Attachment:BATTLE_ATTACK_CARD_BUSTER.png")
+Dim BATTLE_ATTACK_CARD_PRIORITY_TARS = Array()
+BATTLE_ATTACK_CARD_PRIORITY_TARS[1] = "Attachment:BATTLE_ATTACK_Hero_Card_okita.png"
+BATTLE_ATTACK_CARD_PRIORITY_TARS[2] = "Attachment:BATTLE_ATTACK_Hero_Card_beni.png"
+Dim BATTLE_ATTACK_CARD_PRIORITY_COUNT = 2
+Dim BATTLE_ATTACK_CARD_PRIORITY_SIM = 0.78
 
 
 Dim BATTLE_CARD_TAPED_AWAIT_MS = 300
@@ -428,6 +418,16 @@ Function CheckImg2(Target)
 	End If
 End Function
 
+Function CheckPriorityImg(Target)
+	Dim Area = Target
+	Dim AttachedImg = Target[5]
+	Dim intX, intY
+	FindPic Area[1], Area[2], Area[3], Area[4], AttachedImg, "000000", 0, BATTLE_ATTACK_CARD_PRIORITY_SIM, intX, intY
+	If intX > -1 And intY > -1 Then
+		CheckPriorityImg = Array(intX, intY)
+	End If
+End Function
+
 Function CheckNoImgAndTapOnce(Target, TapPoint)
 	Dim AttachedImg = Target[5]
 	Dim GetImgCoord = CheckImg2(Target)
@@ -477,9 +477,26 @@ Function ChooseFriend()
 	CheckAndTapImg2(PREPARE_FRIEND_TAR, null)
 End Function
 Function CheckFirstBattle2Start()
+	CheckFirstBattle2Start = false
 	If IsFirstBattle Then
-		TracePrint "First Battle Start"
-		CheckAndTapImg2(START_TAR, null)
+		TracePrint "First Battle Start: wait START or ATTACK"
+		Do While true
+			Dim AttackPoint = CheckImg2(BATTLE_HERO_SKILL_CHECK_TAR)
+			If AttackPoint <> null Then
+				TracePrint "First Battle Start: ATTACK found, skip START"
+				Exit Do
+			End If
+
+			Dim StartPoint = CheckImg2(START_TAR)
+			If StartPoint <> null Then
+				TracePrint "First Battle Start: tap START"
+				tap StartPoint[1], StartPoint[2]
+				CheckFirstBattle2Start = true
+				Delay 1000
+			Else
+				Delay 300
+			End If
+		Loop
 		IsFirstBattle = false
 	End If
 End Function
@@ -543,13 +560,60 @@ Function DoMasterActions(ActionsGroup)
 	Next
 End Function
 
+Function SelectPriorityBusterCard()
+	Dim PriorityCount = BATTLE_ATTACK_CARD_PRIORITY_COUNT
+	Dim BusterCards = Array()
+	Dim BusterCount = 0
+	Dim i
+	For i = 1 To 5
+		Dim cx = BATTLE_ATTACK_CARD_COORDS[i][1]
+		Dim busterArea = Array(cx - 130, 460, cx + 130, 750, "Attachment:BATTLE_ATTACK_CARD_BUSTER.png")
+		Dim getBuster = CheckImg2(busterArea)
+		If getBuster <> null Then
+			BusterCount = BusterCount + 1
+			BusterCards[BusterCount] = i
+		End If
+	Next
+	
+	If BusterCount = 0 Then
+		TracePrint "No Buster Card found, fallback to default"
+		CheckAndTapImg2(BATTLE_ATTACK_CARD_BUSTER_TAR, null)
+		Exit Function
+	End If
+	
+	Dim p
+	If PriorityCount >= 1 Then
+		For p = 1 To PriorityCount
+			If BATTLE_ATTACK_CARD_PRIORITY_TARS[p] <> null Then
+				Dim b
+				For b = 1 To BusterCount
+					Dim cIdx = BusterCards[b]
+					cx = BATTLE_ATTACK_CARD_COORDS[cIdx][1]
+					Dim heroTar = Array(cx - 100, 350, cx + 100, 550, BATTLE_ATTACK_CARD_PRIORITY_TARS[p])
+					Dim getHero = CheckPriorityImg(heroTar)
+					If getHero <> null Then
+						TracePrint "Found Priority Buster Card:", BATTLE_ATTACK_CARD_PRIORITY_TARS[p], "at card", cIdx, "sim", BATTLE_ATTACK_CARD_PRIORITY_SIM
+						tap BATTLE_ATTACK_CARD_COORDS[cIdx][1], BATTLE_ATTACK_CARD_COORDS[cIdx][2]
+						Exit Function
+					End If
+				Next
+			End If
+		Next
+	End If
+	
+	' Fallback
+	Dim firstBusterIdx = BusterCards[1]
+	TracePrint "No priority matched, tap first Buster Card:", firstBusterIdx
+	tap BATTLE_ATTACK_CARD_COORDS[firstBusterIdx][1], BATTLE_ATTACK_CARD_COORDS[firstBusterIdx][2]
+End Function
+
 Function SelectAttackCard(CardIndex)
 	If IsNumeric(CardIndex) Then
 		CheckAndTapImg2(BATTLE_ATTACK_BACK_TAR, BATTLE_ATTACK_CARD_COORDS[CardIndex])
 	Else
 		If CardIndex = "B" Then
 		TracePrint "B"
-			CheckAndTapImg2(BATTLE_ATTACK_CARD_BUSTER_TAR, null)
+			SelectPriorityBusterCard()
 		End If
 	End If
 	
@@ -597,9 +661,6 @@ Function DoBattle()
 	If DEBUGE_MODULE_BATTLE = 0 Then
 		ChooseFriend()
 		CheckFirstBattle2Start()
-
-		BattlePrint("Delay to battle")
-		Delay START_TAPED_DELAY
 	End If
 
 	Dim RoundCount = UBound(AllActionRound)+1

@@ -10,7 +10,7 @@ Dim DEBUGE_MODULE_BATTLE = 0
 Dim APPLE_ENABLE = 0
 Dim ACTIVITY_REWARD = 1
 Dim ActionRoundGroupIndex = 1
-Dim ActionRoundIndex = 3
+Dim ActionRoundIndex = 4
 
 Dim ActvityActionRounds_DSL = Array(_
 	Array(_
@@ -22,8 +22,11 @@ Dim ActvityActionRounds_DSL = Array(_
 		"s82, 60 | a7, B, B"_
 	),_
 	Array(_
-		"s80 | a3, 4, 5",_
-		"s10, 20, 30, 51, 61, 70, 91 | m31 | aB, 6, B",_
+		"s10, 20, 30, 41, 51, 61, 71, 91 | m31 | aB, 6, B",_
+		"s10, 20, 30 | a6, B, B"_
+	),_
+	Array(_
+		"s10, 20, 30, 51, 61, 71, 80, 91 | m31 | aB, 6, B",_
 		"s41, 10, 20, 30 | a6, B, B"_
 	)_
 )
