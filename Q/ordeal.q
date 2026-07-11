@@ -483,9 +483,26 @@ Function ChooseFriend()
 	CheckAndTapImg2(PREPARE_FRIEND_TAR, null)
 End Function
 Function CheckFirstBattle2Start()
+	CheckFirstBattle2Start = false
 	If IsFirstBattle Then
-		TracePrint "First Battle Start"
-		CheckAndTapImg2(START_TAR, null)
+		TracePrint "First Battle Start: wait START or ATTACK"
+		Do While true
+			Dim AttackPoint = CheckImg2(BATTLE_HERO_SKILL_CHECK_TAR)
+			If AttackPoint <> null Then
+				TracePrint "First Battle Start: ATTACK found, skip START"
+				Exit Do
+			End If
+
+			Dim StartPoint = CheckImg2(START_TAR)
+			If StartPoint <> null Then
+				TracePrint "First Battle Start: tap START"
+				tap StartPoint[1], StartPoint[2]
+				CheckFirstBattle2Start = true
+				Delay 1000
+			Else
+				Delay 300
+			End If
+		Loop
 		IsFirstBattle = false
 	End If
 End Function
@@ -603,9 +620,6 @@ Function DoBattle()
 	If DEBUGE_MODULE_BATTLE = 0 Then
 		ChooseFriend()
 		CheckFirstBattle2Start()
-
-		BattlePrint("Delay to battle")
-		Delay START_TAPED_DELAY
 	End If
 
 	Dim RoundCount = UBound(AllActionRound)+1
