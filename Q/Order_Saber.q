@@ -295,6 +295,11 @@ Dim EQUIP_ENHANCE_SELECT_COORD = Array(150, 390, 1050, 710)
 Dim EQUIP_ENHANCE_SELECT_CONFIRM_TAR = Array(1200, 725, 1260, 790, "Attachment:EQUIP_ENHANCE_SELECT_CONFIRM.png")
 Dim EQUIP_ENHANCE_SELECT_STOP_TAR = Array(80, 530, 1116, 809, "Attachment:EQUIP_ENHANCE_SELECT_STOP.png|Attachment:EQUIP_ENHANCE_SELECT_STOP2.png")
 
+Dim ENHANCE_SKILL_ENHANCE_TAR = Array(1185, 725, 1230, 785, "Attachment:ENHANCE_SKILL_ENHANCE.png")
+Dim ENHANCE_SKILL_ENHANCE_CONFIRM_TAR = Array(820, 640, 890, 690, "Attachment:ENHANCE_SKILL_ENHANCE_CONFIRM.png")
+Dim ENHANCE_SKILL_ENHANCE_L10_TAR = Array(450, 490, 610, 630, "Attachment:ENHANCE_SKILL_ENHANCE_L10.png")
+Dim ENHANCE_SKILL_CLICK_COORD = Array(1100, 765)
+
 
 
 
@@ -424,6 +429,9 @@ Function CheckImg2(Target)
 End Function
 
 Function CheckPriorityImg(Target, Similarity)
+	If IsNull(Similarity) Then
+		Similarity = BATTLE_ATTACK_CARD_PRIORITY_SIM
+	End If
 	Dim Area = Target
 	Dim AttachedImg = Target[5]
 	Dim intX, intY
@@ -863,6 +871,24 @@ Function DoEquipEnhance()
 
 End Function
 
+Function DoSkillEnhance(MaxLevel)
+	
+	ContinuousCheckImg(ENHANCE_SKILL_ENHANCE_TAR)
+	If MaxLevel <> 10 Then
+		Dim CheckSkillEnhance10TarSuccess = CheckImg2(ENHANCE_SKILL_ENHANCE_L10_TAR)
+		If CheckSkillEnhance10TarSuccess <> null Then
+			HasTicket = false
+			Traceprint "ENHANCE_SKILL_10_STOP"
+			Exit Function
+		End If
+	End If
+	CheckAndTapImg2(ENHANCE_SKILL_ENHANCE_TAR, null)
+	CheckAndTapImg2(ENHANCE_SKILL_ENHANCE_CONFIRM_TAR, null)
+	Delay 700
+	CheckNoImgAndTap2(ENHANCE_SKILL_ENHANCE_TAR, ENHANCE_SKILL_CLICK_COORD)
+	
+End Function
+
 // START
 Traceprint "START FROM", DateTime.Format()
 
@@ -873,6 +899,7 @@ Do While true
 	'DoEnhance()
 	'DoFriendPool()
 	'DoEquipEnhance()
+	'DoSkillEnhance(9)
 
 	TracePrint "BattleCount Current =", CurrentBattleCount, "Max = ", BATTLE_COUNT, "HasTicket = ", HasTicket
 	If CurrentBattleCount >= BATTLE_COUNT Or HasTicket = false Then

@@ -234,6 +234,11 @@ BATTLE_ATTACK_CARD_PRIORITY_TARS[2] = "Attachment:BATTLE_ATTACK_Hero_Card_beni.p
 Dim BATTLE_ATTACK_CARD_PRIORITY_COUNT = 2
 Dim BATTLE_ATTACK_CARD_PRIORITY_SIM = 0.78
 
+Dim BATTLE_ATTACK_CARD_ARTS_TAR = Array(55, 460, 1390, 690, "Attachment:BATTLE_ATTACK_CARD_ARTS.png")
+Dim BATTLE_ATTACK_CARD_ARTS_PRIORITY_TARS = Array()
+Dim BATTLE_ATTACK_CARD_ARTS_PRIORITY_COUNT = 0
+Dim BATTLE_ATTACK_CARD_ARTS_PRIORITY_SIM = 0.78
+
 
 Dim BATTLE_CARD_TAPED_AWAIT_MS = 300
 Dim BATTLE_ROUND_CHANGE_AWAIT_MS = 6000
@@ -289,6 +294,11 @@ Dim EQUIP_ENHANCE_SELECT_READY_TAR = Array(1205, 204, 1226, 267, "Attachment:EQU
 Dim EQUIP_ENHANCE_SELECT_COORD = Array(150, 390, 1050, 710)
 Dim EQUIP_ENHANCE_SELECT_CONFIRM_TAR = Array(1200, 725, 1260, 790, "Attachment:EQUIP_ENHANCE_SELECT_CONFIRM.png")
 Dim EQUIP_ENHANCE_SELECT_STOP_TAR = Array(80, 530, 1116, 809, "Attachment:EQUIP_ENHANCE_SELECT_STOP.png|Attachment:EQUIP_ENHANCE_SELECT_STOP2.png")
+
+Dim ENHANCE_SKILL_ENHANCE_TAR = Array(1185, 725, 1230, 785, "Attachment:ENHANCE_SKILL_ENHANCE.png")
+Dim ENHANCE_SKILL_ENHANCE_CONFIRM_TAR = Array(820, 640, 890, 690, "Attachment:ENHANCE_SKILL_ENHANCE_CONFIRM.png")
+Dim ENHANCE_SKILL_ENHANCE_L10_TAR = Array(450, 490, 610, 630, "Attachment:ENHANCE_SKILL_ENHANCE_L10.png")
+Dim ENHANCE_SKILL_CLICK_COORD = Array(1100, 765)
 
 
 
@@ -418,11 +428,14 @@ Function CheckImg2(Target)
 	End If
 End Function
 
-Function CheckPriorityImg(Target)
+Function CheckPriorityImg(Target, Similarity)
+	If IsNull(Similarity) Then
+		Similarity = BATTLE_ATTACK_CARD_PRIORITY_SIM
+	End If
 	Dim Area = Target
 	Dim AttachedImg = Target[5]
 	Dim intX, intY
-	FindPic Area[1], Area[2], Area[3], Area[4], AttachedImg, "000000", 0, BATTLE_ATTACK_CARD_PRIORITY_SIM, intX, intY
+	FindPic Area[1], Area[2], Area[3], Area[4], AttachedImg, "000000", 0, Similarity, intX, intY
 	If intX > -1 And intY > -1 Then
 		CheckPriorityImg = Array(intX, intY)
 	End If
@@ -590,7 +603,7 @@ Function SelectPriorityBusterCard()
 					Dim cIdx = BusterCards[b]
 					cx = BATTLE_ATTACK_CARD_COORDS[cIdx][1]
 					Dim heroTar = Array(cx - 100, 350, cx + 100, 550, BATTLE_ATTACK_CARD_PRIORITY_TARS[p])
-					Dim getHero = CheckPriorityImg(heroTar)
+					Dim getHero = CheckPriorityImg(heroTar, BATTLE_ATTACK_CARD_PRIORITY_SIM)
 					If getHero <> null Then
 						TracePrint "Found Priority Buster Card:", BATTLE_ATTACK_CARD_PRIORITY_TARS[p], "at card", cIdx, "sim", BATTLE_ATTACK_CARD_PRIORITY_SIM
 						tap BATTLE_ATTACK_CARD_COORDS[cIdx][1], BATTLE_ATTACK_CARD_COORDS[cIdx][2]
@@ -607,13 +620,63 @@ Function SelectPriorityBusterCard()
 	tap BATTLE_ATTACK_CARD_COORDS[firstBusterIdx][1], BATTLE_ATTACK_CARD_COORDS[firstBusterIdx][2]
 End Function
 
+Function SelectPriorityArtsCard()
+	Dim PriorityCount = BATTLE_ATTACK_CARD_ARTS_PRIORITY_COUNT
+	Dim ArtsCards = Array()
+	Dim ArtsCount = 0
+	Dim i
+	For i = 1 To 5
+		Dim cx = BATTLE_ATTACK_CARD_COORDS[i][1]
+		Dim artsArea = Array(cx - 130, 460, cx + 130, 750, "Attachment:BATTLE_ATTACK_CARD_ARTS.png")
+		Dim getArts = CheckImg2(artsArea)
+		If getArts <> null Then
+			ArtsCount = ArtsCount + 1
+			ArtsCards[ArtsCount] = i
+		End If
+	Next
+
+	If ArtsCount = 0 Then
+		TracePrint "No Arts Card found, fallback to default"
+		CheckAndTapImg2(BATTLE_ATTACK_CARD_ARTS_TAR, null)
+		Exit Function
+	End If
+
+	Dim p
+	If PriorityCount >= 1 Then
+		For p = 1 To PriorityCount
+			If BATTLE_ATTACK_CARD_ARTS_PRIORITY_TARS[p] <> null Then
+				Dim a
+				For a = 1 To ArtsCount
+					Dim cIdx = ArtsCards[a]
+					cx = BATTLE_ATTACK_CARD_COORDS[cIdx][1]
+					Dim heroTar = Array(cx - 100, 350, cx + 100, 550, BATTLE_ATTACK_CARD_ARTS_PRIORITY_TARS[p])
+					Dim getHero = CheckPriorityImg(heroTar, BATTLE_ATTACK_CARD_ARTS_PRIORITY_SIM)
+					If getHero <> null Then
+						TracePrint "Found Priority Arts Card:", BATTLE_ATTACK_CARD_ARTS_PRIORITY_TARS[p], "at card", cIdx, "sim", BATTLE_ATTACK_CARD_ARTS_PRIORITY_SIM
+						tap BATTLE_ATTACK_CARD_COORDS[cIdx][1], BATTLE_ATTACK_CARD_COORDS[cIdx][2]
+						Exit Function
+					End If
+				Next
+			End If
+		Next
+	End If
+
+	Dim firstArtsIdx = ArtsCards[1]
+	TracePrint "No priority matched, tap first Arts Card:", firstArtsIdx
+	tap BATTLE_ATTACK_CARD_COORDS[firstArtsIdx][1], BATTLE_ATTACK_CARD_COORDS[firstArtsIdx][2]
+End Function
+
 Function SelectAttackCard(CardIndex)
 	If IsNumeric(CardIndex) Then
 		CheckAndTapImg2(BATTLE_ATTACK_BACK_TAR, BATTLE_ATTACK_CARD_COORDS[CardIndex])
 	Else
-		If CardIndex = "B" Then
-		TracePrint "B"
+		Dim CardMark = UCase(CStr(CardIndex))
+		If CardMark = "B" Then
+			TracePrint "B"
 			SelectPriorityBusterCard()
+		ElseIf CardMark = "A" Then
+			TracePrint "A"
+			SelectPriorityArtsCard()
 		End If
 	End If
 	
@@ -808,6 +871,24 @@ Function DoEquipEnhance()
 
 End Function
 
+Function DoSkillEnhance(MaxLevel)
+	
+	ContinuousCheckImg(ENHANCE_SKILL_ENHANCE_TAR)
+	If MaxLevel <> 10 Then
+		Dim CheckSkillEnhance10TarSuccess = CheckImg2(ENHANCE_SKILL_ENHANCE_L10_TAR)
+		If CheckSkillEnhance10TarSuccess <> null Then
+			HasTicket = false
+			Traceprint "ENHANCE_SKILL_10_STOP"
+			Exit Function
+		End If
+	End If
+	CheckAndTapImg2(ENHANCE_SKILL_ENHANCE_TAR, null)
+	CheckAndTapImg2(ENHANCE_SKILL_ENHANCE_CONFIRM_TAR, null)
+	Delay 700
+	CheckNoImgAndTap2(ENHANCE_SKILL_ENHANCE_TAR, ENHANCE_SKILL_CLICK_COORD)
+	
+End Function
+
 // START
 Traceprint "START FROM", DateTime.Format()
 
@@ -818,6 +899,7 @@ Do While true
 	'DoEnhance()
 	'DoFriendPool()
 	'DoEquipEnhance()
+	'DoSkillEnhance(9)
 
 	TracePrint "BattleCount Current =", CurrentBattleCount, "Max = ", BATTLE_COUNT, "HasTicket = ", HasTicket
 	If CurrentBattleCount >= BATTLE_COUNT Or HasTicket = false Then
