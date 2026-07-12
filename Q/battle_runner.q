@@ -6,19 +6,48 @@ Log.Open
 Import "zm.luae"
 zm.Init
 
+' ==================== QUICK EDIT (MANUAL) ====================
+' 1=campaign, 2=caber, 3=order_saber, 4=ordeal
+Dim CFG_ACTION_GROUP_INDEX = 1
+Dim MANUAL_BATTLE_COUNT = 3
+Dim MANUAL_DEBUGE_MODULE_BATTLE = 0
+' ============================================================
+
 Dim CFG_CONFIG_PATH = ""
 Dim CFG_RAW = ""
+Dim CFG_KEYS = Array()
+Dim CFG_VALS = Array()
+Dim CFG_ITEM_COUNT = 0
 Dim CFG_PRESET = ""
 Dim CFG_FRIEND = ""
-Dim CFG_BATTLE_COUNT = 0
-Dim CFG_ACTION_INDEX = 1
+Dim CFG_ACTION_INDEX = 0
 Dim CFG_ACTIVITY_DSL = ""
-Dim CFG_ACTIVITY_DSL_1 = ""
-Dim CFG_ACTIVITY_DSL_2 = ""
-Dim CFG_ACTIVITY_DSL_3 = ""
-Dim CFG_DEBUGE_MODULE_BATTLE = 0
 Dim CFG_APPLE_ENABLE = 0
 Dim CFG_ACTIVITY_REWARD = 1
+
+Sub CfgSet(cfgKey, cfgVal)
+	Dim i
+	For i = 1 To CFG_ITEM_COUNT
+		If CFG_KEYS(i) = cfgKey Then
+			CFG_VALS(i) = cfgVal
+			Exit Sub
+		End If
+	Next
+	CFG_ITEM_COUNT = CFG_ITEM_COUNT + 1
+	CFG_KEYS(CFG_ITEM_COUNT) = cfgKey
+	CFG_VALS(CFG_ITEM_COUNT) = cfgVal
+End Sub
+
+Function CfgGet(cfgKey, defaultVal)
+	Dim i
+	For i = 1 To CFG_ITEM_COUNT
+		If CFG_KEYS(i) = cfgKey Then
+			CfgGet = CFG_VALS(i)
+			Exit Function
+		End If
+	Next
+	CfgGet = defaultVal
+End Function
 
 Dim cfgCandidates = zm.DirScan("/sdcard/MobileAnJian/Script/", "*.mq", 1)
 If IsNull(cfgCandidates) Then
@@ -78,34 +107,19 @@ If Not IsNull(CFG_RAW) And Len(CStr(CFG_RAW)) > 0 Then
 							cfgVal = Mid(cfgVal, 2, Len(cfgVal) - 2)
 						End If
 					End If
-					If cfgKey = "preset" Then
-						CFG_PRESET = cfgVal
-					ElseIf cfgKey = "friend" Then
-						CFG_FRIEND = cfgVal
-					ElseIf cfgKey = "battle_count" Then
-						CFG_BATTLE_COUNT = Int(cfgVal)
-					ElseIf cfgKey = "action_round_index" Then
-						CFG_ACTION_INDEX = Int(cfgVal)
-					ElseIf cfgKey = "activity_dsl" Then
-						CFG_ACTIVITY_DSL = cfgVal
-					ElseIf cfgKey = "activity_dsl_1" Then
-						CFG_ACTIVITY_DSL_1 = cfgVal
-					ElseIf cfgKey = "activity_dsl_2" Then
-						CFG_ACTIVITY_DSL_2 = cfgVal
-					ElseIf cfgKey = "activity_dsl_3" Then
-						CFG_ACTIVITY_DSL_3 = cfgVal
-					ElseIf cfgKey = "debuge_module_battle" Then
-						CFG_DEBUGE_MODULE_BATTLE = Int(cfgVal)
-					ElseIf cfgKey = "apple_enable" Then
-						CFG_APPLE_ENABLE = Int(cfgVal)
-					ElseIf cfgKey = "activity_reward" Then
-						CFG_ACTIVITY_REWARD = Int(cfgVal)
-					End If
+					CfgSet cfgKey, cfgVal
 				End If
 			End If
 		End If
 	Next
 End If
+
+CFG_PRESET = CStr(CfgGet("preset", ""))
+CFG_FRIEND = CStr(CfgGet("friend", ""))
+CFG_ACTION_INDEX = Int(CfgGet("action_round_index", "0"))
+CFG_ACTIVITY_DSL = CStr(CfgGet("activity_dsl", ""))
+CFG_APPLE_ENABLE = Int(CfgGet("apple_enable", "0"))
+CFG_ACTIVITY_REWARD = Int(CfgGet("activity_reward", "1"))
 
 Function BuildRoundsFromFlatText(flatText)
 	Dim outRounds = Array()
@@ -120,6 +134,14 @@ Function BuildRoundsFromFlatText(flatText)
 		End If
 	Next
 	BuildRoundsFromFlatText = outRounds
+End Function
+
+Function PickFriendByGroup(groupIndex)
+	PickFriendByGroup = CStr(CfgGet("friend_g" & groupIndex, ""))
+End Function
+
+Function PickFriendByGroupAndIndex(groupIndex, roundIndex)
+	PickFriendByGroupAndIndex = CStr(CfgGet("friend_g" & groupIndex & "_" & roundIndex, ""))
 End Function
 
 Function ParseBattleSequence(sequenceArray)
@@ -173,41 +195,60 @@ Function ParseBattleSequence(sequenceArray)
 	ParseBattleSequence = finalRounds
 End Function
 
-Dim BATTLE_COUNT = CFG_BATTLE_COUNT
-If BATTLE_COUNT <= 0 Then
-	BATTLE_COUNT = 1
-End If
+Function PickDslByGroupAndIndex(groupIndex, roundIndex)
+	PickDslByGroupAndIndex = CStr(CfgGet("activity_dsl_g" & groupIndex & "_" & roundIndex, ""))
+End Function
 
-Dim DEBUGE_MODULE_BATTLE = CFG_DEBUGE_MODULE_BATTLE
+Dim BATTLE_COUNT = Int(MANUAL_BATTLE_COUNT)
+
+Dim DEBUGE_MODULE_BATTLE = Int(MANUAL_DEBUGE_MODULE_BATTLE)
 Dim APPLE_ENABLE = CFG_APPLE_ENABLE
 Dim ACTIVITY_REWARD = CFG_ACTIVITY_REWARD
 Dim CAN_RUN = true
 
 Dim selectedDsl = ""
 Dim selectedActivityDsl = CFG_ACTIVITY_DSL
+Dim selectedFriendKey = ""
 
-TracePrint "CONFIG PARSED", "index=", CFG_ACTION_INDEX, "battle_count=", CFG_BATTLE_COUNT, "friend=", CFG_FRIEND
+TracePrint "CONFIG PARSED", "group=", CFG_ACTION_GROUP_INDEX, "index=", CFG_ACTION_INDEX, "battle_count=", BATTLE_COUNT, "friend=", CFG_FRIEND
 
-If Len(selectedActivityDsl) = 0 Then
-	If CFG_ACTION_INDEX = 1 Then
-		selectedActivityDsl = CFG_ACTIVITY_DSL_1
-	ElseIf CFG_ACTION_INDEX = 2 Then
-		selectedActivityDsl = CFG_ACTIVITY_DSL_2
-	ElseIf CFG_ACTION_INDEX = 3 Then
-		selectedActivityDsl = CFG_ACTIVITY_DSL_3
-	End If
+If CFG_ACTION_GROUP_INDEX <= 0 Then
+	TracePrint "CONFIG ACTION_ROUND_GROUP_INDEX INVALID, STOP"
+	CAN_RUN = false
+End If
+
+If CFG_ACTION_INDEX <= 0 Then
+	TracePrint "CONFIG ACTION_ROUND_INDEX INVALID, STOP"
+	CAN_RUN = false
+End If
+
+If BATTLE_COUNT <= 0 Then
+	TracePrint "MANUAL BATTLE_COUNT INVALID, STOP"
+	CAN_RUN = false
+End If
+
+If DEBUGE_MODULE_BATTLE <> 0 And DEBUGE_MODULE_BATTLE <> 1 Then
+	TracePrint "MANUAL DEBUGE_MODULE_BATTLE INVALID, STOP"
+	CAN_RUN = false
+End If
+
+If CAN_RUN And Len(selectedActivityDsl) = 0 Then
+	selectedActivityDsl = PickDslByGroupAndIndex(CFG_ACTION_GROUP_INDEX, CFG_ACTION_INDEX)
+End If
+
+' 兼容旧配置：仍支持 ACTIVITY_DSL_1/2/3
+If CAN_RUN And Len(selectedActivityDsl) = 0 Then
+	selectedActivityDsl = CStr(CfgGet("activity_dsl_" & CFG_ACTION_INDEX, ""))
 End If
 
 selectedDsl = selectedActivityDsl
 
-If Len(selectedDsl) = 0 Then
-	If Len(CFG_ACTIVITY_DSL_1) > 0 Then
-		selectedDsl = CFG_ACTIVITY_DSL_1
-	ElseIf Len(CFG_ACTIVITY_DSL_2) > 0 Then
-		selectedDsl = CFG_ACTIVITY_DSL_2
-	ElseIf Len(CFG_ACTIVITY_DSL_3) > 0 Then
-		selectedDsl = CFG_ACTIVITY_DSL_3
-	End If
+selectedFriendKey = LCase(Trim(CStr(PickFriendByGroupAndIndex(CFG_ACTION_GROUP_INDEX, CFG_ACTION_INDEX))))
+If Len(selectedFriendKey) = 0 Then
+	selectedFriendKey = LCase(Trim(CStr(PickFriendByGroup(CFG_ACTION_GROUP_INDEX))))
+End If
+If Len(selectedFriendKey) = 0 Then
+	selectedFriendKey = LCase(Trim(CStr(CFG_FRIEND)))
 End If
 
 If Len(selectedDsl) = 0 Then
@@ -249,31 +290,42 @@ Dim ATT_Sparrow = "Attachment:friendSparrow.png"
 Dim PREPARE_FRIEND_TAR = Array()
 Dim HAS_FRIEND_CONFIG = false
 
-If Len(CFG_FRIEND) > 0 Then
-	Dim friendKey = LCase(CFG_FRIEND)
-	If friendKey = "aobao" Then
+If Len(selectedFriendKey) > 0 Then
+	If selectedFriendKey = "aobao" Then
 		PREPARE_FRIEND_TAR = Array(40, 180, 920, 800, ATT_Aobao)
 		HAS_FRIEND_CONFIG = true
-	ElseIf friendKey = "cdai" Then
+	ElseIf selectedFriendKey = "cdai" Then
 		PREPARE_FRIEND_TAR = Array(40, 180, 920, 800, ATT_CDai)
 		HAS_FRIEND_CONFIG = true
-	ElseIf friendKey = "daoman" Then
+	ElseIf selectedFriendKey = "daoman" Then
 		PREPARE_FRIEND_TAR = Array(40, 180, 920, 800, ATT_DaoMan)
 		HAS_FRIEND_CONFIG = true
-	ElseIf friendKey = "rba" Then
+	ElseIf selectedFriendKey = "rba" Then
 		PREPARE_FRIEND_TAR = Array(40, 180, 920, 800, ATT_RBA)
 		HAS_FRIEND_CONFIG = true
-	ElseIf friendKey = "shahu" Then
+	ElseIf selectedFriendKey = "shahu" Then
 		PREPARE_FRIEND_TAR = Array(40, 180, 920, 800, ATT_Shahu)
 		HAS_FRIEND_CONFIG = true
-	ElseIf friendKey = "princess" Then
+	ElseIf selectedFriendKey = "shahushan" Then
+		PREPARE_FRIEND_TAR = Array(40, 180, 920, 800, ATT_ShahuShan)
+		HAS_FRIEND_CONFIG = true
+	ElseIf selectedFriendKey = "aobaoshan" Then
+		PREPARE_FRIEND_TAR = Array(40, 180, 920, 800, ATT_AobaoShan)
+		HAS_FRIEND_CONFIG = true
+	ElseIf selectedFriendKey = "rbashan" Then
+		PREPARE_FRIEND_TAR = Array(40, 180, 920, 800, ATT_RBAShan)
+		HAS_FRIEND_CONFIG = true
+	ElseIf selectedFriendKey = "princess" Then
 		PREPARE_FRIEND_TAR = Array(40, 180, 920, 800, ATT_Princess)
 		HAS_FRIEND_CONFIG = true
-	ElseIf friendKey = "princess120" Then
+	ElseIf selectedFriendKey = "princess120" Then
 		PREPARE_FRIEND_TAR = Array(40, 180, 920, 800, ATT_Princess120)
 		HAS_FRIEND_CONFIG = true
-	ElseIf friendKey = "taigong" Then
+	ElseIf selectedFriendKey = "taigong" Then
 		PREPARE_FRIEND_TAR = Array(40, 180, 920, 800, ATT_Taigong)
+		HAS_FRIEND_CONFIG = true
+	ElseIf selectedFriendKey = "sparrow" Then
+		PREPARE_FRIEND_TAR = Array(40, 180, 920, 800, ATT_Sparrow)
 		HAS_FRIEND_CONFIG = true
 	End If
 End If
@@ -283,7 +335,7 @@ If Not HAS_FRIEND_CONFIG Then
 	CAN_RUN = false
 End If
 
-TracePrint "CONFIG APPLIED", "preset=", CFG_PRESET, "friend=", CFG_FRIEND, "battle_count=", BATTLE_COUNT, "index=", CFG_ACTION_INDEX
+TracePrint "CONFIG APPLIED", "preset=", CFG_PRESET, "friend=", selectedFriendKey, "battle_count=", BATTLE_COUNT, "group=", CFG_ACTION_GROUP_INDEX, "index=", CFG_ACTION_INDEX
 
 Dim ATT_EQUIP_Goodness = "Attachment:friend_equip_goodness.png"
 Dim PREPARE_FRIEND_EQUIP_TAR = Array(40, 180, 920, 800, ATT_EQUIP_Goodness)
@@ -487,12 +539,58 @@ Dim IsFirstBattle = true
 
 Dim CurrentBattleCount = 0
 Dim HasTicket = true   'true: ticket enought or no need ticket
+Dim BATTLE_ENDED_EARLY = false
 
 
 
 
 Function BattlePrint(Msg)
 	TracePrint "Battle", CurrentBattleCount, Msg
+End Function
+
+Function IsBattleEndDetected()
+	Dim TiePoint = CheckImg2(AWARD_TIE_TAR)
+	If TiePoint = null Then
+		IsBattleEndDetected = false
+		Exit Function
+	End If
+
+	' 防止误识别：若攻击键已出现，优先判定为可继续下一回合
+	If CheckImg2(BATTLE_HERO_SKILL_CHECK_TAR) <> null Then
+		IsBattleEndDetected = false
+		Exit Function
+	End If
+
+	' 二次确认结束标记，避免单帧误判
+	Delay 220
+	If CheckImg2(BATTLE_HERO_SKILL_CHECK_TAR) <> null Then
+		IsBattleEndDetected = false
+		Exit Function
+	End If
+	If CheckImg2(AWARD_TIE_TAR) <> null Then
+		IsBattleEndDetected = true
+		Exit Function
+	End If
+
+	IsBattleEndDetected = false
+End Function
+
+Function WaitRoundReadyOrBattleEnd()
+	Do While true
+		If CheckImg2(BATTLE_HERO_SKILL_CHECK_TAR) <> null Then
+			WaitRoundReadyOrBattleEnd = true
+			Exit Function
+		End If
+
+		If IsBattleEndDetected() Then
+			TracePrint "Battle ended while waiting next round"
+			BATTLE_ENDED_EARLY = true
+			WaitRoundReadyOrBattleEnd = false
+			Exit Function
+		End If
+
+		Delay 300
+	Loop
 End Function
 
 Function clickAndWaitSkillAction()
@@ -690,6 +788,10 @@ Function DoSkillActions(ActionsGroup)
 	TracePrint "skill"
 	Dim ActionsCount = UBound(ActionsGroup)
 	For ActionIndex = 1 To ActionsCount
+		If Not WaitRoundReadyOrBattleEnd() Then
+			Exit Function
+		End If
+
 		Dim CurrentAction = ActionsGroup[ActionIndex+1]
 		TracePrint "skill", CurrentAction
 		Dim CurrentActionLength = Len(CStr(CurrentAction))
@@ -714,6 +816,10 @@ End Function
 Function DoMasterActions(ActionsGroup)
 	Dim ActionsCount = UBound(ActionsGroup)
 	For ActionIndex = 1 To ActionsCount
+		If Not WaitRoundReadyOrBattleEnd() Then
+			Exit Function
+		End If
+
 		CheckAndTapImg2(BATTLE_HERO_SKILL_CHECK_TAR, BATTLE_MASTER_SKILL_OPEN_COORDS)
 		Delay BATTLE_MASTER_SKILL_AWAIT_MS
 
@@ -856,6 +962,10 @@ End Function
 
 Function DoAttackActions(ActionsGroup)
 	TracePrint "attack"
+	If Not WaitRoundReadyOrBattleEnd() Then
+		Exit Function
+	End If
+
 	CheckAndTapImg2(BATTLE_HERO_SKILL_CHECK_TAR, null)
 	Delay BATTLE_ULTIMATE_DISPLAY_AWAIT_MS
 	
@@ -882,6 +992,10 @@ Function DoAttackActions(ActionsGroup)
 End Function
 
 Function DoGroupActions(ActionsGroup)
+	If BATTLE_ENDED_EARLY Then
+		Exit Function
+	End If
+
 	If ActionsGroup[1] = "skill" Then
 		DoSkillActions(ActionsGroup)
 	ElseIf ActionsGroup[1] = "master" Then
@@ -892,6 +1006,7 @@ Function DoGroupActions(ActionsGroup)
 End Function
 
 Function DoBattle()
+	BATTLE_ENDED_EARLY = false
 	
 	If DEBUGE_MODULE_BATTLE = 0 Then
 		ChooseFriend()
@@ -907,8 +1022,18 @@ Function DoBattle()
 		For ActionsGroupIndex = 1 To ActionsGroupCount
 			Dim ActionsGroup = ActionsRound[ActionsGroupIndex]
 			DoGroupActions(ActionsGroup)
+			If BATTLE_ENDED_EARLY Then
+				Exit For
+			End If
 		Next
+		If BATTLE_ENDED_EARLY Then
+			Exit For
+		End If
 	Next
+
+	If BATTLE_ENDED_EARLY Then
+		TracePrint "Skip remaining round actions: battle already ended"
+	End If
 
 
 	' Award
