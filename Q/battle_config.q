@@ -11,9 +11,6 @@ Dim PRESET = "campaign"
 Dim FRIEND = "aobao"
 
 ' USER CONFIG
-' debug: 1=true, 0=false
-Dim DEBUGE_MODULE_BATTLE = 0
-Dim APPLE_ENABLE = 0
 Dim ACTIVITY_REWARD = 1
 
 ' BATTLE CONFIG

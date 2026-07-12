@@ -26,7 +26,7 @@
 6. 解析成功后应用：
    - `FRIEND` 决定助战识图目标。
    - `ACTION_ROUND_INDEX` / `ACTIVITY_DSL*` 决定本次战斗动作序列。
-   - runner 手工项 `MANUAL_BATTLE_COUNT` 与配置项 `APPLE_ENABLE` 等共同控制流程行为。
+   - runner 手工项（`MANUAL_BATTLE_COUNT`、`MANUAL_APPLE_ENABLE`）与配置项共同控制流程行为。
 7. 如果关键配置缺失或无效，`battle_runner.q` 会停止，不会继续跑默认战斗。
 
 ---
@@ -36,8 +36,6 @@
 - `PRESET`：预设标记，主要用于日志识别。
 - `FRIEND_Gx_y`：按关卡（大组 x + 小组 y）配置的助战关键字（推荐使用）。
 - `FRIEND`：全局助战关键字（兼容兜底）。
-- `DEBUGE_MODULE_BATTLE`：调试模式开关（0/1）。
-- `APPLE_ENABLE`：是否允许吃苹果（0/1）。
 - `ACTIVITY_REWARD`：活动结算流程开关（0/1）。
 - `ACTION_ROUND_GROUP_INDEX`：DSL 大组索引（仅在 `battle_runner.q` 手动切换，不在 `battle_config.q` 中配置）。
    - 1=`Campaign.q`
@@ -69,6 +67,7 @@
 runner 手工字段：
 - `CFG_ACTION_GROUP_INDEX`：大组选择（1-4）。
 - `MANUAL_BATTLE_COUNT`：重复挑战次数（必须大于 0）。
+- `MANUAL_APPLE_ENABLE`：是否允许吃苹果（0/1）。
 - `MANUAL_DEBUGE_MODULE_BATTLE`：调试模式（0/1）。
 
 ---
