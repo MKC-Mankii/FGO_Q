@@ -10,6 +10,7 @@ zm.Init
 ' 1=campaign, 2=caber, 3=order_saber, 4=ordeal
 Dim CFG_ACTION_GROUP_INDEX = 1
 Dim MANUAL_BATTLE_COUNT = 3
+Dim MANUAL_APPLE_ENABLE = 0
 Dim MANUAL_DEBUGE_MODULE_BATTLE = 0
 ' ============================================================
 
@@ -22,7 +23,6 @@ Dim CFG_PRESET = ""
 Dim CFG_FRIEND = ""
 Dim CFG_ACTION_INDEX = 0
 Dim CFG_ACTIVITY_DSL = ""
-Dim CFG_APPLE_ENABLE = 0
 Dim CFG_ACTIVITY_REWARD = 1
 
 Sub CfgSet(cfgKey, cfgVal)
@@ -118,7 +118,6 @@ CFG_PRESET = CStr(CfgGet("preset", ""))
 CFG_FRIEND = CStr(CfgGet("friend", ""))
 CFG_ACTION_INDEX = Int(CfgGet("action_round_index", "0"))
 CFG_ACTIVITY_DSL = CStr(CfgGet("activity_dsl", ""))
-CFG_APPLE_ENABLE = Int(CfgGet("apple_enable", "0"))
 CFG_ACTIVITY_REWARD = Int(CfgGet("activity_reward", "1"))
 
 Function BuildRoundsFromFlatText(flatText)
@@ -202,7 +201,7 @@ End Function
 Dim BATTLE_COUNT = Int(MANUAL_BATTLE_COUNT)
 
 Dim DEBUGE_MODULE_BATTLE = Int(MANUAL_DEBUGE_MODULE_BATTLE)
-Dim APPLE_ENABLE = CFG_APPLE_ENABLE
+Dim APPLE_ENABLE = Int(MANUAL_APPLE_ENABLE)
 Dim ACTIVITY_REWARD = CFG_ACTIVITY_REWARD
 Dim CAN_RUN = true
 
@@ -229,6 +228,11 @@ End If
 
 If DEBUGE_MODULE_BATTLE <> 0 And DEBUGE_MODULE_BATTLE <> 1 Then
 	TracePrint "MANUAL DEBUGE_MODULE_BATTLE INVALID, STOP"
+	CAN_RUN = false
+End If
+
+If APPLE_ENABLE <> 0 And APPLE_ENABLE <> 1 Then
+	TracePrint "MANUAL APPLE_ENABLE INVALID, STOP"
 	CAN_RUN = false
 End If
 
