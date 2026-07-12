@@ -116,9 +116,20 @@ End If
 
 CFG_PRESET = CStr(CfgGet("preset", ""))
 CFG_FRIEND = CStr(CfgGet("friend", ""))
-CFG_ACTION_INDEX = Int(CfgGet("action_round_index", "0"))
 CFG_ACTIVITY_DSL = CStr(CfgGet("activity_dsl", ""))
 CFG_ACTIVITY_REWARD = Int(CfgGet("activity_reward", "1"))
+
+Function PickActionIndexByGroup(groupIndex)
+	Dim groupIndexVal = Int(CfgGet("action_round_index_g" & groupIndex, "0"))
+	If groupIndexVal > 0 Then
+		PickActionIndexByGroup = groupIndexVal
+	Else
+		' 兼容旧配置：仍支持单个 action_round_index
+		PickActionIndexByGroup = Int(CfgGet("action_round_index", "0"))
+	End If
+End Function
+
+CFG_ACTION_INDEX = PickActionIndexByGroup(CFG_ACTION_GROUP_INDEX)
 
 Function BuildRoundsFromFlatText(flatText)
 	Dim outRounds = Array()
