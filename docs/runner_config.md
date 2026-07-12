@@ -79,6 +79,17 @@ runner 手工字段：
 - 文件路径中包含 `fgo_battle_config`
 - 或命中旧规则 `.../config(...`、`.../config.`
 
+实际编译产物（手机端）通常会出现同一基名的多文件：
+
+- `fgo_battle_config(<GUID>).mq`
+- `fgo_battle_config(<GUID>).prop`
+- `fgo_battle_config(<GUID>).uis`
+
+说明：
+- 其中 runner 只读取 `.mq` 文本内容。
+- 文件名中带 GUID（如 `(...)`）是正常现象。
+- 只要路径中仍包含 `fgo_battle_config`（或命中旧规则），现有扫描逻辑即可识别。
+
 建议：
 - 配置脚本命名尽量使用 `fgo_battle_config.q`（编译后对应 `fgo_battle_config.mq`），最稳妥。
 - 如果改成其他名字，务必确认能命中 `battle_runner.q` 的扫描规则，否则会出现 `CONFIG PATH NOT FOUND`。
@@ -95,6 +106,7 @@ runner 手工字段：
    - `SELECTED DSL HEAD: ...`
 4. 若日志出现 `CONFIG PATH NOT FOUND`：
    - 先检查配置脚本编译同步是否成功。
+   - 再检查手机脚本目录中是否存在 `fgo_battle_config(<GUID>).mq`（注意是 `.mq`，不是 `.prop/.uis`）。
    - 再检查配置脚本命名是否符合匹配规则。
 5. 若日志出现 `FRIEND CONFIG INVALID OR EMPTY, STOP`：
    - 检查 `FRIEND` 值是否在支持列表中。
