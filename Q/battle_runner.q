@@ -8,10 +8,10 @@ zm.Init
 
 ' ==================== QUICK EDIT (MANUAL) ====================
 ' 1=campaign, 2=caber, 3=order_saber, 4=ordeal
-Dim CFG_ACTION_GROUP_INDEX = 1
-Dim MANUAL_BATTLE_COUNT = 3
+Dim CFG_ACTION_GROUP_INDEX = 2
+Dim MANUAL_BATTLE_COUNT = 30
 Dim MANUAL_APPLE_ENABLE = 0
-Dim MANUAL_DEBUGE_MODULE_BATTLE = 0
+Dim MANUAL_DEBUGE_MODULE_BATTLE = 01
 ' ============================================================
 
 Dim CFG_CONFIG_PATH = ""
@@ -180,7 +180,7 @@ Function ParseBattleSequence(sequenceArray)
 				
 				Dim valStr = ""
 				Dim firstChar = LCase(Mid(act, 1, 1))
-				If firstChar = "s" Or firstChar = "a" Or firstChar = "m" Then
+				If actIndex = 1 And (firstChar = "s" Or firstChar = "a" Or firstChar = "m") Then
 					valStr = Mid(act, 2, Len(act) - 1)
 				Else
 					valStr = act
@@ -188,6 +188,8 @@ Function ParseBattleSequence(sequenceArray)
 				
 				If LCase(valStr) = "b" Then
 					actGroup[actIndex + 1] = "B"
+				ElseIf LCase(valStr) = "a" Then
+					actGroup[actIndex + 1] = "A"
 				ElseIf IsNumeric(valStr) Then
 					actGroup[actIndex + 1] = CInt(valStr)
 				Else
@@ -536,6 +538,10 @@ Dim IsFirstBattle = true
 Dim CurrentBattleCount = 0
 Dim HasTicket = true   'true: ticket enought or no need ticket
 Dim BATTLE_ENDED_EARLY = false
+Dim ROUND_READY_WAIT_GRACE_MS = 2000
+Dim BATTLE_END_CONFIRM_COUNT = 3
+Dim BATTLE_END_CONFIRM_INTERVAL_MS = 220
+Dim AWARD_NEXT_MAX_RETRY = 120
 
 
 
@@ -545,47 +551,58 @@ Function BattlePrint(Msg)
 End Function
 
 Function IsBattleEndDetected()
-	Dim TiePoint = CheckImg2(AWARD_TIE_TAR)
-	If TiePoint = null Then
-		IsBattleEndDetected = false
-		Exit Function
-	End If
+	Dim ConfirmIndex
+	Dim LastTiePoint
+	For ConfirmIndex = 1 To BATTLE_END_CONFIRM_COUNT
+		' 只要攻击键回来，就判定仍在战斗
+		If CheckImg2(BATTLE_HERO_SKILL_CHECK_TAR) <> null Then
+			IsBattleEndDetected = false
+			Exit Function
+		End If
 
-	' 防止误识别：若攻击键已出现，优先判定为可继续下一回合
-	If CheckImg2(BATTLE_HERO_SKILL_CHECK_TAR) <> null Then
-		IsBattleEndDetected = false
-		Exit Function
-	End If
+		Dim TiePoint = CheckImg2(AWARD_TIE_TAR)
+		If TiePoint = null Then
+			IsBattleEndDetected = false
+			Exit Function
+		End If
 
-	' 二次确认结束标记，避免单帧误判
-	Delay 220
-	If CheckImg2(BATTLE_HERO_SKILL_CHECK_TAR) <> null Then
-		IsBattleEndDetected = false
-		Exit Function
-	End If
-	If CheckImg2(AWARD_TIE_TAR) <> null Then
-		IsBattleEndDetected = true
-		Exit Function
-	End If
+		' 误识别通常坐标会抖动，要求连续命中位置稳定
+		If ConfirmIndex > 1 Then
+			If Abs(TiePoint[1] - LastTiePoint[1]) > 12 Or Abs(TiePoint[2] - LastTiePoint[2]) > 12 Then
+				IsBattleEndDetected = false
+				Exit Function
+			End If
+		End If
 
-	IsBattleEndDetected = false
+		LastTiePoint = TiePoint
+		If ConfirmIndex < BATTLE_END_CONFIRM_COUNT Then
+			Delay BATTLE_END_CONFIRM_INTERVAL_MS
+		End If
+	Next
+
+	IsBattleEndDetected = true
 End Function
 
 Function WaitRoundReadyOrBattleEnd()
+	Dim WaitedMs = 0
 	Do While true
 		If CheckImg2(BATTLE_HERO_SKILL_CHECK_TAR) <> null Then
 			WaitRoundReadyOrBattleEnd = true
 			Exit Function
 		End If
 
-		If IsBattleEndDetected() Then
-			TracePrint "Battle ended while waiting next round"
-			BATTLE_ENDED_EARLY = true
-			WaitRoundReadyOrBattleEnd = false
-			Exit Function
+		' 技能/动画过渡期先给宽限，避免攻击键短暂消失时误判结束
+		If WaitedMs >= ROUND_READY_WAIT_GRACE_MS Then
+			If IsBattleEndDetected() Then
+				TracePrint "Battle ended while waiting next round"
+				BATTLE_ENDED_EARLY = true
+				WaitRoundReadyOrBattleEnd = false
+				Exit Function
+			End If
 		End If
 
 		Delay 300
+		WaitedMs = WaitedMs + 300
 	Loop
 End Function
 
@@ -671,15 +688,23 @@ End Function
 
 Function CheckNoImgAndTap2(Target, TapPoint)
 	Dim AttachedImg = Target[5]
+	Dim RetryCount = 0
 	Do While true
 		Dim GetImgCoord = CheckImg2(Target)
 		If GetImgCoord = null Then
 			TracePrint "cannot find ", AttachedImg, "then tap", TapPoint[1], TapPoint[2]
 			tap TapPoint[1], TapPoint[2]
 		Else
+			CheckNoImgAndTap2 = true
 			Exit Do
 		End If
 		Delay 300
+		RetryCount = RetryCount + 1
+		If RetryCount >= AWARD_NEXT_MAX_RETRY Then
+			TracePrint "wait target timeout:", AttachedImg
+			CheckNoImgAndTap2 = false
+			Exit Do
+		End If
 	Loop
 End Function
 
@@ -1043,7 +1068,12 @@ Function DoBattle()
 	End If
 
 	TracePrint "award before treasure"
-	CheckNoImgAndTap2(AWARD_TREASURE_NEXT_TAR, AWARD_TAP_COORD)
+	Dim HasTreasureNext = CheckNoImgAndTap2(AWARD_TREASURE_NEXT_TAR, AWARD_TAP_COORD)
+	If Not HasTreasureNext Then
+		TracePrint "award treasure not found in time, stop run to avoid dead loop"
+		HasTicket = false
+		Exit Function
+	End If
 	Delay AWARD_NORMAL_TAP_AWAIT_MS
 	TracePrint "award treasure"
 	CheckAndTapImg2(AWARD_TREASURE_NEXT_TAR, null)
