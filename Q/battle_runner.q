@@ -348,8 +348,12 @@ If Len(selectedFriendKey) > 0 Then
 End If
 
 If Not HAS_FRIEND_CONFIG Then
-	TracePrint "FRIEND CONFIG INVALID OR EMPTY, STOP"
-	CAN_RUN = false
+	If DEBUGE_MODULE_BATTLE = 0 Then
+		TracePrint "FRIEND CONFIG INVALID OR EMPTY, STOP"
+		CAN_RUN = false
+	Else
+		TracePrint "FRIEND CONFIG INVALID OR EMPTY, SKIP IN DEBUG MODE"
+	End If
 End If
 
 TracePrint "CONFIG APPLIED", "preset=", CFG_PRESET, "friend=", selectedFriendKey, "battle_count=", BATTLE_COUNT, "group=", CFG_ACTION_GROUP_INDEX, "index=", CFG_ACTION_INDEX
@@ -490,7 +494,7 @@ Dim BATTLE_LAST_ROUND_END_AWAIT_MS = 3000
 Dim BATTLE_ULTIMATE_PLAY_LAST_AWAIT_MS = 18000 + BATTLE_LAST_ROUND_END_AWAIT_MS
 
 ' AWARD
-Dim AWARD_TIE_TAR = Array(80, 180, 250, 260, "Attachment:AWARD_TIE.png") ' normal:TIE, special:TIE2
+Dim AWARD_TIE_TAR = Array(90, 190, 330, 225, "Attachment:AWARD_TIE.png") ' normal:TIE, special:TIE2
 Dim AWARD_TIE_UP_TAR = Array(696, 101, 828, 245, "Attachment:AWARD_TIE_UP.png")
 Dim AWARD_TAP_COORD = Array(166, 60)
 Dim AWARD_TREASURE_NEXT_TAR = Array(1178, 696, 1282, 740, "Attachment:AWARD_TREASURE_NEXT.png")
