@@ -8,10 +8,10 @@ zm.Init
 
 ' ==================== QUICK EDIT (MANUAL) ====================
 ' 1=campaign, 2=caber, 3=order_saber, 4=ordeal
-Dim CFG_ACTION_GROUP_INDEX = 2
+Dim CFG_ACTION_GROUP_INDEX = 3
 Dim MANUAL_BATTLE_COUNT = 30
 Dim MANUAL_APPLE_ENABLE = 0
-Dim MANUAL_DEBUGE_MODULE_BATTLE = 01
+Dim MANUAL_DEBUGE_MODULE_BATTLE = 0
 ' ============================================================
 
 Dim CFG_CONFIG_PATH = ""
@@ -294,6 +294,7 @@ Dim ATT_Aobao = "Attachment:friendAobao.png|Attachment:friendAobao1.png|Attachme
 Dim ATT_AobaoShan = "Attachment:friendAobao3Shan.png"
 Dim ATT_CDai = "Attachment:friendCDai.png|Attachment:friendCDai2.png|Attachment:friendCDai3.png"
 Dim ATT_DaoMan = "Attachment:friendDaoMan.png|Attachment:DaoMan.png|Attachment:friendDaoMan3.png"
+Dim ATT_Cba = "Attachment:friendCba.png"
 Dim ATT_RBA = "Attachment:friendRba1.png|Attachment:friendRba2.png|Attachment:friendRba3.png|Attachment:friendRba4.png"
 Dim ATT_RBAShan = "Attachment:friendRba3Shan.png"
 Dim ATT_Shahu = "Attachment:friendShaHu2.png|Attachment:friendShaHu3.png"
@@ -316,6 +317,9 @@ If Len(selectedFriendKey) > 0 Then
 		HAS_FRIEND_CONFIG = true
 	ElseIf selectedFriendKey = "daoman" Then
 		PREPARE_FRIEND_TAR = Array(40, 180, 920, 800, ATT_DaoMan)
+		HAS_FRIEND_CONFIG = true
+	ElseIf selectedFriendKey = "cba" Then
+		PREPARE_FRIEND_TAR = Array(40, 180, 920, 800, ATT_Cba)
 		HAS_FRIEND_CONFIG = true
 	ElseIf selectedFriendKey = "rba" Then
 		PREPARE_FRIEND_TAR = Array(40, 180, 920, 800, ATT_RBA)
@@ -811,69 +815,92 @@ End Function
 
 Function DoSkillActions(ActionsGroup)
 	TracePrint "skill"
-	Dim ActionsCount = UBound(ActionsGroup)
-	For ActionIndex = 1 To ActionsCount
+	Dim ActionIndex = 2
+	Do While true
 		If Not WaitRoundReadyOrBattleEnd() Then
 			Exit Function
 		End If
 
-		Dim CurrentAction = ActionsGroup[ActionIndex+1]
-		TracePrint "skill", CurrentAction
-		Dim CurrentActionLength = Len(CStr(CurrentAction))
-		Dim CurrentActionArr()
-		For CurrentActionIndex = 1 To CurrentActionLength
-			CurrentActionArr(CurrentActionIndex) = Int(Mid(CStr(CurrentAction), CurrentActionIndex, 1)) ' 存入数组，索引从0开始
-		Next
-		Dim SkillIndex = CurrentActionArr(1)
-		Dim SkillTargetIndex = CurrentActionArr(2)
-		Dim SkillActionType = CurrentActionArr(3)
-		CheckAndTapImg2(BATTLE_HERO_SKILL_CHECK_TAR, BATTLE_HERO_SKILL_COORDS[SkillIndex])
-		If SkillActionType = 1 Then		' Special Skill(1)
-			CheckAndTapImg2(BATTLE_SKILL_SPECIAL_SKILL_A_TAR, BATTLE_SKILL_SPECIAL_SKILL_A_ACT_TARS[CurrentActionArr(4)])
+		Dim CurrentAction = ActionsGroup[ActionIndex]
+		If IsNull(CurrentAction) Then
+			Exit Do
+		ElseIf Len(Trim(CStr(CurrentAction))) = 0 Then
+			TracePrint "skip empty skill action"
+		Else
+			TracePrint "skill", CurrentAction
+			Dim CurrentActionLength = Len(CStr(CurrentAction))
+			Dim CurrentActionArr()
+			For CurrentActionIndex = 1 To CurrentActionLength
+				CurrentActionArr(CurrentActionIndex) = Int(Mid(CStr(CurrentAction), CurrentActionIndex, 1)) ' 存入数组，索引从0开始
+			Next
+			Dim SkillIndex = CurrentActionArr(1)
+			Dim SkillTargetIndex = CurrentActionArr(2)
+			Dim SkillActionType = CurrentActionArr(3)
+			If IsNull(SkillIndex) Or SkillIndex <= 0 Then
+				TracePrint "invalid skill action, skip", CurrentAction
+			Else
+				CheckAndTapImg2(BATTLE_HERO_SKILL_CHECK_TAR, BATTLE_HERO_SKILL_COORDS[SkillIndex])
+				If SkillActionType = 1 Then		' Special Skill(1)
+					CheckAndTapImg2(BATTLE_SKILL_SPECIAL_SKILL_A_TAR, BATTLE_SKILL_SPECIAL_SKILL_A_ACT_TARS[CurrentActionArr(4)])
+				End If
+				If SkillTargetIndex > 0 Then
+					CheckAndTapImg2(BATTLE_SKILL_GRANT_CHECK_TAR, BATTLE_SKILL_GRANT_HREO_COORDS[SkillTargetIndex])
+				End If
+				clickAndWaitSkillAction()
+			End If
 		End If
-		If SkillTargetIndex > 0 Then
-			CheckAndTapImg2(BATTLE_SKILL_GRANT_CHECK_TAR, BATTLE_SKILL_GRANT_HREO_COORDS[SkillTargetIndex])
-		End If
-		clickAndWaitSkillAction()
-	Next
+		ActionIndex = ActionIndex + 1
+	Loop
 End Function
 
 Function DoMasterActions(ActionsGroup)
-	Dim ActionsCount = UBound(ActionsGroup)
-	For ActionIndex = 1 To ActionsCount
+	Dim ActionIndex = 2
+	Do While true
 		If Not WaitRoundReadyOrBattleEnd() Then
 			Exit Function
 		End If
 
-		CheckAndTapImg2(BATTLE_HERO_SKILL_CHECK_TAR, BATTLE_MASTER_SKILL_OPEN_COORDS)
-		Delay BATTLE_MASTER_SKILL_AWAIT_MS
+		Dim CurrentAction = ActionsGroup[ActionIndex]
+		If IsNull(CurrentAction) Then
+			Exit Do
+		ElseIf Len(Trim(CStr(CurrentAction))) = 0 Then
+			TracePrint "skip empty master action"
+		Else
+			CheckAndTapImg2(BATTLE_HERO_SKILL_CHECK_TAR, BATTLE_MASTER_SKILL_OPEN_COORDS)
+			Delay BATTLE_MASTER_SKILL_AWAIT_MS
 
-		Dim CurrentAction = ActionsGroup[ActionIndex+1]
-		TracePrint "master", CurrentAction
-		Dim CurrentActionLength = Len(CStr(CurrentAction))
-		Dim CurrentActionArr()
-		For CurrentActionIndex = 1 To CurrentActionLength
-			CurrentActionArr(CurrentActionIndex) = Int(Mid(CStr(CurrentAction), CurrentActionIndex, 1)) ' 存入数组，索引从0开始
-		Next
-		Dim SkillIndex = CurrentActionArr(1)
-		Dim SkillTargetIndex = CurrentActionArr(2)
-		Dim SkillActionType = CurrentActionArr(3)
-		CheckAndTapImg2(BATTLE_MASTER_SKILL_DISPLAY_TAR, BATTLE_MASTER_SKILL_COORDS[SkillIndex])
+			TracePrint "master", CurrentAction
+			Dim CurrentActionLength = Len(CStr(CurrentAction))
+			Dim CurrentActionArr()
+			For CurrentActionIndex = 1 To CurrentActionLength
+				CurrentActionArr(CurrentActionIndex) = Int(Mid(CStr(CurrentAction), CurrentActionIndex, 1)) ' 存入数组，索引从0开始
+			Next
+			Dim SkillIndex = CurrentActionArr(1)
+			Dim SkillTargetIndex = CurrentActionArr(2)
+			Dim SkillActionType = CurrentActionArr(3)
+			If IsNull(SkillIndex) Or SkillIndex <= 0 Then
+				TracePrint "invalid master action, skip", CurrentAction
+			Else
+				CheckAndTapImg2(BATTLE_MASTER_SKILL_DISPLAY_TAR, BATTLE_MASTER_SKILL_COORDS[SkillIndex])
 
-		If SkillActionType = 0 Then		' Special Skill(0):change
-			Dim SkillChangeTargetIndex1 = CurrentActionArr(4)
-			Dim SkillChangeTargetIndex2 = CurrentActionArr(5)
-			CheckAndTapImg2(BATTLE_SKILL_CHANGE_CHECK_TAR, BATTLE_SKILL_CHANGE_HERO_COORDS[SkillChangeTargetIndex1])
-			Delay BATTLE_SKILL_CHANGE_SELECTED_AWAIT_MS
-			CheckAndTapImg2(BATTLE_SKILL_CHANGE_CHECK_TAR, BATTLE_SKILL_CHANGE_HERO_COORDS[SkillChangeTargetIndex2])
-			CheckAndTapImg2(BATTLE_SKILL_CHANGE_SELECTEED_CHECK_TAR, null)
+				If SkillActionType = 0 Then		' Special Skill(0):change
+					Dim SkillChangeTargetIndex1 = CurrentActionArr(4)
+					Dim SkillChangeTargetIndex2 = CurrentActionArr(5)
+					CheckAndTapImg2(BATTLE_SKILL_CHANGE_CHECK_TAR, BATTLE_SKILL_CHANGE_HERO_COORDS[SkillChangeTargetIndex1])
+					Delay BATTLE_SKILL_CHANGE_SELECTED_AWAIT_MS
+					CheckAndTapImg2(BATTLE_SKILL_CHANGE_CHECK_TAR, BATTLE_SKILL_CHANGE_HERO_COORDS[SkillChangeTargetIndex2])
+					CheckAndTapImg2(BATTLE_SKILL_CHANGE_SELECTEED_CHECK_TAR, null)
+				End If
+				If SkillTargetIndex > 0 Then
+					CheckAndTapImg2(BATTLE_SKILL_GRANT_CHECK_TAR, BATTLE_SKILL_GRANT_HREO_COORDS[SkillTargetIndex])
+				End If
+
+				clickAndWaitSkillAction()
+			End If
 		End If
-		If SkillTargetIndex > 0 Then
-			CheckAndTapImg2(BATTLE_SKILL_GRANT_CHECK_TAR, BATTLE_SKILL_GRANT_HREO_COORDS[SkillTargetIndex])
-		End If
 
-		clickAndWaitSkillAction()
-	Next
+		ActionIndex = ActionIndex + 1
+	Loop
 End Function
 
 Function SelectPriorityBusterCard()
