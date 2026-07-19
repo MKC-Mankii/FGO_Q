@@ -46,9 +46,9 @@ Dim ACTIVITY_DSL_G2_3 = "s10, 20, 53, 63, 80, 90 | a8, 4, 5;s40 | a8, 4, 5;s33 |
 Dim ACTION_ROUND_INDEX_G3 = 2
 Dim FRIEND_G3_1 = "sparrow"
 Dim ACTIVITY_DSL_G3_1 = "s40, 53, 60 | m30024, 10 | s40, 10, 20, 30, 70, 80, 90 | a8, 6, B"
-Dim FRIEND_G3_3 = "sikaha"
+Dim FRIEND_G3_2 = "Cba"
 Dim ACTIVITY_DSL_G3_2 = "s10, 30 | m30014, 10 | s10, 20, 40, 50, 60, 70, 83, 90 | a7, 8, A"
-Dim FRIEND_G3_2 = "Bdai"
+Dim FRIEND_G3_3 = "Bdai"
 Dim ACTIVITY_DSL_G3_3 = "s10, 40, 52, 60, 70, 83, 90 | m22 | a7, 8, A"
 
 ' 大组 4: ordeal（1-4 为 ActvityActionRounds，5-7 为 ArtActionRounds）
