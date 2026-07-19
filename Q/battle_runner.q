@@ -546,6 +546,8 @@ Dim IsFirstBattle = true
 Dim CurrentBattleCount = 0
 Dim HasTicket = true   'true: ticket enought or no need ticket
 Dim BATTLE_ENDED_EARLY = false
+Dim BATTLE_ROUNDS_FINISHED = 0
+Dim LAST_ACTION_WAS_ATTACK = false
 Dim ROUND_READY_WAIT_GRACE_MS = 2000
 Dim BATTLE_END_CONFIRM_COUNT = 3
 Dim BATTLE_END_CONFIRM_INTERVAL_MS = 220
@@ -600,7 +602,7 @@ Function WaitRoundReadyOrBattleEnd()
 		End If
 
 		' 技能/动画过渡期先给宽限，避免攻击键短暂消失时误判结束
-		If WaitedMs >= ROUND_READY_WAIT_GRACE_MS Then
+		If LAST_ACTION_WAS_ATTACK And BATTLE_ROUNDS_FINISHED >= 1 And WaitedMs >= ROUND_READY_WAIT_GRACE_MS Then
 			If IsBattleEndDetected() Then
 				TracePrint "Battle ended while waiting next round"
 				BATTLE_ENDED_EARLY = true
@@ -815,6 +817,7 @@ End Function
 
 Function DoSkillActions(ActionsGroup)
 	TracePrint "skill"
+	LAST_ACTION_WAS_ATTACK = false
 	Dim ActionIndex = 2
 	Do While true
 		If Not WaitRoundReadyOrBattleEnd() Then
@@ -854,6 +857,7 @@ Function DoSkillActions(ActionsGroup)
 End Function
 
 Function DoMasterActions(ActionsGroup)
+	LAST_ACTION_WAS_ATTACK = false
 	Dim ActionIndex = 2
 	Do While true
 		If Not WaitRoundReadyOrBattleEnd() Then
@@ -1014,6 +1018,7 @@ End Function
 
 Function DoAttackActions(ActionsGroup)
 	TracePrint "attack"
+	LAST_ACTION_WAS_ATTACK = true
 	If Not WaitRoundReadyOrBattleEnd() Then
 		Exit Function
 	End If
@@ -1059,6 +1064,8 @@ End Function
 
 Function DoBattle()
 	BATTLE_ENDED_EARLY = false
+	BATTLE_ROUNDS_FINISHED = 0
+	LAST_ACTION_WAS_ATTACK = false
 	
 	If DEBUGE_MODULE_BATTLE = 0 Then
 		ChooseFriend()
@@ -1078,6 +1085,9 @@ Function DoBattle()
 				Exit For
 			End If
 		Next
+		If Not BATTLE_ENDED_EARLY Then
+			BATTLE_ROUNDS_FINISHED = BATTLE_ROUNDS_FINISHED + 1
+		End If
 		If BATTLE_ENDED_EARLY Then
 			Exit For
 		End If
