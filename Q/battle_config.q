@@ -34,7 +34,7 @@ Dim FRIEND_G1_3 = "aobao"
 Dim ACTIVITY_DSL_G1_3 = "s20, 30, 40, 52, 70, 83 | a7, 8, 5;s10 | a6, 4, 5;s92, 50 | m22 | a7, 4, 5"
 
 ' 大组 2: caber（来自 Caber Common 的 ArtActionRounds_DSL）
-Dim ACTION_ROUND_INDEX_G2 = 1
+Dim ACTION_ROUND_INDEX_G2 = 2
 Dim FRIEND_G2_1 = "cdai"
 Dim ACTIVITY_DSL_G2_1 = "s23, 33, 53, 63, 70, 90, 83 | m30 | a8, 4, 5;s10 | a8, 4, 5;s40 | m13 | a8, 4, 5"
 Dim FRIEND_G2_2 = "cdai"
@@ -43,13 +43,17 @@ Dim FRIEND_G2_3 = "cdai"
 Dim ACTIVITY_DSL_G2_3 = "s10, 20, 53, 63, 80, 90 | a8, 4, 5;s40 | a8, 4, 5;s33 | m10, 30 | a8, 4, 5"
 
 ' 大组 3: order_saber
-Dim ACTION_ROUND_INDEX_G3 = 2
+Dim ACTION_ROUND_INDEX_G3 = 5
 Dim FRIEND_G3_1 = "sparrow"
 Dim ACTIVITY_DSL_G3_1 = "s40, 53, 60 | m30024, 10 | s40, 10, 20, 30, 70, 80, 90 | a8, 6, B"
 Dim FRIEND_G3_2 = "Cba"
 Dim ACTIVITY_DSL_G3_2 = "s10, 30 | m30014, 10 | s10, 20, 40, 50, 60, 70, 83, 90 | a7, 8, A"
 Dim FRIEND_G3_3 = "Bdai"
 Dim ACTIVITY_DSL_G3_3 = "s10, 40, 52, 60, 70, 83, 90 | m22 | a7, 8, A"
+Dim FRIEND_G3_4 = "princess"
+Dim ACTIVITY_DSL_G3_4 = "s12, 20, 32, 40, 50, 60, 70, 80 | m30014, 10 | s30 | a8, 7, B"
+Dim FRIEND_G3_5 = "aobao"
+Dim ACTIVITY_DSL_G3_5 = "s70, 82, 92, 60, 50, 40, 20 | m22 | a7, B, B"
 
 ' 大组 4: ordeal（1-4 为 ActvityActionRounds，5-7 为 ArtActionRounds）
 Dim ACTION_ROUND_INDEX_G4 = 1
