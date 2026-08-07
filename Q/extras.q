@@ -151,26 +151,26 @@ Function DoFriendPool()
 End Function
 
 Function DoEquipEnhance()
-	CheckAndTapImg2(EQUIP_ENHANCE_START_TAR, null)
-	Delay 500
-	ContinuousCheckImg(EQUIP_ENHANCE_SELECT_READY_TAR)
+	'CheckAndTapImg2(EQUIP_ENHANCE_START_TAR, null)
+	'Delay 500
+	'ContinuousCheckImg(EQUIP_ENHANCE_SELECT_READY_TAR)
 
-	Dim CheckEnhanceSelectStop = CheckImg2(EQUIP_ENHANCE_SELECT_STOP_TAR)
-	If CheckEnhanceSelectStop <> null Then
-		HasTicket = false
-		Traceprint "EQUIP_ENHANCE_SELECT_STOP"
-		Exit Function
-	End If
+	'Dim CheckEnhanceSelectStop = CheckImg2(EQUIP_ENHANCE_SELECT_STOP_TAR)
+	'If CheckEnhanceSelectStop <> null Then
+	'	HasTicket = false
+	'	Traceprint "EQUIP_ENHANCE_SELECT_STOP"
+	'	Exit Function
+	'End If
 
-	TouchMoveWithDownTime(EQUIP_ENHANCE_SELECT_COORD, 1200)
-	Delay 500
-	CheckAndTapImg2(EQUIP_ENHANCE_SELECT_CONFIRM_TAR, null)
+	'TouchMoveWithDownTime(EQUIP_ENHANCE_SELECT_COORD, 1200)
+	'Delay 500
+	'CheckAndTapImg2(EQUIP_ENHANCE_SELECT_CONFIRM_TAR, null)
 
 	CheckAndTapImg2(ENHANCE_ENHANCE_TAR, null)
 	Delay 500
 	CheckAndTapImg2(ENHANCE_ENHANCE_CONFIRM_TAR, null)
 	Delay 500
-	CheckNoImgAndTap2(EQUIP_ENHANCE_START_TAR, ENHANCE_ENHANCE_CONFIRM_TAR)
+	CheckNoImgAndTap2(ENHANCE_ENHANCE_TAR, ENHANCE_ENHANCE_CONFIRM_TAR)
 End Function
 
 Function DoSkillEnhance(MaxLevel)

@@ -8,10 +8,10 @@ zm.Init
 
 ' ==================== QUICK EDIT (MANUAL) ====================
 ' 1=campaign, 2=caber, 3=order_saber, 4=ordeal
-Dim CFG_ACTION_GROUP_INDEX = 3
+Dim CFG_ACTION_GROUP_INDEX = 2
 Dim MANUAL_BATTLE_COUNT = 30
 Dim MANUAL_APPLE_ENABLE = 0
-Dim MANUAL_DEBUGE_MODULE_BATTLE = 0
+Dim MANUAL_DEBUGE_MODULE_BATTLE = 01
 ' ============================================================
 
 Dim CFG_CONFIG_PATH = ""
@@ -290,7 +290,7 @@ Dim NEED_REVERSE = true
 Dim COLOR_SIM = 0.95
 
 ' PREPARE
-Dim ATT_Aobao = "Attachment:friendAobao.png|Attachment:friendAobao1.png|Attachment:friendAobao3.png|Attachment:friendAobao5.png"
+Dim ATT_Aobao = "Attachment:friendAobao1.png|Attachment:friendAobao2.png|Attachment:friendAobao3.png|Attachment:friendAobao5.png"
 Dim ATT_AobaoShan = "Attachment:friendAobao3Shan.png"
 Dim ATT_CDai = "Attachment:friendCDai.png|Attachment:friendCDai2.png|Attachment:friendCDai3.png"
 Dim ATT_DaoMan = "Attachment:friendDaoMan.png|Attachment:DaoMan.png|Attachment:friendDaoMan3.png"
@@ -516,6 +516,8 @@ Dim ADD_FRIEND_TAR = Array(325, 670, 415, 715, "Attachment:ADD_FRIEND_CLOSE.png"
 Dim AGAIN_ALERT_AGAIN_TAR = Array(795, 620, 1030, 700, "Attachment:AGAIN_ALERT_AGAIN.png")
 Dim AGAIN_ALERT_CLOSE_TAR = Array(370, 620, 620, 700, "Attachment:AGAIN_ALERT_CLOSE.png")
 Dim AGAIN_ORDEAL_NO_TICKET_TAR = Array(600, 600, 850, 670, "Attachment:AGAIN_ORDEAL_NO_TICKET.png")
+Dim AGAIN_BATTLE_OUT_MENU_TAR = Array(1301, 689, 1360, 715, "Attachment:AGAIN_BATTLE_OUT_MENU.png")
+
 
 ' APPLE
 Dim APPLE_CHECK_AWAIT_MS = 500
@@ -816,20 +818,17 @@ Function CheckFirstBattle2Start()
 End Function
 
 Function DoSkillActions(ActionsGroup)
-	TracePrint "skill"
 	LAST_ACTION_WAS_ATTACK = false
 	Dim ActionIndex = 2
 	Do While true
-		If Not WaitRoundReadyOrBattleEnd() Then
-			Exit Function
-		End If
-
 		Dim CurrentAction = ActionsGroup[ActionIndex]
 		If IsNull(CurrentAction) Then
 			Exit Do
 		ElseIf Len(Trim(CStr(CurrentAction))) = 0 Then
+			TracePrint "skill"
 			TracePrint "skip empty skill action"
 		Else
+			TracePrint "skill"
 			TracePrint "skill", CurrentAction
 			Dim CurrentActionLength = Len(CStr(CurrentAction))
 			Dim CurrentActionArr()
@@ -860,16 +859,14 @@ Function DoMasterActions(ActionsGroup)
 	LAST_ACTION_WAS_ATTACK = false
 	Dim ActionIndex = 2
 	Do While true
-		If Not WaitRoundReadyOrBattleEnd() Then
-			Exit Function
-		End If
-
 		Dim CurrentAction = ActionsGroup[ActionIndex]
 		If IsNull(CurrentAction) Then
 			Exit Do
 		ElseIf Len(Trim(CStr(CurrentAction))) = 0 Then
+			TracePrint "master"
 			TracePrint "skip empty master action"
 		Else
+			TracePrint "master"
 			CheckAndTapImg2(BATTLE_HERO_SKILL_CHECK_TAR, BATTLE_MASTER_SKILL_OPEN_COORDS)
 			Delay BATTLE_MASTER_SKILL_AWAIT_MS
 
@@ -1018,10 +1015,6 @@ End Function
 
 Function DoAttackActions(ActionsGroup)
 	TracePrint "attack"
-	LAST_ACTION_WAS_ATTACK = true
-	If Not WaitRoundReadyOrBattleEnd() Then
-		Exit Function
-	End If
 
 	CheckAndTapImg2(BATTLE_HERO_SKILL_CHECK_TAR, null)
 	Delay BATTLE_ULTIMATE_DISPLAY_AWAIT_MS
@@ -1046,6 +1039,8 @@ Function DoAttackActions(ActionsGroup)
 		'CheckAndTapImg2(BATTLE_ATTACK_CARD_SECON_TAPED_TARS[SecondCardIndex], BATTLE_ATTACK_CARD_COORDS[ThirdCardIndex])
 		Delay BATTLE_NORMAL_ATTACK_PLAY_AWAIT_MS
 	End If
+
+	LAST_ACTION_WAS_ATTACK = true
 End Function
 
 Function DoGroupActions(ActionsGroup)
@@ -1069,8 +1064,8 @@ Function DoBattle()
 	
 	If DEBUGE_MODULE_BATTLE = 0 Then
 		ChooseFriend()
-		CheckFirstBattle2Start()
 	End If
+	CheckFirstBattle2Start()
 
 	Dim RoundCount = UBound(AllActionRound)+1
 	For RoundIndex = 1 To RoundCount
@@ -1080,6 +1075,9 @@ Function DoBattle()
 		Dim ActionsGroupCount = UBound(ActionsRound)+1
 		For ActionsGroupIndex = 1 To ActionsGroupCount
 			Dim ActionsGroup = ActionsRound[ActionsGroupIndex]
+			If Not WaitRoundReadyOrBattleEnd() Then
+				Exit For
+			End If
 			DoGroupActions(ActionsGroup)
 			If BATTLE_ENDED_EARLY Then
 				Exit For
@@ -1149,10 +1147,13 @@ Function DoBattle()
 
 	' Again?
 	BattlePrint("again?")
-	Dim ContinuousCheckImgTagsResult = ContinuousCheckImgTags(Array(AGAIN_ALERT_AGAIN_TAR, AGAIN_ALERT_CLOSE_TAR, AGAIN_ORDEAL_NO_TICKET_TAR))
+	Dim ContinuousCheckImgTagsResult = ContinuousCheckImgTags(Array(AGAIN_ALERT_AGAIN_TAR, AGAIN_ALERT_CLOSE_TAR, AGAIN_ORDEAL_NO_TICKET_TAR, AGAIN_BATTLE_OUT_MENU_TAR))
 	If ContinuousCheckImgTagsResult = 3 Then
 		TracePrint "again: no ticket"
 		CheckAndTapImg2(AGAIN_ORDEAL_NO_TICKET_TAR, null)
+		HasTicket = false
+	ElseIf ContinuousCheckImgTagsResult = 4 Then
+		TracePrint "again: battle ended and back to menu"
 		HasTicket = false
 	ElseIf CurrentBattleCount < BATTLE_COUNT  Then
 		TracePrint "again: yes"
