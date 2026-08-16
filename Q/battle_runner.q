@@ -8,10 +8,10 @@ zm.Init
 
 ' ==================== QUICK EDIT (MANUAL) ====================
 ' 1=campaign, 2=caber, 3=order_saber, 4=ordeal
-Dim CFG_ACTION_GROUP_INDEX = 2
+Dim CFG_ACTION_GROUP_INDEX = 1
 Dim MANUAL_BATTLE_COUNT = 30
 Dim MANUAL_APPLE_ENABLE = 0
-Dim MANUAL_DEBUGE_MODULE_BATTLE = 01
+Dim MANUAL_DEBUGE_MODULE_BATTLE = 0
 ' ============================================================
 
 Dim CFG_CONFIG_PATH = ""
@@ -22,7 +22,7 @@ Dim CFG_ITEM_COUNT = 0
 Dim CFG_PRESET = ""
 Dim CFG_FRIEND = ""
 Dim CFG_ACTION_INDEX = 0
-Dim CFG_ACTIVITY_DSL = ""
+Dim CFG_TEST_DSL = ""
 Dim CFG_ACTIVITY_REWARD = 1
 
 Sub CfgSet(cfgKey, cfgVal)
@@ -60,7 +60,7 @@ If cfgCandidates Then
 		Dim cfgCandidatePathText = CStr(cfgCandidatePath)
 		Dim cfgCandidatePathLower = LCase(cfgCandidatePathText)
 		Dim isNamedConfig = False
-		If InStr(1, cfgCandidatePathLower, "fgo_battle_config") > 0 Then
+		If InStr(1, cfgCandidatePathLower, "battle_config") > 0 Then
 			isNamedConfig = True
 		ElseIf InStr(1, cfgCandidatePathLower, "/config(") > 0 Or InStr(1, cfgCandidatePathLower, "\\config(") > 0 Or InStr(1, cfgCandidatePathLower, "/config.") > 0 Or InStr(1, cfgCandidatePathLower, "\\config.") > 0 Then
 			isNamedConfig = True
@@ -69,7 +69,7 @@ If cfgCandidates Then
 			Dim cfgCandidateRaw = File.Read(cfgCandidatePathText)
 			If Not IsNull(cfgCandidateRaw) And Len(CStr(cfgCandidateRaw)) > 0 Then
 				Dim cfgCandidateRawLower = LCase(CStr(cfgCandidateRaw))
-				If InStr(1, cfgCandidateRawLower, "dim preset") > 0 And InStr(1, cfgCandidateRawLower, "dim activity_dsl") > 0 Then
+				If InStr(1, cfgCandidateRawLower, "dim preset") > 0 And InStr(1, cfgCandidateRawLower, "dim test_dsl") > 0 Then
 					CFG_CONFIG_PATH = cfgCandidatePathText
 					CFG_RAW = CStr(cfgCandidateRaw)
 					Exit For
@@ -116,7 +116,7 @@ End If
 
 CFG_PRESET = CStr(CfgGet("preset", ""))
 CFG_FRIEND = CStr(CfgGet("friend", ""))
-CFG_ACTIVITY_DSL = CStr(CfgGet("activity_dsl", ""))
+CFG_TEST_DSL = CStr(CfgGet("test_dsl", ""))
 CFG_ACTIVITY_REWARD = Int(CfgGet("activity_reward", "1"))
 
 Function PickActionIndexByGroup(groupIndex)
@@ -190,6 +190,8 @@ Function ParseBattleSequence(sequenceArray)
 					actGroup[actIndex + 1] = "B"
 				ElseIf LCase(valStr) = "a" Then
 					actGroup[actIndex + 1] = "A"
+				ElseIf LCase(valStr) = "q" Then
+					actGroup[actIndex + 1] = "Q"
 				ElseIf IsNumeric(valStr) Then
 					actGroup[actIndex + 1] = CInt(valStr)
 				Else
@@ -208,7 +210,7 @@ Function ParseBattleSequence(sequenceArray)
 End Function
 
 Function PickDslByGroupAndIndex(groupIndex, roundIndex)
-	PickDslByGroupAndIndex = CStr(CfgGet("activity_dsl_g" & groupIndex & "_" & roundIndex, ""))
+	PickDslByGroupAndIndex = CStr(CfgGet("test_dsl_g" & groupIndex & "_" & roundIndex, ""))
 End Function
 
 Dim BATTLE_COUNT = Int(MANUAL_BATTLE_COUNT)
@@ -219,12 +221,12 @@ Dim ACTIVITY_REWARD = CFG_ACTIVITY_REWARD
 Dim CAN_RUN = true
 
 Dim selectedDsl = ""
-Dim selectedActivityDsl = CFG_ACTIVITY_DSL
+Dim selectedActivityDsl = ""
 Dim selectedFriendKey = ""
 
 TracePrint "CONFIG PARSED", "group=", CFG_ACTION_GROUP_INDEX, "index=", CFG_ACTION_INDEX, "battle_count=", BATTLE_COUNT, "friend=", CFG_FRIEND
 
-If CFG_ACTION_GROUP_INDEX <= 0 Then
+If CFG_ACTION_GROUP_INDEX < 0 Then
 	TracePrint "CONFIG ACTION_ROUND_GROUP_INDEX INVALID, STOP"
 	CAN_RUN = false
 End If
@@ -249,13 +251,16 @@ If APPLE_ENABLE <> 0 And APPLE_ENABLE <> 1 Then
 	CAN_RUN = false
 End If
 
-If CAN_RUN And Len(selectedActivityDsl) = 0 Then
-	selectedActivityDsl = PickDslByGroupAndIndex(CFG_ACTION_GROUP_INDEX, CFG_ACTION_INDEX)
-End If
-
-' 兼容旧配置：仍支持 ACTIVITY_DSL_1/2/3
-If CAN_RUN And Len(selectedActivityDsl) = 0 Then
-	selectedActivityDsl = CStr(CfgGet("activity_dsl_" & CFG_ACTION_INDEX, ""))
+If CAN_RUN Then
+	If CFG_ACTION_GROUP_INDEX = 0 Then
+		' 测试模式：只用 TEST_DSL / TEST_DSL_1/2/3
+		selectedActivityDsl = CFG_TEST_DSL
+		If Len(selectedActivityDsl) = 0 Then
+			selectedActivityDsl = CStr(CfgGet("test_dsl_" & CFG_ACTION_INDEX, ""))
+		End If
+	Else
+		selectedActivityDsl = PickDslByGroupAndIndex(CFG_ACTION_GROUP_INDEX, CFG_ACTION_INDEX)
+	End If
 End If
 
 selectedDsl = selectedActivityDsl
@@ -305,6 +310,7 @@ Dim ATT_Princess = "Attachment:friendPrincess.png|Attachment:friendPrincess2.png
 Dim ATT_Princess120 = "Attachment:friendPrincess120.png|Attachment:friendPrincess1202.png|Attachment:friendPrincess1203.png"
 Dim ATT_QP = "Attachment:friendQP.png"
 Dim ATT_Sparrow = "Attachment:friendSparrow.png"
+Dim ATT_Mary = "Attachment:friendMary1.png|Attachment:friendMary2.png|Attachment:friendMary3.png"
 Dim PREPARE_FRIEND_TAR = Array()
 Dim HAS_FRIEND_CONFIG = false
 
@@ -347,6 +353,9 @@ If Len(selectedFriendKey) > 0 Then
 		HAS_FRIEND_CONFIG = true
 	ElseIf selectedFriendKey = "sparrow" Then
 		PREPARE_FRIEND_TAR = Array(40, 180, 920, 800, ATT_Sparrow)
+		HAS_FRIEND_CONFIG = true
+	ElseIf selectedFriendKey = "mary" Then
+		PREPARE_FRIEND_TAR = Array(40, 180, 920, 800, ATT_Mary)
 		HAS_FRIEND_CONFIG = true
 	End If
 End If
@@ -487,6 +496,11 @@ Dim BATTLE_ATTACK_CARD_ARTS_TAR = Array(55, 460, 1390, 690, "Attachment:BATTLE_A
 Dim BATTLE_ATTACK_CARD_ARTS_PRIORITY_TARS = Array()
 Dim BATTLE_ATTACK_CARD_ARTS_PRIORITY_COUNT = 0
 Dim BATTLE_ATTACK_CARD_ARTS_PRIORITY_SIM = 0.78
+
+Dim BATTLE_ATTACK_CARD_QUICK_TAR = Array(55, 460, 1390, 690, "Attachment:BATTLE_ATTACK_CARD_QUICK.png")
+Dim BATTLE_ATTACK_CARD_QUICK_PRIORITY_TARS = Array()
+Dim BATTLE_ATTACK_CARD_QUICK_PRIORITY_COUNT = 0
+Dim BATTLE_ATTACK_CARD_QUICK_PRIORITY_SIM = 0.78
 
 
 Dim BATTLE_CARD_TAPED_AWAIT_MS = 300
@@ -996,6 +1010,52 @@ Function SelectPriorityArtsCard()
 	tap BATTLE_ATTACK_CARD_COORDS[firstArtsIdx][1], BATTLE_ATTACK_CARD_COORDS[firstArtsIdx][2]
 End Function
 
+Function SelectPriorityQuickCard()
+	Dim PriorityCount = BATTLE_ATTACK_CARD_QUICK_PRIORITY_COUNT
+	Dim QuickCards = Array()
+	Dim QuickCount = 0
+	Dim i
+	For i = 1 To 5
+		Dim cx = BATTLE_ATTACK_CARD_COORDS[i][1]
+		Dim quickArea = Array(cx - 130, 460, cx + 130, 750, "Attachment:BATTLE_ATTACK_CARD_QUICK.png")
+		Dim getQuick = CheckImg2(quickArea)
+		If getQuick <> null Then
+			QuickCount = QuickCount + 1
+			QuickCards[QuickCount] = i
+		End If
+	Next
+
+	If QuickCount = 0 Then
+		TracePrint "No Quick Card found, fallback to default"
+		CheckAndTapImg2(BATTLE_ATTACK_CARD_QUICK_TAR, null)
+		Exit Function
+	End If
+
+	Dim p
+	If PriorityCount >= 1 Then
+		For p = 1 To PriorityCount
+			If BATTLE_ATTACK_CARD_QUICK_PRIORITY_TARS[p] <> null Then
+				Dim q
+				For q = 1 To QuickCount
+					Dim cIdx = QuickCards[q]
+					cx = BATTLE_ATTACK_CARD_COORDS[cIdx][1]
+					Dim heroTar = Array(cx - 100, 350, cx + 100, 550, BATTLE_ATTACK_CARD_QUICK_PRIORITY_TARS[p])
+					Dim getHero = CheckPriorityImg(heroTar, BATTLE_ATTACK_CARD_QUICK_PRIORITY_SIM)
+					If getHero <> null Then
+						TracePrint "Found Priority Quick Card:", BATTLE_ATTACK_CARD_QUICK_PRIORITY_TARS[p], "at card", cIdx, "sim", BATTLE_ATTACK_CARD_QUICK_PRIORITY_SIM
+						tap BATTLE_ATTACK_CARD_COORDS[cIdx][1], BATTLE_ATTACK_CARD_COORDS[cIdx][2]
+						Exit Function
+					End If
+				Next
+			End If
+		Next
+	End If
+
+	Dim firstQuickIdx = QuickCards[1]
+	TracePrint "No priority matched, tap first Quick Card:", firstQuickIdx
+	tap BATTLE_ATTACK_CARD_COORDS[firstQuickIdx][1], BATTLE_ATTACK_CARD_COORDS[firstQuickIdx][2]
+End Function
+
 Function SelectAttackCard(CardIndex)
 	If IsNumeric(CardIndex) Then
 		CheckAndTapImg2(BATTLE_ATTACK_BACK_TAR, BATTLE_ATTACK_CARD_COORDS[CardIndex])
@@ -1007,6 +1067,9 @@ Function SelectAttackCard(CardIndex)
 		ElseIf CardMark = "A" Then
 			TracePrint "A"
 			SelectPriorityArtsCard()
+		ElseIf CardMark = "Q" Then
+			TracePrint "Q"
+			SelectPriorityQuickCard()
 		End If
 	End If
 	
