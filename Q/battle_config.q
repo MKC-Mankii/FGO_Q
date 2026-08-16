@@ -19,22 +19,22 @@ Dim ACTIVITY_DSL = ""
 
 ' 兼容旧字段（仅保留 campaign 三套）
 ' 未配置新大组字段时，runner 仍会按 ACTIVITY_DSL_1/2/3 取值
-Dim ACTIVITY_DSL_1 = "s70, 90 | m30034 | s70, 40, 50, 62| a6, 4, 5;s10 | a7, 4, 5;m10 | s20, 30, 82, 92 | a6, 7, 5"
+Dim ACTIVITY_DSL_1 = "s50 | a7, 4, 5;s40 | m32 | s32, 50, 60 | aB, Q, A;s70, 92, 40 | a6, B, B"
 Dim ACTIVITY_DSL_2 = "aB, B"
 Dim ACTIVITY_DSL_3 = "s20, 30, 40, 52, 70, 83 | a7, 8, 5;s10 | a6, 4, 5;s92, 50 | m22 | a7, 4, 5"
 
 ' -----------------------------
 ' 大组 1: campaign
 Dim ACTION_ROUND_INDEX_G1 = 1
-Dim FRIEND_G1_1 = "aobao"
-Dim ACTIVITY_DSL_G1_1 = "s70, 90 | m30034 | s70, 40, 50, 62| a6, 4, 5;s10 | a7, 4, 5;m10 | s20, 30, 82, 92 | a6, 7, 5"
+Dim FRIEND_G1_1 = "mary"
+Dim ACTIVITY_DSL_G1_1 = "s50 | a7, 4, 5;s40 | m32 | s32, 50, 60 | aB, Q, A;s70, 92, 40 | a6, B, B"
 Dim FRIEND_G1_2 = "aobao"
 Dim ACTIVITY_DSL_G1_2 = "aB, B"
 Dim FRIEND_G1_3 = "aobao"
 Dim ACTIVITY_DSL_G1_3 = "s20, 30, 40, 52, 70, 83 | a7, 8, 5;s10 | a6, 4, 5;s92, 50 | m22 | a7, 4, 5"
 
 ' 大组 2: caber（来自 Caber Common 的 ArtActionRounds_DSL）
-Dim ACTION_ROUND_INDEX_G2 = 2
+Dim ACTION_ROUND_INDEX_G2 = 1
 Dim FRIEND_G2_1 = "cdai"
 Dim ACTIVITY_DSL_G2_1 = "s23, 33, 53, 63, 70, 90, 83 | m30 | a8, 4, 5;s10 | a8, 4, 5;s40 | m13 | a8, 4, 5"
 Dim FRIEND_G2_2 = "cdai"
