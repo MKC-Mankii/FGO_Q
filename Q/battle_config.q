@@ -21,7 +21,7 @@ Dim TEST_DSL = ""
 ' TEST_DSL 非空时优先，否则按 ACTION_ROUND_INDEX_G0 取 TEST_DSL_1/2/3
 Dim ACTION_ROUND_INDEX_G0 = 1
 Dim FRIEND_G0 = "aobao"
-Dim TEST_DSL_1 = "s50 | a7, 4, 5;s40 | m32 | s32, 50, 60 | aB, Q, A;s70, 92, 40 | a6, B, B"
+Dim TEST_DSL_1 = "m22 | t1"
 Dim TEST_DSL_2 = "aB, B"
 Dim TEST_DSL_3 = "s20, 30, 40, 52, 70, 83 | a7, 8, 5;s10 | a6, 4, 5;s92, 50 | m22 | a7, 4, 5"
 
@@ -29,7 +29,7 @@ Dim TEST_DSL_3 = "s20, 30, 40, 52, 70, 83 | a7, 8, 5;s10 | a6, 4, 5;s92, 50 | m2
 ' 大组 1: campaign
 Dim ACTION_ROUND_INDEX_G1 = 1
 Dim FRIEND_G1_1 = "mary"
-Dim TEST_DSL_G1_1 = "s50 | a7, 4, 5;s40 | m32 | s32, 50, 60 | aB, Q, A;s70, 92, 40 | a6, B, B"
+Dim TEST_DSL_G1_1 = "s50 | a7, 4, 5;s40 | m32 | s32, 50, 60 | t1 |aB, Q, A;s70, 92, 40 | a7, B, B"
 Dim FRIEND_G1_2 = "aobao"
 Dim TEST_DSL_G1_2 = "aB, B"
 Dim FRIEND_G1_3 = "aobao"
