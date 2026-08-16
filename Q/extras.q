@@ -8,8 +8,7 @@
 Log.Open
 
 ' ==================== QUICK EDIT (MANUAL) ====================
-' 1=DoRoll, 2=DoFriendPool, 3=DoEnhance, 4=DoEquipEnhance, 5=DoSkillEnhance
-Dim EXTRA_METHOD_INDEX = 1
+' 自动识别场景，不再手动设置 EXTRA_METHOD_INDEX
 Dim EXTRA_ACTION_COUNT = 30
 Dim EXTRA_SKILL_MAX_LEVEL = 9
 ' ============================================================
@@ -83,19 +82,90 @@ Function TouchMoveWithDownTime(Target,DownTime)
 	TouchUp 1//松开弹起ID=1的触点
 End Function
 
-Function DoSelectedExtraAction()
-	If EXTRA_METHOD_INDEX = 1 Then
-		DoRoll()
-	ElseIf EXTRA_METHOD_INDEX = 2 Then
-		DoFriendPool()
-	ElseIf EXTRA_METHOD_INDEX = 3 Then
-		DoEnhance()
-	ElseIf EXTRA_METHOD_INDEX = 4 Then
-		DoEquipEnhance()
-	ElseIf EXTRA_METHOD_INDEX = 5 Then
-		DoSkillEnhance(EXTRA_SKILL_MAX_LEVEL)
+Function DetectExtraMethodIndex()
+	Dim ScenePoint
+
+	' 1=DoEnhance
+	ScenePoint = CheckImg2(ENHANCE_HERO_TAR)
+	If ScenePoint <> null Then
+		DetectExtraMethodIndex = 1
+		Exit Function
+	End If
+
+	' 2=DoEquipEnhance
+	ScenePoint = CheckImg2(ENHANCE_EQUIP_TAR)
+	If ScenePoint <> null Then
+		DetectExtraMethodIndex = 2
+		Exit Function
+	End If
+
+	' 3=DoSkillEnhance
+	ScenePoint = CheckImg2(ENHANCE_SKILL_TAR)
+	If ScenePoint <> null Then
+		DetectExtraMethodIndex = 3
+		Exit Function
+	End If
+	ScenePoint = CheckImg2(ENHANCE_SKILL_ENHANCE_TAR)
+	If ScenePoint <> null Then
+		DetectExtraMethodIndex = 3
+		Exit Function
+	End If
+
+	' 4=DoFriendPool
+	ScenePoint = CheckImg2(POOLFRIEND_CONTINUE_TAR)
+	If ScenePoint <> null Then
+		DetectExtraMethodIndex = 4
+		Exit Function
+	End If
+
+	' 5=DoRoll
+	ScenePoint = CheckImg2(INFINITE_ROLL_TAR)
+	If ScenePoint <> null Then
+		DetectExtraMethodIndex = 5
+		Exit Function
+	End If
+
+	DetectExtraMethodIndex = 0
+End Function
+
+Function GetExtraMethodActionName(DetectedMethodIndex)
+	If DetectedMethodIndex = 1 Then
+		GetExtraMethodActionName = "DoEnhance"
+	ElseIf DetectedMethodIndex = 2 Then
+		GetExtraMethodActionName = "DoEquipEnhance"
+	ElseIf DetectedMethodIndex = 3 Then
+		GetExtraMethodActionName = "DoSkillEnhance"
+	ElseIf DetectedMethodIndex = 4 Then
+		GetExtraMethodActionName = "DoFriendPool"
+	ElseIf DetectedMethodIndex = 5 Then
+		GetExtraMethodActionName = "DoRoll"
 	Else
-		TracePrint "INVALID EXTRA_METHOD_INDEX:", EXTRA_METHOD_INDEX
+		GetExtraMethodActionName = "UNKNOWN"
+	End If
+End Function
+
+Function DoSelectedExtraAction()
+	Dim DetectedMethodIndex = DetectExtraMethodIndex()
+	If DetectedMethodIndex = 0 Then
+		TracePrint "AUTO DETECT FAILED: NO MATCHED SCENE"
+		HasTicket = false
+		Exit Function
+	End If
+
+	TracePrint "AUTO DETECT EXTRA_METHOD_INDEX:", DetectedMethodIndex, "ACTION=", GetExtraMethodActionName(DetectedMethodIndex)
+
+	If DetectedMethodIndex = 1 Then
+		DoEnhance()
+	ElseIf DetectedMethodIndex = 2 Then
+		DoEquipEnhance()
+	ElseIf DetectedMethodIndex = 3 Then
+		DoSkillEnhance(EXTRA_SKILL_MAX_LEVEL)
+	ElseIf DetectedMethodIndex = 4 Then
+		DoFriendPool()
+	ElseIf DetectedMethodIndex = 5 Then
+		DoRoll()
+	Else
+		TracePrint "INVALID AUTO DETECT INDEX:", DetectedMethodIndex
 		HasTicket = false
 	End If
 End Function
@@ -104,20 +174,25 @@ End Function
 Dim INFINITE_ROLL_TAR = Array(330, 370, 620, 610, "Attachment:ROLL100.png|Attachment:ROLL100-1.png|Attachment:ROLL10.png|Attachment:ROLL10-1.png") ' ROLL10 ROLL100
 Dim INFINITE_ROLL_FAST_COORD = Array(300, 400)
 
-Dim ENHANCE_RECOMMAND_TAR = Array(1240, 150, 1370, 208, "Attachment:ENHANCE_RECOMMAND.png")
-Dim ENHANCE_RECOMMAND_CONFIRM_TAR = Array(880, 680, 1006, 745, "Attachment:ENHANCE_RECOMMAND_CONFIRM.png")
-Dim ENHANCE_ENHANCE_TAR = Array(1340, 716, 1438, 798, "Attachment:ENHANCE_ENHANCE.png")
-Dim ENHANCE_ENHANCE_CONFIRM_TAR = Array(877, 632, 1006, 698, "Attachment:ENHANCE_ENHANCE_CONFIRM.png")
+Dim ENHANCE_HERO_TAR = Array(880, 5, 1300, 70, "Attachment:ENHANCE_HERO.png")
+Dim ENHANCE_HERO_RECOMMAND_TAR = Array(1240, 150, 1370, 208, "Attachment:ENHANCE_HERO_RECOMMAND.png")
+Dim ENHANCE_HERO_RECOMMAND_CONFIRM_TAR = Array(880, 680, 1006, 745, "Attachment:ENHANCE_HERO_RECOMMAND_CONFIRM.png")
+Dim ENHANCE_HERO_ENHANCE_TAR = Array(1340, 716, 1438, 798, "Attachment:ENHANCE_HERO_ENHANCE.png")
+Dim ENHANCE_HERO_ENHANCE_CONFIRM_TAR = Array(877, 632, 1006, 698, "Attachment:ENHANCE_HERO_ENHANCE_CONFIRM.png")
 
 Dim POOLFRIEND_CONTINUE_TAR = Array(720, 720, 990, 800, "Attachment:POOLFRIEND_CONTINUE.png")
 Dim POOLFRIEND_GO_TAR = Array(830, 600, 1080, 670, "Attachment:POOLFRIEND_GO.png")
 
-Dim EQUIP_ENHANCE_START_TAR = Array(446, 216, 532, 315, "Attachment:EQUIP_ENHANCE_START.png")
-Dim EQUIP_ENHANCE_SELECT_READY_TAR = Array(1205, 204, 1226, 267, "Attachment:EQUIP_ENHANCE_SELECT_READY.png")
-Dim EQUIP_ENHANCE_SELECT_COORD = Array(150, 390, 1050, 710)
-Dim EQUIP_ENHANCE_SELECT_CONFIRM_TAR = Array(1200, 725, 1260, 790, "Attachment:EQUIP_ENHANCE_SELECT_CONFIRM.png")
-Dim EQUIP_ENHANCE_SELECT_STOP_TAR = Array(80, 530, 1116, 809, "Attachment:EQUIP_ENHANCE_SELECT_STOP.png|Attachment:EQUIP_ENHANCE_SELECT_STOP2.png")
+Dim ENHANCE_EQUIP_TAR = Array(880, 5, 1300, 70, "Attachment:ENHANCE_EQUIP.png")
+Dim ENHANCE_EQUIP_START_TAR = Array(446, 216, 532, 315, "Attachment:ENHANCE_EQUIP_START.png")
+Dim ENHANCE_EQUIP_SELECT_READY_TAR = Array(1205, 204, 1226, 267, "Attachment:ENHANCE_EQUIP_SELECT_READY.png")
+Dim ENHANCE_EQUIP_SELECT_COORD = Array(150, 390, 1050, 710)
+Dim ENHANCE_EQUIP_SELECT_CONFIRM_TAR = Array(1200, 725, 1260, 790, "Attachment:ENHANCE_EQUIP_SELECT_CONFIRM.png")
+Dim ENHANCE_EQUIP_SELECT_STOP_TAR = Array(80, 530, 1116, 809, "Attachment:ENHANCE_EQUIP_SELECT_STOP.png|Attachment:ENHANCE_EQUIP_SELECT_STOP2.png")
+Dim ENHANCE_EQUIP_ENHANCE_TAR = Array(1340, 716, 1438, 798, "Attachment:ENHANCE_EQUIP_ENHANCE.png")
+Dim ENHANCE_EQUIP_ENHANCE_CONFIRM_TAR = Array(877, 632, 1006, 698, "Attachment:ENHANCE_EQUIP_ENHANCE_CONFIRM.png")
 
+Dim ENHANCE_SKILL_TAR = Array(880, 5, 1300, 70, "Attachment:ENHANCE_SKILL.png")
 Dim ENHANCE_SKILL_ENHANCE_TAR = Array(1185, 725, 1230, 785, "Attachment:ENHANCE_SKILL_ENHANCE.png")
 Dim ENHANCE_SKILL_ENHANCE_CONFIRM_TAR = Array(820, 640, 890, 690, "Attachment:ENHANCE_SKILL_ENHANCE_CONFIRM.png")
 Dim ENHANCE_SKILL_ENHANCE_L10_TAR = Array(450, 490, 610, 630, "Attachment:ENHANCE_SKILL_ENHANCE_L10.png")
@@ -130,15 +205,11 @@ Function DoRoll()
 End Function
 
 Function DoEnhance()
-	CheckAndTapImg2(ENHANCE_RECOMMAND_TAR, null)
+	CheckAndTapImg2(ENHANCE_HERO_ENHANCE_TAR, null)
 	Delay 500
-	CheckAndTapImg2(ENHANCE_RECOMMAND_CONFIRM_TAR, null)
+	CheckAndTapImg2(ENHANCE_HERO_ENHANCE_CONFIRM_TAR, null)
 	Delay 500
-	CheckAndTapImg2(ENHANCE_ENHANCE_TAR, null)
-	Delay 500
-	CheckAndTapImg2(ENHANCE_ENHANCE_CONFIRM_TAR, null)
-	Delay 500
-	CheckNoImgAndTap2(ENHANCE_RECOMMAND_TAR, ENHANCE_ENHANCE_CONFIRM_TAR)
+	CheckNoImgAndTap2(ENHANCE_HERO_RECOMMAND_TAR, ENHANCE_HERO_ENHANCE_CONFIRM_TAR)
 	Delay 500
 End Function
 
@@ -151,26 +222,26 @@ Function DoFriendPool()
 End Function
 
 Function DoEquipEnhance()
-	'CheckAndTapImg2(EQUIP_ENHANCE_START_TAR, null)
+	'CheckAndTapImg2(ENHANCE_EQUIP_START_TAR, null)
 	'Delay 500
-	'ContinuousCheckImg(EQUIP_ENHANCE_SELECT_READY_TAR)
+	'ContinuousCheckImg(ENHANCE_EQUIP_SELECT_READY_TAR)
 
-	'Dim CheckEnhanceSelectStop = CheckImg2(EQUIP_ENHANCE_SELECT_STOP_TAR)
+	'Dim CheckEnhanceSelectStop = CheckImg2(ENHANCE_EQUIP_SELECT_STOP_TAR)
 	'If CheckEnhanceSelectStop <> null Then
 	'	HasTicket = false
-	'	Traceprint "EQUIP_ENHANCE_SELECT_STOP"
+	'	Traceprint "ENHANCE_EQUIP_SELECT_STOP"
 	'	Exit Function
 	'End If
 
-	'TouchMoveWithDownTime(EQUIP_ENHANCE_SELECT_COORD, 1200)
+	'TouchMoveWithDownTime(ENHANCE_EQUIP_SELECT_COORD, 1200)
 	'Delay 500
-	'CheckAndTapImg2(EQUIP_ENHANCE_SELECT_CONFIRM_TAR, null)
+	'CheckAndTapImg2(ENHANCE_EQUIP_SELECT_CONFIRM_TAR, null)
 
-	CheckAndTapImg2(ENHANCE_ENHANCE_TAR, null)
+	CheckAndTapImg2(ENHANCE_EQUIP_ENHANCE_TAR, null)
 	Delay 500
-	CheckAndTapImg2(ENHANCE_ENHANCE_CONFIRM_TAR, null)
+	CheckAndTapImg2(ENHANCE_EQUIP_ENHANCE_CONFIRM_TAR, null)
 	Delay 500
-	CheckNoImgAndTap2(ENHANCE_ENHANCE_TAR, ENHANCE_ENHANCE_CONFIRM_TAR)
+	CheckNoImgAndTap2(ENHANCE_EQUIP_ENHANCE_TAR, ENHANCE_EQUIP_ENHANCE_CONFIRM_TAR)
 End Function
 
 Function DoSkillEnhance(MaxLevel)
@@ -191,7 +262,7 @@ End Function
 
 
 ' START
-Traceprint "EXTRAS START FROM", DateTime.Format(), "METHOD=", EXTRA_METHOD_INDEX
+Traceprint "EXTRAS START FROM", DateTime.Format(), "METHOD=AUTO_DETECT"
 
 If EXTRA_ACTION_COUNT <= 0 Then
 	TracePrint "EXTRA_ACTION_COUNT INVALID, STOP"

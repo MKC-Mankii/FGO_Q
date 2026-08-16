@@ -669,7 +669,6 @@ Function ContinuousCheckImgTags(Targets)
 	TracePrint "ContinuousCheckImgTags", TargetCount
 	Do While true
 		For TargetIndex = 1 To TargetCount
-			TracePrint TargetIndex
 			GetImgCoord = CheckImg2(Targets[TargetIndex])
 			If GetImgCoord <> null Then
 				ContinuousCheckImgTags = TargetIndex
@@ -784,7 +783,7 @@ End Function
 
 // do Battle >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 Function ChooseFriend()
-	BattlePrint("Choose Friend")
+	BattlePrint("Choose Friend: key=" & selectedFriendKey & ", target=" & PREPARE_FRIEND_TAR[5])
 	Dim Point = ContinuousCheckImg(PREPARE_FRIEND_TAR)
 	Dim TapPointX = Point[1]
 	Dim TapPointY = Point[2]
