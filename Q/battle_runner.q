@@ -11,7 +11,7 @@ zm.Init
 Dim CFG_ACTION_GROUP_INDEX = 1
 Dim MANUAL_BATTLE_COUNT = 30
 Dim MANUAL_APPLE_ENABLE = 0
-Dim MANUAL_DEBUGE_MODULE_BATTLE = 0
+Dim MANUAL_DEBUGE_MODULE_BATTLE = 01
 ' ============================================================
 
 Dim CFG_CONFIG_PATH = ""
@@ -167,7 +167,7 @@ Function ParseBattleSequence(sequenceArray)
 			Dim actIndex = 1
 			For Each act In acts
 				act = Trim(act)
-				If actIndex = 1 Then
+					If actIndex = 1 Then
 					Dim prefix = LCase(Mid(act, 1, 1))
 					If prefix = "s" Then
 						actGroup[1] = "skill"
@@ -175,12 +175,14 @@ Function ParseBattleSequence(sequenceArray)
 						actGroup[1] = "attack"
 					ElseIf prefix = "m" Then
 						actGroup[1] = "master"
+					ElseIf prefix = "t" Then
+						actGroup[1] = "target"
 					End If
 				End If
 				
 				Dim valStr = ""
 				Dim firstChar = LCase(Mid(act, 1, 1))
-				If actIndex = 1 And (firstChar = "s" Or firstChar = "a" Or firstChar = "m") Then
+				If actIndex = 1 And (firstChar = "s" Or firstChar = "a" Or firstChar = "m" Or firstChar = "t") Then
 					valStr = Mid(act, 2, Len(act) - 1)
 				Else
 					valStr = act
@@ -444,6 +446,13 @@ Dim BATTLE_MASTER_SKILL_DISPLAY_TAR = Array(980, 310, 1059, 316, "Attachment:BAT
 
 Dim BATTLE_SKILL_SPEEDUP_AWAIT_MS = 50
 Dim BATTLE_SKILL_NORMAL_AWAIT_MS = 500
+
+' BATTLE: TARGET (select enemy)
+Dim BATTLE_TARGET_COORDS = Array(_
+	Array(159, 33),_
+	Array(424, 33),_
+	Array(689, 33)_
+ )
 
 ' BATTLE: ATTACK
 
@@ -895,7 +904,9 @@ Function DoMasterActions(ActionsGroup)
 			If IsNull(SkillIndex) Or SkillIndex <= 0 Then
 				TracePrint "invalid master action, skip", CurrentAction
 			Else
-				CheckAndTapImg2(BATTLE_MASTER_SKILL_DISPLAY_TAR, BATTLE_MASTER_SKILL_COORDS[SkillIndex])
+				ContinuousCheckImg(BATTLE_MASTER_SKILL_DISPLAY_TAR)
+				Delay 200
+				tap BATTLE_MASTER_SKILL_COORDS[SkillIndex][1], BATTLE_MASTER_SKILL_COORDS[SkillIndex][2]
 
 				If SkillActionType = 0 Then		' Special Skill(0):change
 					Dim SkillChangeTargetIndex1 = CurrentActionArr(4)
@@ -1105,6 +1116,23 @@ Function DoAttackActions(ActionsGroup)
 	LAST_ACTION_WAS_ATTACK = true
 End Function
 
+Function DoTargetActions(ActionsGroup)
+	LAST_ACTION_WAS_ATTACK = false
+	Dim TargetIndex = ActionsGroup[2]
+	If IsNull(TargetIndex) Or Not IsNumeric(TargetIndex) Then
+		TracePrint "invalid target action, skip"
+		Exit Function
+	End If
+	TargetIndex = Int(TargetIndex)
+	If TargetIndex < 1 Or TargetIndex > 3 Then
+		TracePrint "invalid target index, skip", TargetIndex
+		Exit Function
+	End If
+	TracePrint "target", TargetIndex
+	CheckAndTapImg2(BATTLE_HERO_SKILL_CHECK_TAR, BATTLE_TARGET_COORDS[TargetIndex])
+	Delay BATTLE_SKILL_NORMAL_AWAIT_MS
+End Function
+
 Function DoGroupActions(ActionsGroup)
 	If BATTLE_ENDED_EARLY Then
 		Exit Function
@@ -1116,6 +1144,8 @@ Function DoGroupActions(ActionsGroup)
 		DoMasterActions(ActionsGroup)
 	ElseIf ActionsGroup[1] = "attack" Then
 		DoAttackActions(ActionsGroup)
+	ElseIf ActionsGroup[1] = "target" Then
+		DoTargetActions(ActionsGroup)
 	End If
 End Function
 
