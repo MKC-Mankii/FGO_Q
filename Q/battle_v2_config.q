@@ -1,5 +1,4 @@
-
-' config.q
+' battle_v2_config.q
 ' 配置源文件：只保存配置，不保存战斗逻辑
 ' 按键精灵编译后会把它下发成 .mq，逻辑主脚本读取这个 mq 文件内容
 
@@ -15,12 +14,12 @@ Dim PRESET = "campaign"
 Dim ACTIVITY_REWARD = 1
 
 ' BATTLE CONFIG
-' DSL 大组在 battle_runner.q 里手动改（CFG_ACTION_GROUP_INDEX）
+' DSL 大组在 battle_v2_runner.q 里手动改（CFG_ACTION_GROUP_INDEX）
 
 ' 直接覆盖测试 DSL（仅在大组索引为 0 时生效）
 Dim TEST_DSL = ""
 
-' 测试组（仅在 battle_runner.q 的 CFG_ACTION_GROUP_INDEX = 0 时生效）
+' 测试组（仅在 battle_v2_runner.q 的 CFG_ACTION_GROUP_INDEX = 0 时生效）
 ' TEST_DSL 非空时优先，否则按 ACTION_ROUND_INDEX_G0 取 TEST_DSL_1/2/3
 Dim ACTION_ROUND_INDEX_G0 = 1
 Dim FRIEND_G0 = "aobao"
