@@ -313,6 +313,7 @@ Dim ATT_Princess120 = "Attachment:friendPrincess120.png|Attachment:friendPrinces
 Dim ATT_QP = "Attachment:friendQP.png"
 Dim ATT_Sparrow = "Attachment:friendSparrow.png"
 Dim ATT_Mary = "Attachment:friendMary1.png|Attachment:friendMary2.png|Attachment:friendMary3.png"
+Dim ATT_Keli = "Attachment:friendKeli1.png|Attachment:friendKeli2.png|Attachment:friendKeli3.png"
 Dim PREPARE_FRIEND_TAR = Array()
 Dim HAS_FRIEND_CONFIG = false
 
@@ -358,6 +359,9 @@ If Len(selectedFriendKey) > 0 Then
 		HAS_FRIEND_CONFIG = true
 	ElseIf selectedFriendKey = "mary" Then
 		PREPARE_FRIEND_TAR = Array(40, 180, 920, 800, ATT_Mary)
+		HAS_FRIEND_CONFIG = true
+	ElseIf selectedFriendKey = "keli" Then
+		PREPARE_FRIEND_TAR = Array(40, 180, 920, 800, ATT_Keli)
 		HAS_FRIEND_CONFIG = true
 	End If
 End If
@@ -643,7 +647,7 @@ End Function
 
 Function clickAndWaitSkillAction()
 	Delay BATTLE_SKILL_SPEEDUP_AWAIT_MS
-	tap 144, 512
+	tap 1100, 770
 	Delay BATTLE_SKILL_NORMAL_AWAIT_MS
 End Function
 
