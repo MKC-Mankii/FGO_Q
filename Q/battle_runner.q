@@ -8,10 +8,11 @@ zm.Init
 
 ' ==================== QUICK EDIT (MANUAL) ====================
 ' 1=campaign, 2=caber, 3=order_saber, 4=ordeal
-Dim CFG_ACTION_GROUP_INDEX = 1
+Dim CFG_ACTION_GROUP_INDEX = 3
 Dim MANUAL_BATTLE_COUNT = 30
-Dim MANUAL_APPLE_ENABLE = 0
-Dim MANUAL_DEBUGE_MODULE_BATTLE = 01
+Dim MANUAL_APPLE_ENABLE = 0  ' 是否吃苹果补充体力
+Dim MANUAL_CHOOSE_FRIEND = 0  ' 人工选助战
+Dim MANUAL_FORCE_COLOR_CARD = 0  ' 是否强制选择对应色卡
 ' ============================================================
 
 Dim CFG_CONFIG_PATH = ""
@@ -217,8 +218,9 @@ End Function
 
 Dim BATTLE_COUNT = Int(MANUAL_BATTLE_COUNT)
 
-Dim DEBUGE_MODULE_BATTLE = Int(MANUAL_DEBUGE_MODULE_BATTLE)
+Dim CHOOSE_FRIEND_MANUAL = Int(CfgGet("manual_choose_friend", MANUAL_CHOOSE_FRIEND))
 Dim APPLE_ENABLE = Int(MANUAL_APPLE_ENABLE)
+Dim FORCE_COLOR_CARD = Int(CfgGet("force_color_card", MANUAL_FORCE_COLOR_CARD))
 Dim ACTIVITY_REWARD = CFG_ACTIVITY_REWARD
 Dim CAN_RUN = true
 
@@ -226,7 +228,7 @@ Dim selectedDsl = ""
 Dim selectedActivityDsl = ""
 Dim selectedFriendKey = ""
 
-TracePrint "CONFIG PARSED", "group=", CFG_ACTION_GROUP_INDEX, "index=", CFG_ACTION_INDEX, "battle_count=", BATTLE_COUNT, "friend=", CFG_FRIEND
+TracePrint "CONFIG PARSED", "group=", CFG_ACTION_GROUP_INDEX, "index=", CFG_ACTION_INDEX, "battle_count=", BATTLE_COUNT, "friend=", CFG_FRIEND, "manual_choose_friend=", CHOOSE_FRIEND_MANUAL, "force_color_card=", FORCE_COLOR_CARD
 
 If CFG_ACTION_GROUP_INDEX < 0 Then
 	TracePrint "CONFIG ACTION_ROUND_GROUP_INDEX INVALID, STOP"
@@ -240,16 +242,6 @@ End If
 
 If BATTLE_COUNT <= 0 Then
 	TracePrint "MANUAL BATTLE_COUNT INVALID, STOP"
-	CAN_RUN = false
-End If
-
-If DEBUGE_MODULE_BATTLE <> 0 And DEBUGE_MODULE_BATTLE <> 1 Then
-	TracePrint "MANUAL DEBUGE_MODULE_BATTLE INVALID, STOP"
-	CAN_RUN = false
-End If
-
-If APPLE_ENABLE <> 0 And APPLE_ENABLE <> 1 Then
-	TracePrint "MANUAL APPLE_ENABLE INVALID, STOP"
 	CAN_RUN = false
 End If
 
@@ -367,12 +359,8 @@ If Len(selectedFriendKey) > 0 Then
 End If
 
 If Not HAS_FRIEND_CONFIG Then
-	If DEBUGE_MODULE_BATTLE = 0 Then
-		TracePrint "FRIEND CONFIG INVALID OR EMPTY, STOP"
-		CAN_RUN = false
-	Else
-		TracePrint "FRIEND CONFIG INVALID OR EMPTY, SKIP IN DEBUG MODE"
-	End If
+	TracePrint "FRIEND CONFIG INVALID OR EMPTY, STOP"
+	CAN_RUN = false
 End If
 
 TracePrint "CONFIG APPLIED", "preset=", CFG_PRESET, "friend=", selectedFriendKey, "battle_count=", BATTLE_COUNT, "group=", CFG_ACTION_GROUP_INDEX, "index=", CFG_ACTION_INDEX
@@ -515,7 +503,7 @@ Dim BATTLE_ATTACK_CARD_QUICK_PRIORITY_TARS = Array()
 Dim BATTLE_ATTACK_CARD_QUICK_PRIORITY_COUNT = 0
 Dim BATTLE_ATTACK_CARD_QUICK_PRIORITY_SIM = 0.78
 
-
+Dim BATTLE_CARD_CHOSEN = Array(0, 0, 0, 0, 0)
 Dim BATTLE_CARD_TAPED_AWAIT_MS = 300
 Dim BATTLE_ROUND_CHANGE_AWAIT_MS = 6000
 Dim BATTLE_NORMAL_ATTACK_PLAY_AWAIT_MS = 5000 + BATTLE_ROUND_CHANGE_AWAIT_MS
@@ -824,7 +812,8 @@ Function CheckFirstBattle2Start()
 		TracePrint "First Battle Start: wait START or ATTACK"
 		Do While true
 			Dim AttackPoint = CheckImg2(BATTLE_HERO_SKILL_CHECK_TAR)
-			If AttackPoint <> null Then
+			Dim AttackBackPoint = CheckImg2(BATTLE_ATTACK_BACK_TAR)
+			If AttackPoint <> null Or AttackBackPoint <> null Then
 				TracePrint "First Battle Start: ATTACK found, skip START"
 				Exit Do
 			End If
@@ -932,25 +921,49 @@ Function DoMasterActions(ActionsGroup)
 	Loop
 End Function
 
+Function SelectFallbackCard()
+	Dim fallbackOrder = Array(5, 4, 3, 2, 1)
+	Dim foIdx
+	For foIdx = 1 To 5
+		Dim ord = fallbackOrder[foIdx]
+		If BATTLE_CARD_CHOSEN[ord] = 0 Then
+			BATTLE_CARD_CHOSEN[ord] = 1
+			TracePrint "Fallback tap card:", ord
+			tap BATTLE_ATTACK_CARD_COORDS[ord][1], BATTLE_ATTACK_CARD_COORDS[ord][2]
+			Exit Function
+		End If
+	Next
+	TracePrint "Fallback all chosen, default tap card 5"
+	tap BATTLE_ATTACK_CARD_COORDS[5][1], BATTLE_ATTACK_CARD_COORDS[5][2]
+End Function
+
 Function SelectPriorityBusterCard()
 	Dim PriorityCount = BATTLE_ATTACK_CARD_PRIORITY_COUNT
 	Dim BusterCards = Array()
 	Dim BusterCount = 0
 	Dim i
 	For i = 1 To 5
-		Dim cx = BATTLE_ATTACK_CARD_COORDS[i][1]
-		Dim busterArea = Array(cx - 130, 460, cx + 130, 750, "Attachment:BATTLE_ATTACK_CARD_BUSTER.png")
-		Dim getBuster = CheckImg2(busterArea)
-		If getBuster <> null Then
-			BusterCount = BusterCount + 1
-			BusterCards[BusterCount] = i
+		If BATTLE_CARD_CHOSEN[i] = 0 Then
+			Dim cx = BATTLE_ATTACK_CARD_COORDS[i][1]
+			Dim busterArea = Array(cx - 130, 460, cx + 130, 750, "Attachment:BATTLE_ATTACK_CARD_BUSTER.png")
+			Dim getBuster = CheckImg2(busterArea)
+			If getBuster <> null Then
+				BusterCount = BusterCount + 1
+				BusterCards[BusterCount] = i
+			End If
 		End If
 	Next
 	
 	If BusterCount = 0 Then
-		TracePrint "No Buster Card found, fallback to default"
-		CheckAndTapImg2(BATTLE_ATTACK_CARD_BUSTER_TAR, null)
-		Exit Function
+		If FORCE_COLOR_CARD > 0 Then
+			TracePrint "No Buster Card found, force wait: fallback to default"
+			CheckAndTapImg2(BATTLE_ATTACK_CARD_BUSTER_TAR, null)
+			Exit Function
+		Else
+			TracePrint "No Buster Card found, fallback to 54321"
+			SelectFallbackCard()
+			Exit Function
+		End If
 	End If
 	
 	Dim p
@@ -965,6 +978,7 @@ Function SelectPriorityBusterCard()
 					Dim getHero = CheckPriorityImg(heroTar, BATTLE_ATTACK_CARD_PRIORITY_SIM)
 					If getHero <> null Then
 						TracePrint "Found Priority Buster Card:", BATTLE_ATTACK_CARD_PRIORITY_TARS[p], "at card", cIdx, "sim", BATTLE_ATTACK_CARD_PRIORITY_SIM
+						BATTLE_CARD_CHOSEN[cIdx] = 1
 						tap BATTLE_ATTACK_CARD_COORDS[cIdx][1], BATTLE_ATTACK_CARD_COORDS[cIdx][2]
 						Exit Function
 					End If
@@ -976,6 +990,7 @@ Function SelectPriorityBusterCard()
 	' Fallback
 	Dim firstBusterIdx = BusterCards[1]
 	TracePrint "No priority matched, tap first Buster Card:", firstBusterIdx
+	BATTLE_CARD_CHOSEN[firstBusterIdx] = 1
 	tap BATTLE_ATTACK_CARD_COORDS[firstBusterIdx][1], BATTLE_ATTACK_CARD_COORDS[firstBusterIdx][2]
 End Function
 
@@ -985,19 +1000,27 @@ Function SelectPriorityArtsCard()
 	Dim ArtsCount = 0
 	Dim i
 	For i = 1 To 5
-		Dim cx = BATTLE_ATTACK_CARD_COORDS[i][1]
-		Dim artsArea = Array(cx - 130, 460, cx + 130, 750, "Attachment:BATTLE_ATTACK_CARD_ARTS.png")
-		Dim getArts = CheckImg2(artsArea)
-		If getArts <> null Then
-			ArtsCount = ArtsCount + 1
-			ArtsCards[ArtsCount] = i
+		If BATTLE_CARD_CHOSEN[i] = 0 Then
+			Dim cx = BATTLE_ATTACK_CARD_COORDS[i][1]
+			Dim artsArea = Array(cx - 130, 460, cx + 130, 750, "Attachment:BATTLE_ATTACK_CARD_ARTS.png")
+			Dim getArts = CheckImg2(artsArea)
+			If getArts <> null Then
+				ArtsCount = ArtsCount + 1
+				ArtsCards[ArtsCount] = i
+			End If
 		End If
 	Next
 
 	If ArtsCount = 0 Then
-		TracePrint "No Arts Card found, fallback to default"
-		CheckAndTapImg2(BATTLE_ATTACK_CARD_ARTS_TAR, null)
-		Exit Function
+		If FORCE_COLOR_CARD > 0 Then
+			TracePrint "No Arts Card found, force wait: fallback to default"
+			CheckAndTapImg2(BATTLE_ATTACK_CARD_ARTS_TAR, null)
+			Exit Function
+		Else
+			TracePrint "No Arts Card found, fallback to 54321"
+			SelectFallbackCard()
+			Exit Function
+		End If
 	End If
 
 	Dim p
@@ -1012,6 +1035,7 @@ Function SelectPriorityArtsCard()
 					Dim getHero = CheckPriorityImg(heroTar, BATTLE_ATTACK_CARD_ARTS_PRIORITY_SIM)
 					If getHero <> null Then
 						TracePrint "Found Priority Arts Card:", BATTLE_ATTACK_CARD_ARTS_PRIORITY_TARS[p], "at card", cIdx, "sim", BATTLE_ATTACK_CARD_ARTS_PRIORITY_SIM
+						BATTLE_CARD_CHOSEN[cIdx] = 1
 						tap BATTLE_ATTACK_CARD_COORDS[cIdx][1], BATTLE_ATTACK_CARD_COORDS[cIdx][2]
 						Exit Function
 					End If
@@ -1022,6 +1046,7 @@ Function SelectPriorityArtsCard()
 
 	Dim firstArtsIdx = ArtsCards[1]
 	TracePrint "No priority matched, tap first Arts Card:", firstArtsIdx
+	BATTLE_CARD_CHOSEN[firstArtsIdx] = 1
 	tap BATTLE_ATTACK_CARD_COORDS[firstArtsIdx][1], BATTLE_ATTACK_CARD_COORDS[firstArtsIdx][2]
 End Function
 
@@ -1031,19 +1056,27 @@ Function SelectPriorityQuickCard()
 	Dim QuickCount = 0
 	Dim i
 	For i = 1 To 5
-		Dim cx = BATTLE_ATTACK_CARD_COORDS[i][1]
-		Dim quickArea = Array(cx - 130, 460, cx + 130, 750, "Attachment:BATTLE_ATTACK_CARD_QUICK.png")
-		Dim getQuick = CheckImg2(quickArea)
-		If getQuick <> null Then
-			QuickCount = QuickCount + 1
-			QuickCards[QuickCount] = i
+		If BATTLE_CARD_CHOSEN[i] = 0 Then
+			Dim cx = BATTLE_ATTACK_CARD_COORDS[i][1]
+			Dim quickArea = Array(cx - 130, 460, cx + 130, 750, "Attachment:BATTLE_ATTACK_CARD_QUICK.png")
+			Dim getQuick = CheckImg2(quickArea)
+			If getQuick <> null Then
+				QuickCount = QuickCount + 1
+				QuickCards[QuickCount] = i
+			End If
 		End If
 	Next
 
 	If QuickCount = 0 Then
-		TracePrint "No Quick Card found, fallback to default"
-		CheckAndTapImg2(BATTLE_ATTACK_CARD_QUICK_TAR, null)
-		Exit Function
+		If FORCE_COLOR_CARD > 0 Then
+			TracePrint "No Quick Card found, force wait: fallback to default"
+			CheckAndTapImg2(BATTLE_ATTACK_CARD_QUICK_TAR, null)
+			Exit Function
+		Else
+			TracePrint "No Quick Card found, fallback to 54321"
+			SelectFallbackCard()
+			Exit Function
+		End If
 	End If
 
 	Dim p
@@ -1058,6 +1091,7 @@ Function SelectPriorityQuickCard()
 					Dim getHero = CheckPriorityImg(heroTar, BATTLE_ATTACK_CARD_QUICK_PRIORITY_SIM)
 					If getHero <> null Then
 						TracePrint "Found Priority Quick Card:", BATTLE_ATTACK_CARD_QUICK_PRIORITY_TARS[p], "at card", cIdx, "sim", BATTLE_ATTACK_CARD_QUICK_PRIORITY_SIM
+						BATTLE_CARD_CHOSEN[cIdx] = 1
 						tap BATTLE_ATTACK_CARD_COORDS[cIdx][1], BATTLE_ATTACK_CARD_COORDS[cIdx][2]
 						Exit Function
 					End If
@@ -1068,11 +1102,16 @@ Function SelectPriorityQuickCard()
 
 	Dim firstQuickIdx = QuickCards[1]
 	TracePrint "No priority matched, tap first Quick Card:", firstQuickIdx
+	BATTLE_CARD_CHOSEN[firstQuickIdx] = 1
 	tap BATTLE_ATTACK_CARD_COORDS[firstQuickIdx][1], BATTLE_ATTACK_CARD_COORDS[firstQuickIdx][2]
 End Function
 
 Function SelectAttackCard(CardIndex)
 	If IsNumeric(CardIndex) Then
+		Dim cardNum = Int(CardIndex)
+		If cardNum >= 1 And cardNum <= 5 Then
+			BATTLE_CARD_CHOSEN[cardNum] = 1
+		End If
 		CheckAndTapImg2(BATTLE_ATTACK_BACK_TAR, BATTLE_ATTACK_CARD_COORDS[CardIndex])
 	Else
 		Dim CardMark = UCase(CStr(CardIndex))
@@ -1092,6 +1131,11 @@ End Function
 
 Function DoAttackActions(ActionsGroup)
 	TracePrint "attack"
+
+	Dim resetIdx
+	For resetIdx = 1 To 5
+		BATTLE_CARD_CHOSEN[resetIdx] = 0
+	Next
 
 	CheckAndTapImg2(BATTLE_HERO_SKILL_CHECK_TAR, null)
 	Delay BATTLE_ULTIMATE_DISPLAY_AWAIT_MS
@@ -1158,8 +1202,14 @@ Function DoBattle()
 	BATTLE_ROUNDS_FINISHED = 0
 	LAST_ACTION_WAS_ATTACK = false
 	
-	If DEBUGE_MODULE_BATTLE = 0 Then
-		ChooseFriend()
+	If CHOOSE_FRIEND_MANUAL <= 0 Then
+		If CheckImg2(BATTLE_HERO_SKILL_CHECK_TAR) <> null Or CheckImg2(BATTLE_ATTACK_BACK_TAR) <> null Or CheckImg2(START_TAR) <> null Then
+			TracePrint "Already in battle or team screen (Attack/Start found), skip ChooseFriend"
+		Else
+			ChooseFriend()
+		End If
+	Else
+		TracePrint "Manual choose friend mode (CHOOSE_FRIEND_MANUAL>0), skip ChooseFriend"
 	End If
 	CheckFirstBattle2Start()
 
@@ -1266,7 +1316,7 @@ Function DoBattle()
 		Delay APPLE_CHECK_AWAIT_MS
 		Dim CheckAppleAlertSuccess = CheckImg2(APPLE_DISPLAY_TAR)
 		If CheckAppleAlertSuccess <> null Then
-			If APPLE_ENABLE <> 0 Then
+			If APPLE_ENABLE > 0 Then
 				CheckAndTapImg2(APPLE_DISPLAY_TAR, APPLE_GLODEN_COORD)
 				CheckAndTapImg2(APPLE_CONFIRM_TAR, null)
 			Else

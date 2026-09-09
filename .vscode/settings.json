@@ -1,0 +1,6 @@
+{
+  "files.associations": {
+    "*.q": "q",
+    "*.mq": "q"
+  }
+}
