@@ -1,45 +1,516 @@
 <!doctype html>
 <html lang="zh-CN">
+
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>FGO Q 配置编辑器</title>
-<style>
-:root{--ink:#17231f;--muted:#66746e;--paper:#f4f0e8;--panel:#fffdf8;--line:#d9d5ca;--accent:#d75a3d;--accent-dark:#9f3929;--teal:#2d706b;--shadow:0 16px 45px #24362b18}
-*{box-sizing:border-box}body{margin:0;color:var(--ink);font:15px/1.5 "Segoe UI","Microsoft YaHei",sans-serif;background:radial-gradient(circle at 86% 4%,#f8d5a855,transparent 27rem),linear-gradient(135deg,#eee9df,#f8f5ed 45%,#e3eee7);min-height:100vh}
-button,input,select,textarea{font:inherit}button{cursor:pointer;border:0}.shell{max-width:1240px;margin:auto;padding:34px 22px 60px}.masthead{display:flex;justify-content:space-between;gap:28px;align-items:end;margin-bottom:26px}.eyebrow{color:var(--accent-dark);font-weight:700;letter-spacing:.14em;font-size:12px;text-transform:uppercase}.masthead h1{font:700 clamp(30px,5vw,56px)/1.04 Georgia,serif;margin:8px 0 0;letter-spacing:0}.lede{max-width:420px;color:var(--muted);margin:0 0 4px}.layout{display:grid;grid-template-columns:290px minmax(0,1fr);gap:18px}.panel{background:#fffdf8e8;border:1px solid #ffffffaa;border-radius:12px;box-shadow:var(--shadow);backdrop-filter:blur(8px)}.side{padding:18px;align-self:start;position:sticky;top:16px}.side h2,.editor h2{font-size:18px;margin:0 0 14px}.group-list{display:grid;gap:8px}.group-list button{padding:12px 13px;text-align:left;border-radius:8px;color:var(--ink);background:#f1eee7;border:1px solid transparent}.group-list button:hover{border-color:var(--accent)}.group-list button.active{background:var(--ink);color:#fff}.group-list small{display:block;color:var(--muted);margin-top:2px}.group-list button.active small{color:#c8d7d0}.side-actions{display:grid;gap:8px;border-top:1px solid var(--line);margin-top:18px;padding-top:18px}.button{padding:11px 14px;border-radius:7px;font-weight:700}.primary{background:var(--accent);color:white}.primary:hover{background:var(--accent-dark)}.quiet{background:#e7eee8;color:var(--teal)}.quiet:hover{background:#d7e4dc}.editor{padding:22px}.toolbar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;padding-bottom:18px;border-bottom:1px solid var(--line)}.toolbar .field{margin-right:auto}.field label,.meta label{display:block;font-size:12px;font-weight:700;color:var(--muted);margin-bottom:5px}.field select,.field input,.meta input,.meta select,.round textarea,.global input{width:100%;border:1px solid var(--line);border-radius:7px;background:#fff;padding:9px 10px;color:var(--ink)}.field select{min-width:200px}.meta{display:grid;grid-template-columns:170px 1fr 170px;gap:13px;margin:18px 0}.meta input,.meta select{width:100%}.section-head{display:flex;justify-content:space-between;align-items:end;gap:14px;margin:25px 0 11px}.section-head h3{margin:0;font:700 24px Georgia,serif}.section-head p{margin:0;color:var(--muted);font-size:13px}.rounds{display:grid;gap:12px}.round{border:1px solid var(--line);border-radius:9px;padding:13px;background:#faf8f2}.round-title{display:flex;align-items:center;gap:9px;margin-bottom:9px}.round-title strong{font-size:14px}.round-title .key{font:12px ui-monospace,Consolas,monospace;color:var(--muted);margin-left:auto}.round textarea{resize:vertical;min-height:68px;font:13px/1.5 ui-monospace,Consolas,monospace}.round textarea:focus,.field input:focus,.field select:focus,.meta input:focus{outline:2px solid #d75a3d55;border-color:var(--accent)}.global{display:grid;grid-template-columns:1fr 1fr;gap:13px}.global .wide{grid-column:1/-1}.help{color:var(--muted);font-size:12px;margin:5px 0 0}.status{min-height:23px;color:var(--teal);font-size:13px}.preview{margin-top:24px}.preview summary{cursor:pointer;font-weight:700;color:var(--teal);padding:10px 0}.preview textarea{width:100%;min-height:240px;padding:13px;border:1px solid var(--line);border-radius:8px;background:#202b28;color:#e4eee7;font:12px/1.55 ui-monospace,Consolas,monospace;resize:vertical}.drop{border:1px dashed #a4afa7;border-radius:8px;padding:10px;color:var(--muted);font-size:12px;text-align:center}.drop input{display:none}.drop label{cursor:pointer;color:var(--teal);font-weight:700}.toast{position:fixed;right:20px;bottom:20px;background:var(--ink);color:#fff;padding:12px 15px;border-radius:8px;box-shadow:var(--shadow);opacity:0;transform:translateY(8px);transition:.2s;pointer-events:none}.toast.show{opacity:1;transform:none}@media(max-width:780px){.shell{padding:24px 14px 40px}.masthead{display:block}.lede{margin-top:14px}.layout{grid-template-columns:1fr}.side{position:static}.group-list{grid-template-columns:repeat(2,1fr)}.meta{grid-template-columns:1fr 1fr}.meta .wide-mobile{grid-column:1/-1}.global{grid-template-columns:1fr}.global .wide{grid-column:auto}.editor{padding:16px}.section-head{display:block}.section-head p{margin-top:4px}}
-</style>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>FGO Q 配置编辑器</title>
+    <style>
+        :root {
+            --ink: #17231f;
+            --muted: #66746e;
+            --paper: #f4f0e8;
+            --panel: #fffdf8;
+            --line: #d9d5ca;
+            --accent: #d75a3d;
+            --accent-dark: #9f3929;
+            --teal: #2d706b;
+            --shadow: 0 16px 45px #24362b18
+        }
+
+        * {
+            box-sizing: border-box
+        }
+
+        body {
+            margin: 0;
+            color: var(--ink);
+            font: 15px/1.5 "Segoe UI", "Microsoft YaHei", sans-serif;
+            background: radial-gradient(circle at 86% 4%, #f8d5a855, transparent 27rem), linear-gradient(135deg, #eee9df, #f8f5ed 45%, #e3eee7);
+            min-height: 100vh
+        }
+
+        button,
+        input,
+        select,
+        textarea {
+            font: inherit
+        }
+
+        button {
+            cursor: pointer;
+            border: 0
+        }
+
+        .shell {
+            max-width: 1240px;
+            margin: auto;
+            padding: 34px 22px 60px
+        }
+
+        .masthead {
+            display: flex;
+            justify-content: space-between;
+            gap: 28px;
+            align-items: end;
+            margin-bottom: 26px
+        }
+
+        .eyebrow {
+            color: var(--accent-dark);
+            font-weight: 700;
+            letter-spacing: .14em;
+            font-size: 12px;
+            text-transform: uppercase
+        }
+
+        .masthead h1 {
+            font: 700 clamp(30px, 5vw, 56px)/1.04 Georgia, serif;
+            margin: 8px 0 0;
+            letter-spacing: 0
+        }
+
+        .lede {
+            max-width: 420px;
+            color: var(--muted);
+            margin: 0 0 4px
+        }
+
+        .layout {
+            display: grid;
+            grid-template-columns: 290px minmax(0, 1fr);
+            gap: 18px
+        }
+
+        .panel {
+            background: #fffdf8e8;
+            border: 1px solid #ffffffaa;
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            backdrop-filter: blur(8px)
+        }
+
+        .side {
+            padding: 18px;
+            align-self: start;
+            position: sticky;
+            top: 16px
+        }
+
+        .side h2,
+        .editor h2 {
+            font-size: 18px;
+            margin: 0 0 14px
+        }
+
+        .group-list {
+            display: grid;
+            gap: 8px
+        }
+
+        .group-list button {
+            padding: 12px 13px;
+            text-align: left;
+            border-radius: 8px;
+            color: var(--ink);
+            background: #f1eee7;
+            border: 1px solid transparent
+        }
+
+        .group-list button:hover {
+            border-color: var(--accent)
+        }
+
+        .group-list button.active {
+            background: var(--ink);
+            color: #fff
+        }
+
+        .group-list small {
+            display: block;
+            color: var(--muted);
+            margin-top: 2px
+        }
+
+        .group-list button.active small {
+            color: #c8d7d0
+        }
+
+        .side-actions {
+            display: grid;
+            gap: 8px;
+            border-top: 1px solid var(--line);
+            margin-top: 18px;
+            padding-top: 18px
+        }
+
+        .button {
+            padding: 11px 14px;
+            border-radius: 7px;
+            font-weight: 700
+        }
+
+        .primary {
+            background: var(--accent);
+            color: white
+        }
+
+        .primary:hover {
+            background: var(--accent-dark)
+        }
+
+        .quiet {
+            background: #e7eee8;
+            color: var(--teal)
+        }
+
+        .quiet:hover {
+            background: #d7e4dc
+        }
+
+        .editor {
+            padding: 22px
+        }
+
+        .toolbar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            align-items: center;
+            padding-bottom: 18px;
+            border-bottom: 1px solid var(--line)
+        }
+
+        .toolbar .field {
+            margin-right: auto
+        }
+
+        .field label,
+        .meta label {
+            display: block;
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--muted);
+            margin-bottom: 5px
+        }
+
+        .field select,
+        .field input,
+        .meta input,
+        .meta select,
+        .round textarea,
+        .global input {
+            width: 100%;
+            border: 1px solid var(--line);
+            border-radius: 7px;
+            background: #fff;
+            padding: 9px 10px;
+            color: var(--ink)
+        }
+
+        .field select {
+            min-width: 200px
+        }
+
+        .meta {
+            display: grid;
+            grid-template-columns: 170px 1fr 170px;
+            gap: 13px;
+            margin: 18px 0
+        }
+
+        .meta input,
+        .meta select {
+            width: 100%
+        }
+
+        .section-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: end;
+            gap: 14px;
+            margin: 25px 0 11px
+        }
+
+        .section-head h3 {
+            margin: 0;
+            font: 700 24px Georgia, serif
+        }
+
+        .section-head p {
+            margin: 0;
+            color: var(--muted);
+            font-size: 13px
+        }
+
+        .rounds {
+            display: grid;
+            gap: 12px
+        }
+
+        .round {
+            border: 1px solid var(--line);
+            border-radius: 9px;
+            padding: 13px;
+            background: #faf8f2
+        }
+
+        .round-title {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            margin-bottom: 9px
+        }
+
+        .round-title strong {
+            font-size: 14px
+        }
+
+        .round-title .key {
+            font: 12px ui-monospace, Consolas, monospace;
+            color: var(--muted);
+            margin-left: auto
+        }
+
+        .round textarea {
+            resize: vertical;
+            min-height: 68px;
+            font: 13px/1.5 ui-monospace, Consolas, monospace
+        }
+
+        .round textarea:focus,
+        .field input:focus,
+        .field select:focus,
+        .meta input:focus {
+            outline: 2px solid #d75a3d55;
+            border-color: var(--accent)
+        }
+
+        .global {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 13px
+        }
+
+        .global .wide {
+            grid-column: 1/-1
+        }
+
+        .help {
+            color: var(--muted);
+            font-size: 12px;
+            margin: 5px 0 0
+        }
+
+        .status {
+            min-height: 23px;
+            color: var(--teal);
+            font-size: 13px
+        }
+
+        .preview {
+            margin-top: 24px
+        }
+
+        .preview summary {
+            cursor: pointer;
+            font-weight: 700;
+            color: var(--teal);
+            padding: 10px 0
+        }
+
+        .preview textarea {
+            width: 100%;
+            min-height: 240px;
+            padding: 13px;
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            background: #202b28;
+            color: #e4eee7;
+            font: 12px/1.55 ui-monospace, Consolas, monospace;
+            resize: vertical
+        }
+
+        .drop {
+            border: 1px dashed #a4afa7;
+            border-radius: 8px;
+            padding: 10px;
+            color: var(--muted);
+            font-size: 12px;
+            text-align: center
+        }
+
+        .drop input {
+            display: none
+        }
+
+        .drop label {
+            cursor: pointer;
+            color: var(--teal);
+            font-weight: 700
+        }
+
+        .toast {
+            position: fixed;
+            right: 20px;
+            bottom: 20px;
+            background: var(--ink);
+            color: #fff;
+            padding: 12px 15px;
+            border-radius: 8px;
+            box-shadow: var(--shadow);
+            opacity: 0;
+            transform: translateY(8px);
+            transition: .2s;
+            pointer-events: none
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: none
+        }
+
+        @media(max-width:780px) {
+            .shell {
+                padding: 24px 14px 40px
+            }
+
+            .masthead {
+                display: block
+            }
+
+            .lede {
+                margin-top: 14px
+            }
+
+            .layout {
+                grid-template-columns: 1fr
+            }
+
+            .side {
+                position: static
+            }
+
+            .group-list {
+                grid-template-columns: repeat(2, 1fr)
+            }
+
+            .meta {
+                grid-template-columns: 1fr 1fr
+            }
+
+            .meta .wide-mobile {
+                grid-column: 1/-1
+            }
+
+            .global {
+                grid-template-columns: 1fr
+            }
+
+            .global .wide {
+                grid-column: auto
+            }
+
+            .editor {
+                padding: 16px
+            }
+
+            .section-head {
+                display: block
+            }
+
+            .section-head p {
+                margin-top: 4px
+            }
+        }
+    </style>
 </head>
+
 <body>
-<div class="shell">
-<header class="masthead"><div><div class="eyebrow">FGO_Q / CONFIG STUDIO</div><h1>战斗配置编辑器</h1></div><p class="lede">把大组、助战、回合 DSL 放在一个清晰的面板里。完成后直接下载可编译的 `battle_config.q`。</p></header>
-<main class="layout">
-<aside class="panel side"><h2>配置大组</h2><div id="groupList" class="group-list"></div><div class="side-actions"><button class="button primary" id="downloadBtn">下载 battle_config.q</button><button class="button quiet" id="copyBtn">复制配置文本</button><div class="drop">导入已有文件<br><label for="fileInput">选择 `.q` 文件</label><input id="fileInput" type="file" accept=".q,.mq,text/plain"></div><div id="status" class="status"></div></div></aside>
-<section class="panel editor"><div class="toolbar"><div class="field"><label for="preset">预设标记</label><input id="preset" value="campaign"></div><div><label>&nbsp;</label><button class="button quiet" id="resetBtn">恢复页面初始值</button></div></div>
-<div class="meta"><div><label for="roundIndex">当前大组默认回合</label><select id="roundIndex"></select></div><div class="wide-mobile"><label for="groupFriend">大组默认好友（可留空）</label><input id="groupFriend" placeholder="例如 aobao、cba"></div><div><label for="reward">活动奖励</label><select id="reward"><option value="1">启用</option><option value="0">停用</option></select></div></div>
-<div class="section-head"><div><h3 id="groupTitle">campaign</h3><p id="groupHint"></p></div></div><div id="rounds" class="rounds"></div>
-<div class="section-head"><div><h3>测试组（大组 0）</h3><p>只有 battle_runner.q 中的 CFG_ACTION_GROUP_INDEX = 0 时使用。</p></div></div><div class="global"><div class="wide"><label for="testDsl">直接覆盖 DSL</label><input id="testDsl" placeholder="留空则按测试组默认回合选择"></div><div><label for="testIndex">测试组默认回合</label><select id="testIndex"></select></div><div><label for="testFriend">测试组默认好友</label><input id="testFriend"></div><div class="wide"><label>测试 DSL 1 / 2 / 3</label><div id="testRounds" class="rounds"></div></div></div>
-<details class="preview"><summary>查看生成的配置文本</summary><textarea id="preview" readonly></textarea></details>
-</section></main></div><div id="toast" class="toast"></div>
-<script>
-const initial={preset:"campaign",reward:"1",testDsl:"",testIndex:1,testFriend:"aobao",groups:[
-{name:"campaign",label:"campaign",index:2,friend:"",rounds:[{friend:"mary",dsl:"s50 | a7, 4, 5;s40 | m32 | s32, 50, 60 | t1 |aB, Q, A;s70, 92, 40 | a7, B, B"},{friend:"rba",dsl:"s72, 80, 91, 10, 20, 30, 40 ,50, 60| m22 |  a6, 7, 5"},{friend:"aobao",dsl:"s20, 30, 40, 52, 70, 83 | a7, 8, 5;s10 | a6, 4, 5;s92, 50 | m22 | a7, 4, 5"}]},
-{name:"caber",label:"caber",index:2,friend:"",rounds:[{friend:"cdai",dsl:"s23, 33, 53, 63, 70, 90, 83 | m30 | a8, 4, 5;s10 | a8, 4, 5;s40 | m13 | a8, 4, 5"},{friend:"cdai",dsl:"s10, 20, 53, 63, 70, 90, 83 | m30 | a8, 4, 5;s40 | a8, 4, 5;s33 | m10 | a8, 4, 5"},{friend:"cdai",dsl:"s10, 20, 53, 63, 80, 90 | a8, 4, 5;s40 | a8, 4, 5;s33 | m10, 30 | a8, 4, 5"}]},
-{name:"order_saber",label:"order_saber",index:3,friend:"",rounds:[{friend:"sparrow",dsl:"s40, 53, 60 | m30024, 10 | s40, 10, 20, 30, 70, 80, 90 | a8, 6, B"},{friend:"Cba",dsl:"s10, 30 | m30014, 10 | s10, 20, 40, 50, 60, 70, 83, 90 | a7, 8, A"},{friend:"keli",dsl:"s90, 80, 70, 60, 50, 40, 32, 21, 10 | m22 | a6, 7, Q"},{friend:"Bdai",dsl:"s10, 40, 52, 60, 70, 83, 90 | m22 | a7, 8, A"},{friend:"princess",dsl:"s12, 20, 32, 40, 50, 60, 70, 80 | m30014, 10 | s30 | a8, 7, B"},{friend:"aobao",dsl:"s70, 82, 92, 60, 50, 40, 20 | m22 | a7, B, B"}]},
-{name:"ordeal",label:"ordeal",index:1,friend:"",rounds:[{friend:"shahushan",dsl:"s10, 20, 30, 51, 61, 71, 80, 91 | m31 | aB, 6, B;s41, 10, 20, 30 | a6, B, B"},{friend:"shahushan",dsl:"s92, 40, 50, 60, 30 | a7, B, B;s72 | m32 | s50 | aB, 7, B;s82, 60 | a7, B, B"},{friend:"shahushan",dsl:"s10, 20, 30, 41, 51, 61, 71, 91 | m31 | aB, 6, B;s10, 20, 30 | a6, B, B"},{friend:"shahushan",dsl:"s10, 20, 40, 50, 62, 70, 92 | m22 | a7, 4, 5"}]}
-]};
-initial.testRounds=["m22 | t1","aB, B","s20, 30, 40, 52, 70, 83 | a7, 8, 5;s10 | a6, 4, 5;s92, 50 | m22 | a7, 4, 5"];
-let state=structuredClone(initial), selected=0;
-const $=id=>document.getElementById(id); const esc=s=>String(s).replaceAll("\\","\\\\").replaceAll('"','\\"');
-function flash(message){$('status').textContent=message;clearTimeout(flash.timer);flash.timer=setTimeout(()=>$('status').textContent="",2600)}
-function renderGroups(){ $('groupList').innerHTML=state.groups.map((g,i)=>`<button class="${i===selected?'active':''}" data-group="${i}"><strong>${i+1}. ${g.label}</strong><small>${g.rounds.length} 个回合 · 默认第 ${g.index} 回合</small></button>`).join('');document.querySelectorAll('[data-group]').forEach(b=>b.onclick=()=>{selected=Number(b.dataset.group);render()}) }
-function selectOptions(max,value){return Array.from({length:max},(_,i)=>`<option value="${i+1}" ${i+1===Number(value)?'selected':''}>第 ${i+1} 回合</option>`).join('')}
-function render(){const g=state.groups[selected];renderGroups();$('preset').value=state.preset;$('reward').value=state.reward;$('roundIndex').innerHTML=selectOptions(g.rounds.length,g.index);$('roundIndex').onchange=e=>{g.index=Number(e.target.value);render()};$('groupFriend').value=g.friend;$('groupFriend').oninput=e=>g.friend=e.target.value;$('groupTitle').textContent=`${selected+1} / ${g.label}`;$('groupHint').textContent=selected===3?'1-4 为 ActivityActionRounds，5-7 可用于 ArtActionRounds。':'编辑每个关卡的助战关键字和 DSL。';$('rounds').innerHTML=g.rounds.map((r,i)=>`<article class="round"><div class="round-title"><strong>回合 ${i+1}</strong><span class="key">FRIEND_G${selected+1}_${i+1} · TEST_DSL_G${selected+1}_${i+1}</span></div><label class="field"><span class="field label">助战关键字</span><input data-friend="${i}" value="${esc(r.friend)}" placeholder="例如 aobao"></label><label class="field"><span class="field label">战斗 DSL</span><textarea data-dsl="${i}" spellcheck="false">${r.dsl}</textarea></label></article>`).join('');document.querySelectorAll('[data-friend]').forEach(e=>e.oninput=()=>g.rounds[Number(e.dataset.friend)].friend=e.value);document.querySelectorAll('[data-dsl]').forEach(e=>e.oninput=()=>g.rounds[Number(e.dataset.dsl)].dsl=e.value);$('testDsl').value=state.testDsl;$('testIndex').innerHTML=selectOptions(3,state.testIndex);$('testIndex').onchange=e=>state.testIndex=Number(e.target.value);$('testFriend').value=state.testFriend;$('preview').value=buildConfig()}
-const baseRender=render;render=()=>{baseRender();$('testRounds').innerHTML=state.testRounds.map((dsl,i)=>`<article class="round"><div class="round-title"><strong>测试回合 ${i+1}</strong><span class="key">TEST_DSL_${i+1}</span></div><textarea data-test-dsl="${i}" spellcheck="false">${dsl}</textarea></article>`).join('');document.querySelectorAll('[data-test-dsl]').forEach(e=>e.oninput=()=>{state.testRounds[Number(e.dataset.testDsl)]=e.value;$('preview').value=buildConfig()});$('preview').value=buildConfig()};
-function buildConfig(){let out=["' config.q","' 由 FGO Q 配置编辑器生成","","' 预设标记（目前仅用于日志）",`Dim PRESET = "${esc(state.preset)}"`,"","' USER CONFIG",`Dim ACTIVITY_REWARD = ${state.reward}`,"","' BATTLE CONFIG",`Dim TEST_DSL = "${esc(state.testDsl)}"`,"",`Dim ACTION_ROUND_INDEX_G0 = ${state.testIndex}`,`Dim FRIEND_G0 = "${esc(state.testFriend)}"`];const test=state.testRounds;for(let i=0;i<3;i++)out.push(`Dim TEST_DSL_${i+1} = "${esc(test[i])}"`);state.groups.forEach((g,gi)=>{out.push("","' -----------------------------",`' 大组 ${gi+1}: ${g.label}`,`Dim ACTION_ROUND_INDEX_G${gi+1} = ${g.index}`,`Dim FRIEND_G${gi+1} = "${esc(g.friend)}"`);g.rounds.forEach((r,ri)=>{out.push(`Dim FRIEND_G${gi+1}_${ri+1} = "${esc(r.friend)}"`,`Dim TEST_DSL_G${gi+1}_${ri+1} = "${esc(r.dsl)}"`)});});out.push("","' 预设说明：","' campaign = 常规战斗配置","' ordeal   = 险境战斗配置","' saber   = 剑阶战斗配置","' custom  = 手工逐项修改上面字段");return out.join("\n")+"\n"}
-function download(){const blob=new Blob([buildConfig()],{type:'text/plain;charset=utf-8'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='battle_config.q';a.click();URL.revokeObjectURL(a.href);flash('配置文件已下载')}
-function parseConfig(text){const get=(key, fallback='')=>{const m=text.match(new RegExp('^\\s*(?:Dim\\s+)?'+key.replace(/[.*+?^${}()|[\\]\\\\]/g,'\\\\$&')+'\\s*=\\s*(?:"([^"\\r\\n]*)"|([^\\r\\n]+))','im'));return m?(m[1]??m[2]).trim():fallback};state.preset=get('PRESET',state.preset);state.reward=get('ACTIVITY_REWARD',state.reward);state.testDsl=get('TEST_DSL',state.testDsl);state.testIndex=Number(get('ACTION_ROUND_INDEX_G0',state.testIndex))||1;state.testFriend=get('FRIEND_G0',state.testFriend);state.testRounds=state.testRounds.map((dsl,i)=>get(`TEST_DSL_${i+1}`,dsl));state.groups.forEach((g,gi)=>{g.index=Number(get(`ACTION_ROUND_INDEX_G${gi+1}`,g.index))||1;g.friend=get(`FRIEND_G${gi+1}`,g.friend);g.rounds.forEach((r,ri)=>{r.friend=get(`FRIEND_G${gi+1}_${ri+1}`,r.friend);r.dsl=get(`TEST_DSL_G${gi+1}_${ri+1}`,r.dsl)})});render();flash('已导入配置文件')}
-$('preset').oninput=e=>state.preset=e.target.value;$('reward').onchange=e=>state.reward=e.target.value;$('downloadBtn').onclick=download;$('copyBtn').onclick=async()=>{await navigator.clipboard.writeText(buildConfig());flash('配置文本已复制')};$('resetBtn').onclick=()=>{state=structuredClone(initial);selected=0;render();flash('已恢复初始值')};$('fileInput').onchange=e=>{const file=e.target.files[0];if(file){const reader=new FileReader();reader.onload=()=>parseConfig(reader.result);reader.readAsText(file)}};render();
-</script>
+    <div class="shell">
+        <header class="masthead">
+            <div>
+                <div class="eyebrow">FGO_Q / CONFIG STUDIO</div>
+                <h1>配置编辑器</h1>
+            </div>
+            <p class="lede">把大组、助战、回合 DSL 放在一个清晰的面板里。完成后直接下载可编译的 `battle_config.q`。</p>
+        </header>
+        <main class="layout">
+            <aside class="panel side">
+                <h2>配置大组</h2>
+                <div id="groupList" class="group-list"></div>
+                <div class="side-actions"><button class="button primary" id="downloadBtn">下载
+                        battle_config.q</button><button class="button quiet" id="copyBtn">复制配置文本</button>
+                    <div class="drop">导入已有文件<br><label for="fileInput">选择 `.q` 文件</label><input id="fileInput"
+                            type="file" accept=".q,.mq,text/plain"></div>
+                    <div id="status" class="status"></div>
+                </div>
+            </aside>
+            <section class="panel editor">
+                <div class="toolbar">
+                    <div class="field"><label for="preset">预设标记</label><input id="preset" value="campaign"></div>
+                    <div><label>&nbsp;</label><button class="button quiet" id="resetBtn">恢复页面初始值</button></div>
+                </div>
+                <div class="meta">
+                    <div><label for="roundIndex">当前大组默认回合</label><select id="roundIndex"></select></div>
+                    <div class="wide-mobile"><label for="groupFriend">大组默认好友（可留空）</label><input id="groupFriend"
+                            placeholder="例如 aobao、cba"></div>
+                    <div><label for="reward">活动奖励</label><select id="reward">
+                            <option value="1">启用</option>
+                            <option value="0">停用</option>
+                        </select></div>
+                </div>
+                <div class="section-head">
+                    <div>
+                        <h3 id="groupTitle">campaign</h3>
+                        <p id="groupHint"></p>
+                    </div>
+                </div>
+                <div id="rounds" class="rounds"></div>
+                <div class="section-head">
+                    <div>
+                        <h3>测试组（大组 0）</h3>
+                        <p>只有 battle_runner.q 中的 CFG_ACTION_GROUP_INDEX = 0 时使用。</p>
+                    </div>
+                </div>
+                <div class="global">
+                    <div class="wide"><label for="testDsl">直接覆盖 DSL</label><input id="testDsl"
+                            placeholder="留空则按测试组默认回合选择"></div>
+                    <div><label for="testIndex">测试组默认回合</label><select id="testIndex"></select></div>
+                    <div><label for="testFriend">测试组默认好友</label><input id="testFriend"></div>
+                    <div class="wide"><label>测试 DSL 1 / 2 / 3</label>
+                        <div id="testRounds" class="rounds"></div>
+                    </div>
+                </div>
+                <details class="preview">
+                    <summary>查看生成的配置文本</summary><textarea id="preview" readonly></textarea>
+                </details>
+            </section>
+        </main>
+    </div>
+    <div id="toast" class="toast"></div>
+    <script>
+        const initial = {
+            preset: "campaign", reward: "1", testDsl: "", testIndex: 1, testFriend: "aobao", groups: [
+                { name: "campaign", label: "campaign", index: 2, friend: "", rounds: [{ friend: "mary", dsl: "s50 | a7, 4, 5;s40 | m32 | s32, 50, 60 | t1 |aB, Q, A;s70, 92, 40 | a7, B, B" }, { friend: "rba", dsl: "s72, 80, 91, 10, 20, 30, 40 ,50, 60| m22 |  a6, 7, 5" }, { friend: "aobao", dsl: "s20, 30, 40, 52, 70, 83 | a7, 8, 5;s10 | a6, 4, 5;s92, 50 | m22 | a7, 4, 5" }] },
+                { name: "caber", label: "caber", index: 2, friend: "", rounds: [{ friend: "cdai", dsl: "s23, 33, 53, 63, 70, 90, 83 | m30 | a8, 4, 5;s10 | a8, 4, 5;s40 | m13 | a8, 4, 5" }, { friend: "cdai", dsl: "s10, 20, 53, 63, 70, 90, 83 | m30 | a8, 4, 5;s40 | a8, 4, 5;s33 | m10 | a8, 4, 5" }, { friend: "cdai", dsl: "s10, 20, 53, 63, 80, 90 | a8, 4, 5;s40 | a8, 4, 5;s33 | m10, 30 | a8, 4, 5" }] },
+                { name: "order_saber", label: "order_saber", index: 3, friend: "", rounds: [{ friend: "sparrow", dsl: "s40, 53, 60 | m30024, 10 | s40, 10, 20, 30, 70, 80, 90 | a8, 6, B" }, { friend: "Cba", dsl: "s10, 30 | m30014, 10 | s10, 20, 40, 50, 60, 70, 83, 90 | a7, 8, A" }, { friend: "keli", dsl: "s90, 80, 70, 60, 50, 40, 32, 21, 10 | m22 | a6, 7, Q" }, { friend: "Bdai", dsl: "s10, 40, 52, 60, 70, 83, 90 | m22 | a7, 8, A" }, { friend: "princess", dsl: "s12, 20, 32, 40, 50, 60, 70, 80 | m30014, 10 | s30 | a8, 7, B" }, { friend: "aobao", dsl: "s70, 82, 92, 60, 50, 40, 20 | m22 | a7, B, B" }] },
+                { name: "ordeal", label: "ordeal", index: 1, friend: "", rounds: [{ friend: "shahushan", dsl: "s10, 20, 30, 51, 61, 71, 80, 91 | m31 | aB, 6, B;s41, 10, 20, 30 | a6, B, B" }, { friend: "shahushan", dsl: "s92, 40, 50, 60, 30 | a7, B, B;s72 | m32 | s50 | aB, 7, B;s82, 60 | a7, B, B" }, { friend: "shahushan", dsl: "s10, 20, 30, 41, 51, 61, 71, 91 | m31 | aB, 6, B;s10, 20, 30 | a6, B, B" }, { friend: "shahushan", dsl: "s10, 20, 40, 50, 62, 70, 92 | m22 | a7, 4, 5" }] }
+            ]
+        };
+        initial.testRounds = ["m22 | t1", "aB, B", "s20, 30, 40, 52, 70, 83 | a7, 8, 5;s10 | a6, 4, 5;s92, 50 | m22 | a7, 4, 5"];
+        let state = structuredClone(initial), selected = 0;
+        const $ = id => document.getElementById(id); const esc = s => String(s).replaceAll("\\", "\\\\").replaceAll('"', '\\"');
+        function flash(message) { $('status').textContent = message; clearTimeout(flash.timer); flash.timer = setTimeout(() => $('status').textContent = "", 2600) }
+        function renderGroups() { $('groupList').innerHTML = state.groups.map((g, i) => `<button class="${i === selected ? 'active' : ''}" data-group="${i}"><strong>${i + 1}. ${g.label}</strong><small>${g.rounds.length} 个回合 · 默认第 ${g.index} 回合</small></button>`).join(''); document.querySelectorAll('[data-group]').forEach(b => b.onclick = () => { selected = Number(b.dataset.group); render() }) }
+        function selectOptions(max, value) { return Array.from({ length: max }, (_, i) => `<option value="${i + 1}" ${i + 1 === Number(value) ? 'selected' : ''}>第 ${i + 1} 回合</option>`).join('') }
+        function render() { const g = state.groups[selected]; renderGroups(); $('preset').value = state.preset; $('reward').value = state.reward; $('roundIndex').innerHTML = selectOptions(g.rounds.length, g.index); $('roundIndex').onchange = e => { g.index = Number(e.target.value); render() }; $('groupFriend').value = g.friend; $('groupFriend').oninput = e => g.friend = e.target.value; $('groupTitle').textContent = `${selected + 1} / ${g.label}`; $('groupHint').textContent = selected === 3 ? '1-4 为 ActivityActionRounds，5-7 可用于 ArtActionRounds。' : '编辑每个关卡的助战关键字和 DSL。'; $('rounds').innerHTML = g.rounds.map((r, i) => `<article class="round"><div class="round-title"><strong>回合 ${i + 1}</strong><span class="key">FRIEND_G${selected + 1}_${i + 1} · TEST_DSL_G${selected + 1}_${i + 1}</span></div><label class="field"><span class="field label">助战关键字</span><input data-friend="${i}" value="${esc(r.friend)}" placeholder="例如 aobao"></label><label class="field"><span class="field label">战斗 DSL</span><textarea data-dsl="${i}" spellcheck="false">${r.dsl}</textarea></label></article>`).join(''); document.querySelectorAll('[data-friend]').forEach(e => e.oninput = () => g.rounds[Number(e.dataset.friend)].friend = e.value); document.querySelectorAll('[data-dsl]').forEach(e => e.oninput = () => g.rounds[Number(e.dataset.dsl)].dsl = e.value); $('testDsl').value = state.testDsl; $('testIndex').innerHTML = selectOptions(3, state.testIndex); $('testIndex').onchange = e => state.testIndex = Number(e.target.value); $('testFriend').value = state.testFriend; $('preview').value = buildConfig() }
+        const baseRender = render; render = () => { baseRender(); $('testRounds').innerHTML = state.testRounds.map((dsl, i) => `<article class="round"><div class="round-title"><strong>测试回合 ${i + 1}</strong><span class="key">TEST_DSL_${i + 1}</span></div><textarea data-test-dsl="${i}" spellcheck="false">${dsl}</textarea></article>`).join(''); document.querySelectorAll('[data-test-dsl]').forEach(e => e.oninput = () => { state.testRounds[Number(e.dataset.testDsl)] = e.value; $('preview').value = buildConfig() }); $('preview').value = buildConfig() };
+        function buildConfig() { let out = ["' config.q", "' 由 FGO Q 配置编辑器生成", "", "' 预设标记（目前仅用于日志）", `Dim PRESET = "${esc(state.preset)}"`, "", "' USER CONFIG", `Dim ACTIVITY_REWARD = ${state.reward}`, "", "' BATTLE CONFIG", `Dim TEST_DSL = "${esc(state.testDsl)}"`, "", `Dim ACTION_ROUND_INDEX_G0 = ${state.testIndex}`, `Dim FRIEND_G0 = "${esc(state.testFriend)}"`]; const test = state.testRounds; for (let i = 0; i < 3; i++)out.push(`Dim TEST_DSL_${i + 1} = "${esc(test[i])}"`); state.groups.forEach((g, gi) => { out.push("", "' -----------------------------", `' 大组 ${gi + 1}: ${g.label}`, `Dim ACTION_ROUND_INDEX_G${gi + 1} = ${g.index}`, `Dim FRIEND_G${gi + 1} = "${esc(g.friend)}"`); g.rounds.forEach((r, ri) => { out.push(`Dim FRIEND_G${gi + 1}_${ri + 1} = "${esc(r.friend)}"`, `Dim TEST_DSL_G${gi + 1}_${ri + 1} = "${esc(r.dsl)}"`) }); }); out.push("", "' 预设说明：", "' campaign = 常规战斗配置", "' ordeal   = 险境战斗配置", "' saber   = 剑阶战斗配置", "' custom  = 手工逐项修改上面字段"); return out.join("\n") + "\n" }
+        function download() { const blob = new Blob([buildConfig()], { type: 'text/plain;charset=utf-8' }), a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'battle_config.q'; a.click(); URL.revokeObjectURL(a.href); flash('配置文件已下载') }
+        function parseConfig(text) { const get = (key, fallback = '') => { const m = text.match(new RegExp('^\\s*(?:Dim\\s+)?' + key.replace(/[.*+?^${}()|[\\]\\\\]/g, '\\\\$&') + '\\s*=\\s*(?:"([^"\\r\\n]*)"|([^\\r\\n]+))', 'im')); return m ? (m[1] ?? m[2]).trim() : fallback }; state.preset = get('PRESET', state.preset); state.reward = get('ACTIVITY_REWARD', state.reward); state.testDsl = get('TEST_DSL', state.testDsl); state.testIndex = Number(get('ACTION_ROUND_INDEX_G0', state.testIndex)) || 1; state.testFriend = get('FRIEND_G0', state.testFriend); state.testRounds = state.testRounds.map((dsl, i) => get(`TEST_DSL_${i + 1}`, dsl)); state.groups.forEach((g, gi) => { g.index = Number(get(`ACTION_ROUND_INDEX_G${gi + 1}`, g.index)) || 1; g.friend = get(`FRIEND_G${gi + 1}`, g.friend); g.rounds.forEach((r, ri) => { r.friend = get(`FRIEND_G${gi + 1}_${ri + 1}`, r.friend); r.dsl = get(`TEST_DSL_G${gi + 1}_${ri + 1}`, r.dsl) }) }); render(); flash('已导入配置文件') }
+        $('preset').oninput = e => state.preset = e.target.value; $('reward').onchange = e => state.reward = e.target.value; $('downloadBtn').onclick = download; $('copyBtn').onclick = async () => { await navigator.clipboard.writeText(buildConfig()); flash('配置文本已复制') }; $('resetBtn').onclick = () => { state = structuredClone(initial); selected = 0; render(); flash('已恢复初始值') }; $('fileInput').onchange = e => { const file = e.target.files[0]; if (file) { const reader = new FileReader(); reader.onload = () => parseConfig(reader.result); reader.readAsText(file) } }; render();
+    </script>
 </body>
+
 </html>
