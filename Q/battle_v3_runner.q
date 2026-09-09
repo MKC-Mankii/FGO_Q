@@ -7,7 +7,7 @@ Import "zm.luae"
 zm.Init
 
 ' ==================== QUICK EDIT (MANUAL) ====================
-' 1=campaign, 2=caber, 3=order_saber, 4=ordeal
+' 0=test, 1=campaign, 2=caber, 3=grand, 4=ordeal
 Dim CFG_ACTION_GROUP_INDEX = 3
 Dim MANUAL_BATTLE_COUNT = 30
 Dim MANUAL_APPLE_ENABLE = 0  ' 是否吃苹果补充体力
@@ -55,13 +55,21 @@ If IsNull(cfgCandidates) Then
 	cfgCandidates = zm.DirScan("/storage/emulated/0/MobileAnJian/Script/", "*.mq", 1)
 End If
 
+Dim cfgV3Found = False
+Dim cfgFallbackPath = ""
+Dim cfgFallbackRaw = ""
+
 If cfgCandidates Then
 	Dim cfgCandidatePath
 	For Each cfgCandidatePath In cfgCandidates
 		Dim cfgCandidatePathText = CStr(cfgCandidatePath)
 		Dim cfgCandidatePathLower = LCase(cfgCandidatePathText)
+		Dim isV3 = False
 		Dim isNamedConfig = False
-		If InStr(1, cfgCandidatePathLower, "battle_config") > 0 Then
+		If InStr(1, cfgCandidatePathLower, "battle_v3_config") > 0 Or InStr(1, cfgCandidatePathLower, "battle_config_v3") > 0 Then
+			isV3 = True
+			isNamedConfig = True
+		ElseIf InStr(1, cfgCandidatePathLower, "battle_v2_config") > 0 Or InStr(1, cfgCandidatePathLower, "battle_config_v2") > 0 Or InStr(1, cfgCandidatePathLower, "battle_config") > 0 Then
 			isNamedConfig = True
 		ElseIf InStr(1, cfgCandidatePathLower, "/config(") > 0 Or InStr(1, cfgCandidatePathLower, "\\config(") > 0 Or InStr(1, cfgCandidatePathLower, "/config.") > 0 Or InStr(1, cfgCandidatePathLower, "\\config.") > 0 Then
 			isNamedConfig = True
@@ -70,21 +78,31 @@ If cfgCandidates Then
 			Dim cfgCandidateRaw = File.Read(cfgCandidatePathText)
 			If Not IsNull(cfgCandidateRaw) And Len(CStr(cfgCandidateRaw)) > 0 Then
 				Dim cfgCandidateRawLower = LCase(CStr(cfgCandidateRaw))
-				If InStr(1, cfgCandidateRawLower, "dim preset") > 0 And InStr(1, cfgCandidateRawLower, "dim test_dsl") > 0 Then
-					CFG_CONFIG_PATH = cfgCandidatePathText
-					CFG_RAW = CStr(cfgCandidateRaw)
-					Exit For
+				If InStr(1, cfgCandidateRawLower, "dim preset") > 0 And (InStr(1, cfgCandidateRawLower, "dim dsl_") > 0 Or InStr(1, cfgCandidateRawLower, "dim test_dsl") > 0) Then
+					If isV3 Then
+						CFG_CONFIG_PATH = cfgCandidatePathText
+						CFG_RAW = CStr(cfgCandidateRaw)
+						cfgV3Found = True
+						Exit For
+					ElseIf Len(cfgFallbackPath) = 0 Then
+						cfgFallbackPath = cfgCandidatePathText
+						cfgFallbackRaw = CStr(cfgCandidateRaw)
+					End If
 				End If
 			End If
 		End If
 	Next
+	If Not cfgV3Found And Len(cfgFallbackPath) > 0 Then
+		CFG_CONFIG_PATH = cfgFallbackPath
+		CFG_RAW = cfgFallbackRaw
+	End If
 End If
 
 If Len(CFG_CONFIG_PATH) > 0 Then
 	TracePrint "CONFIG PATH FOUND:", CFG_CONFIG_PATH
 Else
 	TracePrint "CONFIG PATH NOT FOUND"
-	TracePrint "HINT:", "请先在按键精灵里编译并同步 fgo_battle_config.q(或config.q)"
+	TracePrint "HINT:", "请先在按键精灵里编译并同步 battle_v3_config.q (或 battle_v2_config.q / battle_config.q)"
 End If
 
 If Not IsNull(CFG_RAW) And Len(CStr(CFG_RAW)) > 0 Then
@@ -213,7 +231,11 @@ Function ParseBattleSequence(sequenceArray)
 End Function
 
 Function PickDslByGroupAndIndex(groupIndex, roundIndex)
-	PickDslByGroupAndIndex = CStr(CfgGet("test_dsl_g" & groupIndex & "_" & roundIndex, ""))
+	Dim dslVal = CStr(CfgGet("dsl_g" & groupIndex & "_" & roundIndex, ""))
+	If Len(dslVal) = 0 Then
+		dslVal = CStr(CfgGet("test_dsl_g" & groupIndex & "_" & roundIndex, ""))
+	End If
+	PickDslByGroupAndIndex = dslVal
 End Function
 
 Dim BATTLE_COUNT = Int(MANUAL_BATTLE_COUNT)
@@ -246,14 +268,15 @@ If BATTLE_COUNT <= 0 Then
 End If
 
 If CAN_RUN Then
+	selectedActivityDsl = PickDslByGroupAndIndex(CFG_ACTION_GROUP_INDEX, CFG_ACTION_INDEX)
 	If CFG_ACTION_GROUP_INDEX = 0 Then
-		' 测试模式：只用 TEST_DSL / TEST_DSL_1/2/3
-		selectedActivityDsl = CFG_TEST_DSL
+		' 大组 0 额外支持旧版兼容字段
+		If Len(selectedActivityDsl) = 0 Then
+			selectedActivityDsl = CFG_TEST_DSL
+		End If
 		If Len(selectedActivityDsl) = 0 Then
 			selectedActivityDsl = CStr(CfgGet("test_dsl_" & CFG_ACTION_INDEX, ""))
 		End If
-	Else
-		selectedActivityDsl = PickDslByGroupAndIndex(CFG_ACTION_GROUP_INDEX, CFG_ACTION_INDEX)
 	End If
 End If
 

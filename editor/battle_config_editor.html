@@ -1,0 +1,1836 @@
+<!doctype html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>FGO Q 战斗配置可视化编辑器 (v3)</title>
+    <style>
+        :root {
+            --bg-base: #0f141c;
+            --bg-panel: #171f2c;
+            --bg-card: #202b3c;
+            --bg-card-hover: #28364b;
+            --line: #2d3d54;
+            --line-light: #3d5170;
+            --text-main: #e6edf5;
+            --text-muted: #8fa0b5;
+            --accent: #4fa3e3;
+            --accent-glow: #4fa3e344;
+            --gold: #e5b95c;
+            --gold-glow: #e5b95c44;
+            --buster: #e24d42;
+            --arts: #3182ce;
+            --quick: #2fb36d;
+            --purple: #9f7aea;
+            --shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            color: var(--text-main);
+            font: 14px/1.5 "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+            background: radial-gradient(circle at 85% 15%, #1e2c44, #0b0f15 65%);
+            min-height: 100vh;
+            padding: 24px 20px 60px;
+        }
+
+        button, input, select, textarea {
+            font: inherit;
+            color: inherit;
+        }
+
+        button {
+            cursor: pointer;
+            border: 0;
+            transition: all 0.15s ease;
+        }
+
+        .shell {
+            max-width: 1380px;
+            margin: auto;
+        }
+
+        /* 顶部标题栏 */
+        .masthead {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            margin-bottom: 22px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--line);
+        }
+
+        .masthead-title {
+            display: flex;
+            align-items: baseline;
+            gap: 14px;
+        }
+
+        .eyebrow {
+            color: var(--gold);
+            font-weight: 700;
+            letter-spacing: 0.12em;
+            font-size: 11px;
+            text-transform: uppercase;
+            background: rgba(229, 185, 92, 0.12);
+            padding: 2px 8px;
+            border-radius: 4px;
+            border: 1px solid rgba(229, 185, 92, 0.3);
+        }
+
+        .masthead h1 {
+            font: 700 26px/1.2 system-ui, sans-serif;
+            letter-spacing: 0.5px;
+        }
+
+        .masthead .subtext {
+            color: var(--text-muted);
+            font-size: 13px;
+            margin-top: 4px;
+        }
+
+        .masthead-actions {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .button {
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 13px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .button.primary {
+            background: linear-gradient(135deg, #3182ce, #2b6cb0);
+            color: #fff;
+            box-shadow: 0 4px 14px rgba(49, 130, 206, 0.35);
+        }
+
+        .button.primary:hover {
+            filter: brightness(1.1);
+            transform: translateY(-1px);
+        }
+
+        .button.quiet {
+            background: var(--bg-card);
+            border: 1px solid var(--line);
+            color: var(--text-main);
+        }
+
+        .button.quiet:hover {
+            background: var(--bg-card-hover);
+            border-color: var(--line-light);
+        }
+
+        .button.danger {
+            background: rgba(226, 77, 66, 0.2);
+            border: 1px solid rgba(226, 77, 66, 0.4);
+            color: #ff9b94;
+        }
+
+        .button.danger:hover {
+            background: rgba(226, 77, 66, 0.35);
+        }
+
+        /* 核心布局 */
+        .layout {
+            display: grid;
+            grid-template-columns: 270px minmax(0, 1fr);
+            gap: 20px;
+        }
+
+        .panel {
+            background: var(--bg-panel);
+            border: 1px solid var(--line);
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+        }
+
+        /* 侧边栏：大组与方案选择 */
+        .sidebar {
+            padding: 18px 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+        }
+
+        .sidebar h2 {
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            padding-left: 4px;
+        }
+
+        .group-nav {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .group-nav button {
+            text-align: left;
+            padding: 10px 12px;
+            border-radius: 8px;
+            background: transparent;
+            border: 1px solid transparent;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .group-nav button strong {
+            font-size: 14px;
+            color: var(--text-main);
+        }
+
+        .group-nav button span {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        .group-nav button:hover {
+            background: var(--bg-card);
+        }
+
+        .group-nav button.active {
+            background: linear-gradient(135deg, rgba(79, 163, 227, 0.18), rgba(49, 130, 206, 0.1));
+            border-color: rgba(79, 163, 227, 0.4);
+        }
+
+        .group-nav button.active strong {
+            color: var(--accent);
+        }
+
+        .side-box {
+            background: var(--bg-card);
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            padding: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .side-box label {
+            font-size: 12px;
+            color: var(--text-muted);
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        .side-box select, .side-box input {
+            width: 100%;
+            background: var(--bg-base);
+            border: 1px solid var(--line);
+            border-radius: 6px;
+            padding: 6px 10px;
+            font-size: 13px;
+        }
+
+        /* 主工作区 */
+        .workspace {
+            padding: 22px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        /* 方案头部选择 */
+        .scheme-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--bg-card);
+            border: 1px solid var(--line);
+            border-radius: 10px;
+            padding: 12px 18px;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .scheme-selector {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .scheme-pills {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+
+        .scheme-pill {
+            padding: 6px 14px;
+            border-radius: 20px;
+            background: var(--bg-base);
+            border: 1px solid var(--line);
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .scheme-pill.active {
+            background: var(--accent);
+            color: #fff;
+            border-color: var(--accent);
+            box-shadow: 0 2px 10px var(--accent-glow);
+        }
+
+        .scheme-pill.is-default {
+            position: relative;
+        }
+
+        .scheme-pill.is-default::after {
+            content: "默认";
+            font-size: 9px;
+            position: absolute;
+            top: -6px;
+            right: -6px;
+            background: var(--gold);
+            color: #111;
+            padding: 0 4px;
+            border-radius: 3px;
+            font-weight: 700;
+        }
+
+        .scheme-meta {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .scheme-meta .item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 13px;
+        }
+
+        .scheme-meta input {
+            background: var(--bg-base);
+            border: 1px solid var(--line);
+            border-radius: 6px;
+            padding: 5px 10px;
+            font-size: 13px;
+            width: 140px;
+        }
+
+        /* 回合选项卡 (Round Tabs) */
+        .rounds-tabs-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid var(--line);
+            padding-bottom: 6px;
+        }
+
+        .rounds-tabs {
+            display: flex;
+            gap: 8px;
+        }
+
+        .round-tab {
+            padding: 8px 18px;
+            border-radius: 8px 8px 0 0;
+            background: var(--bg-card);
+            border: 1px solid var(--line);
+            border-bottom: 0;
+            font-weight: 700;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .round-tab.active {
+            background: var(--bg-panel);
+            color: var(--accent);
+            border-color: var(--accent);
+            border-bottom: 2px solid var(--bg-panel);
+            margin-bottom: -8px;
+            padding-bottom: 12px;
+            box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        /* 当前回合：动作流看板 */
+        .timeline-section {
+            background: var(--bg-card);
+            border: 1px solid var(--line);
+            border-radius: 10px;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .timeline-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .timeline-header h3 {
+            font-size: 14px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-main);
+        }
+
+        .timeline-chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            align-items: center;
+            min-height: 44px;
+            padding: 8px;
+            background: var(--bg-base);
+            border-radius: 8px;
+            border: 1px dashed var(--line);
+        }
+
+        .timeline-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 600;
+            background: var(--bg-card);
+            border: 1px solid var(--line-light);
+            animation: fadeIn 0.15s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .timeline-chip.skill {
+            background: rgba(49, 130, 206, 0.2);
+            border-color: rgba(49, 130, 206, 0.5);
+            color: #90cdf4;
+        }
+
+        .timeline-chip.master {
+            background: rgba(229, 185, 92, 0.2);
+            border-color: rgba(229, 185, 92, 0.5);
+            color: #f6e05e;
+        }
+
+        .timeline-chip.target {
+            background: rgba(159, 122, 234, 0.2);
+            border-color: rgba(159, 122, 234, 0.5);
+            color: #d6bcfa;
+        }
+
+        .timeline-chip.attack {
+            background: linear-gradient(135deg, rgba(226, 77, 66, 0.25), rgba(49, 130, 206, 0.25));
+            border-color: rgba(229, 185, 92, 0.6);
+            color: #fff;
+        }
+
+        .timeline-chip .remove-btn {
+            background: transparent;
+            color: inherit;
+            opacity: 0.65;
+            font-size: 14px;
+            line-height: 1;
+            padding: 0 2px;
+        }
+
+        .timeline-chip .remove-btn:hover {
+            opacity: 1;
+            color: #ff8080;
+        }
+
+        .timeline-empty {
+            color: var(--text-muted);
+            font-size: 13px;
+            padding-left: 8px;
+        }
+
+        /* 动作点击控制台 (Visual Action Palette) */
+        .palette-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+        }
+
+        .palette-col {
+            background: var(--bg-card);
+            border: 1px solid var(--line);
+            border-radius: 10px;
+            padding: 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .palette-title {
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--accent);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--line);
+            padding-bottom: 8px;
+        }
+
+        /* 从者技能按钮群 */
+        .skill-btn-group {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+        }
+
+        .skill-btn {
+            background: var(--bg-base);
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            padding: 10px 4px;
+            text-align: center;
+            font-size: 12px;
+            font-weight: 600;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            transition: all 0.15s;
+        }
+
+        .skill-btn:hover {
+            border-color: var(--accent);
+            background: rgba(79, 163, 227, 0.15);
+            transform: translateY(-2px);
+        }
+
+        .skill-btn .code {
+            font-size: 10px;
+            color: var(--text-muted);
+            font-family: monospace;
+        }
+
+        /* 选敌按钮群 */
+        .target-btn-group {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+        }
+
+        .target-btn {
+            background: var(--bg-base);
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            padding: 8px 4px;
+            font-size: 12px;
+            font-weight: 600;
+            color: #d6bcfa;
+        }
+
+        .target-btn:hover {
+            border-color: var(--purple);
+            background: rgba(159, 122, 234, 0.2);
+        }
+
+        /* 御主技能与换人 */
+        .master-strip {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+        }
+
+        .master-btn {
+            background: var(--bg-base);
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            padding: 8px 6px;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--gold);
+            text-align: center;
+        }
+
+        .master-btn:hover {
+            border-color: var(--gold);
+            background: rgba(229, 185, 92, 0.18);
+        }
+
+        /* 回合收尾出牌面板 (Attack Section) */
+        .attack-card-builder {
+            background: var(--bg-card);
+            border: 1px solid var(--line);
+            border-radius: 10px;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .attack-slots {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 14px;
+        }
+
+        .attack-slot {
+            background: var(--bg-base);
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            padding: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .attack-slot label {
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--text-muted);
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .attack-slot select {
+            background: var(--bg-card);
+            border: 1px solid var(--line-light);
+            border-radius: 6px;
+            padding: 8px 10px;
+            font-size: 13px;
+            color: var(--text-main);
+        }
+
+        .quick-combos {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .quick-combos span {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        .combo-btn {
+            padding: 5px 12px;
+            border-radius: 6px;
+            background: var(--bg-base);
+            border: 1px solid var(--line);
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .combo-btn:hover {
+            background: var(--bg-card-hover);
+            border-color: var(--line-light);
+        }
+
+        /* 弹窗遮罩与选择器 (Target Modal) */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.65);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 999;
+            backdrop-filter: blur(4px);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.15s ease;
+        }
+
+        .modal-overlay.show {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .modal-card {
+            background: var(--bg-panel);
+            border: 1px solid var(--line-light);
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            width: 420px;
+            padding: 22px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            transform: translateY(12px);
+            transition: transform 0.15s ease;
+        }
+
+        .modal-overlay.show .modal-card {
+            transform: none;
+        }
+
+        .modal-card h4 {
+            font-size: 16px;
+            font-weight: 700;
+        }
+
+        .modal-options {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+
+        .modal-opt-btn {
+            padding: 12px 8px;
+            background: var(--bg-card);
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 13px;
+            text-align: center;
+        }
+
+        .modal-opt-btn:hover {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: #fff;
+        }
+
+        /* 换人选择器专属选项 */
+        .swap-grid {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .swap-col {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .swap-col button {
+            padding: 8px;
+            background: var(--bg-card);
+            border: 1px solid var(--line);
+            border-radius: 6px;
+            font-size: 12px;
+        }
+
+        .swap-col button.selected {
+            background: var(--gold);
+            color: #111;
+            font-weight: 700;
+            border-color: var(--gold);
+        }
+
+        /* 实时代码预览 */
+        .preview-area {
+            background: var(--bg-card);
+            border: 1px solid var(--line);
+            border-radius: 10px;
+            padding: 14px 18px;
+        }
+
+        .preview-area summary {
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 13px;
+            color: var(--accent);
+            user-select: none;
+        }
+
+        .preview-area textarea {
+            width: 100%;
+            height: 200px;
+            background: #0d121a;
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            color: #98c379;
+            font: 12px/1.6 Consolas, "Liberation Mono", Menlo, monospace;
+            padding: 12px;
+            margin-top: 10px;
+            resize: vertical;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            background: #2b6cb0;
+            color: #fff;
+            padding: 10px 18px;
+            border-radius: 8px;
+            box-shadow: var(--shadow);
+            font-weight: 600;
+            font-size: 13px;
+            opacity: 0;
+            transform: translateY(8px);
+            transition: all 0.2s ease;
+            pointer-events: none;
+            z-index: 1000;
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: none;
+        }
+
+        @media (max-width: 900px) {
+            .layout { grid-template-columns: 1fr; }
+            .palette-grid { grid-template-columns: 1fr; }
+            .attack-slots { grid-template-columns: 1fr; }
+            .master-strip { grid-template-columns: repeat(2, 1fr); }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="shell">
+        <!-- 顶部导航 -->
+        <header class="masthead">
+            <div>
+                <div class="masthead-title">
+                    <span class="eyebrow">FGO_Q · STUDIO V3</span>
+                    <h1>战斗配置可视化编辑器</h1>
+                </div>
+                <p class="subtext">以整场战斗为单位编辑关卡方案；每套方案内按回合（Round）可视化点选技能、御主与出牌。</p>
+            </div>
+            <div class="masthead-actions">
+                <span id="syncStatus" style="font-size:12px; color:var(--text-muted); margin-right:6px;">正在自动读取本地配置...</span>
+                <button class="button quiet" id="reloadBtn" title="重新从磁盘读取配置">🔄 重新读取</button>
+                <button class="button quiet" id="copyBtn">📋 复制 Q 文本</button>
+                <button class="button primary" id="saveBtn">💾 保存配置到 Q 文件</button>
+            </div>
+        </header>
+
+        <!-- 主体布局 -->
+        <main class="layout">
+            <!-- 侧边栏：大组切换 -->
+            <aside class="panel sidebar">
+                <h2>配置大组 (Group)</h2>
+                <nav id="groupNav" class="group-nav"></nav>
+
+                <div class="side-box">
+                    <label for="rewardSelect">活动领奖流程</label>
+                    <select id="rewardSelect">
+                        <option value="1">启用 (1)</option>
+                        <option value="0">停用 (0)</option>
+                    </select>
+                </div>
+
+                <div class="side-box">
+                    <label for="presetInput">预设标记 (Preset Tag)</label>
+                    <input id="presetInput" value="campaign">
+                </div>
+
+                <div class="side-box">
+                    <button class="button quiet" style="width:100%" id="resetBtn">🔄 恢复默认预置</button>
+                </div>
+            </aside>
+
+            <!-- 右侧工作区 -->
+            <section class="panel workspace">
+                <div class="scheme-bar">
+                    <div class="scheme-selector">
+                        <div>
+                            <strong id="groupTitle" style="color:var(--accent); font-size:15px;">大组 0: test (测试组)</strong>
+                            <div id="groupHint" style="font-size:11px; color:var(--text-muted); margin-top:2px;"></div>
+                        </div>
+                        <div class="scheme-pills" id="schemePills"></div>
+                        <button class="button quiet" style="padding:4px 8px; font-size:12px;" id="addSchemeBtn">+ 加方案</button>
+                    </div>
+
+                    <div class="scheme-meta">
+                        <div class="item" id="testDslItem" style="display:none;">
+                            <span>覆盖测试 DSL:</span>
+                            <input id="testDslInput" placeholder="留空则按方案执行" style="width:130px;">
+                        </div>
+                        <div class="item">
+                            <span>本方案助战:</span>
+                            <input id="schemeFriend" placeholder="例如 aobao / mary / cdai">
+                        </div>
+                        <div class="item">
+                            <span>默认方案:</span>
+                            <select id="defaultSchemeSelect"></select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 回合选项卡 (Round Tabs) -->
+                <div class="rounds-tabs-bar">
+                    <div class="rounds-tabs" id="roundTabs"></div>
+                    <div style="display:flex; gap:6px;">
+                        <button class="button quiet" style="padding:4px 10px; font-size:12px;" id="addRoundBtn">+ 增加回合</button>
+                        <button class="button danger" style="padding:4px 10px; font-size:12px;" id="delRoundBtn">删除此回合</button>
+                    </div>
+                </div>
+
+                <!-- 当前回合：动作流看板 (Timeline) -->
+                <div class="timeline-section">
+                    <div class="timeline-header">
+                        <h3>📋 本回合执行顺序 (从左至右依次执行)</h3>
+                        <button class="button quiet" style="padding:2px 8px; font-size:11px;" id="clearTimelineBtn">清空准备动作</button>
+                    </div>
+                    <div class="timeline-chips" id="timelineChips">
+                        <span class="timeline-empty">本回合暂无准备技能或动作，请在下方点击添加</span>
+                    </div>
+                </div>
+
+                <!-- 动作点击控制台 (Visual Action Palette) -->
+                <div class="palette-grid">
+                    <!-- 从者 1 -->
+                    <div class="palette-col">
+                        <div class="palette-title">
+                            <span>🗡️ 从者 1 (左)</span>
+                            <small style="color:var(--text-muted)">1~3 号技能</small>
+                        </div>
+                        <div class="skill-btn-group">
+                            <button class="skill-btn" data-servant="1" data-skill="1">
+                                <span>技能 1</span>
+                                <span class="code">s1x</span>
+                            </button>
+                            <button class="skill-btn" data-servant="1" data-skill="2">
+                                <span>技能 2</span>
+                                <span class="code">s2x</span>
+                            </button>
+                            <button class="skill-btn" data-servant="1" data-skill="3">
+                                <span>技能 3</span>
+                                <span class="code">s3x</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- 从者 2 -->
+                    <div class="palette-col">
+                        <div class="palette-title">
+                            <span>🗡️ 从者 2 (中)</span>
+                            <small style="color:var(--text-muted)">4~6 号技能</small>
+                        </div>
+                        <div class="skill-btn-group">
+                            <button class="skill-btn" data-servant="2" data-skill="4">
+                                <span>技能 1</span>
+                                <span class="code">s4x</span>
+                            </button>
+                            <button class="skill-btn" data-servant="2" data-skill="5">
+                                <span>技能 2</span>
+                                <span class="code">s5x</span>
+                            </button>
+                            <button class="skill-btn" data-servant="2" data-skill="6">
+                                <span>技能 3</span>
+                                <span class="code">s6x</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- 从者 3 -->
+                    <div class="palette-col">
+                        <div class="palette-title">
+                            <span>🗡️ 从者 3 (右)</span>
+                            <small style="color:var(--text-muted)">7~9 号技能</small>
+                        </div>
+                        <div class="skill-btn-group">
+                            <button class="skill-btn" data-servant="3" data-skill="7">
+                                <span>技能 1</span>
+                                <span class="code">s7x</span>
+                            </button>
+                            <button class="skill-btn" data-servant="3" data-skill="8">
+                                <span>技能 2</span>
+                                <span class="code">s8x</span>
+                            </button>
+                            <button class="skill-btn" data-servant="3" data-skill="9">
+                                <span>技能 3</span>
+                                <span class="code">s9x</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 选敌与御主礼装 -->
+                <div class="palette-grid" style="grid-template-columns: 1fr 2fr;">
+                    <!-- 选敌 -->
+                    <div class="palette-col">
+                        <div class="palette-title">
+                            <span>🎯 切换敌方目标 (Target)</span>
+                            <small style="color:var(--purple)">t1~t3</small>
+                        </div>
+                        <div class="target-btn-group">
+                            <button class="target-btn" data-target="1">🎯 敌方 1 (左)</button>
+                            <button class="target-btn" data-target="2">🎯 敌方 2 (中)</button>
+                            <button class="target-btn" data-target="3">🎯 敌方 3 (右)</button>
+                        </div>
+                    </div>
+
+                    <!-- 御主礼装 -->
+                    <div class="palette-col">
+                        <div class="palette-title">
+                            <span>👔 御主技能 (Master)</span>
+                            <small style="color:var(--gold)">m1~m3</small>
+                        </div>
+                        <div class="master-strip">
+                            <button class="master-btn" data-master="1">礼装技能 1</button>
+                            <button class="master-btn" data-master="2">礼装技能 2</button>
+                            <button class="master-btn" data-master="3">礼装技能 3</button>
+                            <button class="master-btn" id="swapOrderBtn" style="background:rgba(229,185,92,0.15); border-color:var(--gold)">⇄ 换人技能</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 回合收尾出牌面板 (Attack Section) -->
+                <div class="attack-card-builder">
+                    <div class="timeline-header">
+                        <h3>💥 本回合收尾出牌 (出牌完成后即代表本回合结束)</h3>
+                        <div class="quick-combos">
+                            <span>常用预设:</span>
+                            <button class="combo-btn" data-combo="7,B,B">从者2宝具 + 红 + 红</button>
+                            <button class="combo-btn" data-combo="8,4,5">从者3宝具 + 手牌4,5</button>
+                            <button class="combo-btn" data-combo="6,7,Q">宝具1 + 宝具2 + 绿卡</button>
+                            <button class="combo-btn" data-combo="B,Q,A">红 > 绿 > 蓝 优先</button>
+                        </div>
+                    </div>
+
+                    <div class="attack-slots">
+                        <div class="attack-slot">
+                            <label><span>第 1 张卡</span><small>优先首红/宝具</small></label>
+                            <select id="cardSlot1">
+                                <optgroup label="⭐ 宝具 (Noble Phantasm)">
+                                    <option value="6">从者 1 宝具 (6)</option>
+                                    <option value="7">从者 2 宝具 (7)</option>
+                                    <option value="8">从者 3 宝具 (8)</option>
+                                </optgroup>
+                                <optgroup label="🎨 智能色卡优先">
+                                    <option value="B">🔴 Buster 红卡优先 (B)</option>
+                                    <option value="A">🔵 Arts 蓝卡优先 (A)</option>
+                                    <option value="Q">🟢 Quick 绿卡优先 (Q)</option>
+                                </optgroup>
+                                <optgroup label="🖐️ 指定手牌位">
+                                    <option value="1">手牌 1</option>
+                                    <option value="2">手牌 2</option>
+                                    <option value="3">手牌 3</option>
+                                    <option value="4">手牌 4</option>
+                                    <option value="5">手牌 5</option>
+                                </optgroup>
+                            </select>
+                        </div>
+
+                        <div class="attack-slot">
+                            <label><span>第 2 张卡</span><small>常规输出</small></label>
+                            <select id="cardSlot2">
+                                <optgroup label="⭐ 宝具 (Noble Phantasm)">
+                                    <option value="6">从者 1 宝具 (6)</option>
+                                    <option value="7">从者 2 宝具 (7)</option>
+                                    <option value="8">从者 3 宝具 (8)</option>
+                                </optgroup>
+                                <optgroup label="🎨 智能色卡优先">
+                                    <option value="B">🔴 Buster 红卡优先 (B)</option>
+                                    <option value="A">🔵 Arts 蓝卡优先 (A)</option>
+                                    <option value="Q">🟢 Quick 绿卡优先 (Q)</option>
+                                </optgroup>
+                                <optgroup label="🖐️ 指定手牌位">
+                                    <option value="1">手牌 1</option>
+                                    <option value="2">手牌 2</option>
+                                    <option value="3">手牌 3</option>
+                                    <option value="4" selected>手牌 4</option>
+                                    <option value="5">手牌 5</option>
+                                </optgroup>
+                            </select>
+                        </div>
+
+                        <div class="attack-slot">
+                            <label><span>第 3 张卡</span><small>尾刀垫刀</small></label>
+                            <select id="cardSlot3">
+                                <optgroup label="⭐ 宝具 (Noble Phantasm)">
+                                    <option value="6">从者 1 宝具 (6)</option>
+                                    <option value="7">从者 2 宝具 (7)</option>
+                                    <option value="8">从者 3 宝具 (8)</option>
+                                </optgroup>
+                                <optgroup label="🎨 智能色卡优先">
+                                    <option value="B">🔴 Buster 红卡优先 (B)</option>
+                                    <option value="A">🔵 Arts 蓝卡优先 (A)</option>
+                                    <option value="Q">🟢 Quick 绿卡优先 (Q)</option>
+                                </optgroup>
+                                <optgroup label="🖐️ 指定手牌位">
+                                    <option value="1">手牌 1</option>
+                                    <option value="2">手牌 2</option>
+                                    <option value="3">手牌 3</option>
+                                    <option value="4">手牌 4</option>
+                                    <option value="5" selected>手牌 5</option>
+                                </optgroup>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 实时代码预览与反解 -->
+                <details class="preview-area" open>
+                    <summary>实时生成的 Q 脚本预览 (自动编译 DSL)</summary>
+                    <textarea id="configPreview" spellcheck="false"></textarea>
+                </details>
+            </section>
+        </main>
+    </div>
+
+    <!-- 技能目标选择弹窗 -->
+    <div class="modal-overlay" id="targetModal">
+        <div class="modal-card">
+            <h4 id="targetModalTitle">选择技能作用目标</h4>
+            <div class="modal-options">
+                <button class="modal-opt-btn" data-target-val="0">⚡ 无目标 / 自身</button>
+                <button class="modal-opt-btn" data-target-val="1">👤 给 从者 1 (左)</button>
+                <button class="modal-opt-btn" data-target-val="2">👤 给 从者 2 (中)</button>
+                <button class="modal-opt-btn" data-target-val="3">👤 给 从者 3 (右)</button>
+            </div>
+            <button class="button quiet" style="align-self:center; margin-top:4px;" onclick="closeModal()">取消</button>
+        </div>
+    </div>
+
+    <!-- 换人技能专属弹窗 -->
+    <div class="modal-overlay" id="swapModal">
+        <div class="modal-card" style="width:480px">
+            <h4>御主礼装：战斗服换人 (Order Change)</h4>
+            <p style="font-size:12px; color:var(--text-muted)">请选择需要互换的前排从者与后排替补：</p>
+            <div class="swap-grid">
+                <div class="swap-col" id="swapFrontCol">
+                    <button data-swap-front="1">前排 1 号从者</button>
+                    <button class="selected" data-swap-front="2">前排 2 号从者</button>
+                    <button data-swap-front="3">前排 3 号从者</button>
+                </div>
+                <div style="font-size:22px; color:var(--gold)">⇄</div>
+                <div class="swap-col" id="swapBackCol">
+                    <button class="selected" data-swap-back="4">后排 4 号替补</button>
+                    <button data-swap-back="5">后排 5 号替补</button>
+                    <button data-swap-back="6">后排 6 号替补</button>
+                </div>
+            </div>
+            <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:10px;">
+                <button class="button quiet" onclick="closeModal()">取消</button>
+                <button class="button primary" id="confirmSwapBtn">确定换人</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script>
+        // ================= 数据模型 =================
+        const initialData = {
+            preset: "campaign",
+            reward: "1",
+            testDsl: "",
+            groups: [
+                {
+                    groupId: 0,
+                    name: "test", label: "大组 0: test (测试组)", defaultScheme: 1,
+                    defaultFriend: "aobao",
+                    hint: "测试大组",
+                    schemes: [
+                        { friend: "aobao", dsl: "m22 | t1" },
+                        { friend: "aobao", dsl: "aB, B" },
+                        { friend: "aobao", dsl: "s20, 30, 40, 52, 70, 83 | a7, 8, 5;s10 | a6, 4, 5;s92, 50 | m22 | a7, 4, 5" }
+                    ]
+                },
+                {
+                    groupId: 1,
+                    name: "campaign", label: "大组 1: campaign", defaultScheme: 2,
+                    defaultFriend: "",
+                    hint: "活动关卡",
+                    schemes: [
+                        { friend: "mary", dsl: "s50 | a7, 4, 5;s40 | m32 | s32, 50, 60 | t1 | aB, Q, A;s70, 92, 40 | a7, B, B" },
+                        { friend: "rba", dsl: "s72, 80, 91, 10, 20, 30, 40, 50, 60 | m22 | a6, 7, 5" },
+                        { friend: "aobao", dsl: "s20, 30, 40, 52, 70, 83 | a7, 8, 5;s10 | a6, 4, 5;s92, 50 | m22 | a7, 4, 5" }
+                    ]
+                },
+                {
+                    groupId: 2,
+                    name: "caber", label: "大组 2: caber", defaultScheme: 2,
+                    defaultFriend: "cdai",
+                    hint: "来自 Caber Common 的 ArtActionRounds_DSL",
+                    schemes: [
+                        { friend: "cdai", dsl: "s23, 33, 53, 63, 70, 90, 83 | m30 | a8, 4, 5;s10 | a8, 4, 5;s40 | m13 | a8, 4, 5" },
+                        { friend: "cdai", dsl: "s10, 20, 53, 63, 70, 90, 83 | m30 | a8, 4, 5;s40 | a8, 4, 5;s33 | m10 | a8, 4, 5" },
+                        { friend: "cdai", dsl: "s10, 20, 53, 63, 80, 90 | a8, 4, 5;s40 | a8, 4, 5;s33 | m10, 30 | a8, 4, 5" }
+                    ]
+                },
+                {
+                    groupId: 3,
+                    name: "grand", label: "大组 3: grand", defaultScheme: 3,
+                    defaultFriend: "",
+                    hint: "戴冠战关卡",
+                    schemes: [
+                        { friend: "sparrow", dsl: "s40, 53, 60 | m30024, 10 | s40, 10, 20, 30, 70, 80, 90 | a8, 6, B" },
+                        { friend: "Cba", dsl: "s10, 30 | m30014, 10 | s10, 20, 40, 50, 60, 70, 83, 90 | a7, 8, A" },
+                        { friend: "keli", dsl: "s90, 80, 70, | m30034, 10 | s80, 70, 60, 50, 40, 31, 21, 10 | a6, 7, 5" },
+                        { friend: "Bdai", dsl: "s10, 40, 52, 60, 70, 83, 90 | m22 | a7, 8, A" },
+                        { friend: "princess", dsl: "s12, 20, 32, 40, 50, 60, 70, 80 | m30014, 10 | s30 | a8, 7, B" },
+                        { friend: "aobao", dsl: "s70, 82, 92, 60, 50, 40, 20 | m22 | a7, B, B" }
+                    ]
+                },
+                {
+                    groupId: 4,
+                    name: "ordeal", label: "大组 4: ordeal", defaultScheme: 1,
+                    defaultFriend: "shahushan",
+                    hint: "白纸化地球 Ordeal Call",
+                    schemes: [
+                        { friend: "shahushan", dsl: "s10, 20, 30, 51, 61, 71, 80, 91 | m31 | aB, 6, B;s41, 10, 20, 30 | a6, B, B" },
+                        { friend: "shahushan", dsl: "s92, 40, 50, 60, 30 | a7, B, B;s72 | m32 | s50 | aB, 7, B;s82, 60 | a7, B, B" },
+                        { friend: "shahushan", dsl: "s10, 20, 30, 41, 51, 61, 71, 91 | m31 | aB, 6, B;s10, 20, 30 | a6, B, B" },
+                        { friend: "shahushan", dsl: "s10, 20, 40, 50, 62, 70, 92 | m22 | a7, 4, 5" }
+                    ]
+                }
+            ]
+        };
+
+        let state = structuredClone(initialData);
+        let curGroupIdx = 0;
+        let curSchemeIdx = 0;
+        let curRoundIdx = 0;
+
+        // 当前弹窗上下文
+        let pendingAction = null;
+        let selectedSwapFront = 2;
+        let selectedSwapBack = 4;
+
+        // DOM 辅助
+        const $ = id => document.getElementById(id);
+        const toast = msg => {
+            const t = $('toast');
+            t.textContent = msg;
+            t.classList.add('show');
+            clearTimeout(toast.timer);
+            toast.timer = setTimeout(() => t.classList.remove('show'), 2200);
+        };
+
+        // ================= DSL 解析与序列化 =================
+        // 将单回合 DSL 字符串 (如 "s20, 30 | m22 | a7, 8, 5") 解析为结构化对象:
+        // { steps: [ {type:'skill', code:20}, ...], attack: ['7','8','5'] }
+        function parseRoundDsl(roundDslStr) {
+            const res = { steps: [], attack: ['7', 'B', 'B'] };
+            if (!roundDslStr) return res;
+
+            const groups = roundDslStr.split('|').map(s => s.trim()).filter(Boolean);
+            groups.forEach(groupStr => {
+                const parts = groupStr.split(',').map(s => s.trim()).filter(Boolean);
+                if (!parts.length) return;
+
+                const first = parts[0];
+                const prefix = first[0]?.toLowerCase();
+
+                if (prefix === 'a') {
+                    // 出牌阶段
+                    const firstCard = first.slice(1);
+                    const cards = [firstCard, ...parts.slice(1)];
+                    res.attack = [cards[0] || '7', cards[1] || 'B', cards[2] || 'B'];
+                } else if (prefix === 't') {
+                    // 目标
+                    const targetNum = first.slice(1) || '1';
+                    res.steps.push({ type: 'target', target: targetNum });
+                } else if (prefix === 's') {
+                    // 技能组
+                    const firstCode = first.slice(1);
+                    if (firstCode) res.steps.push({ type: 'skill', code: firstCode });
+                    for (let i = 1; i < parts.length; i++) {
+                        res.steps.push({ type: 'skill', code: parts[i] });
+                    }
+                } else if (prefix === 'm') {
+                    // 御主技能组
+                    const firstCode = first.slice(1);
+                    if (firstCode) res.steps.push({ type: 'master', code: firstCode });
+                    for (let i = 1; i < parts.length; i++) {
+                        res.steps.push({ type: 'master', code: parts[i] });
+                    }
+                }
+            });
+            return res;
+        }
+
+        // 将当前方案的全部回合编译成 DSL 字符串
+        function compileSchemeDsl(roundsData) {
+            return roundsData.map(r => {
+                const groupSegments = [];
+                // 整理 steps
+                let curType = null;
+                let curList = [];
+
+                r.steps.forEach(st => {
+                    if (st.type === 'target') {
+                        if (curList.length) {
+                            groupSegments.push(curType === 'skill' ? `s${curList.join(', ')}` : `m${curList.join(', ')}`);
+                            curList = [];
+                            curType = null;
+                        }
+                        groupSegments.push(`t${st.target}`);
+                    } else if (st.type === 'skill') {
+                        if (curType !== 'skill' && curList.length) {
+                            groupSegments.push(`m${curList.join(', ')}`);
+                            curList = [];
+                        }
+                        curType = 'skill';
+                        curList.push(st.code);
+                    } else if (st.type === 'master') {
+                        if (curType !== 'master' && curList.length) {
+                            groupSegments.push(`s${curList.join(', ')}`);
+                            curList = [];
+                        }
+                        curType = 'master';
+                        curList.push(st.code);
+                    }
+                });
+                if (curList.length) {
+                    groupSegments.push(curType === 'skill' ? `s${curList.join(', ')}` : `m${curList.join(', ')}`);
+                }
+
+                // 加上 attack
+                if (r.attack && r.attack.length) {
+                    groupSegments.push(`a${r.attack.join(', ')}`);
+                }
+                return groupSegments.join(' | ');
+            }).join(';');
+        }
+
+        // 获取当前激活方案的所有回合结构化数据
+        function getCurSchemeRounds() {
+            const scheme = state.groups[curGroupIdx].schemes[curSchemeIdx];
+            if (!scheme._parsedRounds) {
+                const roundDsls = (scheme.dsl || "").split(';').map(s => s.trim()).filter(Boolean);
+                if (!roundDsls.length) roundDsls.push("s10 | a7, 4, 5");
+                scheme._parsedRounds = roundDsls.map(parseRoundDsl);
+            }
+            return scheme._parsedRounds;
+        }
+
+        // 步入变更并同步
+        function commitChanges() {
+            const scheme = state.groups[curGroupIdx].schemes[curSchemeIdx];
+            if (scheme._parsedRounds) {
+                scheme.dsl = compileSchemeDsl(scheme._parsedRounds);
+            }
+            renderConfigPreview();
+        }
+
+        // ================= 视图渲染 =================
+        function render() {
+            renderGroupNav();
+            renderSchemeBar();
+            renderRoundTabs();
+            renderTimeline();
+            renderAttackSlots();
+            renderConfigPreview();
+        }
+
+        // 渲染侧边栏大组列表
+        function renderGroupNav() {
+            const nav = $('groupNav');
+            nav.innerHTML = state.groups.map((g, idx) => `
+                <button class="${idx === curGroupIdx ? 'active' : ''}" onclick="selectGroup(${idx})">
+                    <strong>${g.label}</strong>
+                    <span>${g.schemes.length} 个方案 · 默认方案 ${g.defaultScheme}</span>
+                </button>
+            `).join('');
+            $('presetInput').value = state.preset;
+            $('rewardSelect').value = state.reward;
+        }
+
+        // 渲染方案栏
+        function renderSchemeBar() {
+            const group = state.groups[curGroupIdx];
+            $('groupTitle').textContent = group.label;
+            $('groupHint').textContent = group.hint || '';
+
+            if (group.groupId === 0) {
+                $('testDslItem').style.display = 'flex';
+                $('testDslInput').value = state.testDsl || '';
+                $('testDslInput').oninput = e => {
+                    state.testDsl = e.target.value;
+                    renderConfigPreview();
+                };
+            } else {
+                $('testDslItem').style.display = 'none';
+            }
+
+            // 方案 pills
+            $('schemePills').innerHTML = group.schemes.map((s, idx) => `
+                <button class="scheme-pill ${idx === curSchemeIdx ? 'active' : ''} ${idx + 1 === group.defaultScheme ? 'is-default' : ''}" onclick="selectScheme(${idx})">
+                    方案 ${idx + 1}
+                </button>
+            `).join('');
+
+            // 助战输入
+            const curScheme = group.schemes[curSchemeIdx];
+            $('schemeFriend').value = curScheme.friend || '';
+            $('schemeFriend').oninput = e => {
+                curScheme.friend = e.target.value;
+                renderConfigPreview();
+            };
+
+            // 默认方案下拉
+            $('defaultSchemeSelect').innerHTML = group.schemes.map((_, idx) => `
+                <option value="${idx + 1}" ${idx + 1 === group.defaultScheme ? 'selected' : ''}>方案 ${idx + 1}</option>
+            `).join('');
+            $('defaultSchemeSelect').onchange = e => {
+                group.defaultScheme = Number(e.target.value);
+                renderGroupNav();
+                renderSchemeBar();
+                renderConfigPreview();
+            };
+        }
+
+        // 渲染回合选项卡
+        function renderRoundTabs() {
+            const rounds = getCurSchemeRounds();
+            if (curRoundIdx >= rounds.length) curRoundIdx = Math.max(0, rounds.length - 1);
+
+            $('roundTabs').innerHTML = rounds.map((_, idx) => `
+                <button class="round-tab ${idx === curRoundIdx ? 'active' : ''}" onclick="selectRound(${idx})">
+                    第 ${idx + 1} 回合 (Wave ${idx + 1})
+                </button>
+            `).join('');
+        }
+
+        // 渲染当前回合的动作流胶囊
+        function renderTimeline() {
+            const rounds = getCurSchemeRounds();
+            const curRound = rounds[curRoundIdx];
+            const chips = $('timelineChips');
+
+            if (!curRound || !curRound.steps.length) {
+                chips.innerHTML = `<span class="timeline-empty">本回合暂无技能或准备动作，点击下方按钮添加</span>`;
+                return;
+            }
+
+            chips.innerHTML = curRound.steps.map((st, i) => {
+                let cls = 'skill';
+                let txt = '';
+                if (st.type === 'target') {
+                    cls = 'target';
+                    txt = `🎯 锁定敌方 ${st.target}`;
+                } else if (st.type === 'skill') {
+                    cls = 'skill';
+                    const sId = String(st.code)[0];
+                    const tId = String(st.code)[1] || '0';
+                    const targetTxt = tId === '0' ? '无目标/自身' : `给从者 ${tId}`;
+                    txt = `⚔️ 从者技能 ${sId} (${targetTxt})`;
+                } else if (st.type === 'master') {
+                    cls = 'master';
+                    const code = String(st.code);
+                    if (code.startsWith('300')) {
+                        const f = code[3];
+                        const b = code[4];
+                        txt = `👔 换人: 前排${f} ⇄ 替补${b}`;
+                    } else {
+                        const mId = code[0];
+                        const tId = code[1] || '0';
+                        const targetTxt = tId === '0' ? '无目标' : `给从者 ${tId}`;
+                        txt = `👔 御主技能 ${mId} (${targetTxt})`;
+                    }
+                }
+
+                return `
+                    <div class="timeline-chip ${cls}">
+                        <span>${txt}</span>
+                        <button class="remove-btn" onclick="removeStep(${i})">×</button>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // 渲染出牌下拉框
+        function renderAttackSlots() {
+            const rounds = getCurSchemeRounds();
+            const curRound = rounds[curRoundIdx];
+            if (!curRound) return;
+            const atk = curRound.attack || ['7', '4', '5'];
+            $('cardSlot1').value = atk[0] || '7';
+            $('cardSlot2').value = atk[1] || '4';
+            $('cardSlot3').value = atk[2] || '5';
+        }
+
+        // 渲染完整 Q 代码预览
+        function renderConfigPreview() {
+            const out = [
+                "' battle_v3_config.q",
+                "' 配置源文件：只保存配置，不保存战斗逻辑",
+                "' 按键精灵编译后会把它下发成 .mq，逻辑主脚本读取这个 mq 文件内容",
+                "",
+                "' 预设标记（目前仅用于日志）",
+                `Dim PRESET = "${state.preset}"`,
+                "",
+                "' 好友关键字填写在下面按关卡配置的 FRIEND_Gx_y 中；不区分大小写。",
+                "' 支持：aobao, aobaoshan, cdai, daoman, cba, rba, rbashan,",
+                "'       shahu, shahushan, princess, princess120, taigong, sparrow, mary, keli",
+                "' 优先级：FRIEND_Gx_y > FRIEND_Gx > friend（全局字段，目前未在此文件配置）。",
+                "",
+                "' USER CONFIG",
+                `Dim ACTIVITY_REWARD = ${state.reward}`,
+                "",
+                "' BATTLE CONFIG",
+                "' DSL 大组在 battle_v3_runner.q 里手动改（CFG_ACTION_GROUP_INDEX）",
+                "' 0=test, 1=campaign, 2=caber, 3=grand, 4=ordeal"
+            ];
+
+            state.groups.forEach(g => {
+                const gNum = g.groupId;
+                out.push("");
+                out.push("' -----------------------------");
+                let groupDesc = `' 大组 ${gNum}: ${g.name}`;
+                if (g.hint) groupDesc += `（${g.hint}）`;
+                out.push(groupDesc);
+                out.push(`Dim ACTION_ROUND_INDEX_G${gNum} = ${g.defaultScheme}`);
+                if (g.defaultFriend) {
+                    out.push(`Dim FRIEND_G${gNum} = "${g.defaultFriend}"`);
+                }
+                g.schemes.forEach((s, sIdx) => {
+                    const sNum = sIdx + 1;
+                    const dsl = s._parsedRounds ? compileSchemeDsl(s._parsedRounds) : s.dsl;
+                    out.push(`Dim FRIEND_G${gNum}_${sNum} = "${s.friend || ''}"`);
+                    out.push(`Dim DSL_G${gNum}_${sNum} = "${dsl}"`);
+                });
+            });
+
+            out.push("");
+            out.push("' 预设说明：");
+            out.push("' test     = 测试配置");
+            out.push("' campaign = 活动关卡配置");
+            out.push("' caber    = 术呆常用配置");
+            out.push("' grand    = 戴冠战关卡配置");
+            out.push("' ordeal   = 白纸化地球 Ordeal Call 配置");
+            out.push("' custom   = 手工逐项修改上面字段");
+            out.push("");
+
+            $('configPreview').value = out.join('\n');
+        }
+
+        // ================= 交互处理 =================
+        function selectGroup(idx) {
+            curGroupIdx = idx;
+            curSchemeIdx = 0;
+            curRoundIdx = 0;
+            render();
+        }
+
+        function selectScheme(idx) {
+            curSchemeIdx = idx;
+            curRoundIdx = 0;
+            render();
+        }
+
+        function selectRound(idx) {
+            curRoundIdx = idx;
+            renderRoundTabs();
+            renderTimeline();
+            renderAttackSlots();
+        }
+
+        function removeStep(stepIdx) {
+            const rounds = getCurSchemeRounds();
+            rounds[curRoundIdx].steps.splice(stepIdx, 1);
+            commitChanges();
+            renderTimeline();
+        }
+
+        // 选敌点击
+        document.querySelectorAll('[data-target]').forEach(btn => {
+            btn.onclick = () => {
+                const targetNum = btn.dataset.target;
+                const rounds = getCurSchemeRounds();
+                rounds[curRoundIdx].steps.push({ type: 'target', target: targetNum });
+                commitChanges();
+                renderTimeline();
+                toast(`已添加：🎯 锁定敌方 ${targetNum}`);
+            };
+        });
+
+        // 技能点击 -> 弹窗选目标
+        document.querySelectorAll('[data-servant]').forEach(btn => {
+            btn.onclick = () => {
+                const servant = btn.dataset.servant;
+                const skill = btn.dataset.skill;
+                pendingAction = { type: 'skill', skill };
+                $('targetModalTitle').textContent = `为 从者 ${servant} 的 技能 ${skill} 选择作用目标：`;
+                $('targetModal').classList.add('show');
+            };
+        });
+
+        // 御主技能点击
+        document.querySelectorAll('[data-master]').forEach(btn => {
+            btn.onclick = () => {
+                const m = btn.dataset.master;
+                pendingAction = { type: 'master', master: m };
+                $('targetModalTitle').textContent = `为 御主礼装技能 ${m} 选择作用目标：`;
+                $('targetModal').classList.add('show');
+            };
+        });
+
+        // 目标弹窗点击选项
+        document.querySelectorAll('[data-target-val]').forEach(btn => {
+            btn.onclick = () => {
+                if (!pendingAction) return;
+                const targetVal = btn.dataset.targetVal;
+                const rounds = getCurSchemeRounds();
+
+                if (pendingAction.type === 'skill') {
+                    const code = `${pendingAction.skill}${targetVal}`;
+                    rounds[curRoundIdx].steps.push({ type: 'skill', code });
+                    toast(`已添加技能：s${code}`);
+                } else if (pendingAction.type === 'master') {
+                    const code = `${pendingAction.master}${targetVal}`;
+                    rounds[curRoundIdx].steps.push({ type: 'master', code });
+                    toast(`已添加御主技能：m${code}`);
+                }
+
+                closeModal();
+                commitChanges();
+                renderTimeline();
+            };
+        });
+
+        function closeModal() {
+            $('targetModal').classList.remove('show');
+            $('swapModal').classList.remove('show');
+            pendingAction = null;
+        }
+
+        // 换人弹窗交互
+        $('swapOrderBtn').onclick = () => {
+            $('swapModal').classList.add('show');
+        };
+
+        document.querySelectorAll('[data-swap-front]').forEach(btn => {
+            btn.onclick = () => {
+                document.querySelectorAll('[data-swap-front]').forEach(b => b.classList.remove('selected'));
+                btn.classList.add('selected');
+                selectedSwapFront = Number(btn.dataset.swapFront);
+            };
+        });
+
+        document.querySelectorAll('[data-swap-back]').forEach(btn => {
+            btn.onclick = () => {
+                document.querySelectorAll('[data-swap-back]').forEach(b => b.classList.remove('selected'));
+                btn.classList.add('selected');
+                selectedSwapBack = Number(btn.dataset.swapBack);
+            };
+        });
+
+        $('confirmSwapBtn').onclick = () => {
+            const rounds = getCurSchemeRounds();
+            const swapCode = `300${selectedSwapFront}${selectedSwapBack}`;
+            rounds[curRoundIdx].steps.push({ type: 'master', code: swapCode });
+            toast(`已添加换人技能：m${swapCode}`);
+            closeModal();
+            commitChanges();
+            renderTimeline();
+        };
+
+        // 出牌槽位改变监听
+        ['cardSlot1', 'cardSlot2', 'cardSlot3'].forEach((slotId, idx) => {
+            $(slotId).onchange = e => {
+                const rounds = getCurSchemeRounds();
+                rounds[curRoundIdx].attack[idx] = e.target.value;
+                commitChanges();
+            };
+        });
+
+        // 常用连招预设
+        document.querySelectorAll('[data-combo]').forEach(btn => {
+            btn.onclick = () => {
+                const cards = btn.dataset.combo.split(',');
+                const rounds = getCurSchemeRounds();
+                rounds[curRoundIdx].attack = [...cards];
+                commitChanges();
+                renderAttackSlots();
+                toast(`已应用出牌组合：${btn.dataset.combo}`);
+            };
+        });
+
+        // 增加回合
+        $('addRoundBtn').onclick = () => {
+            const rounds = getCurSchemeRounds();
+            rounds.push({ steps: [], attack: ['7', 'B', 'B'] });
+            curRoundIdx = rounds.length - 1;
+            commitChanges();
+            render();
+            toast(`已添加第 ${rounds.length} 回合`);
+        };
+
+        // 删除回合
+        $('delRoundBtn').onclick = () => {
+            const rounds = getCurSchemeRounds();
+            if (rounds.length <= 1) {
+                toast('至少需要保留 1 个回合');
+                return;
+            }
+            rounds.splice(curRoundIdx, 1);
+            if (curRoundIdx >= rounds.length) curRoundIdx = rounds.length - 1;
+            commitChanges();
+            render();
+            toast('已删除该回合');
+        };
+
+        // 清空准备动作
+        $('clearTimelineBtn').onclick = () => {
+            const rounds = getCurSchemeRounds();
+            rounds[curRoundIdx].steps = [];
+            commitChanges();
+            renderTimeline();
+            toast('已清空本回合准备动作');
+        };
+
+        // 增加方案
+        $('addSchemeBtn').onclick = () => {
+            const group = state.groups[curGroupIdx];
+            group.schemes.push({ friend: "", dsl: "s10 | a7, 4, 5;s20 | a7, 4, 5;s30 | a7, 4, 5" });
+            curSchemeIdx = group.schemes.length - 1;
+            curRoundIdx = 0;
+            render();
+            toast(`已新建方案 ${group.schemes.length}`);
+        };
+
+        // 全局设置
+        $('presetInput').oninput = e => { state.preset = e.target.value; renderConfigPreview(); };
+        $('rewardSelect').onchange = e => { state.reward = e.target.value; renderConfigPreview(); };
+
+        // 复制配置文本
+        $('copyBtn').onclick = async () => {
+            await navigator.clipboard.writeText($('configPreview').value);
+            toast('✅ 配置代码已复制到剪贴板');
+        };
+
+        // 直接保存到本地 Q 文件
+        async function saveConfigToBackend() {
+            const btn = $('saveBtn');
+            const originalText = btn.textContent;
+            btn.disabled = true;
+            btn.textContent = '💾 正在保存...';
+
+            try {
+                const res = await fetch('/api/save', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json; charset=utf-8' },
+                    body: JSON.stringify({ text: $('configPreview').value })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    toast('✅ 配置已直接保存至 Q/battle_v3_config.q');
+                    $('syncStatus').textContent = '✅ 已保存到磁盘: Q/battle_v3_config.q';
+                    $('syncStatus').style.color = '#68d391';
+                } else {
+                    throw new Error(data.message || '保存失败');
+                }
+            } catch (err) {
+                toast('❌ 保存出错: ' + err.message);
+                $('syncStatus').textContent = '❌ 保存出错: ' + err.message;
+                $('syncStatus').style.color = '#fc8181';
+            } finally {
+                btn.disabled = false;
+                btn.textContent = originalText;
+            }
+        }
+
+        $('saveBtn').onclick = saveConfigToBackend;
+
+        // 快捷键 Ctrl+S / Command+S 保存
+        window.addEventListener('keydown', e => {
+            if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's') {
+                e.preventDefault();
+                saveConfigToBackend();
+            }
+        });
+
+        // 从后端自动读取 Q 配置文件
+        async function loadConfigFromBackend() {
+            $('syncStatus').textContent = '正在读取本地配置文件...';
+            $('syncStatus').style.color = 'var(--text-muted)';
+            try {
+                const res = await fetch('/api/config');
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                const data = await res.json();
+                if (data.text) {
+                    applyConfigText(data.text);
+                    const shortPath = data.path.replace(/\\/g, '/').split('/').slice(-2).join('/');
+                    $('syncStatus').textContent = `✅ 已同步: ${shortPath}`;
+                    $('syncStatus').style.color = '#68d391';
+                    toast(`✅ 已自动读取 ${shortPath}`);
+                }
+            } catch (err) {
+                console.warn('Auto-load config failed:', err);
+                $('syncStatus').textContent = '⚠️ 本地服务未响应，使用内存初始配置';
+                $('syncStatus').style.color = 'var(--gold)';
+            }
+        }
+
+        function applyConfigText(text) {
+            const getVal = key => {
+                const m = text.match(new RegExp('^\\s*(?:Dim\\s+)?' + key.replace(/[.*+?^${}()|[\\]\\\\]/g, '\\\\$&') + '\\s*=\\s*(?:"([^"\\r\\n]*)"|([^\\r\\n]+))', 'im'));
+                return m ? (m[1] ?? m[2]).trim() : '';
+            };
+
+            const preset = getVal('PRESET');
+            if (preset) state.preset = preset;
+            const reward = getVal('ACTIVITY_REWARD');
+            if (reward) state.reward = reward;
+            state.testDsl = getVal('TEST_DSL') || '';
+
+            state.groups.forEach(g => {
+                const gNum = g.groupId;
+                const def = getVal(`ACTION_ROUND_INDEX_G${gNum}`);
+                if (def) g.defaultScheme = Number(def);
+
+                const friendG = getVal(`FRIEND_G${gNum}`);
+                if (friendG) g.defaultFriend = friendG;
+
+                const parsedSchemes = [];
+                for (let sNum = 1; sNum <= 20; sNum++) {
+                    const fr = getVal(`FRIEND_G${gNum}_${sNum}`) || (gNum === 0 && sNum === 1 ? friendG : '') || friendG || '';
+                    const dsl = getVal(`DSL_G${gNum}_${sNum}`) || getVal(`TEST_DSL_G${gNum}_${sNum}`) || (gNum === 0 ? getVal(`TEST_DSL_${sNum}`) : '');
+                    if (dsl || (gNum === 0 && sNum <= 3) || sNum <= g.schemes.length) {
+                        if (dsl) {
+                            parsedSchemes.push({
+                                friend: fr,
+                                dsl: dsl
+                            });
+                        }
+                    } else {
+                        break;
+                    }
+                }
+
+                if (parsedSchemes.length) {
+                    g.schemes = parsedSchemes;
+                }
+            });
+
+            curGroupIdx = 0;
+            curSchemeIdx = 0;
+            curRoundIdx = 0;
+            render();
+        }
+
+        $('reloadBtn').onclick = loadConfigFromBackend;
+
+        $('resetBtn').onclick = () => {
+            state = structuredClone(initialData);
+            curGroupIdx = 0;
+            curSchemeIdx = 0;
+            curRoundIdx = 0;
+            render();
+            toast('已恢复初始预设');
+        };
+
+        // 启动时自动读取
+        render();
+        loadConfigFromBackend();
+    </script>
+</body>
+
+</html>
