@@ -55,54 +55,30 @@ If IsNull(cfgCandidates) Then
 	cfgCandidates = zm.DirScan("/storage/emulated/0/MobileAnJian/Script/", "*.mq", 1)
 End If
 
-Dim cfgV3Found = False
-Dim cfgFallbackPath = ""
-Dim cfgFallbackRaw = ""
-
 If cfgCandidates Then
 	Dim cfgCandidatePath
 	For Each cfgCandidatePath In cfgCandidates
 		Dim cfgCandidatePathText = CStr(cfgCandidatePath)
 		Dim cfgCandidatePathLower = LCase(cfgCandidatePathText)
-		Dim isV3 = False
-		Dim isNamedConfig = False
-		If InStr(1, cfgCandidatePathLower, "battle_v3_config") > 0 Or InStr(1, cfgCandidatePathLower, "battle_config_v3") > 0 Then
-			isV3 = True
-			isNamedConfig = True
-		ElseIf InStr(1, cfgCandidatePathLower, "battle_v2_config") > 0 Or InStr(1, cfgCandidatePathLower, "battle_config_v2") > 0 Or InStr(1, cfgCandidatePathLower, "battle_config") > 0 Then
-			isNamedConfig = True
-		ElseIf InStr(1, cfgCandidatePathLower, "/config(") > 0 Or InStr(1, cfgCandidatePathLower, "\\config(") > 0 Or InStr(1, cfgCandidatePathLower, "/config.") > 0 Or InStr(1, cfgCandidatePathLower, "\\config.") > 0 Then
-			isNamedConfig = True
-		End If
-		If isNamedConfig Then
+		If InStr(1, cfgCandidatePathLower, "battle_v3_config") > 0 Then
 			Dim cfgCandidateRaw = File.Read(cfgCandidatePathText)
 			If Not IsNull(cfgCandidateRaw) And Len(CStr(cfgCandidateRaw)) > 0 Then
 				Dim cfgCandidateRawLower = LCase(CStr(cfgCandidateRaw))
-				If InStr(1, cfgCandidateRawLower, "dim preset") > 0 And (InStr(1, cfgCandidateRawLower, "dim dsl_") > 0 Or InStr(1, cfgCandidateRawLower, "dim test_dsl") > 0) Then
-					If isV3 Then
-						CFG_CONFIG_PATH = cfgCandidatePathText
-						CFG_RAW = CStr(cfgCandidateRaw)
-						cfgV3Found = True
-						Exit For
-					ElseIf Len(cfgFallbackPath) = 0 Then
-						cfgFallbackPath = cfgCandidatePathText
-						cfgFallbackRaw = CStr(cfgCandidateRaw)
-					End If
+				If InStr(1, cfgCandidateRawLower, "dim dsl_") > 0 Or InStr(1, cfgCandidateRawLower, "dim test_dsl") > 0 Or InStr(1, cfgCandidateRawLower, "dim action_round_index_") > 0 Then
+					CFG_CONFIG_PATH = cfgCandidatePathText
+					CFG_RAW = CStr(cfgCandidateRaw)
+					Exit For
 				End If
 			End If
 		End If
 	Next
-	If Not cfgV3Found And Len(cfgFallbackPath) > 0 Then
-		CFG_CONFIG_PATH = cfgFallbackPath
-		CFG_RAW = cfgFallbackRaw
-	End If
 End If
 
 If Len(CFG_CONFIG_PATH) > 0 Then
 	TracePrint "CONFIG PATH FOUND:", CFG_CONFIG_PATH
 Else
 	TracePrint "CONFIG PATH NOT FOUND"
-	TracePrint "HINT:", "请先在按键精灵里编译并同步 battle_v3_config.q (或 battle_v2_config.q / battle_config.q)"
+	TracePrint "HINT:", "请先在按键精灵里编译并同步 battle_v3_config.q"
 End If
 
 If Not IsNull(CFG_RAW) And Len(CStr(CFG_RAW)) > 0 Then
@@ -133,10 +109,17 @@ If Not IsNull(CFG_RAW) And Len(CStr(CFG_RAW)) > 0 Then
 	Next
 End If
 
-CFG_PRESET = CStr(CfgGet("preset", ""))
 CFG_FRIEND = CStr(CfgGet("friend", ""))
-CFG_TEST_DSL = CStr(CfgGet("test_dsl", ""))
-CFG_ACTIVITY_REWARD = Int(CfgGet("activity_reward", "1"))
+Function PickActivityRewardByGroup(groupIndex)
+	Dim gVal = CStr(CfgGet("activity_reward_g" & groupIndex, ""))
+	If Len(gVal) > 0 Then
+		PickActivityRewardByGroup = Int(gVal)
+	Else
+		PickActivityRewardByGroup = Int(CfgGet("activity_reward", "0"))
+	End If
+End Function
+
+CFG_ACTIVITY_REWARD = PickActivityRewardByGroup(CFG_ACTION_GROUP_INDEX)
 
 Function PickActionIndexByGroup(groupIndex)
 	Dim groupIndexVal = Int(CfgGet("action_round_index_g" & groupIndex, "0"))
@@ -386,7 +369,7 @@ If Not HAS_FRIEND_CONFIG Then
 	CAN_RUN = false
 End If
 
-TracePrint "CONFIG APPLIED", "preset=", CFG_PRESET, "friend=", selectedFriendKey, "battle_count=", BATTLE_COUNT, "group=", CFG_ACTION_GROUP_INDEX, "index=", CFG_ACTION_INDEX
+TracePrint "CONFIG APPLIED", "group=", CFG_ACTION_GROUP_INDEX, "index=", CFG_ACTION_INDEX, "friend=", selectedFriendKey, "battle_count=", BATTLE_COUNT, "activity_reward=", CFG_ACTIVITY_REWARD
 
 Dim ATT_EQUIP_Goodness = "Attachment:friend_equip_goodness.png"
 Dim PREPARE_FRIEND_EQUIP_TAR = Array(40, 180, 920, 800, ATT_EQUIP_Goodness)
@@ -466,7 +449,10 @@ Dim BATTLE_SKILL_NORMAL_AWAIT_MS = 500
 Dim BATTLE_TARGET_COORDS = Array(_
 	Array(159, 33),_
 	Array(424, 33),_
-	Array(689, 33)_
+	Array(689, 33),_
+	Array(130, 150),_
+	Array(355, 150),_
+	Array(580, 150)_
  )
 
 ' BATTLE: ATTACK
@@ -1195,7 +1181,7 @@ Function DoTargetActions(ActionsGroup)
 		Exit Function
 	End If
 	TargetIndex = Int(TargetIndex)
-	If TargetIndex < 1 Or TargetIndex > 3 Then
+	If TargetIndex < 1 Or TargetIndex > 6 Then
 		TracePrint "invalid target index, skip", TargetIndex
 		Exit Function
 	End If
@@ -1296,11 +1282,11 @@ Function DoBattle()
 	End If
 	
 	' Activity Award
-	'If ACTIVITY_REWARD <> 0 Then
-	'	TracePrint "activity award"
-	'	Delay AWARD_NORMAL_TAP_AWAIT_MS
-	'	CheckAndTapImg2(AWARD_ACTIVITY_NEXT_TAR, null)
-	'End If
+	If ACTIVITY_REWARD <> 0 Then
+		TracePrint "activity award"
+		Delay AWARD_NORMAL_TAP_AWAIT_MS
+		CheckAndTapImg2(AWARD_ACTIVITY_NEXT_TAR, null)
+	End If
 
 
 	' Add Friend?

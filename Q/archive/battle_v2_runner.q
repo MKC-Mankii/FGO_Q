@@ -443,7 +443,10 @@ Dim BATTLE_SKILL_NORMAL_AWAIT_MS = 500
 Dim BATTLE_TARGET_COORDS = Array(_
 	Array(159, 33),_
 	Array(424, 33),_
-	Array(689, 33)_
+	Array(689, 33),_
+	Array(130, 150),_
+	Array(355, 150),_
+	Array(580, 150)_
  )
 
 ' BATTLE: ATTACK
@@ -1172,7 +1175,7 @@ Function DoTargetActions(ActionsGroup)
 		Exit Function
 	End If
 	TargetIndex = Int(TargetIndex)
-	If TargetIndex < 1 Or TargetIndex > 3 Then
+	If TargetIndex < 1 Or TargetIndex > 6 Then
 		TracePrint "invalid target index, skip", TargetIndex
 		Exit Function
 	End If
