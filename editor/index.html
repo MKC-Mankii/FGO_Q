@@ -8,7 +8,7 @@
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
     <!-- 原生模块化样式层 -->
     <link rel="stylesheet" href="css/base.css">
-    <link rel="stylesheet" href="css/layout.css">
+    <link rel="stylesheet" href="css/layout.css?v=173">
     <link rel="stylesheet" href="css/timeline.css?v=10">
     <link rel="stylesheet" href="css/modals.css">
     <!-- 拖拽支持 -->
@@ -200,35 +200,39 @@
     <div class="shell">
         <!-- 顶部导航 -->
         <header class="masthead">
-            <div>
+            <div class="masthead-main">
                 <div class="masthead-title">
-                    <span class="eyebrow">FGO_Q V3</span>
+                    <img src="icons/fgo_editor.ico" alt="FGO Editor Logo" class="masthead-logo">
                     <h1>Battle Config Editor</h1>
                 </div>
                 <p class="subtext">可视化配置各关卡技能、换人与出牌时序。</p>
             </div>
-            <div class="masthead-actions">
-                <span id="syncStatus" style="font-size:12px; color:var(--text-muted); margin-right:6px;">正在自动读取本地配置...</span>
-                <button class="button quiet" id="reloadBtn" title="重新从磁盘读取配置">🔄 重新读取</button>
-                <button class="button quiet" id="copyBtn">📋 复制配置</button>
-                <button class="button primary" id="saveBtn">💾 保存配置</button>
-                <button class="button quiet" id="shutdownBtn" onclick="window.handleShutdownBtnClick()" ondblclick="window.triggerShutdown()" title="双击此按钮关闭后台服务" style="color:#fc8181; border-color:rgba(252, 129, 129, 0.4); margin-left:4px; user-select:none;"><span id="shutdownBtnText">🛑 退出服务</span></button>
+            <div class="masthead-right">
+                <!-- 右上角系统级微型工具栏 (纯图标) -->
+                <div class="system-toolbar" title="系统与窗口工具">
+                    <button class="sys-icon-btn" id="resetSizeBtn" title="恢复推荐窗口尺寸 (1600×1020)">📐</button>
+                    <button class="sys-icon-btn" id="refreshPageBtn" title="刷新页面代码 (快捷键: F5 / Ctrl+R)">🔄</button>
+                    <button class="sys-icon-btn" id="openBrowserBtn" title="在系统浏览器中打开">🌐</button>
+                </div>
+                <!-- 业务配置核心操作区 -->
+                <div class="config-actions">
+                    <span id="syncStatus" style="font-size:12px; color:var(--text-muted); margin-right:4px;">正在自动读取本地配置...</span>
+                    <button class="button quiet" id="reloadBtn" title="重新从本地磁盘读取配置文件">📂 重新读取</button>
+                    <button class="button quiet" id="copyBtn">📋 复制配置</button>
+                    <button class="button primary" id="saveBtn">💾 保存配置</button>
+                </div>
             </div>
         </header>
 
-        <!-- 顶部：大组选项卡栏 -->
+        <!-- 顶部：战场选项卡栏 -->
         <nav class="group-tabs-bar">
+            <div class="group-tabs-title" title="选择战斗关卡与业务战场">
+                <span class="group-title-icon">🗺️</span>
+                <span class="group-title-text">战场</span>
+            </div>
+            <span class="group-tabs-divider"></span>
             <div class="group-tabs" id="groupTabs"></div>
         </nav>
-
-        <!-- 选项卡下方：大组说明与活动领奖 -->
-        <div class="group-info-bar">
-            <label class="checkbox-item" id="groupRewardItem" title="当前大组结算时是否自动执行活动领奖确认点击（默认关）" style="padding:4px 10px; font-size:12px;">
-                <input type="checkbox" id="groupRewardCheckbox">
-                <span id="groupRewardLabel">活动领奖</span>
-            </label>
-            <span id="groupHint" class="group-hint-text"></span>
-        </div>
 
         <!-- 主体布局 -->
         <main class="layout">
@@ -249,7 +253,9 @@
             <section class="panel workspace">
                 <div class="scheme-bar">
                     <div class="scheme-header-title">
-                        <span style="font-size:12px; color:var(--text-muted);">当前方案:</span>
+                        <button class="scheme-default-star-btn is-default" id="schemeDefaultTag" type="button" title="当前方案是该战场的默认方案">
+                            <span class="scheme-star-icon">⭐</span>
+                        </button>
                         <div class="scheme-name-box">
                             <span class="scheme-name-prefix" id="schemeNamePrefix">方案 1:</span>
                             <!-- 查看态：点击直接修改 -->
@@ -271,9 +277,9 @@
                             <span>助战:</span>
                             <select id="schemeFriendSelect" style="width:150px; cursor:pointer;"></select>
                         </div>
-                        <label class="checkbox-item" id="defaultSchemeItem" title="勾选后将当前方案设为该大组的默认运行方案（只允许一个方案为默认）">
-                            <input type="checkbox" id="defaultSchemeCheckbox">
-                            <span id="defaultSchemeLabel">默认</span>
+                        <label class="checkbox-item" id="schemeRewardItem" title="当前方案结算时是否自动执行活动点数领取（默认关）">
+                            <input type="checkbox" id="schemeRewardCheckbox">
+                            <span id="schemeRewardLabel">点数奖励</span>
                         </label>
                         <div style="display:flex; gap:6px;">
                             <button class="button quiet" style="padding:4px 9px; font-size:12px; display:inline-flex; align-items:center; gap:4px;" id="copyDslBtn" title="直接复制当前方案的动作 DSL 脚本到剪贴板">📋 复制 DSL</button>
@@ -320,12 +326,12 @@
                                     <small style="color:var(--purple)">t1~t6</small>
                                 </div>
                                 <div class="target-btn-group">
-                                    <button class="target-btn" data-target="1" title="目标 1 (上排左 / t1)">🎯 敌方 1</button>
-                                    <button class="target-btn" data-target="2" title="目标 2 (上排中 / t2)">🎯 敌方 2</button>
-                                    <button class="target-btn" data-target="3" title="目标 3 (上排右 / t3)">🎯 敌方 3</button>
-                                    <button class="target-btn" data-target="4" title="目标 4 (下排左 / t4)">🎯 敌方 4</button>
-                                    <button class="target-btn" data-target="5" title="目标 5 (下排中 / t5)">🎯 敌方 5</button>
-                                    <button class="target-btn" data-target="6" title="目标 6 (下排右 / t6)">🎯 敌方 6</button>
+                                    <button class="target-btn" data-target="1" title="目标 1 (上排左 / t1)">目标 1</button>
+                                    <button class="target-btn" data-target="2" title="目标 2 (上排中 / t2)">目标 2</button>
+                                    <button class="target-btn" data-target="3" title="目标 3 (上排右 / t3)">目标 3</button>
+                                    <button class="target-btn" data-target="4" title="目标 4 (下排左 / t4)">目标 4</button>
+                                    <button class="target-btn" data-target="5" title="目标 5 (下排中 / t5)">目标 5</button>
+                                    <button class="target-btn" data-target="6" title="目标 6 (下排右 / t6)">目标 6</button>
                                 </div>
                             </div>
 
@@ -639,7 +645,7 @@
     <div class="toast" id="toast"></div>
 
     <!-- 原生 ES 模块主入口 -->
-    <script type="module" src="js/main.js?v=20260911_v34"></script>
+    <script type="module" src="js/main.js?v=20260911_v48"></script>
 </body>
 
 </html>

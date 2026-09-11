@@ -500,7 +500,8 @@ function initEventBindings() {
             group.schemes.push({
                 friend: "",
                 dsl: compileSchemeDsl([defaultRound]),
-                _parsedRounds: [defaultRound]
+                _parsedRounds: [defaultRound],
+                activityReward: 0
             });
             appState.curSchemeIdx = group.schemes.length - 1;
             appState.curRoundIdx = 0;
@@ -624,12 +625,50 @@ function initEventBindings() {
     }
 
 
-    // 快捷键 Ctrl+S / Command+S 保存
+    // 刷新页面 (刷新当前前端状态与 DOM)
+    const refreshPageBtn = $('refreshPageBtn');
+    if (refreshPageBtn) {
+        refreshPageBtn.onclick = () => location.reload();
+    }
+
+    // 恢复推荐窗口尺寸 (1600x1020)
+    const resetSizeBtn = $('resetSizeBtn');
+    if (resetSizeBtn) {
+        resetSizeBtn.onclick = async () => {
+            if (window.pywebview && window.pywebview.api && window.pywebview.api.resizeWindow) {
+                const ok = await window.pywebview.api.resizeWindow(1600, 1020);
+                if (ok) toast('📐 已重置为黄金推荐尺寸 (1600×1020)');
+                else toast('调整窗口尺寸失败');
+            } else {
+                toast('当前不在独立桌面窗口模式下');
+            }
+        };
+    }
+
+    // 在系统默认浏览器中打开
+    const openBrowserBtn = $('openBrowserBtn');
+    if (openBrowserBtn) {
+        openBrowserBtn.onclick = async () => {
+            try {
+                await fetch('/api/open-browser');
+                toast('🌐 已在系统默认浏览器中打开');
+            } catch (err) {
+                toast('无法调用系统浏览器: ' + err.message);
+            }
+        };
+    }
+
+    // 快捷键支持：
+    // 1. Ctrl+S / Command+S 保存
+    // 2. F5 / Ctrl+R / Command+R 刷新页面
     window.addEventListener('keydown', e => {
         if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's') {
             e.preventDefault();
             const configText = getCurrentConfigText();
             saveConfigToBackend(configText);
+        } else if (e.key === 'F5' || ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'r')) {
+            e.preventDefault();
+            location.reload();
         }
     });
 }
@@ -639,6 +678,14 @@ let isAppBootstrapped = false;
 function bootstrapApp() {
     if (isAppBootstrapped) return;
     isAppBootstrapped = true;
+
+    // 若运行在独立桌面窗口且当前尺寸偏小，自动校准至 1500x930
+    try {
+        if (window.outerWidth && (window.outerWidth < 1460 || window.outerHeight < 900)) {
+            window.resizeTo(1500, 930);
+        }
+    } catch (e) {}
+
     initEventBindings();
     render();
     loadConfigFromBackend(render);

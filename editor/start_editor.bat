@@ -1,2 +1,2 @@
 @echo off
-start "" "%~dp0launcher.py"
+start "" "%~dp0start_editor.vbs"

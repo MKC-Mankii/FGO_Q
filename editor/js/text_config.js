@@ -29,8 +29,8 @@ export const TEXT_CONFIG = {
         syncLocalFallback: "⚠️ 本地服务未响应，使用内存初始配置",
         syncSavedDisk: "✅ 已保存到磁盘: Q/battle_v3_config.q",
         syncSaveError: "❌ 保存出错: {error}",
-        btnReload: "🔄 重新读取",
-        btnReloadTitle: "重新从磁盘读取配置",
+        btnReload: "📂 重新读取",
+        btnReloadTitle: "重新从本地磁盘读取配置文件",
         btnCopy: "📋 复制配置",
         btnSave: "💾 保存配置",
         btnSaving: "💾 正在保存...",
@@ -40,18 +40,18 @@ export const TEXT_CONFIG = {
         shutdownDone: "🛑 服务已安全停止，您可以关闭此标签页。"
     },
 
-    // 2. 大组选项卡与设置 (Group Tabs & Info)
+    // 2. 战场选项卡与设置 (Group Tabs & Info)
     groups: {
         schemeCountBadge: "{count} 方案",
         rewardActiveBadge: " · 🎁",
         rewardLabel: "活动点数",
-        rewardTitle: "当前大组结算时是否自动执行活动点数领取确认点击（默认关）",
+        rewardTitle: "当前战场结算时是否自动执行活动点数领取确认点击（默认关）",
         hintPrefix: "说明: ",
         rewardOpenedToast: "🎁 已开启【{label}】活动点数领取流程",
         rewardClosedToast: "ℹ️ 已关闭【{label}】活动点数领取流程",
-        // 大组预设提示文案
+        // 战场预设提示文案
         defaultHints: {
-            test: "测试大组",
+            test: "测试战场",
             campaign: "活动关卡",
             caber: "术呆通用",
             grand: "戴冠战关卡",
@@ -67,7 +67,7 @@ export const TEXT_CONFIG = {
         dragHandleTitle: "按住拖拽排序",
         schemeItemTitle: "按住拖拽调整排序 · 方案 {index}: {name} {defaultTag}",
         defaultTag: "(默认方案)",
-        defaultBadge: "默认",
+        defaultBadge: "⭐",
         friendPrefix: "助战: ",
         noFriend: "无助战",
         defaultSchemeName: "方案 {index}",
@@ -88,10 +88,16 @@ export const TEXT_CONFIG = {
         saveNameToast: "✅ 方案名称已保存：{name}",
         friendLabel: "助战:",
         customFriendSuffix: " (自定义)",
-        defaultCheckboxLabel: "默认",
-        defaultCheckboxTitle: "勾选后将当前方案设为该大组的默认运行方案（只允许一个方案为默认）",
-        setDefaultSuccessToast: "✅ 已将方案 {index} 设为大组默认方案",
-        setDefaultWarnToast: "⚠️ 每个大组必须保留一个默认方案。若需更改，请直接切换并勾选其他方案。",
+        rewardCheckboxLabel: "点数奖励",
+        rewardCheckboxTitle: "当前方案结算时是否自动执行活动点数领取确认点击（默认关）",
+        rewardOpenedToast: "🎁 方案 {index} 已开启活动点数领取流程",
+        rewardClosedToast: "ℹ️ 方案 {index} 已关闭活动点数领取流程",
+        defaultTagActive: "⭐ 默认方案",
+        defaultTagActiveTitle: "当前方案是该战场的默认运行方案",
+        defaultTagInactive: "☆ 设为默认",
+        defaultTagInactiveTitle: "点击将当前方案设为该战场的默认运行方案",
+        setDefaultSuccessToast: "✅ 已将方案 {index} 设为战场默认方案",
+        alreadyDefaultToast: "ℹ️ 当前方案已是该战场的默认运行方案",
         btnCopyDsl: "📋 复制 DSL",
         btnCopyDslTitle: "直接复制当前方案的动作 DSL 脚本到剪贴板",
         copyDslSuccessToast: "📋 方案 {index} 的 DSL 已直接复制到剪贴板！",
@@ -102,7 +108,7 @@ export const TEXT_CONFIG = {
 
     // 5. 战斗动作时序看板 (Action Timeline Board - 左栏)
     timeline: {
-        title: "🎬 战斗动作时序 (Action Timeline)",
+        title: "🎬 时序 (Timeline)",
         btnAddWave: "+ 添加回合",
         btnAddWaveTitle: "在当前选中的回合后插入一个新回合",
         btnResetScheme: "🔄 重置方案",
@@ -142,12 +148,12 @@ export const TEXT_CONFIG = {
         // 选敌
         targetTitle: "🎯 锁定目标",
         targetSubtitle: "t1~t6",
-        targetBtn1: "🎯 目标 1",
-        targetBtn2: "🎯 目标 2",
-        targetBtn3: "🎯 目标 3",
-        targetBtn4: "🎯 目标 4",
-        targetBtn5: "🎯 目标 5",
-        targetBtn6: "🎯 目标 6",
+        targetBtn1: "目标 1",
+        targetBtn2: "目标 2",
+        targetBtn3: "目标 3",
+        targetBtn4: "目标 4",
+        targetBtn5: "目标 5",
+        targetBtn6: "目标 6",
         targetDesc: "目标 {target}",
 
         // 御主礼装技能
@@ -238,7 +244,7 @@ export const TEXT_CONFIG = {
             titleMaster: "👔 修改御主礼装技能 (Wave {wave} 第 {step} 步)",
             titleSwap: "👔 修改礼装换人动作 (Wave {wave} 第 {step} 步)",
             labelLockTarget: "选择锁定目标 (上排 1~3 | 下排 4~6)：",
-            targetBtn: "🎯 目标 {target}",
+            targetBtn: "目标 {target}",
             labelSkillSeq: "选择技能序号 (从者 1: 1~3 | 从者 2: 4~6 | 从者 3: 7~9)：",
             skillOptBtn: "从者{servant} 技{skill} (s{code}x)",
             labelTarget: "选择作用目标：",

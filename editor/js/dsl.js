@@ -222,6 +222,7 @@ export function generateConfigText(stateData) {
             if (sName) {
                 out.push(`' 方案 ${sNum}: ${sName}`);
             }
+            out.push(`Dim ACTIVITY_REWARD_G${gNum}_${sNum} = ${s.activityReward ? 1 : 0}`);
             out.push(`Dim FRIEND_G${gNum}_${sNum} = "${s.friend || ''}"`);
             out.push(`Dim DSL_G${gNum}_${sNum} = "${dsl}"`);
         });
@@ -266,14 +267,17 @@ export function parseConfigFileText(text, stateData) {
         for (let sNum = 1; sNum <= 20; sNum++) {
             const fr = getVal(`FRIEND_G${gNum}_${sNum}`) || (gNum === 0 && sNum === 1 ? friendG : '') || friendG || '';
             const dsl = getVal(`DSL_G${gNum}_${sNum}`) || getVal(`TEST_DSL_G${gNum}_${sNum}`) || (gNum === 0 ? getVal(`TEST_DSL_${sNum}`) : '');
-            const nameMatch = text.match(new RegExp(`'\\s*(?:方案|Scheme)\\s*${sNum}\\s*[:：]\\s*([^\\r\\n]+)[\\r\\n]+(?:Dim\\s+FRIEND_G${gNum}_${sNum}|Dim\\s+DSL_G${gNum}_${sNum})`, 'i'));
+            const schemeRew = getVal(`ACTIVITY_REWARD_G${gNum}_${sNum}`);
+            const actReward = (schemeRew !== '') ? Number(schemeRew) : (g.activityReward ?? 0);
+            const nameMatch = text.match(new RegExp(`'\\s*(?:方案|Scheme)\\s*${sNum}\\s*[:：]\\s*([^\\r\\n]+)[\\r\\n]+(?:Dim\\s+ACTIVITY_REWARD_G${gNum}_${sNum}|Dim\\s+FRIEND_G${gNum}_${sNum}|Dim\\s+DSL_G${gNum}_${sNum})`, 'i'));
             const schemeName = nameMatch ? nameMatch[1].trim() : '';
             if (dsl || (gNum === 0 && sNum <= 3) || sNum <= g.schemes.length) {
                 if (dsl) {
                     parsedSchemes.push({
                         name: schemeName || fr || '',
                         friend: fr,
-                        dsl: dsl
+                        dsl: dsl,
+                        activityReward: actReward
                     });
                 }
             } else {

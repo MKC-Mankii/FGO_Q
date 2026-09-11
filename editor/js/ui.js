@@ -48,54 +48,26 @@ export function getStepLabel(st) {
     return st.code || '';
 }
 
-// 渲染顶部大组 Tabs
+// 渲染顶部战场 Tabs
 export function renderGroupTabs() {
     const tabsContainer = $('groupTabs');
     if (!tabsContainer) return;
 
     tabsContainer.innerHTML = appState.data.groups.map((g, idx) => {
         const isActive = (idx === appState.curGroupIdx);
-        const hasReward = Boolean(g.activityReward);
-        const badgeCount = formatText(TEXT_CONFIG.groups.schemeCountBadge, { count: g.schemes.length });
-        const rewardBadge = hasReward ? TEXT_CONFIG.groups.rewardActiveBadge : '';
+        const cleanLabel = (g.label || '').replace(/^(大组|战场)\s*/, '');
+        const hintText = g.hint ? `${g.hint}` : `战场 ${idx} (${g.name})`;
+        const fullTooltip = `${cleanLabel}\n• 说明: ${hintText}\n• 方案数量: ${g.schemes.length} 套`;
+
         return `
-            <div class="group-tab ${isActive ? 'active' : ''}" onclick="window.selectGroup(${idx})">
-                <span>${escapeHtml(g.label)}</span>
-                <span class="group-badge">${badgeCount}${rewardBadge}</span>
+            <div class="group-tab ${isActive ? 'active' : ''}" 
+                 onclick="window.selectGroup(${idx})"
+                 title="${escapeHtml(fullTooltip)}">
+                <span class="group-tab-name">${escapeHtml(cleanLabel)}</span>
+                <span class="group-count-badge" title="包含 ${g.schemes.length} 套方案">${g.schemes.length}</span>
             </div>
         `;
     }).join('');
-
-    const curGroup = getCurGroup();
-    const hintEl = $('groupHint');
-    if (hintEl) {
-        hintEl.textContent = curGroup ? (curGroup.hint ? `${TEXT_CONFIG.groups.hintPrefix}${curGroup.hint}` : '') : '';
-    }
-
-    const rewardCheckbox = $('groupRewardCheckbox');
-    const rewardItem = $('groupRewardItem');
-    const isRewardActive = Boolean(curGroup && curGroup.activityReward);
-    if (rewardCheckbox) rewardCheckbox.checked = isRewardActive;
-    if (rewardItem) {
-        if (isRewardActive) rewardItem.classList.add('is-active');
-        else rewardItem.classList.remove('is-active');
-    }
-
-    if (rewardCheckbox) {
-        rewardCheckbox.onchange = e => {
-            if (!curGroup) return;
-            curGroup.activityReward = e.target.checked ? 1 : 0;
-            if (curGroup.activityReward) {
-                if (rewardItem) rewardItem.classList.add('is-active');
-                toast(formatText(TEXT_CONFIG.groups.rewardOpenedToast, { label: curGroup.label }));
-            } else {
-                if (rewardItem) rewardItem.classList.remove('is-active');
-                toast(formatText(TEXT_CONFIG.groups.rewardClosedToast, { label: curGroup.label }));
-            }
-            renderGroupTabs();
-            renderConfigPreview();
-        };
-    }
 }
 
 // 渲染侧边栏方案列表
@@ -109,13 +81,15 @@ export function renderSchemeList() {
     listContainer.innerHTML = group.schemes.map((s, idx) => {
         const displayName = getSchemeDisplayName(s, idx);
         const isDefault = (idx + 1 === group.defaultScheme);
+        const hasReward = Boolean(s.activityReward);
         const isActive = (idx === appState.curSchemeIdx);
         const friendText = s.friend ? `${TEXT_CONFIG.sidebar.friendPrefix}${getFriendLabel(s.friend)}` : TEXT_CONFIG.sidebar.noFriend;
         const defaultTag = isDefault ? TEXT_CONFIG.sidebar.defaultTag : '';
+        const rewardTag = hasReward ? ' · 🎁 点数奖励' : '';
         const itemTitle = formatText(TEXT_CONFIG.sidebar.schemeItemTitle, {
             index: idx + 1,
             name: displayName,
-            defaultTag
+            defaultTag: `${defaultTag}${rewardTag}`
         });
         return `
             <div class="scheme-item ${isActive ? 'active' : ''} ${isDefault ? 'is-default' : ''}" 
@@ -127,9 +101,9 @@ export function renderSchemeList() {
                 <div class="scheme-item-content">
                     <div class="scheme-item-top">
                         <span class="scheme-item-index">${idx + 1}.</span>
-
                         <span class="scheme-item-name">${escapeHtml(displayName)}</span>
-                        ${isDefault ? '<span class="scheme-item-default-badge">默认</span>' : ''}
+                        ${hasReward ? `<span class="scheme-item-reward-badge" title="已开启活动点数领取">🎁</span>` : ''}
+                        ${isDefault ? `<span class="scheme-item-default-badge" title="${escapeHtml(TEXT_CONFIG.sidebar.defaultTag || '默认方案')}">${TEXT_CONFIG.sidebar.defaultBadge || '⭐'}</span>` : ''}
                     </div>
                     <div class="scheme-item-sub">${escapeHtml(friendText)}</div>
                 </div>
@@ -267,31 +241,63 @@ export function renderSchemeDetails() {
         renderConfigPreview();
     };
 
-    const isCurDefault = (appState.curSchemeIdx + 1 === group.defaultScheme);
-    const checkbox = $('defaultSchemeCheckbox');
-    const checkboxItem = $('defaultSchemeItem');
-    const label = $('defaultSchemeLabel');
+    // 方案独立点数奖励开关（位于助战右侧）
+    const rewardCheckbox = $('schemeRewardCheckbox');
+    const rewardCheckboxItem = $('schemeRewardItem');
+    const rewardLabel = $('schemeRewardLabel');
+    if (rewardCheckbox && rewardCheckboxItem) {
+        const isRewardActive = Boolean(curScheme.activityReward);
+        rewardCheckbox.checked = isRewardActive;
+        if (isRewardActive) {
+            rewardCheckboxItem.classList.add('is-active');
+        } else {
+            rewardCheckboxItem.classList.remove('is-active');
+        }
+        if (rewardLabel) {
+            rewardLabel.textContent = TEXT_CONFIG.schemeBar.rewardCheckboxLabel || '点数奖励';
+        }
 
-    checkbox.checked = isCurDefault;
-    if (isCurDefault) {
-        checkboxItem.classList.add('is-default');
-    } else {
-        checkboxItem.classList.remove('is-default');
-    }
-    label.textContent = TEXT_CONFIG.schemeBar.defaultCheckboxLabel;
-
-    checkbox.onchange = e => {
-        if (e.target.checked) {
-            group.defaultScheme = appState.curSchemeIdx + 1;
-            renderGroupTabs();
+        rewardCheckbox.onchange = e => {
+            curScheme.activityReward = e.target.checked ? 1 : 0;
+            if (curScheme.activityReward) {
+                rewardCheckboxItem.classList.add('is-active');
+                toast(formatText(TEXT_CONFIG.schemeBar.rewardOpenedToast, { index: appState.curSchemeIdx + 1 }));
+            } else {
+                rewardCheckboxItem.classList.remove('is-active');
+                toast(formatText(TEXT_CONFIG.schemeBar.rewardClosedToast, { index: appState.curSchemeIdx + 1 }));
+            }
             renderSchemeList();
             renderConfigPreview();
-            toast(formatText(TEXT_CONFIG.schemeBar.setDefaultSuccessToast, { index: appState.curSchemeIdx + 1 }));
+        };
+    }
+
+    // 方案标题处的默认方案开关标签
+    const isCurDefault = (appState.curSchemeIdx + 1 === group.defaultScheme);
+    const defaultTagBtn = $('schemeDefaultTag');
+    if (defaultTagBtn) {
+        if (isCurDefault) {
+            defaultTagBtn.classList.add('is-default');
+            defaultTagBtn.innerHTML = '<span class="scheme-star-icon">⭐</span>';
+            defaultTagBtn.title = TEXT_CONFIG.schemeBar.defaultTagActiveTitle || '⭐ 当前战场的默认方案';
         } else {
-            e.target.checked = true;
-            toast(TEXT_CONFIG.schemeBar.setDefaultWarnToast);
+            defaultTagBtn.classList.remove('is-default');
+            defaultTagBtn.innerHTML = '<span class="scheme-star-icon">☆</span>';
+            defaultTagBtn.title = TEXT_CONFIG.schemeBar.defaultTagInactiveTitle || '☆ 点击设为当前战场的默认方案';
         }
-    };
+
+        defaultTagBtn.onclick = () => {
+            if (isCurDefault) {
+                toast(TEXT_CONFIG.schemeBar.alreadyDefaultToast || 'ℹ️ 当前方案已是该战场的默认运行方案');
+            } else {
+                group.defaultScheme = appState.curSchemeIdx + 1;
+                renderGroupTabs();
+                renderSchemeList();
+                renderSchemeDetails();
+                renderConfigPreview();
+                toast(formatText(TEXT_CONFIG.schemeBar.setDefaultSuccessToast, { index: appState.curSchemeIdx + 1 }));
+            }
+        };
+    }
 }
 
 
@@ -1040,9 +1046,6 @@ export function applyStaticTexts() {
     if (resetBtn) resetBtn.textContent = TEXT_CONFIG.sidebar.btnReset;
 
     // 4. 方案详情头部
-    const curSchemeLabel = document.querySelector('.scheme-header-title > span');
-    if (curSchemeLabel) curSchemeLabel.textContent = TEXT_CONFIG.schemeBar.curSchemeLabel;
-
     const schemeNameView = $('schemeNameView');
     if (schemeNameView) schemeNameView.title = TEXT_CONFIG.schemeBar.viewTitle;
 
@@ -1054,12 +1057,6 @@ export function applyStaticTexts() {
 
     const schemeNameCancelBtn = $('schemeNameCancelBtn');
     if (schemeNameCancelBtn) schemeNameCancelBtn.title = TEXT_CONFIG.schemeBar.btnCancelNameTitle;
-
-    const defaultSchemeItem = $('defaultSchemeItem');
-    if (defaultSchemeItem) defaultSchemeItem.title = TEXT_CONFIG.schemeBar.defaultCheckboxTitle;
-
-    const defaultSchemeLabel = $('defaultSchemeLabel');
-    if (defaultSchemeLabel) defaultSchemeLabel.textContent = TEXT_CONFIG.schemeBar.defaultCheckboxLabel;
 
     const copyDslBtn = $('copyDslBtn');
     if (copyDslBtn) {
@@ -1103,8 +1100,8 @@ export function applyStaticTexts() {
     if (targetTitleSub) targetTitleSub.textContent = TEXT_CONFIG.palette.targetSubtitle;
 
     for (let t = 1; t <= 6; t++) {
-        const tBtn = document.querySelector(`button.target-btn[data-target="${t}"]`);
-        if (tBtn) tBtn.textContent = TEXT_CONFIG.palette[`targetBtn${t}`] || `🎯 目标 ${t}`;
+        const tBtn = document.querySelector(`.target-btn[data-target="${t}"]`);
+        if (tBtn) tBtn.textContent = TEXT_CONFIG.palette[`targetBtn${t}`] || `目标 ${t}`;
     }
 
     // 控制台御主技能

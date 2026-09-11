@@ -85,6 +85,15 @@ class ConfigEditorHandler(http.server.SimpleHTTPRequestHandler):
             else:
                 self.send_response(404)
                 self.end_headers()
+        elif self.path.startswith('/api/open-browser'):
+            import webbrowser
+            webbrowser.open(f"http://127.0.0.1:{PORT}")
+            self.send_response(200)
+            self.send_header('Content-Type', 'application/json; charset=utf-8')
+            self.send_header('Cache-Control', 'no-cache')
+            self.end_headers()
+            self.wfile.write(json.dumps({'success': True}).encode('utf-8'))
+            return
         elif self.path.startswith('/api/shutdown'):
             self.send_response(200)
             self.send_header('Content-Type', 'text/html; charset=utf-8')
@@ -164,7 +173,17 @@ class ConfigEditorHandler(http.server.SimpleHTTPRequestHandler):
             self.end_headers()
 
 
+def create_server(host='127.0.0.1', port=PORT):
+    return http.server.ThreadingHTTPServer((host, port), ConfigEditorHandler)
+
+def start_server_thread(host='127.0.0.1', port=PORT):
+    server = create_server(host, port)
+    import threading
+    t = threading.Thread(target=server.serve_forever, daemon=True)
+    t.start()
+    return server
+
 if __name__ == '__main__':
-    server = http.server.ThreadingHTTPServer(('0.0.0.0', PORT), ConfigEditorHandler)
+    server = create_server('0.0.0.0', PORT)
     print(f"FGO Q Editor Server running on port {PORT}...", flush=True)
     server.serve_forever()
