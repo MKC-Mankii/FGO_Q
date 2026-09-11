@@ -110,17 +110,6 @@ If Not IsNull(CFG_RAW) And Len(CStr(CFG_RAW)) > 0 Then
 End If
 
 CFG_FRIEND = CStr(CfgGet("friend", ""))
-Function PickActivityRewardByGroup(groupIndex)
-	Dim gVal = CStr(CfgGet("activity_reward_g" & groupIndex, ""))
-	If Len(gVal) > 0 Then
-		PickActivityRewardByGroup = Int(gVal)
-	Else
-		PickActivityRewardByGroup = Int(CfgGet("activity_reward", "0"))
-	End If
-End Function
-
-CFG_ACTIVITY_REWARD = PickActivityRewardByGroup(CFG_ACTION_GROUP_INDEX)
-
 Function PickActionIndexByGroup(groupIndex)
 	Dim groupIndexVal = Int(CfgGet("action_round_index_g" & groupIndex, "0"))
 	If groupIndexVal > 0 Then
@@ -132,6 +121,23 @@ Function PickActionIndexByGroup(groupIndex)
 End Function
 
 CFG_ACTION_INDEX = PickActionIndexByGroup(CFG_ACTION_GROUP_INDEX)
+
+Function PickActivityRewardByGroupAndIndex(groupIndex, actionIndex)
+	Dim val = CStr(CfgGet("activity_reward_g" & groupIndex & "_" & actionIndex, ""))
+	If Len(val) > 0 Then
+		PickActivityRewardByGroupAndIndex = Int(val)
+	Else
+		' 兼容回退：大组默认，再到全局默认
+		Dim gVal = CStr(CfgGet("activity_reward_g" & groupIndex, ""))
+		If Len(gVal) > 0 Then
+			PickActivityRewardByGroupAndIndex = Int(gVal)
+		Else
+			PickActivityRewardByGroupAndIndex = Int(CfgGet("activity_reward", "0"))
+		End If
+	End If
+End Function
+
+CFG_ACTIVITY_REWARD = PickActivityRewardByGroupAndIndex(CFG_ACTION_GROUP_INDEX, CFG_ACTION_INDEX)
 
 Function BuildRoundsFromFlatText(flatText)
 	Dim outRounds = Array()
