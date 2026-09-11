@@ -294,8 +294,14 @@
                     <div class="workspace-timeline-col">
                         <div class="waves-board-section">
                             <div class="waves-board-header">
-                                <div class="waves-board-title">
-                                    <h3>🎬 战斗动作时序 (Action Timeline)</h3>
+                                <div class="waves-board-title-row">
+                                    <div class="waves-board-title">
+                                        <h3>🎬 战斗动作时序 (Action Timeline)</h3>
+                                    </div>
+                                    <div class="timeline-hint-wrapper">
+                                        <button class="timeline-hint-bulb-btn" id="timelineHintBulb" type="button" aria-label="操作引导提示" onclick="event.preventDefault()">💡</button>
+                                        <div class="timeline-hint-popover">点击右侧技能、锁定与出牌按钮直接加入此回合；点击左侧各回合可切换目标。</div>
+                                    </div>
                                 </div>
                                 <div class="waves-board-tools">
                                     <button class="button quiet" id="addWaveBtn" title="在当前选中的回合后插入一个新回合">+ 添加下一回合</button>
@@ -311,11 +317,9 @@
 
                     <!-- 右栏：动作输入操作控制台 -->
                     <div class="workspace-palette-col">
-                        <!-- 动作录入提示条 -->
-                        <div class="action-palette-hint-bar" id="paletteHintBar">
-                            <span style="font-size:12px; color:var(--text-main);" id="activeWaveHint">
-                                💡 点击右侧技能、锁定与出牌按钮直接加入此回合；点击左侧各回合可切换目标。
-                            </span>
+                        <!-- 动作录入提示条（默认隐藏，仅在选中动作卡片修改时展示） -->
+                        <div class="action-palette-hint-bar" id="paletteHintBar" style="display: none;">
+                            <span style="font-size:12px; color:var(--text-main);" id="activeWaveHint"></span>
                         </div>
                         <!-- 选敌与御主技能 -->
                         <div class="palette-grid aux-grid">

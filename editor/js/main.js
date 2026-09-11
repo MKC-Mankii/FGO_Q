@@ -237,7 +237,7 @@ function initEventBindings() {
     // 每个槽位存储选中的卡牌字符（如 '6', 'B', '1'），空槽位为 null
     let pendingAttackSlots = [null, null, null];
 
-    window.syncPendingAttackCards = function(cards) {
+    window.syncPendingAttackCards = function (cards) {
         if (Array.isArray(cards)) {
             pendingAttackSlots = [
                 cards[0] ? String(cards[0]).trim() : null,
@@ -637,7 +637,7 @@ function initEventBindings() {
         resetSizeBtn.onclick = async () => {
             if (window.pywebview && window.pywebview.api && window.pywebview.api.resizeWindow) {
                 const ok = await window.pywebview.api.resizeWindow(1600, 1020);
-                if (ok) toast('📐 已重置为黄金推荐尺寸 (1600×1020)');
+                if (ok) toast('📐 已重置为推荐尺寸 (1600×1020)');
                 else toast('调整窗口尺寸失败');
             } else {
                 toast('当前不在独立桌面窗口模式下');
@@ -684,7 +684,7 @@ function bootstrapApp() {
         if (window.outerWidth && (window.outerWidth < 1460 || window.outerHeight < 900)) {
             window.resizeTo(1500, 930);
         }
-    } catch (e) {}
+    } catch (e) { }
 
     initEventBindings();
     render();

@@ -80,7 +80,7 @@ def launch_native_webview(debug=False):
     import webview
     global CURRENT_WINDOW
     
-    # 黄金推荐尺寸：1600px 宽度（完美承载 1440px 容器及边距留白）× 1020px 高度（控制台全域免滚动完整展示）
+    # 推荐尺寸：1600px 宽度（完美承载 1440px 容器及边距留白）× 1020px 高度（控制台全域免滚动完整展示）
     api = NativeApi()
     window = webview.create_window(
         title="FGO 战斗配置编辑器 (V3)",

@@ -11,10 +11,15 @@
 
 .waves-board-header {
     display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.waves-board-title-row {
+    display: flex;
     justify-content: space-between;
     align-items: center;
-    flex-wrap: wrap;
-    gap: 10px;
+    width: 100%;
 }
 
 .waves-board-title {
@@ -32,6 +37,81 @@
     align-items: center;
     gap: 8px;
     flex-wrap: wrap;
+}
+
+/* 与时序标题同行的最右侧引导小灯泡及悬浮提示 */
+.timeline-hint-wrapper {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    margin-left: auto;
+}
+
+.timeline-hint-bulb-btn {
+    width: 26px;
+    height: 26px;
+    border-radius: 6px;
+    background: #ffffff;
+    border: 1px solid var(--line);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    cursor: pointer;
+    line-height: 1;
+    padding: 0;
+    transition: all 0.18s ease;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+}
+
+.timeline-hint-bulb-btn:hover {
+    background: #fffbeb;
+    border-color: #fcd34d;
+    box-shadow: 0 0 8px rgba(245, 158, 11, 0.35);
+    transform: scale(1.08);
+}
+
+.timeline-hint-popover {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    left: auto;
+    width: 260px;
+    padding: 9px 12px;
+    background: #1e293b;
+    color: #f8fafc;
+    font-size: 12px;
+    line-height: 1.5;
+    border-radius: 7px;
+    box-shadow: 0 4px 16px rgba(15, 23, 42, 0.25);
+    pointer-events: none;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-4px);
+    transition: opacity 0.18s ease, transform 0.18s ease, visibility 0.18s ease;
+    z-index: 1000;
+    white-space: normal;
+    text-align: left;
+}
+
+.timeline-hint-popover::before {
+    content: "";
+    position: absolute;
+    top: -5px;
+    right: 8px;
+    left: auto;
+    width: 0;
+    height: 0;
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-bottom: 5px solid #1e293b;
+}
+
+.timeline-hint-wrapper:hover .timeline-hint-popover,
+.timeline-hint-bulb-btn:focus + .timeline-hint-popover {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
 }
 
 .waves-list {

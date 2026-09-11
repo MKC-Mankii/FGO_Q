@@ -137,7 +137,8 @@ export const TEXT_CONFIG = {
         chipAttackRemoveTitle: "清除此出牌",
         removeAttackToast: "已清除 Wave {wave} 的出牌配置",
         setAttackToast: "✅ 已为 Wave {wave} 设置出牌: a{cards}",
-        chipOrderAdjustedToast: "↔️ 已调整动作卡片顺序"
+        chipOrderAdjustedToast: "↔️ 已调整动作卡片顺序",
+        bulbHint: "点击右侧技能、锁定与出牌按钮直接加入此回合；点击左侧各回合可切换目标。"
     },
 
     // 6. 动作录入控制台 (Visual Action Palette - 右栏)

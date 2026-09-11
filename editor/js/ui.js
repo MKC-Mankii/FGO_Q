@@ -312,6 +312,7 @@ export function renderWavesBoard(highlightTarget = null) {
     }
 
     const hintEl = $('activeWaveHint');
+    const hintBar = $('paletteHintBar');
     if (hintEl) {
         if (appState.selectedStepState) {
             const { waveIdx, stepIdx } = appState.selectedStepState;
@@ -321,8 +322,10 @@ export function renderWavesBoard(highlightTarget = null) {
                 wave: waveIdx + 1,
                 label: escapeHtml(stepLabel)
             });
+            if (hintBar) hintBar.style.display = 'flex';
         } else {
-            hintEl.innerHTML = TEXT_CONFIG.palette.hintDefault;
+            hintEl.innerHTML = '';
+            if (hintBar) hintBar.style.display = 'none';
         }
     }
 
@@ -919,10 +922,23 @@ export function updateSelectionUI() {
     const curRound = rounds[appState.curRoundIdx];
     updateAttackPaletteHighlight(curRound?.attack);
 
-    // 5. 保持简洁的默认引导提示，不打扰用户
+    // 5. 提示条状态控制：未选中动作卡片时默认收起
     const hintEl = $('activeWaveHint');
+    const hintBar = $('paletteHintBar');
     if (hintEl) {
-        hintEl.innerHTML = TEXT_CONFIG.palette.hintDefault;
+        if (appState.selectedStepState) {
+            const { waveIdx, stepIdx } = appState.selectedStepState;
+            const targetStep = rounds[waveIdx]?.steps?.[stepIdx];
+            const stepLabel = targetStep ? getStepLabel(targetStep) : formatText(TEXT_CONFIG.stepLabels.defaultStepName, { step: stepIdx + 1 });
+            hintEl.innerHTML = formatText(TEXT_CONFIG.palette.hintSelected, {
+                wave: waveIdx + 1,
+                label: escapeHtml(stepLabel)
+            });
+            if (hintBar) hintBar.style.display = 'flex';
+        } else {
+            hintEl.innerHTML = '';
+            if (hintBar) hintBar.style.display = 'none';
+        }
     }
 }
 
