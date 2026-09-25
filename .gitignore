@@ -6,3 +6,8 @@ __pycache__/
 *.pyc
 .tmp/
 *.tmp
+
+# Logs
+logs/
+editor_v4/logs/
+*.log

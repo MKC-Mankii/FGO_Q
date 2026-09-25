@@ -2,7 +2,7 @@ import { appState, getCurGroup, getCurScheme } from './state.js';
 import { SUPPORTED_FRIENDS, CARD_INFO } from './constants.js';
 import { getCurSchemeRounds, commitChanges, generateConfigText, createDefaultRound } from './dsl.js';
 import { openEditStepModal, formatAttackCards, formatAttackCardsBadgesHtml, registerUpdateCallback } from './modals.js';
-import { $, toast } from './api.js';
+import { $, toast, updateSaveButtonState } from './api.js';
 import { TEXT_CONFIG, formatText } from './text_config.js';
 
 export const escapeHtml = str => String(str || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
@@ -1040,6 +1040,7 @@ export function renderConfigPreview() {
     if (previewEl) {
         previewEl.value = generateConfigText(appState.data);
     }
+    updateSaveButtonState();
 }
 
 // 将 TEXT_CONFIG 中的所有文本应用到页面所有静态 DOM 元素，使用户修改配置文件即刻生效

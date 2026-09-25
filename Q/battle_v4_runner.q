@@ -7,11 +7,11 @@ Import "zm.luae"
 Import "DateTime.lua"
 zm.Init
 
-Dim CFG_ACTION_GROUP_INDEX
-Dim MANUAL_BATTLE_COUNT
-Dim MANUAL_APPLE_ENABLE
-Dim MANUAL_CHOOSE_FRIEND
-Dim MANUAL_FORCE_COLOR_CARD
+Dim CFG_ACTION_GROUP_INDEX = 0
+Dim MANUAL_BATTLE_COUNT = 0
+Dim MANUAL_APPLE_ENABLE = 0
+Dim MANUAL_CHOOSE_FRIEND = 0
+Dim MANUAL_FORCE_COLOR_CARD = 0
 
 Dim CFG_CONFIG_PATH = ""
 Dim CFG_RAW = ""
@@ -23,6 +23,26 @@ Dim CFG_FRIEND = ""
 Dim CFG_ACTION_INDEX = 0
 Dim CFG_TEST_DSL = ""
 Dim CFG_ACTIVITY_REWARD = 1
+
+Dim BATTLE_COUNT = 0
+Dim CHOOSE_FRIEND_MANUAL = 0
+Dim APPLE_ENABLE = 0
+Dim FORCE_COLOR_CARD = 0
+Dim ACTIVITY_REWARD = 1
+Dim CAN_RUN = false
+
+Dim selectedDsl = ""
+Dim selectedActivityDsl = ""
+Dim selectedFriendKey = ""
+
+Dim CurrentBattleSequence = Array()
+Dim AllActionRound = Array()
+Dim PREPARE_FRIEND_TAR = Array()
+Dim HAS_FRIEND_CONFIG = false
+
+Dim USER_STOP_REQUESTED = false
+Dim CURRENT_SUB_ROUND_NUM = 0
+Dim STOP_CHECK_COUNTER = 0
 
 Sub CfgSet(cfgKey, cfgVal)
 	Dim i
@@ -48,106 +68,20 @@ Function CfgGet(cfgKey, defaultVal)
 	CfgGet = defaultVal
 End Function
 
-' 优先检查 FGO_Q 直推目录中的最新配置
-If zm.FileExist("/sdcard/FGO_Q/battle_v4_config.mq") Then
-	Dim directCfgRaw = zm.FileRead("/sdcard/FGO_Q/battle_v4_config.mq")
-	If Not IsNull(directCfgRaw) And Len(CStr(directCfgRaw)) > 0 Then
-		Dim directCfgRawLower = LCase(CStr(directCfgRaw))
-		If InStr(1, directCfgRawLower, "dim dsl_") > 0 Or InStr(1, directCfgRawLower, "dim action_group_index") > 0 Then
-			CFG_CONFIG_PATH = "/sdcard/FGO_Q/battle_v4_config.mq"
-			CFG_RAW = CStr(directCfgRaw)
-		End If
-	End If
-End If
-
-If Len(CFG_CONFIG_PATH) = 0 Then
-	Dim cfgCandidates = zm.DirScan("/sdcard/MobileAnJian/Script/", "*.mq", 1)
-	If IsNull(cfgCandidates) Then
-		cfgCandidates = zm.DirScan("/storage/emulated/0/MobileAnJian/Script/", "*.mq", 1)
-	End If
-
-	If cfgCandidates Then
-		Dim cfgCandidatePath
-		For Each cfgCandidatePath In cfgCandidates
-			Dim cfgCandidatePathText = CStr(cfgCandidatePath)
-			Dim cfgCandidatePathLower = LCase(cfgCandidatePathText)
-			If InStr(1, cfgCandidatePathLower, "battle_v4_config") > 0 Or InStr(1, cfgCandidatePathLower, "battle_v3_config") > 0 Then
-				Dim cfgCandidateRaw = zm.FileRead(cfgCandidatePathText)
-				If Not IsNull(cfgCandidateRaw) And Len(CStr(cfgCandidateRaw)) > 0 Then
-					Dim cfgCandidateRawLower = LCase(CStr(cfgCandidateRaw))
-					If InStr(1, cfgCandidateRawLower, "dim dsl_") > 0 Or InStr(1, cfgCandidateRawLower, "dim test_dsl") > 0 Or InStr(1, cfgCandidateRawLower, "dim action_round_index_") > 0 Or InStr(1, cfgCandidateRawLower, "dim action_group_index") > 0 Then
-						CFG_CONFIG_PATH = cfgCandidatePathText
-						CFG_RAW = CStr(cfgCandidateRaw)
-						If InStr(1, cfgCandidatePathLower, "battle_v4_config") > 0 Then
-							Exit For
-						End If
-					End If
-				End If
-			End If
-		Next
-	End If
-End If
-
-If Len(CFG_CONFIG_PATH) > 0 Then
-	TracePrint "CONFIG PATH FOUND:", CFG_CONFIG_PATH
-Else
-	TracePrint "CONFIG PATH NOT FOUND"
-	TracePrint "HINT:", "请先在按键精灵里编译并同步 battle_v4_config.q"
-End If
-
-If Not IsNull(CFG_RAW) And Len(CStr(CFG_RAW)) > 0 Then
-	Dim cfgLines = Split(Replace(CStr(CFG_RAW), Chr(13), ""), Chr(10))
-	Dim cfgLineIndex
-	For cfgLineIndex = 0 To UBound(cfgLines)
-		Dim cfgLineText = Trim(CStr(cfgLines(cfgLineIndex)))
-		If Len(cfgLineText) > 0 Then
-			If Left(cfgLineText, 1) <> "'" Then
-				Dim cfgKv = Split(cfgLineText, "=")
-				If UBound(cfgKv) >= 1 Then
-					Dim cfgKey = LCase(Trim(CStr(cfgKv(0))))
-					If Left(cfgKey, 4) = "dim " Then
-						cfgKey = Trim(Mid(cfgKey, 5, Len(cfgKey) - 4))
-					End If
-					Dim cfgVal = Trim(CStr(cfgKv(1)))
-					If Left(cfgVal, 1) = Chr(34) And Right(cfgVal, 1) = Chr(34) Then
-						If Len(cfgVal) <= 2 Then
-							cfgVal = ""
-						Else
-							cfgVal = Mid(cfgVal, 2, Len(cfgVal) - 2)
-						End If
-					End If
-					CfgSet cfgKey, cfgVal
-				End If
-			End If
-		End If
-	Next
-End If
-
-CFG_ACTION_GROUP_INDEX = Int(CfgGet("action_group_index", CfgGet("cfg_action_group_index", "0")))
-MANUAL_BATTLE_COUNT = Int(CfgGet("battle_count", CfgGet("manual_battle_count", "0")))
-MANUAL_APPLE_ENABLE = Int(CfgGet("apple_enable", CfgGet("manual_apple_enable", "0")))
-MANUAL_CHOOSE_FRIEND = Int(CfgGet("manual_choose_friend", CfgGet("choose_friend_manual", "0")))
-MANUAL_FORCE_COLOR_CARD = Int(CfgGet("force_color_card", CfgGet("manual_force_color_card", "0")))
-
-CFG_FRIEND = CStr(CfgGet("friend", ""))
 Function PickActionIndexByGroup(groupIndex)
 	Dim groupIndexVal = Int(CfgGet("action_round_index_g" & groupIndex, "0"))
 	If groupIndexVal > 0 Then
 		PickActionIndexByGroup = groupIndexVal
 	Else
-		' 兼容旧配置：仍支持单个 action_round_index
 		PickActionIndexByGroup = Int(CfgGet("action_round_index", "0"))
 	End If
 End Function
-
-CFG_ACTION_INDEX = PickActionIndexByGroup(CFG_ACTION_GROUP_INDEX)
 
 Function PickActivityRewardByGroupAndIndex(groupIndex, actionIndex)
 	Dim val = CStr(CfgGet("activity_reward_g" & groupIndex & "_" & actionIndex, ""))
 	If Len(val) > 0 Then
 		PickActivityRewardByGroupAndIndex = Int(val)
 	Else
-		' 兼容回退：大组默认，再到全局默认
 		Dim gVal = CStr(CfgGet("activity_reward_g" & groupIndex, ""))
 		If Len(gVal) > 0 Then
 			PickActivityRewardByGroupAndIndex = Int(gVal)
@@ -156,8 +90,6 @@ Function PickActivityRewardByGroupAndIndex(groupIndex, actionIndex)
 		End If
 	End If
 End Function
-
-CFG_ACTIVITY_REWARD = PickActivityRewardByGroupAndIndex(CFG_ACTION_GROUP_INDEX, CFG_ACTION_INDEX)
 
 Function BuildRoundsFromFlatText(flatText)
 	Dim outRounds = Array()
@@ -195,7 +127,7 @@ Function ParseBattleSequence(sequenceArray)
 			Dim actIndex = 1
 			For Each act In acts
 				act = Trim(act)
-					If actIndex = 1 Then
+				If actIndex = 1 Then
 					Dim prefix = LCase(Mid(act, 1, 1))
 					If prefix = "s" Then
 						actGroup[1] = "skill"
@@ -247,72 +179,56 @@ Function PickDslByGroupAndIndex(groupIndex, roundIndex)
 	PickDslByGroupAndIndex = dslVal
 End Function
 
-Dim BATTLE_COUNT = Int(MANUAL_BATTLE_COUNT)
-Dim CHOOSE_FRIEND_MANUAL = Int(MANUAL_CHOOSE_FRIEND)
-Dim APPLE_ENABLE = Int(MANUAL_APPLE_ENABLE)
-Dim FORCE_COLOR_CARD = Int(MANUAL_FORCE_COLOR_CARD)
-Dim ACTIVITY_REWARD = CFG_ACTIVITY_REWARD
-Dim CAN_RUN = true
+' 状态写入与心跳上报
+Sub UpdateRunnerStatus(stateText, actionText)
+	Dim statusPath = "/sdcard/FGO_Q/status.txt"
+	' IDLE 且尚未打过任何一局时不输出 round/total 进度，避免前端显示"第 0/0 轮"
+	Dim roundStr = ""
+	Dim totalStr = ""
+	If stateText <> "IDLE" Or CurrentBattleCount > 0 Then
+		roundStr = CStr(CurrentBattleCount)
+		totalStr = CStr(BATTLE_COUNT)
+	End If
+	Dim content = "state=" & stateText & Chr(10) & _
+	              "round=" & roundStr & Chr(10) & _
+	              "total_rounds=" & totalStr & Chr(10) & _
+	              "sub_round=" & CURRENT_SUB_ROUND_NUM & Chr(10) & _
+	              "action=" & actionText & Chr(10) & _
+	              "time=" & DateTime.Format() & Chr(10) & _
+	              "msg=" & actionText
+	zm.FileWrite statusPath, content
+End Sub
 
-Dim selectedDsl = ""
-Dim selectedActivityDsl = ""
-Dim selectedFriendKey = ""
-
-TracePrint "CONFIG PARSED", "group=", CFG_ACTION_GROUP_INDEX, "index=", CFG_ACTION_INDEX, "battle_count=", BATTLE_COUNT, "friend=", CFG_FRIEND, "manual_choose_friend=", CHOOSE_FRIEND_MANUAL, "force_color_card=", FORCE_COLOR_CARD
-
-If CFG_ACTION_GROUP_INDEX < 0 Then
-	TracePrint "CONFIG ACTION_ROUND_GROUP_INDEX INVALID, STOP"
-	CAN_RUN = false
-End If
-
-If CFG_ACTION_INDEX <= 0 Then
-	TracePrint "CONFIG ACTION_ROUND_INDEX INVALID, STOP"
-	CAN_RUN = false
-End If
-
-If BATTLE_COUNT <= 0 Then
-	TracePrint "MANUAL BATTLE_COUNT INVALID, STOP"
-	CAN_RUN = false
-End If
-
-If CAN_RUN Then
-	selectedActivityDsl = PickDslByGroupAndIndex(CFG_ACTION_GROUP_INDEX, CFG_ACTION_INDEX)
-	If CFG_ACTION_GROUP_INDEX = 0 Then
-		' 大组 0 额外支持旧版兼容字段
-		If Len(selectedActivityDsl) = 0 Then
-			selectedActivityDsl = CFG_TEST_DSL
-		End If
-		If Len(selectedActivityDsl) = 0 Then
-			selectedActivityDsl = CStr(CfgGet("test_dsl_" & CFG_ACTION_INDEX, ""))
+' 检查网页端是否下发了停止指令
+' 注：MainStandbyLoop 直接读取 cmd.txt，本函数仅在战斗进行中被各循环调用
+Function CheckStopSignal()
+	If USER_STOP_REQUESTED Then
+		CheckStopSignal = true
+		Exit Function
+	End If
+	' 降频文件轮询：每 4 次调用才真正读一次 cmd.txt（约 2s 间隔），减少 IO 开销
+	STOP_CHECK_COUNTER = STOP_CHECK_COUNTER + 1
+	If STOP_CHECK_COUNTER Mod 4 <> 0 Then
+		CheckStopSignal = false
+		Exit Function
+	End If
+	Dim cmdPath = "/sdcard/FGO_Q/cmd.txt"
+	If Dir.Exist(cmdPath) = 1 Then
+		Dim rawCmd = zm.FileRead(cmdPath)
+		If Not IsNull(rawCmd) And Len(CStr(rawCmd)) > 0 Then
+			Dim cmdText = UCase(Trim(CStr(rawCmd)))
+			If cmdText = "STOP" Then
+				TracePrint ">>> RECEIVED STOP COMMAND FROM WEB <<<"
+				USER_STOP_REQUESTED = true
+				zm.FileWrite cmdPath, ""
+				UpdateRunnerStatus "STOPPING", "收到网页停止指令"
+				CheckStopSignal = true
+				Exit Function
+			End If
 		End If
 	End If
-End If
-
-selectedDsl = selectedActivityDsl
-
-selectedFriendKey = LCase(Trim(CStr(PickFriendByGroupAndIndex(CFG_ACTION_GROUP_INDEX, CFG_ACTION_INDEX))))
-If Len(selectedFriendKey) = 0 Then
-	selectedFriendKey = LCase(Trim(CStr(PickFriendByGroup(CFG_ACTION_GROUP_INDEX))))
-End If
-If Len(selectedFriendKey) = 0 Then
-	selectedFriendKey = LCase(Trim(CStr(CFG_FRIEND)))
-End If
-
-If Len(selectedDsl) = 0 Then
-	TracePrint "CONFIG DSL EMPTY, STOP"
-	CAN_RUN = false
-End If
-
-Dim CurrentBattleSequence = Array()
-Dim AllActionRound = Array()
-If CAN_RUN Then
-	TracePrint "SELECTED DSL HEAD:", Left(CStr(selectedDsl), 120)
-	CurrentBattleSequence = BuildRoundsFromFlatText(selectedDsl)
-	AllActionRound = ParseBattleSequence(CurrentBattleSequence)
-End If
-
-' Skill(0):Change: Array("master", 30034),_
-' Skill(1):CaoShiLang: Array("skill",  3013),_
+	CheckStopSignal = false
+End Function
 
 ' BASIC CONFIG
 ' CONST
@@ -337,64 +253,241 @@ Dim ATT_QP = "Attachment:friendQP.png"
 Dim ATT_Sparrow = "Attachment:friendSparrow.png"
 Dim ATT_Mary = "Attachment:friendMary1.png|Attachment:friendMary2.png|Attachment:friendMary3.png"
 Dim ATT_Keli = "Attachment:friendKeli1.png|Attachment:friendKeli2.png|Attachment:friendKeli3.png"
-Dim PREPARE_FRIEND_TAR = Array()
-Dim HAS_FRIEND_CONFIG = false
 
-If Len(selectedFriendKey) > 0 Then
-	If selectedFriendKey = "aobao" Then
-		PREPARE_FRIEND_TAR = Array(40, 180, 920, 800, ATT_Aobao)
-		HAS_FRIEND_CONFIG = true
-	ElseIf selectedFriendKey = "cdai" Then
-		PREPARE_FRIEND_TAR = Array(40, 180, 920, 800, ATT_CDai)
-		HAS_FRIEND_CONFIG = true
-	ElseIf selectedFriendKey = "daoman" Then
-		PREPARE_FRIEND_TAR = Array(40, 180, 920, 800, ATT_DaoMan)
-		HAS_FRIEND_CONFIG = true
-	ElseIf selectedFriendKey = "cba" Then
-		PREPARE_FRIEND_TAR = Array(40, 180, 920, 800, ATT_Cba)
-		HAS_FRIEND_CONFIG = true
-	ElseIf selectedFriendKey = "rba" Then
-		PREPARE_FRIEND_TAR = Array(40, 180, 920, 800, ATT_RBA)
-		HAS_FRIEND_CONFIG = true
-	ElseIf selectedFriendKey = "shahu" Then
-		PREPARE_FRIEND_TAR = Array(40, 180, 920, 800, ATT_Shahu)
-		HAS_FRIEND_CONFIG = true
-	ElseIf selectedFriendKey = "shahushan" Then
-		PREPARE_FRIEND_TAR = Array(40, 180, 920, 800, ATT_ShahuShan)
-		HAS_FRIEND_CONFIG = true
-	ElseIf selectedFriendKey = "aobaoshan" Then
-		PREPARE_FRIEND_TAR = Array(40, 180, 920, 800, ATT_AobaoShan)
-		HAS_FRIEND_CONFIG = true
-	ElseIf selectedFriendKey = "rbashan" Then
-		PREPARE_FRIEND_TAR = Array(40, 180, 920, 800, ATT_RBAShan)
-		HAS_FRIEND_CONFIG = true
-	ElseIf selectedFriendKey = "princess" Then
-		PREPARE_FRIEND_TAR = Array(40, 180, 920, 800, ATT_Princess)
-		HAS_FRIEND_CONFIG = true
-	ElseIf selectedFriendKey = "princess120" Then
-		PREPARE_FRIEND_TAR = Array(40, 180, 920, 800, ATT_Princess120)
-		HAS_FRIEND_CONFIG = true
-	ElseIf selectedFriendKey = "taigong" Then
-		PREPARE_FRIEND_TAR = Array(40, 180, 920, 800, ATT_Taigong)
-		HAS_FRIEND_CONFIG = true
-	ElseIf selectedFriendKey = "sparrow" Then
-		PREPARE_FRIEND_TAR = Array(40, 180, 920, 800, ATT_Sparrow)
-		HAS_FRIEND_CONFIG = true
-	ElseIf selectedFriendKey = "mary" Then
-		PREPARE_FRIEND_TAR = Array(40, 180, 920, 800, ATT_Mary)
-		HAS_FRIEND_CONFIG = true
-	ElseIf selectedFriendKey = "keli" Then
-		PREPARE_FRIEND_TAR = Array(40, 180, 920, 800, ATT_Keli)
-		HAS_FRIEND_CONFIG = true
+' 配置热重载函数：每次收到 START 指令时重新加载最新配置
+Sub ReloadConfig()
+	CFG_CONFIG_PATH = ""
+	CFG_RAW = ""
+	CFG_KEYS = Array()
+	CFG_VALS = Array()
+	CFG_ITEM_COUNT = 0
+	CFG_PRESET = ""
+	CFG_FRIEND = ""
+	CFG_ACTION_INDEX = 0
+	CFG_TEST_DSL = ""
+	CFG_ACTIVITY_REWARD = 1
+	CAN_RUN = true
+	HAS_FRIEND_CONFIG = false
+	selectedDsl = ""
+	selectedActivityDsl = ""
+	selectedFriendKey = ""
+	PREPARE_FRIEND_TAR = Array()
+	CurrentBattleSequence = Array()
+	AllActionRound = Array()
+
+	' 优先检查 FGO_Q 直推目录中的最新配置
+	Dim directCfgPath = "/sdcard/FGO_Q/battle_v4_config.mq"
+	If Dir.Exist(directCfgPath) <> 1 Then
+		directCfgPath = "/storage/emulated/0/FGO_Q/battle_v4_config.mq"
 	End If
-End If
+	If Dir.Exist(directCfgPath) = 1 Then
+		Dim directCfgRaw = zm.FileRead(directCfgPath)
+		If Not IsNull(directCfgRaw) And Len(CStr(directCfgRaw)) > 0 Then
+			Dim directCfgRawLower = LCase(CStr(directCfgRaw))
+			If InStr(1, directCfgRawLower, "dim dsl_") > 0 Or InStr(1, directCfgRawLower, "dim action_group_index") > 0 Then
+				CFG_CONFIG_PATH = directCfgPath
+				CFG_RAW = CStr(directCfgRaw)
+			End If
+		End If
+	End If
 
-If Not HAS_FRIEND_CONFIG Then
-	TracePrint "FRIEND CONFIG INVALID OR EMPTY, STOP"
-	CAN_RUN = false
-End If
+	If Len(CFG_CONFIG_PATH) = 0 Then
+		Dim cfgCandidates = zm.DirScan("/sdcard/MobileAnJian/Script/", "*.mq", 1)
+		If IsNull(cfgCandidates) Then
+			cfgCandidates = zm.DirScan("/storage/emulated/0/MobileAnJian/Script/", "*.mq", 1)
+		End If
 
-TracePrint "CONFIG APPLIED", "group=", CFG_ACTION_GROUP_INDEX, "index=", CFG_ACTION_INDEX, "friend=", selectedFriendKey, "battle_count=", BATTLE_COUNT, "activity_reward=", CFG_ACTIVITY_REWARD
+		If cfgCandidates Then
+			Dim cfgCandidatePath
+			For Each cfgCandidatePath In cfgCandidates
+				Dim cfgCandidatePathText = CStr(cfgCandidatePath)
+				Dim cfgCandidatePathLower = LCase(cfgCandidatePathText)
+				If InStr(1, cfgCandidatePathLower, "battle_v4_config") > 0 Or InStr(1, cfgCandidatePathLower, "battle_v3_config") > 0 Then
+					Dim cfgCandidateRaw = zm.FileRead(cfgCandidatePathText)
+					If Not IsNull(cfgCandidateRaw) And Len(CStr(cfgCandidateRaw)) > 0 Then
+						Dim cfgCandidateRawLower = LCase(CStr(cfgCandidateRaw))
+						If InStr(1, cfgCandidateRawLower, "dim dsl_") > 0 Or InStr(1, cfgCandidateRawLower, "dim test_dsl") > 0 Or InStr(1, cfgCandidateRawLower, "dim action_round_index_") > 0 Or InStr(1, cfgCandidateRawLower, "dim action_group_index") > 0 Then
+							CFG_CONFIG_PATH = cfgCandidatePathText
+							CFG_RAW = CStr(cfgCandidateRaw)
+							If InStr(1, cfgCandidatePathLower, "battle_v4_config") > 0 Then
+								Exit For
+							End If
+						End If
+					End If
+				End If
+			Next
+		End If
+	End If
+
+	If Len(CFG_CONFIG_PATH) > 0 Then
+		TracePrint "CONFIG PATH FOUND:", CFG_CONFIG_PATH
+	Else
+		TracePrint "CONFIG PATH NOT FOUND"
+		TracePrint "HINT:", "请先在按键精灵里编译并同步 battle_v4_config.q"
+		CAN_RUN = false
+		Exit Sub
+	End If
+
+	If Not IsNull(CFG_RAW) And Len(CStr(CFG_RAW)) > 0 Then
+		Dim cfgLines = Split(Replace(CStr(CFG_RAW), Chr(13), ""), Chr(10))
+		Dim cfgLineIndex
+		For cfgLineIndex = 0 To UBound(cfgLines)
+			Dim cfgLineText = Trim(CStr(cfgLines(cfgLineIndex)))
+			If Len(cfgLineText) > 0 Then
+				If Left(cfgLineText, 1) <> "'" Then
+					Dim eqPos = InStr(1, cfgLineText, "=")
+					If eqPos > 0 Then
+						Dim cfgKey = LCase(Trim(Left(cfgLineText, eqPos - 1)))
+						If Left(cfgKey, 4) = "dim " Then
+							cfgKey = Trim(Mid(cfgKey, 5, Len(cfgKey) - 4))
+						End If
+						Dim cfgVal = Trim(Mid(cfgLineText, eqPos + 1, Len(cfgLineText) - eqPos))
+						If Left(cfgVal, 1) = Chr(34) Then
+							Dim secondQuote = InStr(2, cfgVal, Chr(34))
+							If secondQuote > 2 Then
+								cfgVal = Mid(cfgVal, 2, secondQuote - 2)
+							ElseIf secondQuote = 2 Then
+								cfgVal = ""
+							Else
+								cfgVal = Mid(cfgVal, 2, Len(cfgVal) - 1)
+							End If
+						Else
+							Dim commentPos = InStr(1, cfgVal, "'")
+							If commentPos > 1 Then
+								cfgVal = Trim(Left(cfgVal, commentPos - 1))
+							ElseIf commentPos = 1 Then
+								cfgVal = ""
+							End If
+						End If
+						CfgSet cfgKey, cfgVal
+					End If
+				End If
+			End If
+		Next
+	End If
+
+	CFG_ACTION_GROUP_INDEX = Int(CfgGet("action_group_index", CfgGet("cfg_action_group_index", "0")))
+	MANUAL_BATTLE_COUNT = Int(CfgGet("battle_count", CfgGet("manual_battle_count", "0")))
+	MANUAL_APPLE_ENABLE = Int(CfgGet("apple_enable", CfgGet("manual_apple_enable", "0")))
+	MANUAL_CHOOSE_FRIEND = Int(CfgGet("manual_choose_friend", CfgGet("choose_friend_manual", "0")))
+	MANUAL_FORCE_COLOR_CARD = Int(CfgGet("force_color_card", CfgGet("manual_force_color_card", "0")))
+
+	CFG_FRIEND = CStr(CfgGet("friend", ""))
+	CFG_ACTION_INDEX = PickActionIndexByGroup(CFG_ACTION_GROUP_INDEX)
+	CFG_ACTIVITY_REWARD = PickActivityRewardByGroupAndIndex(CFG_ACTION_GROUP_INDEX, CFG_ACTION_INDEX)
+
+	BATTLE_COUNT = Int(MANUAL_BATTLE_COUNT)
+	CHOOSE_FRIEND_MANUAL = Int(MANUAL_CHOOSE_FRIEND)
+	APPLE_ENABLE = Int(MANUAL_APPLE_ENABLE)
+	FORCE_COLOR_CARD = Int(MANUAL_FORCE_COLOR_CARD)
+	ACTIVITY_REWARD = CFG_ACTIVITY_REWARD
+
+	TracePrint "CONFIG PARSED", "group=", CFG_ACTION_GROUP_INDEX, "index=", CFG_ACTION_INDEX, "battle_count=", BATTLE_COUNT, "friend=", CFG_FRIEND, "manual_choose_friend=", CHOOSE_FRIEND_MANUAL, "force_color_card=", FORCE_COLOR_CARD
+
+	If CFG_ACTION_GROUP_INDEX < 0 Then
+		TracePrint "CONFIG ACTION_ROUND_GROUP_INDEX INVALID, STOP"
+		CAN_RUN = false
+	End If
+
+	If CFG_ACTION_INDEX <= 0 Then
+		TracePrint "CONFIG ACTION_ROUND_INDEX INVALID, STOP"
+		CAN_RUN = false
+	End If
+
+	If BATTLE_COUNT <= 0 Then
+		TracePrint "MANUAL BATTLE_COUNT INVALID, STOP"
+		CAN_RUN = false
+	End If
+
+	If CAN_RUN Then
+		selectedActivityDsl = PickDslByGroupAndIndex(CFG_ACTION_GROUP_INDEX, CFG_ACTION_INDEX)
+		If CFG_ACTION_GROUP_INDEX = 0 Then
+			If Len(selectedActivityDsl) = 0 Then
+				selectedActivityDsl = CFG_TEST_DSL
+			End If
+			If Len(selectedActivityDsl) = 0 Then
+				selectedActivityDsl = CStr(CfgGet("test_dsl_" & CFG_ACTION_INDEX, ""))
+			End If
+		End If
+	End If
+
+	selectedDsl = selectedActivityDsl
+
+	selectedFriendKey = LCase(Trim(CStr(PickFriendByGroupAndIndex(CFG_ACTION_GROUP_INDEX, CFG_ACTION_INDEX))))
+	If Len(selectedFriendKey) = 0 Then
+		selectedFriendKey = LCase(Trim(CStr(PickFriendByGroup(CFG_ACTION_GROUP_INDEX))))
+	End If
+	If Len(selectedFriendKey) = 0 Then
+		selectedFriendKey = LCase(Trim(CStr(CFG_FRIEND)))
+	End If
+
+	If Len(selectedDsl) = 0 Then
+		TracePrint "CONFIG DSL EMPTY, STOP"
+		CAN_RUN = false
+	End If
+
+	If CAN_RUN Then
+		TracePrint "SELECTED DSL HEAD:", Left(CStr(selectedDsl), 120)
+		CurrentBattleSequence = BuildRoundsFromFlatText(selectedDsl)
+		AllActionRound = ParseBattleSequence(CurrentBattleSequence)
+	End If
+
+	If Len(selectedFriendKey) > 0 Then
+		If selectedFriendKey = "aobao" Then
+			PREPARE_FRIEND_TAR = Array(40, 180, 920, 800, ATT_Aobao)
+			HAS_FRIEND_CONFIG = true
+		ElseIf selectedFriendKey = "cdai" Then
+			PREPARE_FRIEND_TAR = Array(40, 180, 920, 800, ATT_CDai)
+			HAS_FRIEND_CONFIG = true
+		ElseIf selectedFriendKey = "daoman" Then
+			PREPARE_FRIEND_TAR = Array(40, 180, 920, 800, ATT_DaoMan)
+			HAS_FRIEND_CONFIG = true
+		ElseIf selectedFriendKey = "cba" Then
+			PREPARE_FRIEND_TAR = Array(40, 180, 920, 800, ATT_Cba)
+			HAS_FRIEND_CONFIG = true
+		ElseIf selectedFriendKey = "rba" Then
+			PREPARE_FRIEND_TAR = Array(40, 180, 920, 800, ATT_RBA)
+			HAS_FRIEND_CONFIG = true
+		ElseIf selectedFriendKey = "shahu" Then
+			PREPARE_FRIEND_TAR = Array(40, 180, 920, 800, ATT_Shahu)
+			HAS_FRIEND_CONFIG = true
+		ElseIf selectedFriendKey = "shahushan" Then
+			PREPARE_FRIEND_TAR = Array(40, 180, 920, 800, ATT_ShahuShan)
+			HAS_FRIEND_CONFIG = true
+		ElseIf selectedFriendKey = "aobaoshan" Then
+			PREPARE_FRIEND_TAR = Array(40, 180, 920, 800, ATT_AobaoShan)
+			HAS_FRIEND_CONFIG = true
+		ElseIf selectedFriendKey = "rbashan" Then
+			PREPARE_FRIEND_TAR = Array(40, 180, 920, 800, ATT_RBAShan)
+			HAS_FRIEND_CONFIG = true
+		ElseIf selectedFriendKey = "princess" Then
+			PREPARE_FRIEND_TAR = Array(40, 180, 920, 800, ATT_Princess)
+			HAS_FRIEND_CONFIG = true
+		ElseIf selectedFriendKey = "princess120" Then
+			PREPARE_FRIEND_TAR = Array(40, 180, 920, 800, ATT_Princess120)
+			HAS_FRIEND_CONFIG = true
+		ElseIf selectedFriendKey = "taigong" Then
+			PREPARE_FRIEND_TAR = Array(40, 180, 920, 800, ATT_Taigong)
+			HAS_FRIEND_CONFIG = true
+		ElseIf selectedFriendKey = "sparrow" Then
+			PREPARE_FRIEND_TAR = Array(40, 180, 920, 800, ATT_Sparrow)
+			HAS_FRIEND_CONFIG = true
+		ElseIf selectedFriendKey = "mary" Then
+			PREPARE_FRIEND_TAR = Array(40, 180, 920, 800, ATT_Mary)
+			HAS_FRIEND_CONFIG = true
+		ElseIf selectedFriendKey = "keli" Then
+			PREPARE_FRIEND_TAR = Array(40, 180, 920, 800, ATT_Keli)
+			HAS_FRIEND_CONFIG = true
+		End If
+	End If
+
+	If Not HAS_FRIEND_CONFIG And CHOOSE_FRIEND_MANUAL <= 0 Then
+		TracePrint "FRIEND CONFIG INVALID OR EMPTY, STOP"
+		CAN_RUN = false
+	End If
+
+	TracePrint "CONFIG APPLIED", "group=", CFG_ACTION_GROUP_INDEX, "index=", CFG_ACTION_INDEX, "friend=", selectedFriendKey, "battle_count=", BATTLE_COUNT, "activity_reward=", CFG_ACTIVITY_REWARD
+End Sub
 
 Dim ATT_EQUIP_Goodness = "Attachment:friend_equip_goodness.png"
 Dim PREPARE_FRIEND_EQUIP_TAR = Array(40, 180, 920, 800, ATT_EQUIP_Goodness)
@@ -609,6 +702,7 @@ Dim AWARD_NEXT_MAX_RETRY = 120
 
 Function BattlePrint(Msg)
 	TracePrint "Battle", CurrentBattleCount, Msg
+	UpdateRunnerStatus "RUNNING", Msg
 End Function
 
 Function IsBattleEndDetected()
@@ -647,6 +741,11 @@ End Function
 Function WaitRoundReadyOrBattleEnd()
 	Dim WaitedMs = 0
 	Do While true
+		If USER_STOP_REQUESTED Or CheckStopSignal() Then
+			WaitRoundReadyOrBattleEnd = false
+			Exit Function
+		End If
+
 		If CheckImg2(BATTLE_HERO_SKILL_CHECK_TAR) <> null Then
 			WaitRoundReadyOrBattleEnd = true
 			Exit Function
@@ -686,6 +785,9 @@ End Function
 Function CheckAndTapImg2(Target, TapPoint)
 	TracePrint "CheckAndTapImg2", Target[1], Target[2], Target[5]
 	Dim Point = ContinuousCheckImg(Target)
+	If Point = null Then
+		Exit Function
+	End If
 	Dim TapPointX
 	Dim TapPointY
 	If TapPoint Then
@@ -701,6 +803,10 @@ End Function
 Function ContinuousCheckImg(Target)
 	Dim GetImgCoord
 	Do While true
+		If USER_STOP_REQUESTED Or CheckStopSignal() Then
+			ContinuousCheckImg = null
+			Exit Function
+		End If
 		GetImgCoord = CheckImg2(Target)
 		If GetImgCoord <> null Then
 			ContinuousCheckImg = Array(GetImgCoord[1], GetImgCoord[2])
@@ -717,6 +823,10 @@ Function ContinuousCheckImgTags(Targets)
 	Dim TargetCount = UBound(Targets) + 1
 	TracePrint "ContinuousCheckImgTags", TargetCount
 	Do While true
+		If USER_STOP_REQUESTED Or CheckStopSignal() Then
+			ContinuousCheckImgTags = 0
+			Exit Function
+		End If
 		For TargetIndex = 1 To TargetCount
 			GetImgCoord = CheckImg2(Targets[TargetIndex])
 			If GetImgCoord <> null Then
@@ -750,6 +860,10 @@ Function CheckNoImgAndTap2(Target, TapPoint)
 	Dim AttachedImg = Target[5]
 	Dim RetryCount = 0
 	Do While true
+		If USER_STOP_REQUESTED Or CheckStopSignal() Then
+			CheckNoImgAndTap2 = false
+			Exit Do
+		End If
 		Dim GetImgCoord = CheckImg2(Target)
 		If GetImgCoord = null Then
 			TracePrint "cannot find ", AttachedImg, "then tap", TapPoint[1], TapPoint[2]
@@ -834,6 +948,9 @@ End Function
 Function ChooseFriend()
 	BattlePrint("Choose Friend: key=" & selectedFriendKey & ", target=" & PREPARE_FRIEND_TAR[5])
 	Dim Point = ContinuousCheckImg(PREPARE_FRIEND_TAR)
+	If Point = null Or USER_STOP_REQUESTED Then
+		Exit Function
+	End If
 	Dim TapPointX = Point[1]
 	Dim TapPointY = Point[2]
 	// todo check friend equip
@@ -845,6 +962,9 @@ Function CheckFirstBattle2Start()
 	If IsFirstBattle Then
 		TracePrint "First Battle Start: wait START or ATTACK"
 		Do While true
+			If USER_STOP_REQUESTED Or CheckStopSignal() Then
+				Exit Do
+			End If
 			Dim AttackPoint = CheckImg2(BATTLE_HERO_SKILL_CHECK_TAR)
 			Dim AttackBackPoint = CheckImg2(BATTLE_ATTACK_BACK_TAR)
 			If AttackPoint <> null Or AttackBackPoint <> null Then
@@ -1245,31 +1365,49 @@ Function DoBattle()
 	Else
 		TracePrint "Manual choose friend mode (CHOOSE_FRIEND_MANUAL>0), skip ChooseFriend"
 	End If
+	If USER_STOP_REQUESTED Or CheckStopSignal() Then
+		Exit Function
+	End If
 	CheckFirstBattle2Start()
+	If USER_STOP_REQUESTED Or CheckStopSignal() Then
+		Exit Function
+	End If
 
 	Dim RoundCount = UBound(AllActionRound)+1
 	For RoundIndex = 1 To RoundCount
+		If USER_STOP_REQUESTED Or CheckStopSignal() Then
+			Exit For
+		End If
+		CURRENT_SUB_ROUND_NUM = RoundIndex
 		BattlePrint("Round " & RoundIndex)
 		Dim ActionsRound = AllActionRound[RoundIndex]
 		' ActionsGroup
 		Dim ActionsGroupCount = UBound(ActionsRound)+1
 		For ActionsGroupIndex = 1 To ActionsGroupCount
+			If USER_STOP_REQUESTED Or CheckStopSignal() Then
+				Exit For
+			End If
 			Dim ActionsGroup = ActionsRound[ActionsGroupIndex]
 			If Not WaitRoundReadyOrBattleEnd() Then
 				Exit For
 			End If
 			DoGroupActions(ActionsGroup)
-			If BATTLE_ENDED_EARLY Then
+			If BATTLE_ENDED_EARLY Or USER_STOP_REQUESTED Then
 				Exit For
 			End If
 		Next
-		If Not BATTLE_ENDED_EARLY Then
+		If Not BATTLE_ENDED_EARLY And Not USER_STOP_REQUESTED Then
 			BATTLE_ROUNDS_FINISHED = BATTLE_ROUNDS_FINISHED + 1
 		End If
-		If BATTLE_ENDED_EARLY Then
+		If BATTLE_ENDED_EARLY Or USER_STOP_REQUESTED Then
 			Exit For
 		End If
 	Next
+
+	If USER_STOP_REQUESTED Then
+		TracePrint "Skip remaining battle steps: user stop requested"
+		Exit Function
+	End If
 
 	If BATTLE_ENDED_EARLY Then
 		TracePrint "Skip remaining round actions: battle already ended"
@@ -1362,24 +1500,98 @@ Function DoBattle()
 
 End Function
 
-// START
-Traceprint "START FROM", DateTime.Format()
+Sub StartBattleLoop()
+	TracePrint "=== STARTING BATTLE BATCH ==="
+	CurrentBattleCount = 0
+	HasTicket = true
+	USER_STOP_REQUESTED = false
+	UpdateRunnerStatus "RUNNING", "战斗启动中"
 
-If Not CAN_RUN Then
-	TracePrint "RUNNER STOPPED BY CONFIG VALIDATION"
-	Log.Close
-	EndScript
-End If
+	Do While true
+		If CheckStopSignal() Then
+			TracePrint "Battle batch interrupted before round"
+			Exit Do
+		End If
 
-Do While true
-	CurrentBattleCount = CurrentBattleCount + 1
-	DoBattle()
+		CurrentBattleCount = CurrentBattleCount + 1
+		UpdateRunnerStatus "RUNNING", "第 " & CurrentBattleCount & "/" & BATTLE_COUNT & " 轮进行中"
 
-	TracePrint "BattleCount Current =", CurrentBattleCount, "Max = ", BATTLE_COUNT, "HasTicket = ", HasTicket
-	If CurrentBattleCount >= BATTLE_COUNT Or HasTicket = false Then
-		TracePrint "END"
-		Exit Do
+		DoBattle()
+
+		If USER_STOP_REQUESTED Or CheckStopSignal() Then
+			TracePrint "Battle batch interrupted after round " & CurrentBattleCount
+			Exit Do
+		End If
+
+		TracePrint "BattleCount Current =", CurrentBattleCount, "Max = ", BATTLE_COUNT, "HasTicket = ", HasTicket
+		If CurrentBattleCount >= BATTLE_COUNT Or HasTicket = false Then
+			TracePrint "END OF BATCH"
+			Exit Do
+		End If
+	Loop
+
+	If USER_STOP_REQUESTED Then
+		UpdateRunnerStatus "IDLE", "已停止 (已完成 " & CurrentBattleCount & " 轮)"
+	ElseIf Not HasTicket Then
+		UpdateRunnerStatus "IDLE", "票券或体力耗尽已结束"
+	Else
+		UpdateRunnerStatus "IDLE", "战斗计划已全部完成 (" & BATTLE_COUNT & " 轮)"
 	End If
-Loop
+End Sub
 
+Sub MainStandbyLoop()
+	TracePrint "========================================"
+	TracePrint "FGO_Q BATTLE V4 RUNNER - STANDBY MODE"
+	TracePrint "STANDBY READY. WAITING FOR WEB COMMAND..."
+	TracePrint "========================================"
+
+	' 启动时清理历史指令残留
+	Dim cmdPath = "/sdcard/FGO_Q/cmd.txt"
+	zm.FileWrite cmdPath, ""
+
+	UpdateRunnerStatus "IDLE", "待命中 (等待网页下发运行指令)"
+
+	Dim loopCounter = 0
+	Do While true
+		loopCounter = loopCounter + 1
+
+		' 约每 3 秒刷新一次心跳 (500ms * 6 = 3s)
+		If loopCounter Mod 6 = 0 Then
+			UpdateRunnerStatus "IDLE", "待命中 (就绪)"
+		End If
+
+		If Dir.Exist(cmdPath) = 1 Then
+			Dim rawCmd = zm.FileRead(cmdPath)
+			If Not IsNull(rawCmd) And Len(CStr(rawCmd)) > 0 Then
+				Dim cmdText = UCase(Trim(CStr(rawCmd)))
+				If cmdText = "START" Then
+					TracePrint ">>> RECEIVED START COMMAND FROM WEB <<<"
+					zm.FileWrite cmdPath, ""
+					UpdateRunnerStatus "RUNNING", "载入最新配置中..."
+
+					ReloadConfig()
+
+					If CAN_RUN Then
+						StartBattleLoop()
+					Else
+						TracePrint "RUNNER STOPPED: CONFIG VALIDATION FAILED"
+						UpdateRunnerStatus "IDLE", "配置校验未通过，请检查 Web 页面参数"
+					End If
+
+					UpdateRunnerStatus "IDLE", "待命中 (等待下一轮指令)"
+				ElseIf cmdText = "STOP" Then
+					zm.FileWrite cmdPath, ""
+					USER_STOP_REQUESTED = false
+					UpdateRunnerStatus "IDLE", "已处于待命状态"
+				End If
+			End If
+		End If
+
+		Delay 500
+	Loop
+End Sub
+
+// START ENTRY POINT
+Traceprint "START FROM", DateTime.Format()
+MainStandbyLoop()
 Log.Close

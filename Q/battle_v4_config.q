@@ -8,14 +8,14 @@
 ' 优先级：FRIEND_Gx_y > FRIEND_Gx > friend（全局字段，目前未在此文件配置）。
 
 ' ==================== 全局运行配置 (RUNNER CONFIG) ====================
-Dim ACTION_GROUP_INDEX = 3  ' 当前生效大组: 0=test, 1=campaign, 2=caber, 3=grand, 4=ordeal
+Dim ACTION_GROUP_INDEX = 0  ' 当前生效大组: 0=test, 1=campaign, 2=caber, 3=grand, 4=ordeal
 Dim BATTLE_COUNT = 30  ' 连续战斗次数
 Dim APPLE_ENABLE = 0  ' 是否吃苹果补充体力 (0=关, 1=开)
 Dim MANUAL_CHOOSE_FRIEND = 0  ' 是否人工选助战 (0=自动找图, 1=人工选择)
 Dim FORCE_COLOR_CARD = 0  ' 是否强制选择对应色卡 (0=关, 1=开)
 
 ' ==================== 兼容与兜底字段 ====================
-Dim CFG_ACTION_GROUP_INDEX = 3
+Dim CFG_ACTION_GROUP_INDEX = 0
 Dim MANUAL_BATTLE_COUNT = 30
 Dim MANUAL_APPLE_ENABLE = 0
 Dim MANUAL_FORCE_COLOR_CARD = 0
@@ -26,10 +26,10 @@ Dim ACTIVITY_REWARD = 0
 Dim ACTIVITY_REWARD_G0 = 0
 Dim ACTION_ROUND_INDEX_G0 = 1
 Dim FRIEND_G0 = "aobao"
-' 方案 1: aobao
+' 方案 1: 普攻
 Dim ACTIVITY_REWARD_G0_1 = 0
-Dim FRIEND_G0_1 = "aobao"
-Dim DSL_G0_1 = "s20, 30, 40 | m10034 | s52, 70, 83 | a7, B, B;a7, 4, 5;s92, 50 | m22 | a7, 4, 5"
+Dim FRIEND_G0_1 = "cdai"
+Dim DSL_G0_1 = "s40, 70 | a3, 4, 5;a3, 4, 5"
 ' 方案 2: cdai
 Dim ACTIVITY_REWARD_G0_2 = 0
 Dim FRIEND_G0_2 = "cdai"

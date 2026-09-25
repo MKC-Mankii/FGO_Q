@@ -341,3 +341,24 @@ export function parseConfigFileText(text, stateData) {
         }
     });
 }
+
+// ------------------------------------------------------------------------------
+// 保存基准快照文本与脏标记检测 (Dirty State Detection)
+// ------------------------------------------------------------------------------
+let lastSavedConfigText = '';
+
+export function setLastSavedConfigText(text) {
+    lastSavedConfigText = (text || '').trim();
+}
+
+export function getLastSavedConfigText() {
+    return lastSavedConfigText;
+}
+
+export function isConfigDirty() {
+    commitChanges();
+    if (!lastSavedConfigText) return false;
+    const currentText = generateConfigText(appState.data).trim();
+    return currentText !== lastSavedConfigText;
+}
+

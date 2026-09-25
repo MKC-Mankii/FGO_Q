@@ -1,7 +1,7 @@
 import { appState, getCurGroup, getCurScheme, resetStateToInitial } from './state.js';
 import { CARD_INFO } from './constants.js';
 import { getCurSchemeRounds, commitChanges, generateConfigText, resetCurSchemeRoundsToInitial, createDefaultRound, compileSchemeDsl, extractDslFromText } from './dsl.js';
-import { $, toast, loadConfigFromBackend, saveConfigToBackend, shutdownServer, checkAdbStatus, startAdbAutoWatcher, setPendingSimulatorSync } from './api.js';
+import { $, toast, loadConfigFromBackend, saveConfigToBackend, shutdownServer, checkAdbStatus, startAdbAutoWatcher, setPendingSimulatorSync, updateSyncStatus, triggerRunBattle, triggerStopBattle, startRunnerStatusWatcher, checkRunnerStatus, toggleRunnerMonitorPanel, openRunnerMonitorPanel, closeRunnerMonitorPanel, updateRunnerMonitorPanel } from './api.js';
 import { TEXT_CONFIG, formatText } from './text_config.js';
 
 // 挂载到 window 方便全局调试与查看文本字典
@@ -599,13 +599,14 @@ function initEventBindings() {
 
     const cfgBattleCount = $('cfgBattleCount');
     if (cfgBattleCount) {
-        cfgBattleCount.onchange = e => {
+        const onBattleCountUpdate = e => {
             const val = Math.max(1, parseInt(e.target.value) || 30);
             if (!appState.data.runnerSettings) appState.data.runnerSettings = {};
             appState.data.runnerSettings.battleCount = val;
-            e.target.value = val;
             renderConfigPreview();
         };
+        cfgBattleCount.onchange = onBattleCountUpdate;
+        cfgBattleCount.oninput = onBattleCountUpdate;
     }
 
     const cfgAppleEnable = $('cfgAppleEnable');
@@ -661,6 +662,56 @@ function initEventBindings() {
         };
     }
 
+    // 运行战斗（未保存则先自动保存并同步，再下发 START 指令）
+    const runBattleBtn = $('runBattleBtn');
+    if (runBattleBtn) {
+        runBattleBtn.onclick = () => {
+            triggerRunBattle(getCurrentConfigText);
+        };
+    }
+
+    // 停止战斗
+    const stopBattleBtn = $('stopBattleBtn');
+    if (stopBattleBtn) {
+        stopBattleBtn.onclick = () => {
+            triggerStopBattle();
+        };
+    }
+
+    // 按键脚本运行状态徽标：点击展开/收起右下角监控面板 (Toggle 切换)
+    const runnerIndicator = $('runnerIndicator');
+    if (runnerIndicator) {
+        runnerIndicator.onclick = () => {
+            toggleRunnerMonitorPanel();
+        };
+    }
+
+    // 监控面板内部动作绑定
+    const monitorRefreshBtn = $('monitorRefreshBtn');
+    if (monitorRefreshBtn) {
+        monitorRefreshBtn.onclick = async () => {
+            monitorRefreshBtn.disabled = true;
+            monitorRefreshBtn.textContent = '⏳';
+            try {
+                const data = await checkRunnerStatus();
+                updateRunnerMonitorPanel(data);
+                toast('🔄 脚本监控数据已刷新');
+            } finally {
+                monitorRefreshBtn.disabled = false;
+                monitorRefreshBtn.textContent = '🔄';
+            }
+        };
+    }
+
+    const monitorStopBtn = $('monitorStopBtn');
+    if (monitorStopBtn) {
+        monitorStopBtn.onclick = async () => {
+            await triggerStopBattle();
+            const data = await checkRunnerStatus();
+            updateRunnerMonitorPanel(data);
+        };
+    }
+
     // 重新从磁盘读取配置
     const reloadBtn = $('reloadBtn');
     if (reloadBtn) {
@@ -684,6 +735,7 @@ function initEventBindings() {
         adbIndicator.onclick = async () => {
             adbIndicator.className = 'adb-badge syncing';
             adbIndicator.textContent = '📱 检查并同步...';
+            updateSyncStatus('', '⏳ 正在同步...', '正在向模拟器传输最新配置...');
             const configText = getCurrentConfigText();
             try {
                 const res = await fetch('/api/sync', {
@@ -696,15 +748,23 @@ function initEventBindings() {
                     setPendingSimulatorSync(false);
                     adbIndicator.className = 'adb-badge connected';
                     adbIndicator.textContent = `📱 模拟器在线 (${data.device})`;
-                    toast(`⚡ 模拟器连接正常，最新配置已同步 (${data.device}, ${data.elapsed_ms || 0}ms)`);
+                    adbIndicator.title = `模拟器已连线: ${data.device}\n点击可手动再次同步`;
+                    const now = new Date().toTimeString().slice(0, 8);
+                    const elapsed = data.elapsed_ms != null ? `${data.elapsed_ms}ms` : '毫秒级';
+                    const tooltip = `【手动同步完成】\n• 目标设备：${data.device}\n• 传输耗时：${elapsed}\n• 下发位置：/sdcard/FGO_Q/battle_v4_config.mq\n• 同步时间：${now}`;
+                    updateSyncStatus('synced', '✅ 模拟器已同步', tooltip);
+                    toast(`⚡ 模拟器连接正常，最新配置已同步 (${data.device}, ${elapsed})`);
                 } else {
                     adbIndicator.className = 'adb-badge offline';
                     adbIndicator.textContent = '📱 模拟器离线';
+                    adbIndicator.title = `${data.message || '模拟器未就绪'}\n每隔 10 秒自动检测`;
+                    updateSyncStatus('pending', '⚠️ 模拟器离线', `【模拟器未连接】\n• 原因：${data.message || '未连接'}\n• 请确认模拟器已开启并在运行中`);
                     toast(`⚠️ 模拟器未就绪: ${data.message || '未连接'}`);
                 }
             } catch (err) {
                 adbIndicator.className = 'adb-badge offline';
                 adbIndicator.textContent = '📱 连接失败';
+                updateSyncStatus('error', '❌ 连接失败', `【探测异常】\n• 错误：${err.message}`);
                 toast(`⚠️ 探测模拟器异常: ${err.message}`);
             }
         };
@@ -754,6 +814,8 @@ function initEventBindings() {
         } else if (e.key === 'F5' || ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'r')) {
             e.preventDefault();
             location.reload();
+        } else if (e.key === 'Escape') {
+            closeRunnerMonitorPanel();
         }
     });
 }
@@ -775,6 +837,7 @@ function bootstrapApp() {
     render();
     loadConfigFromBackend(render);
     startAdbAutoWatcher(getCurrentConfigText);
+    startRunnerStatusWatcher();
 }
 
 document.addEventListener('DOMContentLoaded', bootstrapApp);
