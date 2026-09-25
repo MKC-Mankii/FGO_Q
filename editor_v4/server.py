@@ -5,6 +5,8 @@ import sys
 import time
 import shutil
 import glob
+import logging
+from logging.handlers import RotatingFileHandler
 
 # 兼容 pythonw.exe 无控制台运行（防止 NoneType.write 崩溃）
 if sys.stdout is None:
@@ -15,14 +17,37 @@ if sys.stderr is None:
 PORT = 8098
 ROOT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 EDITOR_DIR = os.path.abspath(os.path.dirname(__file__))
+LOG_DIR = os.path.join(EDITOR_DIR, "logs")
+os.makedirs(LOG_DIR, exist_ok=True)
+LOG_FILE = os.path.join(LOG_DIR, "editor.log")
+
+# 配置 Editor 本地滚动日志系统
+logger = logging.getLogger("editor")
+logger.setLevel(logging.INFO)
+
+if not logger.handlers:
+    # 轮转日志：每个文件上限 5MB，最多保留 5 份历史文件，全局 UTF-8
+    file_handler = RotatingFileHandler(
+        LOG_FILE, maxBytes=5 * 1024 * 1024, backupCount=5, encoding="utf-8"
+    )
+    file_formatter = logging.Formatter(
+        "[%(asctime)s] [%(levelname)s] %(message)s", datefmt="%Y-%m-%d %H:%M:%S"
+    )
+    file_handler.setFormatter(file_formatter)
+    logger.addHandler(file_handler)
+
+    console_handler = logging.StreamHandler(sys.stdout)
+    console_handler.setFormatter(file_formatter)
+    logger.addHandler(console_handler)
 
 if EDITOR_DIR not in sys.path:
     sys.path.insert(0, EDITOR_DIR)
 
 try:
     import adb_sync
-except Exception:
+except Exception as e:
     adb_sync = None
+    logger.warning(f"Failed to import adb_sync module: {e}")
 
 CONFIG_PATH_V4 = os.path.join(ROOT_DIR, "Q", "battle_v4_config.q")
 BACKUP_DIR = os.path.join(ROOT_DIR, "Q", ".backup")
@@ -40,6 +65,7 @@ def backup_config(target_path):
         backup_name = f"{base_name}.{timestamp}.bak.q"
         backup_path = os.path.join(BACKUP_DIR, backup_name)
         shutil.copy2(target_path, backup_path)
+        logger.info(f"[Backup] 历史快照已创建: {backup_name}")
 
         # 轮转清理：保留最新 MAX_BACKUPS 份
         existing_backups = sorted(
@@ -54,7 +80,7 @@ def backup_config(target_path):
                 pass
         return backup_path
     except Exception as e:
-        print(f"[Warning] Failed to backup config: {e}", file=sys.stderr)
+        logger.warning(f"[Backup] 备份配置失败: {e}")
         return None
 
 
@@ -72,11 +98,11 @@ class ConfigEditorHandler(http.server.SimpleHTTPRequestHandler):
         super().__init__(*args, directory=EDITOR_DIR, **kwargs)
 
     def log_message(self, format, *args):
-        try:
-            if sys.stderr:
-                sys.stderr.write("%s - - [%s] %s\n" % (self.address_string(), self.log_date_time_string(), format % args))
-        except Exception:
-            pass
+        # 过滤轮询心跳请求，避免日志被每秒的状态探测刷屏
+        path = getattr(self, 'path', '')
+        if '/api/runner/status' in path or '/api/adb/status' in path:
+            return
+        logger.info(f"{self.address_string()} - {format % args}")
 
     def end_headers(self):
         self.send_header('Cache-Control', 'no-cache, no-store, must-revalidate')
@@ -85,6 +111,13 @@ class ConfigEditorHandler(http.server.SimpleHTTPRequestHandler):
         super().end_headers()
 
     def do_GET(self):
+        global adb_sync
+        if not adb_sync:
+            try:
+                import adb_sync
+            except Exception:
+                adb_sync = None
+
         if self.path.startswith('/api/config'):
             target_path = CONFIG_PATH_V4
 
@@ -111,7 +144,21 @@ class ConfigEditorHandler(http.server.SimpleHTTPRequestHandler):
             self.send_header('Content-Type', 'application/json; charset=utf-8')
             self.send_header('Cache-Control', 'no-cache')
             self.end_headers()
-            self.wfile.write(json.dumps(status).encode('utf-8'))
+            self.wfile.write(json.dumps(status, ensure_ascii=False).encode('utf-8'))
+            return
+        elif self.path.startswith('/api/runner/status'):
+            if adb_sync:
+                try:
+                    status = adb_sync.get_runner_status()
+                except Exception as e:
+                    status = {"available": False, "connected": False, "alive": False, "state": "OFFLINE", "message": str(e)}
+            else:
+                status = {"available": False, "connected": False, "alive": False, "state": "OFFLINE", "message": "adb_sync 模块未加载"}
+            self.send_response(200)
+            self.send_header('Content-Type', 'application/json; charset=utf-8')
+            self.send_header('Cache-Control', 'no-cache')
+            self.end_headers()
+            self.wfile.write(json.dumps(status, ensure_ascii=False).encode('utf-8'))
             return
         elif self.path.startswith('/api/open-browser'):
             import webbrowser
@@ -156,6 +203,7 @@ class ConfigEditorHandler(http.server.SimpleHTTPRequestHandler):
             return super().do_GET()
 
     def do_POST(self):
+        global adb_sync
         if self.path.startswith('/api/shutdown'):
             self.send_response(200)
             self.send_header('Content-Type', 'application/json; charset=utf-8')
@@ -193,16 +241,72 @@ class ConfigEditorHandler(http.server.SimpleHTTPRequestHandler):
                     text = f.read()
 
             try:
-                import adb_sync
-                res = adb_sync.push_config_to_simulator(text)
+                if adb_sync:
+                    res = adb_sync.push_config_to_simulator(text)
+                else:
+                    res = {"success": False, "connected": False, "message": "adb_sync 模块未加载"}
             except Exception as e:
                 res = {"success": False, "connected": False, "message": str(e)}
+
+            logger.info(f"[Sync] 手动同步配置至模拟器结果: {res.get('message', '')} (success={res.get('success')})")
 
             self.send_response(200)
             self.send_header('Content-Type', 'application/json; charset=utf-8')
             self.send_header('Cache-Control', 'no-cache')
             self.end_headers()
             self.wfile.write(json.dumps(res).encode('utf-8'))
+            return
+        elif self.path.startswith('/api/run'):
+            length = int(self.headers.get('Content-Length', 0))
+            body = self.rfile.read(length).decode('utf-8') if length > 0 else ""
+            text = ""
+            if body:
+                try:
+                    text = json.loads(body).get('text', '')
+                except Exception:
+                    pass
+
+            sync_res = None
+            if text:
+                try:
+                    backup_config(CONFIG_PATH_V4)
+                    os.makedirs(os.path.dirname(CONFIG_PATH_V4), exist_ok=True)
+                    with open(CONFIG_PATH_V4, 'w', encoding='utf-8') as f:
+                        f.write(text)
+                    if adb_sync:
+                        sync_res = adb_sync.push_config_to_simulator(text)
+                except Exception as e:
+                    logger.warning(f"[Run] 运行前保存/直推配置异常: {e}")
+
+            if adb_sync:
+                run_res = adb_sync.send_runner_command("START")
+            else:
+                run_res = {"success": False, "connected": False, "message": "adb_sync 模块未加载"}
+
+            if sync_res:
+                run_res["sync"] = sync_res
+
+            logger.info(f"[Run] 触发运行战斗: 指令下发={run_res.get('success')} | 消息: {run_res.get('message', '')}")
+
+            self.send_response(200)
+            self.send_header('Content-Type', 'application/json; charset=utf-8')
+            self.send_header('Cache-Control', 'no-cache')
+            self.end_headers()
+            self.wfile.write(json.dumps(run_res).encode('utf-8'))
+            return
+        elif self.path.startswith('/api/stop'):
+            if adb_sync:
+                stop_res = adb_sync.send_runner_command("STOP")
+            else:
+                stop_res = {"success": False, "connected": False, "message": "adb_sync 模块未加载"}
+
+            logger.info(f"[Stop] 触发停止战斗: 指令下发={stop_res.get('success')} | 消息: {stop_res.get('message', '')}")
+
+            self.send_response(200)
+            self.send_header('Content-Type', 'application/json; charset=utf-8')
+            self.send_header('Cache-Control', 'no-cache')
+            self.end_headers()
+            self.wfile.write(json.dumps(stop_res).encode('utf-8'))
             return
         elif self.path.startswith('/api/save'):
             length = int(self.headers.get('Content-Length', 0))
@@ -224,14 +328,18 @@ class ConfigEditorHandler(http.server.SimpleHTTPRequestHandler):
                 # 阶段一：自动下发至模拟器与手机助手
                 adb_res = None
                 try:
-                    import adb_sync
-                    adb_res = adb_sync.push_config_to_simulator(text)
+                    if adb_sync:
+                        adb_res = adb_sync.push_config_to_simulator(text)
+                    else:
+                        adb_res = {"success": False, "connected": False, "message": "adb_sync 模块未加载"}
                 except Exception as e:
                     adb_res = {
                         "success": False,
                         "connected": False,
                         "message": f"直推模拟器异常: {str(e)}"
                     }
+
+                logger.info(f"[Save] 配置已保存落盘: {target_path} | ADB结果: {adb_res.get('message', '')}")
 
                 self.send_response(200)
                 self.send_header('Content-Type', 'application/json; charset=utf-8')
@@ -243,6 +351,7 @@ class ConfigEditorHandler(http.server.SimpleHTTPRequestHandler):
                     'adb': adb_res
                 }).encode('utf-8'))
             except Exception as e:
+                logger.error(f"[Save] 保存配置异常: {e}", exc_info=True)
                 self.send_response(500)
                 self.send_header('Content-Type', 'application/json; charset=utf-8')
                 self.end_headers()
@@ -264,5 +373,7 @@ def start_server_thread(host='127.0.0.1', port=PORT):
 
 if __name__ == '__main__':
     server = create_server('0.0.0.0', PORT)
+    logger.info(f"=== FGO Q Editor Server running on port {PORT} ===")
+    logger.info(f"Local log file: {LOG_FILE}")
     print(f"FGO Q Editor Server running on port {PORT}...", flush=True)
     server.serve_forever()

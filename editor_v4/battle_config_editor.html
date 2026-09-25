@@ -8,9 +8,9 @@
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
     <!-- 原生模块化样式层 -->
     <link rel="stylesheet" href="css/base.css">
-    <link rel="stylesheet" href="css/layout.css?v=20260924_v4">
+    <link rel="stylesheet" href="css/layout.css?v=20260925_micro">
     <link rel="stylesheet" href="css/timeline.css?v=10">
-    <link rel="stylesheet" href="css/modals.css">
+    <link rel="stylesheet" href="css/modals.css?v=20260925_micro">
     <!-- 拖拽支持 -->
     <script src="sortable.min.js"></script>
     <script>
@@ -41,8 +41,9 @@
                     txt.textContent = '🛑 服务已关';
                 }
                 if (syncStatus) {
-                    syncStatus.textContent = '🛑 本地服务已关闭，端口已释放';
-                    syncStatus.style.color = '#fc8181';
+                    syncStatus.className = 'sync-status-badge error';
+                    syncStatus.textContent = '🛑 服务已关';
+                    syncStatus.title = '【服务已停止】\n• 本地 Python 服务进程已退出，端口 8098 已释放\n• 如需继续使用，请双击桌面快捷方式重新启动';
                 }
 
                 // 双通道请求关闭
@@ -217,10 +218,13 @@
                 <!-- 业务配置核心操作区 -->
                 <div class="config-actions">
                     <span id="adbIndicator" class="adb-badge offline" title="检测模拟器 ADB 状态 (点击重新检测)">📱 模拟器检测中...</span>
-                    <span id="syncStatus" style="font-size:12px; color:var(--text-muted); margin-right:4px;">正在自动读取本地配置...</span>
+                    <span id="runnerIndicator" class="runner-badge offline" title="按键脚本运行状态 (点击打开脚本监控面板)">⚪ 脚本未启动</span>
+                    <span id="syncStatus" class="sync-status-badge" title="正在从本地磁盘读取配置文件...">⏳ 读取中...</span>
                     <button class="button quiet" id="reloadBtn" title="重新从本地磁盘读取配置文件">📂 重新读取</button>
                     <button class="button quiet" id="copyBtn">📋 复制配置</button>
                     <button class="button primary" id="saveBtn">💾 保存配置</button>
+                    <button class="button run-battle-btn" id="runBattleBtn" title="启动战斗（未保存改动将自动保存并同步至模拟器）">▶ 运行战斗</button>
+                    <button class="button stop-battle-btn" id="stopBattleBtn" style="display:none;" title="停止战斗">⏹ 停止战斗</button>
                 </div>
             </div>
         </header>
@@ -671,6 +675,34 @@
         </div>
     </div>
 
+    <!-- 右下角极简脚本监控浮层 (无蒙层，超紧凑) -->
+    <div class="runner-monitor-panel" id="runnerMonitorPanel" style="display:none;">
+        <!-- 第一行：左上角状态图标 + 状态/轮次 + 同步时间，右上角虚浮操作按钮 (同一行) -->
+        <div class="monitor-top-row">
+            <div class="monitor-top-left">
+                <span id="monitorStatusDot" class="monitor-status-dot" title="脚本运行状态">⚪</span>
+                <span id="monitorStateRoundText" class="monitor-state-mini" style="display:none;"></span>
+                <span id="monitorLogTime" class="monitor-sync-time">--:--:--</span>
+            </div>
+            <div class="monitor-top-actions">
+                <button class="monitor-tool-btn" id="monitorRefreshBtn" title="刷新状态与日志">🔄</button>
+                <button class="monitor-tool-btn stop" id="monitorStopBtn" style="display:none;" title="停止战斗">⏹</button>
+                <button class="monitor-tool-btn close" id="closeMonitorBtn" onclick="window.closeRunnerMonitor()" title="收起面板 (Esc)">✕</button>
+            </div>
+        </div>
+
+        <!-- 连战细进度条 (战斗中显示) -->
+        <div class="monitor-panel-progress" id="monitorProgressWrap" style="display:none;">
+            <div class="monitor-progress-bar">
+                <div class="monitor-progress-fill" id="monitorProgressFill" style="width:0%;"></div>
+            </div>
+            <span class="monitor-progress-percent" id="monitorProgressPercent">0%</span>
+        </div>
+
+        <!-- 黑底日志终端 (移除小标题) -->
+        <pre class="monitor-panel-terminal" id="monitorLogTerminal">暂无日志输出，启动脚本或点击上方 🔄 刷新...</pre>
+    </div>
+
     <!-- 内部配置代码隐藏缓存槽 -->
     <textarea id="configPreview" style="display:none;" aria-hidden="true"></textarea>
 
@@ -678,7 +710,7 @@
     <div class="toast" id="toast"></div>
 
     <!-- 原生 ES 模块主入口 -->
-    <script type="module" src="js/main.js?v=20260924_v4"></script>
+    <script type="module" src="js/main.js?v=20260925_micro"></script>
 </body>
 
 </html>

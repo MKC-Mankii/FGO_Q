@@ -102,6 +102,64 @@ button {
     box-shadow: 0 4px 12px rgba(68, 135, 223, 0.45);
 }
 
+/* 保存按钮待保存（Dirty）动态高亮与呼吸效果 - 尺寸绝对严格锁定不变 */
+#saveBtn {
+    position: relative;
+    box-sizing: border-box;
+    transition: background 0.25s ease, box-shadow 0.25s ease, transform 0.15s ease;
+}
+
+#saveBtn.has-changes {
+    background: linear-gradient(135deg, #dd6b20, #ed8936);
+    color: #ffffff;
+    box-shadow: 0 0 0 0 rgba(237, 137, 54, 0.7), 0 2px 8px rgba(221, 107, 32, 0.45);
+    animation: save-btn-pulse 2s infinite ease-in-out;
+}
+
+#saveBtn.has-changes:hover {
+    background: linear-gradient(135deg, #ea580c, #f97316);
+    transform: translateY(-1px);
+    box-shadow: 0 0 0 4px rgba(237, 137, 54, 0.3), 0 4px 14px rgba(237, 137, 54, 0.6);
+}
+
+#saveBtn.has-changes::after {
+    content: '';
+    position: absolute;
+    top: -3px;
+    right: -3px;
+    width: 8px;
+    height: 8px;
+    background: #fc8181;
+    border: 2px solid #ffffff;
+    border-radius: 50%;
+    box-shadow: 0 0 6px #e53e3e;
+    animation: save-dot-glow 1.5s ease-in-out infinite alternate;
+    pointer-events: none;
+}
+
+@keyframes save-btn-pulse {
+    0%, 100% {
+        box-shadow: 0 0 0 0 rgba(237, 137, 54, 0.6), 0 2px 8px rgba(221, 107, 32, 0.45);
+        filter: brightness(1);
+    }
+    50% {
+        box-shadow: 0 0 0 4px rgba(237, 137, 54, 0.25), 0 3px 14px rgba(237, 137, 54, 0.6);
+        filter: brightness(1.08);
+    }
+}
+
+@keyframes save-dot-glow {
+    0% {
+        transform: scale(0.9);
+        opacity: 0.85;
+    }
+    100% {
+        transform: scale(1.25);
+        opacity: 1;
+        box-shadow: 0 0 8px #f56565;
+    }
+}
+
 .button.quiet {
     background: #ffffff;
     border: 1px solid var(--line);
@@ -205,21 +263,25 @@ button {
     position: fixed;
     bottom: 24px;
     right: 24px;
-    background: #4487df;
-    color: #fff;
-    padding: 10px 18px;
-    border-radius: 8px;
-    box-shadow: 0 6px 20px rgba(68, 135, 223, 0.35);
-    font-weight: 600;
-    font-size: 13px;
+    background: #1e293b;
+    color: #f8fafc;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    padding: 12px 20px;
+    border-radius: 10px;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.45), 0 8px 10px -6px rgba(0, 0, 0, 0.3);
+    font-weight: 500;
+    font-size: 13.5px;
+    line-height: 1.6;
+    white-space: pre-line;
+    max-width: 460px;
     opacity: 0;
-    transform: translateY(8px);
-    transition: all 0.2s ease;
+    transform: translateY(12px) scale(0.98);
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
     pointer-events: none;
     z-index: 1000;
 }
 
 .toast.show {
     opacity: 1;
-    transform: none;
+    transform: translateY(0) scale(1);
 }
