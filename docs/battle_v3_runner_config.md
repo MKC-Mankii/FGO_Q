@@ -26,27 +26,41 @@
   - 仅保存数据声明（`DSL_Gx_y`、`FRIEND_Gx_y`、`ACTION_ROUND_INDEX_Gx` 等），不含任何流程与执行逻辑。
 - `Q/.backup/`：**自动快照备份目录**
   - 编辑器每次保存时，自动将保存前的配置文件备份为 `battle_v3_config.q.YYYYMMDD_HHMMSS.bak.q`（自动保留最近 10 份快照）。
-- `editor/`：**Web 可视化编辑器**
+- `editor_v3/`：**Web 可视化编辑器 (v3 独立版)**
   - `server.py`：轻量本地服务，提供配置读写 API、自动轮转备份与静态页面托管（默认端口 `8099`）。
   - `index.html` / `battle_config_editor.html`：编辑器页面。
   - `css/` 与 `js/`：模块化前端实现，负责 DSL 解析、视图渲染、时序看板与交互控制。
 
-### 2.2 运行链路
+### 2.2 运行链路与操作流程
 
-```
-[ 浏览器操作 Web 编辑器 (http://127.0.0.1:8099) ]
-         │
-         ▼ (Ctrl + S 保存)
-[ 自动快照备份: Q/.backup/battle_v3_config.q.(时间戳).bak.q ]
-         │
-         ▼ (写入本地磁盘)
-[ 配置文件: Q/battle_v3_config.q ]
-         │
-         ▼ (按键精灵 PC 端保存并同步编译)
-[ 手机存储: /sdcard/MobileAnJian/Script/battle_v3_config(...).mq ]
-         │
-         ▼ (启动时自动扫描加载)
-[ 战斗执行: Q/battle_v3_runner.q ]
+在 V3 版本体系下，从修改战斗配置到最终在模拟器中运行，需要经历以下完整链路与人工操作：
+
+```text
+[ 步骤 1: 桌面/Web 配置编辑器 (http://127.0.0.1:8099) ]
+  - 用户在可视化界面调整技能、出牌序列、助战等配置
+  - 按 Ctrl+S 保存：触发自动快照备份 Q/.backup/ 并写入 Q/battle_v3_config.q
+        │
+        ▼ (人工操作)
+[ 步骤 2: 人工复制代码 ]
+  - 用户打开 Q/battle_v3_config.q（或从 Web 导出复制）
+  - 打开 PC 端“按键精灵手机助手”软件
+  - 将配置文本/Runner 代码人工全选、复制、粘贴进手机助手的对应脚本编辑区
+        │
+        ▼ (人工操作)
+[ 步骤 3: 手机助手触发调试 ]
+  - 确认手机助手已连接至模拟器（如 MuMu emulator-5554）
+  - 点击手机助手顶部的 [调试] 按钮（或按快捷键 F5）
+        │
+        ▼ (PC助手自动底层行为)
+[ 步骤 4: 跨机传输与下发 ]
+  - 手机助手将脚本源码打包为 .mq 并携带 .atc 附件
+  - 通过调试通道传输至模拟器的 /sdcard/MobileAnJian/Script/ 目录
+        │
+        ▼ (模拟器端执行)
+[ 步骤 5: 模拟器启动与运行 ]
+  - 模拟器内的“按键精灵手机版”收到调试指令
+  - 加载并执行 fgo_battle_v3_runner(...).mq
+  - Runner 引擎调用 zm.DirScan 动态扫描匹配 battle_v3_config 文本进行解析执行
 ```
 
 ---
@@ -148,18 +162,18 @@ DSL 用于定义单回合内执行的所有操作序列：
 ### 5.1 启动与关闭
 
 - **一键桌面启动（推荐）**：
-  - 双击桌面或项目根目录下的 **`FGO_Config_Editor`** 快捷方式（Saber 金卡图标），直接以**独立桌面应用程序窗口**启动（基于 `pywebview` / WebView2 引擎），完全脱离浏览器，无任何地址栏、标签页或黑框终端打扰。
-  - 亦可使用 `editor/start_editor.bat` 或 `editor/start_editor.vbs` 备用启动。
+  - 双击桌面或项目根目录下的 **`FGO_Config_Editor_V3.lnk`** 快捷方式（Saber 金卡图标），直接以**独立桌面应用程序窗口**启动（基于 `pywebview` / WebView2 引擎），完全脱离浏览器，无任何地址栏、标签页或黑框终端打扰。
+  - 亦可使用 `editor_v3/start_editor.bat` 或 `editor_v3/start_editor.vbs` 备用启动。
 - **一键退出关闭**：
   - **窗口原生关闭（推荐）**：直接点击桌面窗口右上角的 **`×`** 关闭窗口，主进程与后台网络服务将自动彻底退出，端口即刻释放，0 后台孤儿进程残留。
-  - **脚本备用退出**：双击运行 `editor/stop_editor.bat` 亦可快速终止后台残留服务进程。
+  - **脚本备用退出**：双击运行 `editor_v3/stop_editor.bat` 亦可快速终止后台残留服务进程。
 - **手动命令行启动（备用）**：
   ```bash
-  python editor/launcher.py
+  python editor_v3/launcher.py
   ```
   如仅需纯 Web 端口调试模式：
   ```bash
-  python editor/server.py
+  python editor_v3/server.py
   ```
   访问地址：`http://127.0.0.1:8099`
 
@@ -216,5 +230,21 @@ DSL 用于定义单回合内执行的所有操作序列：
 | `CONFIG PATH NOT FOUND` | 手机中未找到编译后的 `battle_v3_config` 文件 | 在按键精灵 PC 端打开 `battle_v3_config.q` 并点击「保存并同步」到手机 |
 | `FRIEND CONFIG INVALID OR EMPTY, STOP` | 当前方案未配置助战，或关键字拼写不在支持列表中 | 检查对应方案的助战设置，确保填写为支持的关键字（如 `aobao`、`cdai` 等） |
 | `CONFIG DSL EMPTY, STOP` | 当前方案的 DSL 动作字符串为空 | 在编辑器中为该方案添加技能/出牌动作后保存 |
-| 编辑器无法保存 (Save Failed) | `server.py` 服务未运行或端口被占用 | 在终端启动 `python editor/server.py`，确认 8099 端口正常监听 |
+| 编辑器无法保存 (Save Failed) | `server.py` 服务未运行或端口被占用 | 在终端启动 `python editor_v3/server.py`，确认 8099 端口正常监听 |
 | 误修改需恢复配置 | 误保存了错误配置需要回滚 | 在 `Q/.backup/` 目录找到对应时间戳快照文件，重命名覆盖回 `Q/battle_v3_config.q` |
+
+---
+
+## 7. Runner 底层控制流与战斗判定机制
+
+`battle_v3_runner.q` 内部采用单一职责与统一守卫函数的状态机模型：
+
+1. **统一前置回合守卫 (`WaitRoundReadyOrBattleEnd`)**：
+   - 核心等待与就绪检测逻辑收敛在 `DoBattle -> DoGroupActions` 入口之前统一调度；
+   - 各执行单元（`DoSkillActions` 从者技能、`DoMasterActions` 御主技能、`DoAttackActions` 选卡出牌）专职负责动作释放，动作完成后即刻返回，不再各自挂起等待战斗推进。
+2. **战斗结束与结算检测触发约束**：
+   - **触发前提**：仅当上一动作组确实完整执行了攻击出牌（Attack）动作后，下一组开始前的 `WaitRoundReadyOrBattleEnd` 才会激活战斗结束与领奖结算判定；若上一组仅为纯技能施放或御主换人，则严禁触发结束检测。
+3. **领奖图色抗误判容错**：
+   - 战斗动画与转场中，部分结算图色特征（如 `AWARD_TIE` 领奖图标）偶有发生瞬态噪点误识别；
+   - 引擎内置了**回合检测宽限缓冲**、**多帧连续稳定采样确认**以及**领奖等待超时兜底**，防止因动画干扰提前误退战斗或结算卡死。
+

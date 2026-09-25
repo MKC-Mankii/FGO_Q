@@ -4,6 +4,7 @@
 Log.Open
 
 Import "zm.luae"
+Import "DateTime.lua"
 zm.Init
 
 ' ==================== QUICK EDIT (MANUAL) ====================
@@ -61,7 +62,7 @@ If cfgCandidates Then
 		Dim cfgCandidatePathText = CStr(cfgCandidatePath)
 		Dim cfgCandidatePathLower = LCase(cfgCandidatePathText)
 		If InStr(1, cfgCandidatePathLower, "battle_v3_config") > 0 Then
-			Dim cfgCandidateRaw = File.Read(cfgCandidatePathText)
+			Dim cfgCandidateRaw = zm.FileRead(cfgCandidatePathText)
 			If Not IsNull(cfgCandidateRaw) And Len(CStr(cfgCandidateRaw)) > 0 Then
 				Dim cfgCandidateRawLower = LCase(CStr(cfgCandidateRaw))
 				If InStr(1, cfgCandidateRawLower, "dim dsl_") > 0 Or InStr(1, cfgCandidateRawLower, "dim test_dsl") > 0 Or InStr(1, cfgCandidateRawLower, "dim action_round_index_") > 0 Then
@@ -111,12 +112,12 @@ End If
 
 CFG_FRIEND = CStr(CfgGet("friend", ""))
 Function PickActionIndexByGroup(groupIndex)
-	Dim groupIndexVal = Int(CfgGet("action_round_index_g" & groupIndex, "0"))
+	Dim groupIndexVal = CLng(CfgGet("action_round_index_g" & groupIndex, "0"))
 	If groupIndexVal > 0 Then
 		PickActionIndexByGroup = groupIndexVal
 	Else
 		' 兼容旧配置：仍支持单个 action_round_index
-		PickActionIndexByGroup = Int(CfgGet("action_round_index", "0"))
+		PickActionIndexByGroup = CLng(CfgGet("action_round_index", "0"))
 	End If
 End Function
 
@@ -125,14 +126,14 @@ CFG_ACTION_INDEX = PickActionIndexByGroup(CFG_ACTION_GROUP_INDEX)
 Function PickActivityRewardByGroupAndIndex(groupIndex, actionIndex)
 	Dim val = CStr(CfgGet("activity_reward_g" & groupIndex & "_" & actionIndex, ""))
 	If Len(val) > 0 Then
-		PickActivityRewardByGroupAndIndex = Int(val)
+		PickActivityRewardByGroupAndIndex = CLng(val)
 	Else
 		' 兼容回退：大组默认，再到全局默认
 		Dim gVal = CStr(CfgGet("activity_reward_g" & groupIndex, ""))
 		If Len(gVal) > 0 Then
-			PickActivityRewardByGroupAndIndex = Int(gVal)
+			PickActivityRewardByGroupAndIndex = CLng(gVal)
 		Else
-			PickActivityRewardByGroupAndIndex = Int(CfgGet("activity_reward", "0"))
+			PickActivityRewardByGroupAndIndex = CLng(CfgGet("activity_reward", "0"))
 		End If
 	End If
 End Function
@@ -227,11 +228,11 @@ Function PickDslByGroupAndIndex(groupIndex, roundIndex)
 	PickDslByGroupAndIndex = dslVal
 End Function
 
-Dim BATTLE_COUNT = Int(MANUAL_BATTLE_COUNT)
+Dim BATTLE_COUNT = CLng(MANUAL_BATTLE_COUNT)
 
-Dim CHOOSE_FRIEND_MANUAL = Int(CfgGet("manual_choose_friend", MANUAL_CHOOSE_FRIEND))
-Dim APPLE_ENABLE = Int(MANUAL_APPLE_ENABLE)
-Dim FORCE_COLOR_CARD = Int(CfgGet("force_color_card", MANUAL_FORCE_COLOR_CARD))
+Dim CHOOSE_FRIEND_MANUAL = CLng(CfgGet("manual_choose_friend", MANUAL_CHOOSE_FRIEND))
+Dim APPLE_ENABLE = CLng(MANUAL_APPLE_ENABLE)
+Dim FORCE_COLOR_CARD = CLng(CfgGet("force_color_card", MANUAL_FORCE_COLOR_CARD))
 Dim ACTIVITY_REWARD = CFG_ACTIVITY_REWARD
 Dim CAN_RUN = true
 

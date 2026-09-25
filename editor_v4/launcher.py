@@ -17,9 +17,9 @@ except Exception:
     except Exception:
         pass
 
-PORT = 8099
+PORT = 8098
 ROOT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
-EDITOR_DIR = os.path.join(ROOT_DIR, "editor")
+EDITOR_DIR = os.path.join(ROOT_DIR, "editor_v4")
 ICO_PATH = os.path.join(EDITOR_DIR, "icons", "fgo_editor.ico")
 APP_URL = f"http://127.0.0.1:{PORT}"
 
@@ -83,7 +83,7 @@ def launch_native_webview(debug=False):
     # 推荐尺寸：1600px 宽度（完美承载 1440px 容器及边距留白）× 1020px 高度（控制台全域免滚动完整展示）
     api = NativeApi()
     window = webview.create_window(
-        title="FGO 战斗配置编辑器 (V3)",
+        title="FGO 战斗配置编辑器 (V4)",
         url=APP_URL,
         width=1600,
         height=1020,

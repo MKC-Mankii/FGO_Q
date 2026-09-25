@@ -60,7 +60,7 @@ Dim DSL_G1_3 = "s20, 30, 40, 52, 70, 83 | a7, 8, 5;s10 | a6, 4, 5;s92, 50 | m22 
 ' -----------------------------
 ' 大组 2: caber（术呆通用）
 Dim ACTIVITY_REWARD_G2 = 0
-Dim ACTION_ROUND_INDEX_G2 = 2
+Dim ACTION_ROUND_INDEX_G2 = 3
 Dim FRIEND_G2 = "cdai"
 ' 方案 1: cdai
 Dim ACTIVITY_REWARD_G2_1 = 0
@@ -70,10 +70,10 @@ Dim DSL_G2_1 = "s23, 33, 53, 63, 70, 90, 83 | m30 | a8, 4, 5;s10 | a8, 4, 5;s40 
 Dim ACTIVITY_REWARD_G2_2 = 0
 Dim FRIEND_G2_2 = "cdai"
 Dim DSL_G2_2 = "s10, 20, 53, 63, 70, 90, 83 | m30 | a8, 4, 5;s40 | a8, 4, 5;s33 | m10 | a8, 4, 5"
-' 方案 3: cdai
+' 方案 3: 兰丸
 Dim ACTIVITY_REWARD_G2_3 = 0
 Dim FRIEND_G2_3 = "cdai"
-Dim DSL_G2_3 = "s10, 20, 53, 63, 80, 90 | a8, 4, 5;s40 | a8, 4, 5;s33 | m10, 30 | a8, 4, 5"
+Dim DSL_G2_3 = "s10, 20, 53, 63, 90 | a8, 4, 5;s40 | a8, 4, 5;m10, 30 | s33, 80 | a8, 4, 5"
 
 ' -----------------------------
 ' 大组 3: grand（戴冠战关卡）

@@ -3,8 +3,8 @@ import sys
 import subprocess
 
 root_dir = r"F:\2nd Accra\Git\Github\FGO_Q"
-launcher_script = os.path.join(root_dir, "editor", "launcher.py")
-ico_path = os.path.join(root_dir, "editor", "icons", "fgo_editor.ico")
+launcher_script = os.path.join(root_dir, "editor_v3", "launcher.py")
+ico_path = os.path.join(root_dir, "editor_v3", "icons", "fgo_editor.ico")
 
 python_exe = sys.executable
 pythonw_exe = python_exe
@@ -13,7 +13,7 @@ if python_exe.lower().endswith("python.exe"):
     if os.path.exists(cand):
         pythonw_exe = cand
 
-shortcut_name = "FGO_Config_Editor.lnk"
+shortcut_name = "FGO_Config_Editor_V3.lnk"
 
 vbs_script_content = f'''Set WshShell = CreateObject("WScript.Shell")
 desktop = WshShell.SpecialFolders("Desktop")
@@ -43,7 +43,7 @@ lnk2.Save
 WScript.Echo "Shortcuts successfully created!"
 '''
 
-temp_vbs = os.path.join(root_dir, "editor", "temp_create_lnk.vbs")
+temp_vbs = os.path.join(root_dir, "editor_v3", "temp_create_lnk.vbs")
 with open(temp_vbs, "w", encoding="utf-8") as f:
     f.write(vbs_script_content)
 
