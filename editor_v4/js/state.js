@@ -46,7 +46,9 @@ export function resetStateToInitial() {
     appState.data = structuredClone(initialSnapshot || initialData);
     const activeGroup = appState.data.runnerSettings?.activeGroup ?? 0;
     appState.curGroupIdx = (activeGroup >= 0 && activeGroup < appState.data.groups.length) ? activeGroup : 0;
-    appState.curSchemeIdx = 0;
+    const group = appState.data.groups?.[appState.curGroupIdx];
+    const defScheme = group?.defaultScheme;
+    appState.curSchemeIdx = (typeof defScheme === 'number' && defScheme >= 1 && defScheme <= (group?.schemes?.length || 0)) ? defScheme - 1 : 0;
     appState.curRoundIdx = 0;
     appState.pendingAction = null;
     appState.selectedStepState = null;

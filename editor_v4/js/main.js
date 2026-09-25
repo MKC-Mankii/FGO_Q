@@ -45,23 +45,43 @@ import {
     updateStepChipDOM,
     startEditSchemeName,
     saveSchemeName,
-    cancelEditSchemeName
+    cancelEditSchemeName,
+    deleteScheme,
+    handleDeleteSchemeClick,
+    resetDeleteConfirm
 } from './ui.js';
 
 // 大组切换（同时作为脚本默认执行大组）
 export function selectGroup(idx) {
+    resetDeleteConfirm();
     appState.curGroupIdx = idx;
     if (!appState.data.runnerSettings) appState.data.runnerSettings = {};
     appState.data.runnerSettings.activeGroup = idx;
-    appState.curSchemeIdx = 0;
+
+    // 切换战场时，自动选中该战场的默认方案
+    const group = appState.data.groups?.[idx];
+    const defScheme = group?.defaultScheme;
+    if (typeof defScheme === 'number' && defScheme >= 1 && defScheme <= (group?.schemes?.length || 0)) {
+        appState.curSchemeIdx = defScheme - 1;
+    } else {
+        appState.curSchemeIdx = 0;
+    }
     appState.curRoundIdx = 0;
     render();
 }
 
-// 方案切换
+// 方案切换（选中方案时，自动将方案设为当前战场的默认方案）
 export function selectScheme(idx) {
+    resetDeleteConfirm();
     appState.curSchemeIdx = idx;
     appState.curRoundIdx = 0;
+
+    // 选中方案时，自动将方案设为默认方案
+    const group = getCurGroup();
+    if (group && group.defaultScheme !== (idx + 1)) {
+        group.defaultScheme = idx + 1;
+    }
+
     render();
 }
 
@@ -71,6 +91,9 @@ window.selectScheme = selectScheme;
 window.startEditSchemeName = startEditSchemeName;
 window.saveSchemeName = saveSchemeName;
 window.cancelEditSchemeName = cancelEditSchemeName;
+window.deleteScheme = deleteScheme;
+window.handleDeleteSchemeClick = handleDeleteSchemeClick;
+window.resetDeleteConfirm = resetDeleteConfirm;
 window.closeModal = closeModal;
 window.setRoundAttackDOM = setRoundAttackDOM;
 window.editRoundAttack = editRoundAttack;
@@ -478,6 +501,9 @@ function initEventBindings() {
 
     // 点击空白处或按 Esc 键取消选中
     document.addEventListener('click', (e) => {
+        if (!e.target.closest('.scheme-item-del-btn')) {
+            resetDeleteConfirm();
+        }
         if (appState.selectedStepState) {
             if (!e.target.closest('.timeline-chip') && !e.target.closest('.workspace-palette-col') && !e.target.closest('.modal-card')) {
                 appState.selectedStepState = null;
@@ -497,6 +523,7 @@ function initEventBindings() {
     const addSchemeBtn = $('addSchemeBtn');
     if (addSchemeBtn) {
         addSchemeBtn.onclick = () => {
+            resetDeleteConfirm();
             const group = getCurGroup();
             const defaultRound = createDefaultRound();
             group.schemes.push({
@@ -506,7 +533,9 @@ function initEventBindings() {
                 activityReward: 0
             });
             appState.curSchemeIdx = group.schemes.length - 1;
+            group.defaultScheme = group.schemes.length;
             appState.curRoundIdx = 0;
+            commitChanges();
             render();
             toast(formatText(TEXT_CONFIG.sidebar.schemeAddedToast, { count: group.schemes.length }));
         };

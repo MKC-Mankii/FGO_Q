@@ -678,7 +678,6 @@ Dim APPLE_CLOSE_COORD = Array(490, 630)
 
 
 ' VARIATE
-Dim IsFirstBattle = true
 
 ' Dim 屏幕横坐标X,屏幕纵坐标Y
 ' 屏幕横坐标X=GetScreenX()
@@ -957,33 +956,34 @@ Function ChooseFriend()
 	Delay 100
 	CheckAndTapImg2(PREPARE_FRIEND_TAR, null)
 End Function
-Function CheckFirstBattle2Start()
-	CheckFirstBattle2Start = false
-	If IsFirstBattle Then
-		TracePrint "First Battle Start: wait START or ATTACK"
-		Do While true
-			If USER_STOP_REQUESTED Or CheckStopSignal() Then
-				Exit Do
-			End If
-			Dim AttackPoint = CheckImg2(BATTLE_HERO_SKILL_CHECK_TAR)
-			Dim AttackBackPoint = CheckImg2(BATTLE_ATTACK_BACK_TAR)
-			If AttackPoint <> null Or AttackBackPoint <> null Then
-				TracePrint "First Battle Start: ATTACK found, skip START"
-				Exit Do
-			End If
+Function CheckBattleStart()
+	CheckBattleStart = false
+	TracePrint "Battle Start Check: wait START or ATTACK"
+	Do While true
+		If USER_STOP_REQUESTED Or CheckStopSignal() Then
+			Exit Do
+		End If
+		Dim AttackPoint = CheckImg2(BATTLE_HERO_SKILL_CHECK_TAR)
+		Dim AttackBackPoint = CheckImg2(BATTLE_ATTACK_BACK_TAR)
+		If AttackPoint <> null Or AttackBackPoint <> null Then
+			TracePrint "Battle Start: ATTACK found (entered battle), start battle actions"
+			CheckBattleStart = true
+			Exit Do
+		End If
 
-			Dim StartPoint = CheckImg2(START_TAR)
-			If StartPoint <> null Then
-				TracePrint "First Battle Start: tap START"
-				tap StartPoint[1], StartPoint[2]
-				CheckFirstBattle2Start = true
-				Delay 1000
-			Else
-				Delay 300
-			End If
-		Loop
-		IsFirstBattle = false
-	End If
+		Dim StartPoint = CheckImg2(START_TAR)
+		If StartPoint <> null Then
+			TracePrint "Battle Start: START found (team confirm screen), tap START"
+			tap StartPoint[1], StartPoint[2]
+			Delay 1000
+		Else
+			Delay 300
+		End If
+	Loop
+End Function
+
+Function CheckFirstBattle2Start()
+	CheckFirstBattle2Start = CheckBattleStart()
 End Function
 
 Function DoSkillActions(ActionsGroup)
@@ -1368,7 +1368,7 @@ Function DoBattle()
 	If USER_STOP_REQUESTED Or CheckStopSignal() Then
 		Exit Function
 	End If
-	CheckFirstBattle2Start()
+	CheckBattleStart()
 	If USER_STOP_REQUESTED Or CheckStopSignal() Then
 		Exit Function
 	End If
