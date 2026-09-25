@@ -1,0 +1,321 @@
+/* 弹窗遮罩与通用卡片 */
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.45);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 999;
+    backdrop-filter: blur(4px);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.15s ease;
+}
+
+.modal-overlay.show {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.modal-card {
+    background: #ffffff;
+    border: 1px solid var(--line-light);
+    border-radius: 12px;
+    box-shadow: 0 16px 40px rgba(15, 23, 42, 0.16);
+    width: 420px;
+    padding: 22px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    transform: translateY(12px);
+    transition: transform 0.15s ease;
+}
+
+.modal-overlay.show .modal-card {
+    transform: none;
+}
+
+.modal-card h4 {
+    font-size: 16px;
+    font-weight: 700;
+}
+
+/* 技能目标选择器 (Target Modal) */
+.modal-options {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+}
+
+.modal-opt-btn {
+    padding: 12px 8px;
+    background: var(--bg-card);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 13px;
+    text-align: center;
+}
+
+.modal-opt-btn:hover {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff;
+}
+
+/* 换人选择器专属选项 */
+.swap-grid {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    gap: 10px;
+    align-items: center;
+}
+
+.swap-col {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.swap-col button {
+    padding: 8px;
+    background: #ffffff;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    font-size: 12px;
+    color: var(--text-main);
+}
+
+.swap-col button.selected {
+    background: var(--gold);
+    color: #ffffff;
+    font-weight: 700;
+    border-color: var(--gold);
+}
+
+/* 动作修改弹窗专属样式 */
+.edit-step-card {
+    width: 460px;
+    max-width: 95vw;
+}
+
+.edit-step-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-top: 4px;
+}
+
+.edit-step-label {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--text-muted);
+}
+
+.edit-step-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+}
+
+.edit-step-opt-btn {
+    padding: 10px 8px;
+    background: #ffffff;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    text-align: center;
+    color: var(--text-main);
+}
+
+.edit-step-opt-btn:hover {
+    border-color: var(--accent);
+    background: rgba(26, 104, 181, 0.08);
+    color: var(--accent);
+}
+
+.edit-step-opt-btn.active {
+    border-color: var(--accent);
+    background: var(--accent);
+    color: #fff;
+    box-shadow: 0 0 8px var(--accent-glow);
+}
+
+/* 出牌配置弹窗专属样式 */
+.attack-modal-slots {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+}
+
+.attack-modal-slot {
+    background: #ffffff;
+    border: 2px solid var(--line);
+    border-radius: 8px;
+    padding: 10px 8px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    user-select: none;
+}
+
+.attack-modal-slot:hover {
+    border-color: var(--line-light);
+    background: var(--bg-card-hover);
+}
+
+.attack-modal-slot.active {
+    border-color: var(--quick);
+    background: rgba(31, 157, 85, 0.08);
+    box-shadow: 0 0 0 2px rgba(31, 157, 85, 0.2);
+}
+
+.attack-modal-slot .slot-num {
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-bottom: 4px;
+}
+
+.attack-modal-slot .slot-card-badge {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text-main);
+    display: inline-block;
+    padding: 2px 6px;
+    border-radius: 4px;
+}
+
+.attack-card-picker {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.picker-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.picker-group-label {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.picker-buttons {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+}
+
+.card-pick-btn {
+    background: #ffffff;
+    border: 1px solid var(--line);
+    border-radius: 7px;
+    padding: 8px 6px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.card-pick-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+}
+
+.card-pick-btn .card-pick-title {
+    font-size: 12.5px;
+    font-weight: 700;
+}
+
+.card-pick-btn .card-pick-code {
+    font-size: 10px;
+    color: var(--text-muted);
+    font-family: monospace;
+}
+
+.card-pick-btn.np {
+    border-color: rgba(184, 134, 40, 0.4);
+}
+.card-pick-btn.np:hover {
+    border-color: var(--gold);
+    background: rgba(184, 134, 40, 0.1);
+}
+.card-pick-btn.np .card-pick-title {
+    color: #926514;
+}
+
+.card-pick-btn.buster {
+    border-color: rgba(217, 56, 58, 0.4);
+}
+.card-pick-btn.buster:hover {
+    border-color: var(--buster);
+    background: rgba(217, 56, 58, 0.1);
+}
+.card-pick-btn.buster .card-pick-title {
+    color: #c53030;
+}
+
+.card-pick-btn.arts {
+    border-color: rgba(31, 114, 199, 0.4);
+}
+.card-pick-btn.arts:hover {
+    border-color: var(--arts);
+    background: rgba(31, 114, 199, 0.1);
+}
+.card-pick-btn.arts .card-pick-title {
+    color: #155799;
+}
+
+.card-pick-btn.quick {
+    border-color: rgba(31, 157, 85, 0.4);
+}
+.card-pick-btn.quick:hover {
+    border-color: var(--quick);
+    background: rgba(31, 157, 85, 0.1);
+}
+.card-pick-btn.quick .card-pick-title {
+    color: #12733d;
+}
+
+.card-pick-btn.normal {
+    border-color: var(--line);
+}
+.card-pick-btn.normal:hover {
+    border-color: var(--line-light);
+    background: var(--bg-card-hover);
+}
+
+.picker-combos-wrap {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+
+.combo-pill {
+    padding: 4px 9px;
+    border-radius: 6px;
+    background: #ffffff;
+    border: 1px solid var(--line);
+    font-size: 11.5px;
+    color: var(--text-main);
+    cursor: pointer;
+    transition: all 0.12s ease;
+}
+
+.combo-pill:hover {
+    background: var(--bg-card-hover);
+    border-color: var(--quick);
+    color: #12733d;
+}

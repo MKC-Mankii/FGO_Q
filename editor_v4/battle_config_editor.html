@@ -1,0 +1,684 @@
+<!doctype html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>FGO Q Battle Config Editor [V4]</title>
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <!-- 原生模块化样式层 -->
+    <link rel="stylesheet" href="css/base.css">
+    <link rel="stylesheet" href="css/layout.css?v=20260924_v4">
+    <link rel="stylesheet" href="css/timeline.css?v=10">
+    <link rel="stylesheet" href="css/modals.css">
+    <!-- 拖拽支持 -->
+    <script src="sortable.min.js"></script>
+    <script>
+        if (typeof Sortable === 'undefined') {
+            document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.2/Sortable.min.js"><\/script>');
+        }
+        // 免弹窗·双击退出后台服务（带 4 字防抖与进度条倒计时效果）
+        (function() {
+            var clickTimer = null;
+            var isShuttingDown = false;
+
+            window.triggerShutdown = function() {
+                if (isShuttingDown) return;
+                isShuttingDown = true;
+                if (clickTimer) clearTimeout(clickTimer);
+
+                var btn = document.getElementById('shutdownBtn');
+                var txt = document.getElementById('shutdownBtnText');
+                var syncStatus = document.getElementById('syncStatus');
+                if (btn) {
+                    btn.disabled = true;
+                    btn.classList.remove('shutdown-pending');
+                    btn.style.background = '#e53e3e';
+                    btn.style.borderColor = '#e53e3e';
+                    btn.style.color = '#ffffff';
+                }
+                if (txt) {
+                    txt.textContent = '🛑 服务已关';
+                }
+                if (syncStatus) {
+                    syncStatus.textContent = '🛑 本地服务已关闭，端口已释放';
+                    syncStatus.style.color = '#fc8181';
+                }
+
+                // 双通道请求关闭
+                try { fetch('/api/shutdown', { method: 'POST', keepalive: true }).catch(function(){}); } catch(e){}
+                try { var img = new Image(); img.src = '/api/shutdown?t=' + Date.now(); } catch(e){}
+            };
+
+            window.handleShutdownBtnClick = function() {
+                if (isShuttingDown) return;
+                var btn = document.getElementById('shutdownBtn');
+                var txt = document.getElementById('shutdownBtnText');
+                if (!btn || !txt) return;
+
+                if (btn.dataset.clicked === '1') {
+                    // 第二次快速点击，立即触发关闭
+                    clearTimeout(clickTimer);
+                    btn.dataset.clicked = '0';
+                    window.triggerShutdown();
+                } else {
+                    // 第一次点击：文本保持 4 个字（避免挤压左侧按钮），启动进度条动画
+                    btn.dataset.clicked = '1';
+                    txt.textContent = '⚠️ 确认退出';
+                    btn.classList.remove('shutdown-pending');
+                    void btn.offsetWidth; // 触发回流以重新播放动画
+                    btn.classList.add('shutdown-pending');
+
+                    clickTimer = setTimeout(function() {
+                        btn.dataset.clicked = '0';
+                        btn.classList.remove('shutdown-pending');
+                        txt.textContent = '🛑 退出服务';
+                    }, 2200);
+                }
+            };
+        })();
+    </script>
+    <style>
+        /* 退出服务按钮倒计时进度条动画与防挤压宽度锁定 */
+        #shutdownBtn {
+            position: relative;
+            overflow: hidden;
+            min-width: 104px;
+            justify-content: center;
+            text-align: center;
+            white-space: nowrap;
+            box-sizing: border-box;
+            transition: color 0.15s ease, border-color 0.15s ease, background-color 0.15s ease;
+        }
+        #shutdownBtn.shutdown-pending {
+            border-color: #e53e3e !important;
+            color: #ffffff !important;
+            background: rgba(229, 62, 62, 0.18) !important;
+        }
+        #shutdownBtn.shutdown-pending::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            width: 100%;
+            background: linear-gradient(90deg, #e53e3e, #c53030);
+            animation: shutdownCountdown 2.2s linear forwards;
+            z-index: 0;
+        }
+        #shutdownBtnText {
+            position: relative;
+            z-index: 1;
+            pointer-events: none;
+        }
+        @keyframes shutdownCountdown {
+            0% { width: 100%; }
+            100% { width: 0%; }
+        }
+    </style>
+    <!-- 右侧控制台选中高亮核心样式 (克制自然，清晰可见) -->
+    <style id="paletteHighlightStyle">
+        /* 1. 锁定目标高亮 */
+        .target-btn.selected-action-btn,
+        button.target-btn.selected-action-btn {
+            background: #6b46c1 !important;
+            color: #ffffff !important;
+            border-color: #b794f4 !important;
+            box-shadow: 0 0 0 1px #b794f4, 0 2px 6px rgba(107, 70, 193, 0.35) !important;
+            font-weight: 600 !important;
+        }
+
+        /* 2. 从者技能卡片高亮 */
+        .skill-card.selected-in-palette {
+            border: 1px solid #4fa3e3 !important;
+            box-shadow: 0 0 0 1px #4fa3e3, 0 2px 8px rgba(79, 163, 227, 0.25) !important;
+            background: rgba(79, 163, 227, 0.08) !important;
+        }
+
+        /* 从者自身技能主按钮 (无目标自身) */
+        .skill-main-btn.selected-action-btn {
+            background: #2b6cb0 !important;
+            color: #ffffff !important;
+            font-weight: 700 !important;
+            border-bottom: 1px solid #4fa3e3 !important;
+        }
+
+        /* 从者主按钮辅助指示 (当选中下方具体目标从者时) */
+        .skill-main-btn.related-action-btn {
+            background: rgba(79, 163, 227, 0.18) !important;
+            color: #90cdf4 !important;
+            font-weight: 600 !important;
+            border-bottom: 1px solid rgba(79, 163, 227, 0.4) !important;
+        }
+
+        /* 从者目标按钮 (1 / 2 / 3) */
+        .skill-target-btn.selected-action-btn {
+            background: #3182ce !important;
+            color: #ffffff !important;
+            font-weight: 700 !important;
+            box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.4) !important;
+        }
+
+        /* 3. 御主礼装卡片高亮 */
+        .master-card.selected-in-palette {
+            border: 1px solid #d69e2e !important;
+            box-shadow: 0 0 0 1px #d69e2e, 0 2px 8px rgba(214, 158, 46, 0.25) !important;
+            background: rgba(214, 158, 46, 0.08) !important;
+        }
+
+        /* 御主技能主按钮 */
+        .master-main-btn.selected-action-btn {
+            background: #b7791f !important;
+            color: #ffffff !important;
+            font-weight: 700 !important;
+            border-bottom: 1px solid #d69e2e !important;
+        }
+
+        .master-main-btn.related-action-btn {
+            background: rgba(214, 158, 46, 0.18) !important;
+            color: #ecc94b !important;
+            font-weight: 600 !important;
+            border-bottom: 1px solid rgba(214, 158, 46, 0.4) !important;
+        }
+
+        .master-target-btn.selected-action-btn {
+            background: #d69e2e !important;
+            color: #1a202c !important;
+            font-weight: 800 !important;
+            box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.4) !important;
+        }
+
+        .master-target-swap-btn.selected-action-btn {
+            background: #d69e2e !important;
+            color: #1a202c !important;
+            font-weight: 800 !important;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="shell">
+        <!-- 顶部导航 -->
+        <header class="masthead">
+            <div class="masthead-main">
+                <div class="masthead-title">
+                    <img src="icons/fgo_editor.ico" alt="FGO Editor Logo" class="masthead-logo">
+                    <h1>Battle Config Editor <span style="font-size:14px; padding:2px 8px; border-radius:12px; background:var(--gold-soft); color:var(--gold); margin-left:6px; vertical-align:middle; border:1px solid rgba(246,201,77,0.3);">V4</span></h1>
+                </div>
+                <p class="subtext">可视化配置各关卡技能、换人与出牌时序。</p>
+            </div>
+            <div class="masthead-right">
+                <!-- 右上角系统级微型工具栏 (纯图标) -->
+                <div class="system-toolbar" title="系统与窗口工具">
+                    <button class="sys-icon-btn" id="resetSizeBtn" title="恢复推荐窗口尺寸 (1600×1020)">📐</button>
+                    <button class="sys-icon-btn" id="refreshPageBtn" title="刷新页面代码 (快捷键: F5 / Ctrl+R)">🔄</button>
+                    <button class="sys-icon-btn" id="openBrowserBtn" title="在系统浏览器中打开">🌐</button>
+                </div>
+                <!-- 业务配置核心操作区 -->
+                <div class="config-actions">
+                    <span id="adbIndicator" class="adb-badge offline" title="检测模拟器 ADB 状态 (点击重新检测)">📱 模拟器检测中...</span>
+                    <span id="syncStatus" style="font-size:12px; color:var(--text-muted); margin-right:4px;">正在自动读取本地配置...</span>
+                    <button class="button quiet" id="reloadBtn" title="重新从本地磁盘读取配置文件">📂 重新读取</button>
+                    <button class="button quiet" id="copyBtn">📋 复制配置</button>
+                    <button class="button primary" id="saveBtn">💾 保存配置</button>
+                </div>
+            </div>
+        </header>
+
+        <!-- 顶部：全局运行参数控制栏 (v4: 5 个原 runner 手工配置) -->
+        <div class="runner-settings-bar" id="runnerSettingsBar">
+            <div class="runner-settings-header" title="按键精灵脚本启动时读取的全局运行配置（已移至配置文件，修改保存即生效）">
+                <span class="runner-settings-icon">⚙️</span>
+                <span class="runner-settings-title">运行参数</span>
+            </div>
+            <span class="runner-settings-divider"></span>
+            <div class="runner-settings-controls">
+                <div class="runner-setting-control" title="选择当前战场大组，同时作为按键精灵脚本默认执行的大组">
+                    <span class="runner-setting-label">🎯 选择战场:</span>
+                    <select id="cfgActiveGroup" class="runner-select"></select>
+                </div>
+                <div class="runner-setting-control" title="连续自动战斗的最大轮数">
+                    <span class="runner-setting-label">⚔️ 战斗轮数:</span>
+                    <input type="number" id="cfgBattleCount" class="runner-input-number" min="1" max="999" value="30">
+                    <span class="runner-setting-unit">轮</span>
+                </div>
+                <div class="runner-setting-control">
+                    <label class="runner-toggle-label" title="体力不足时是否自动吃苹果补充（默认关）">
+                        <input type="checkbox" id="cfgAppleEnable" class="runner-checkbox">
+                        <span class="runner-toggle-text">🍎 自动吃苹果</span>
+                    </label>
+                </div>
+                <div class="runner-setting-control">
+                    <label class="runner-toggle-label" title="开启后跳过助战特征识别，等待玩家人工选择（默认关）">
+                        <input type="checkbox" id="cfgManualFriend" class="runner-checkbox">
+                        <span class="runner-toggle-text">🤝 人工选助战</span>
+                    </label>
+                </div>
+                <div class="runner-setting-control">
+                    <label class="runner-toggle-label" title="是否强制选择指令指定的色卡（红/蓝/绿）（默认关）">
+                        <input type="checkbox" id="cfgForceColorCard" class="runner-checkbox">
+                        <span class="runner-toggle-text">🎨 强制对应色卡</span>
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <!-- 主体布局 -->
+        <main class="layout">
+            <!-- 侧边栏：方案列表 -->
+            <aside class="panel sidebar">
+                <div class="sidebar-header">
+                    <h2>方案列表</h2>
+                    <button class="button quiet" style="padding:3px 8px; font-size:12px;" id="addSchemeBtn">+ 加方案</button>
+                </div>
+                <div id="schemeList" class="scheme-list"></div>
+
+                <div class="side-box" style="margin-top:auto;">
+                    <button class="button quiet" style="width:100%" id="resetBtn">🔄 重置配置</button>
+                </div>
+            </aside>
+
+            <!-- 右侧工作区 -->
+            <section class="panel workspace">
+                <div class="scheme-bar">
+                    <div class="scheme-header-title">
+                        <button class="scheme-default-star-btn is-default" id="schemeDefaultTag" type="button" title="当前方案是该战场的默认方案">
+                            <span class="scheme-star-icon">⭐</span>
+                        </button>
+                        <div class="scheme-name-box">
+                            <span class="scheme-name-prefix" id="schemeNamePrefix">方案 1:</span>
+                            <!-- 查看态：点击直接修改 -->
+                            <div class="scheme-name-view" id="schemeNameView" onclick="window.startEditSchemeName()" title="点击直接修改方案名称">
+                                <span class="scheme-name-text" id="schemeNameText">方案 1</span>
+                                <span class="scheme-name-edit-hint" title="点击修改名称">✏️</span>
+                            </div>
+                            <!-- 编辑态：带打勾图标保存 -->
+                            <div class="scheme-name-edit" id="schemeNameEdit" style="display:none;">
+                                <input type="text" class="scheme-name-input" id="schemeNameInput" placeholder="输入方案名称" maxlength="30">
+                                <button class="scheme-name-save-btn" id="schemeNameSaveBtn" onclick="window.saveSchemeName()" title="保存方案名称">✔</button>
+                                <button class="scheme-name-cancel-btn" id="schemeNameCancelBtn" onclick="window.cancelEditSchemeName()" title="取消修改">✖</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="scheme-meta">
+                        <div class="item">
+                            <span>助战:</span>
+                            <select id="schemeFriendSelect" style="width:150px; cursor:pointer;"></select>
+                        </div>
+                        <label class="checkbox-item" id="schemeRewardItem" title="当前方案结算时是否自动执行活动点数领取（默认关）">
+                            <input type="checkbox" id="schemeRewardCheckbox">
+                            <span id="schemeRewardLabel">点数奖励</span>
+                        </label>
+                        <div style="display:flex; gap:6px;">
+                            <button class="button quiet" style="padding:4px 9px; font-size:12px; display:inline-flex; align-items:center; gap:4px;" id="copyDslBtn" title="直接复制当前方案的动作 DSL 脚本到剪贴板">📋 复制 DSL</button>
+                            <button class="button quiet" style="padding:4px 9px; font-size:12px; display:inline-flex; align-items:center; gap:4px;" id="importDslBtn" title="通过动作 DSL 脚本导入方案">📥 导入 DSL</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 方案编辑核心双栏分栏 (左：动作时序看板 | 右：动作输入控制台) -->
+                <div class="workspace-editor-grid">
+                    <!-- 左栏：战斗动作时序看板 -->
+                    <div class="workspace-timeline-col">
+                        <div class="waves-board-section">
+                            <div class="waves-board-header">
+                                <div class="waves-board-title-row">
+                                    <div class="waves-board-title">
+                                        <h3>🎬 战斗动作时序 (Action Timeline)</h3>
+                                    </div>
+                                    <div class="timeline-hint-wrapper">
+                                        <button class="timeline-hint-bulb-btn" id="timelineHintBulb" type="button" aria-label="操作引导提示" onclick="event.preventDefault()">💡</button>
+                                        <div class="timeline-hint-popover">点击右侧技能、锁定与出牌按钮直接加入此回合；点击左侧各回合可切换目标。</div>
+                                    </div>
+                                </div>
+                                <div class="waves-board-tools">
+                                    <button class="button quiet" id="addWaveBtn" title="在当前选中的回合后插入一个新回合">+ 添加下一回合</button>
+                                    <button class="button quiet" id="resetCurSchemeBtn" title="将当前方案所有回合恢复为配置文件状态">🔄 重置方案</button>
+                                    <button class="button quiet" id="clearCurSchemeBtn" title="清空当前方案所有回合动作">🗑️ 清空方案</button>
+                                </div>
+                            </div>
+
+                            <!-- 各回合卡片列表看板 -->
+                            <div class="waves-list" id="wavesBoardList"></div>
+                        </div>
+                    </div>
+
+                    <!-- 右栏：动作输入操作控制台 -->
+                    <div class="workspace-palette-col">
+                        <!-- 动作录入提示条（默认隐藏，仅在选中动作卡片修改时展示） -->
+                        <div class="action-palette-hint-bar" id="paletteHintBar" style="display: none;">
+                            <span style="font-size:12px; color:var(--text-main);" id="activeWaveHint"></span>
+                        </div>
+                        <!-- 选敌与御主技能 -->
+                        <div class="palette-grid aux-grid">
+                            <!-- 选敌 -->
+                            <div class="palette-col">
+                                <div class="palette-title">
+                                    <span>🎯 锁定目标</span>
+                                    <small style="color:var(--purple)">t1~t6</small>
+                                </div>
+                                <div class="target-btn-group">
+                                    <button class="target-btn" data-target="1" title="目标 1 (上排左 / t1)">目标 1</button>
+                                    <button class="target-btn" data-target="2" title="目标 2 (上排中 / t2)">目标 2</button>
+                                    <button class="target-btn" data-target="3" title="目标 3 (上排右 / t3)">目标 3</button>
+                                    <button class="target-btn" data-target="4" title="目标 4 (下排左 / t4)">目标 4</button>
+                                    <button class="target-btn" data-target="5" title="目标 5 (下排中 / t5)">目标 5</button>
+                                    <button class="target-btn" data-target="6" title="目标 6 (下排右 / t6)">目标 6</button>
+                                </div>
+                            </div>
+
+                            <!-- 御主技能与换人 -->
+                            <div class="palette-col">
+                                <div class="palette-title">
+                                    <span>👔 御主技能</span>
+                                    <small style="color:var(--gold)">m1~m3</small>
+                                </div>
+                                <div class="master-strip">
+                                    <div class="master-card">
+                                        <button class="master-main-btn" data-master="1" data-target-val="0" title="点击直接添加 技能 1 (自身/无目标)">
+                                            <span>技能 1</span>
+                                        </button>
+                                        <div class="master-targets-col">
+                                            <button class="master-target-btn" data-master="1" data-target-val="1" title="技能 1 → 给从者 1">1</button>
+                                            <button class="master-target-btn" data-master="1" data-target-val="2" title="技能 1 → 给从者 2">2</button>
+                                            <button class="master-target-btn" data-master="1" data-target-val="3" title="技能 1 → 给从者 3">3</button>
+                                            <button class="master-target-btn master-target-swap-btn" data-master-swap="1" title="点击配置 技能 1 换人 (前排⇄替补)">⇄ 换人</button>
+                                        </div>
+                                    </div>
+                                    <div class="master-card">
+                                        <button class="master-main-btn" data-master="2" data-target-val="0" title="点击直接添加 技能 2 (自身/无目标)">
+                                            <span>技能 2</span>
+                                        </button>
+                                        <div class="master-targets-col">
+                                            <button class="master-target-btn" data-master="2" data-target-val="1" title="技能 2 → 给从者 1">1</button>
+                                            <button class="master-target-btn" data-master="2" data-target-val="2" title="技能 2 → 给从者 2">2</button>
+                                            <button class="master-target-btn" data-master="2" data-target-val="3" title="技能 2 → 给从者 3">3</button>
+                                            <button class="master-target-btn master-target-swap-btn" data-master-swap="2" title="点击配置 技能 2 换人 (前排⇄替补)">⇄ 换人</button>
+                                        </div>
+                                    </div>
+                                    <div class="master-card">
+                                        <button class="master-main-btn" data-master="3" data-target-val="0" title="点击直接添加 技能 3 (自身/无目标)">
+                                            <span>技能 3</span>
+                                        </button>
+                                        <div class="master-targets-col">
+                                            <button class="master-target-btn" data-master="3" data-target-val="1" title="技能 3 → 给从者 1">1</button>
+                                            <button class="master-target-btn" data-master="3" data-target-val="2" title="技能 3 → 给从者 2">2</button>
+                                            <button class="master-target-btn" data-master="3" data-target-val="3" title="技能 3 → 给从者 3">3</button>
+                                            <button class="master-target-btn master-target-swap-btn" data-master-swap="3" title="点击配置 技能 3 换人 (前排⇄替补)">⇄ 换人</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 从者 1 ~ 3 技能群 -->
+                        <div class="palette-grid servants-palette">
+                            <!-- 从者 1 -->
+                            <div class="palette-col">
+                                <div class="palette-title">
+                                    <span>⚔️ 从者 1</span>
+                                    <small style="color:var(--accent)">s1~s3</small>
+                                </div>
+                                <div class="skill-btn-group">
+                                    <div class="skill-card">
+                                        <button class="skill-main-btn" data-skill="1" data-target-val="0" title="点击直接添加 技能 1 (自身/无目标)">
+                                            <span>技能 1</span>
+                                        </button>
+                                        <div class="skill-targets-col">
+                                            <button class="skill-target-btn" data-skill="1" data-target-val="1" title="技能 1 → 给从者 1">1</button>
+                                            <button class="skill-target-btn" data-skill="1" data-target-val="2" title="技能 1 → 给从者 2">2</button>
+                                            <button class="skill-target-btn" data-skill="1" data-target-val="3" title="技能 1 → 给从者 3">3</button>
+                                        </div>
+                                    </div>
+                                    <div class="skill-card">
+                                        <button class="skill-main-btn" data-skill="2" data-target-val="0" title="点击直接添加 技能 2 (自身/无目标)">
+                                            <span>技能 2</span>
+                                        </button>
+                                        <div class="skill-targets-col">
+                                            <button class="skill-target-btn" data-skill="2" data-target-val="1" title="技能 2 → 给从者 1">1</button>
+                                            <button class="skill-target-btn" data-skill="2" data-target-val="2" title="技能 2 → 给从者 2">2</button>
+                                            <button class="skill-target-btn" data-skill="2" data-target-val="3" title="技能 2 → 给从者 3">3</button>
+                                        </div>
+                                    </div>
+                                    <div class="skill-card">
+                                        <button class="skill-main-btn" data-skill="3" data-target-val="0" title="点击直接添加 技能 3 (自身/无目标)">
+                                            <span>技能 3</span>
+                                        </button>
+                                        <div class="skill-targets-col">
+                                            <button class="skill-target-btn" data-skill="3" data-target-val="1" title="技能 3 → 给从者 1">1</button>
+                                            <button class="skill-target-btn" data-skill="3" data-target-val="2" title="技能 3 → 给从者 2">2</button>
+                                            <button class="skill-target-btn" data-skill="3" data-target-val="3" title="技能 3 → 给从者 3">3</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 从者 2 -->
+                            <div class="palette-col">
+                                <div class="palette-title">
+                                    <span>⚔️ 从者 2</span>
+                                    <small style="color:var(--accent)">s4~s6</small>
+                                </div>
+                                <div class="skill-btn-group">
+                                    <div class="skill-card">
+                                        <button class="skill-main-btn" data-skill="4" data-target-val="0" title="点击直接添加 技能 4 (自身/无目标)">
+                                            <span>技能 4</span>
+                                        </button>
+                                        <div class="skill-targets-col">
+                                            <button class="skill-target-btn" data-skill="4" data-target-val="1" title="技能 4 → 给从者 1">1</button>
+                                            <button class="skill-target-btn" data-skill="4" data-target-val="2" title="技能 4 → 给从者 2">2</button>
+                                            <button class="skill-target-btn" data-skill="4" data-target-val="3" title="技能 4 → 给从者 3">3</button>
+                                        </div>
+                                    </div>
+                                    <div class="skill-card">
+                                        <button class="skill-main-btn" data-skill="5" data-target-val="0" title="点击直接添加 技能 5 (自身/无目标)">
+                                            <span>技能 5</span>
+                                        </button>
+                                        <div class="skill-targets-col">
+                                            <button class="skill-target-btn" data-skill="5" data-target-val="1" title="技能 5 → 给从者 1">1</button>
+                                            <button class="skill-target-btn" data-skill="5" data-target-val="2" title="技能 5 → 给从者 2">2</button>
+                                            <button class="skill-target-btn" data-skill="5" data-target-val="3" title="技能 5 → 给从者 3">3</button>
+                                        </div>
+                                    </div>
+                                    <div class="skill-card">
+                                        <button class="skill-main-btn" data-skill="6" data-target-val="0" title="点击直接添加 技能 6 (自身/无目标)">
+                                            <span>技能 6</span>
+                                        </button>
+                                        <div class="skill-targets-col">
+                                            <button class="skill-target-btn" data-skill="6" data-target-val="1" title="技能 6 → 给从者 1">1</button>
+                                            <button class="skill-target-btn" data-skill="6" data-target-val="2" title="技能 6 → 给从者 2">2</button>
+                                            <button class="skill-target-btn" data-skill="6" data-target-val="3" title="技能 6 → 给从者 3">3</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 从者 3 -->
+                            <div class="palette-col">
+                                <div class="palette-title">
+                                    <span>⚔️ 从者 3</span>
+                                    <small style="color:var(--accent)">s7~s9</small>
+                                </div>
+                                <div class="skill-btn-group">
+                                    <div class="skill-card">
+                                        <button class="skill-main-btn" data-skill="7" data-target-val="0" title="点击直接添加 技能 7 (自身/无目标)">
+                                            <span>技能 7</span>
+                                        </button>
+                                        <div class="skill-targets-col">
+                                            <button class="skill-target-btn" data-skill="7" data-target-val="1" title="技能 7 → 给从者 1">1</button>
+                                            <button class="skill-target-btn" data-skill="7" data-target-val="2" title="技能 7 → 给从者 2">2</button>
+                                            <button class="skill-target-btn" data-skill="7" data-target-val="3" title="技能 7 → 给从者 3">3</button>
+                                        </div>
+                                    </div>
+                                    <div class="skill-card">
+                                        <button class="skill-main-btn" data-skill="8" data-target-val="0" title="点击直接添加 技能 8 (自身/无目标)">
+                                            <span>技能 8</span>
+                                        </button>
+                                        <div class="skill-targets-col">
+                                            <button class="skill-target-btn" data-skill="8" data-target-val="1" title="技能 8 → 给从者 1">1</button>
+                                            <button class="skill-target-btn" data-skill="8" data-target-val="2" title="技能 8 → 给从者 2">2</button>
+                                            <button class="skill-target-btn" data-skill="8" data-target-val="3" title="技能 8 → 给从者 3">3</button>
+                                        </div>
+                                    </div>
+                                    <div class="skill-card">
+                                        <button class="skill-main-btn" data-skill="9" data-target-val="0" title="点击直接添加 技能 9 (自身/无目标)">
+                                            <span>技能 9</span>
+                                        </button>
+                                        <div class="skill-targets-col">
+                                            <button class="skill-target-btn" data-skill="9" data-target-val="1" title="技能 9 → 给从者 1">1</button>
+                                            <button class="skill-target-btn" data-skill="9" data-target-val="2" title="技能 9 → 给从者 2">2</button>
+                                            <button class="skill-target-btn" data-skill="9" data-target-val="3" title="技能 9 → 给从者 3">3</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 收尾出牌 (Attack) -->
+                        <div class="palette-col attack-palette-col">
+                            <div class="palette-title">
+                                <div class="attack-title-wrap">
+                                    <span>🗡️ 回合收尾出牌 (Attack)</span>
+                                </div>
+                            </div>
+
+                            <div class="inline-attack-picker">
+                                <!-- 宝具卡 -->
+                                <div class="picker-row">
+                                    <span class="picker-row-label">👑 宝具</span>
+                                    <div class="picker-row-btns">
+                                        <button class="card-pick-btn np" data-attack-card="6" title="从者 1 宝具 (6)"><span class="card-seq-badges"></span>👑 宝具 1</button>
+                                        <button class="card-pick-btn np" data-attack-card="7" title="从者 2 宝具 (7)"><span class="card-seq-badges"></span>👑 宝具 2</button>
+                                        <button class="card-pick-btn np" data-attack-card="8" title="从者 3 宝具 (8)"><span class="card-seq-badges"></span>👑 宝具 3</button>
+                                    </div>
+                                </div>
+
+                                <!-- 智能优先色卡 (可多次点击/连续选择) -->
+                                <div class="picker-row">
+                                    <span class="picker-row-label">🎨 色卡</span>
+                                    <div class="picker-row-btns color-grid">
+                                        <button class="card-pick-btn buster" data-attack-card="B" title="智能优先选择红卡 (Buster · 可多次连选)"><span class="card-seq-badges"></span>🔴 红卡 (B)</button>
+                                        <button class="card-pick-btn arts" data-attack-card="A" title="智能优先选择蓝卡 (Arts · 可多次连选)"><span class="card-seq-badges"></span>🔵 蓝卡 (A)</button>
+                                        <button class="card-pick-btn quick" data-attack-card="Q" title="智能优先选择绿卡 (Quick · 可多次连选)"><span class="card-seq-badges"></span>🟢 绿卡 (Q)</button>
+                                    </div>
+                                </div>
+
+                                <!-- 手牌固定位置卡 -->
+                                <div class="picker-row">
+                                    <span class="picker-row-label">🃏 普攻</span>
+                                    <div class="picker-row-btns normal-grid">
+                                        <button class="card-pick-btn normal" data-attack-card="1" title="发牌第 1 张"><span class="card-seq-badges"></span>第 1 张</button>
+                                        <button class="card-pick-btn normal" data-attack-card="2" title="发牌第 2 张"><span class="card-seq-badges"></span>第 2 张</button>
+                                        <button class="card-pick-btn normal" data-attack-card="3" title="发牌第 3 张"><span class="card-seq-badges"></span>第 3 张</button>
+                                        <button class="card-pick-btn normal" data-attack-card="4" title="发牌第 4 张"><span class="card-seq-badges"></span>第 4 张</button>
+                                        <button class="card-pick-btn normal" data-attack-card="5" title="发牌第 5 张"><span class="card-seq-badges"></span>第 5 张</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </section>
+        </main>
+    </div>
+
+    <!-- 技能目标选择弹窗 -->
+    <div class="modal-overlay" id="targetModal">
+        <div class="modal-card">
+            <h4 id="targetModalTitle">选择技能作用目标</h4>
+            <div class="modal-options">
+                <button class="modal-opt-btn" data-target-val="0">⚡ 无目标 / 自身</button>
+                <button class="modal-opt-btn" data-target-val="1">👤 从者 1</button>
+                <button class="modal-opt-btn" data-target-val="2">👤 从者 2</button>
+                <button class="modal-opt-btn" data-target-val="3">👤 从者 3</button>
+            </div>
+            <button class="button quiet" style="align-self:center; margin-top:4px;" onclick="window.closeModal()">取消</button>
+        </div>
+    </div>
+
+    <!-- 动作修改弹窗 (Edit Step Modal) -->
+    <div class="modal-overlay" id="editStepModal">
+        <div class="modal-card edit-step-card">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+                <h4 id="editStepModalTitle" style="margin:0;">✏️ 修改动作</h4>
+                <button class="button quiet" onclick="window.closeModal()" style="padding:2px 8px; font-size:12px;">✕</button>
+            </div>
+            <div id="editStepModalBody" style="display:flex; flex-direction:column; gap:12px; margin-top:6px;">
+                <!-- 动态填充修改项 -->
+            </div>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-top:10px;">
+                <button class="button quiet" id="editStepDeleteBtn" style="color:var(--buster);" onclick="window.deleteCurrentEditingStep()">🗑️ 删除此动作</button>
+                <div style="display:flex; gap:8px;">
+                    <button class="button quiet" onclick="window.closeModal()">取消</button>
+                    <button class="button primary" id="editStepSaveBtn" onclick="window.saveEditingStep()">保存修改</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 换人技能专属弹窗 -->
+    <div class="modal-overlay" id="swapModal">
+        <div class="modal-card" style="width:480px">
+            <h4 id="swapModalTitle">御主技能：换人 (Order Change)</h4>
+            <p style="font-size:12px; color:var(--text-muted); margin:0 0 8px;">请选择需要互换的前排从者与后排替补：</p>
+            <div class="swap-grid">
+                <div class="swap-col" id="swapFrontCol">
+                    <button data-swap-front="1">前排 1 号从者</button>
+                    <button data-swap-front="2">前排 2 号从者</button>
+                    <button class="selected" data-swap-front="3">前排 3 号从者</button>
+                </div>
+                <div style="font-size:22px; color:var(--gold)">⇄</div>
+                <div class="swap-col" id="swapBackCol">
+                    <button class="selected" data-swap-back="4">后排 4 号替补</button>
+                    <button data-swap-back="5">后排 5 号替补</button>
+                    <button data-swap-back="6">后排 6 号替补</button>
+                </div>
+            </div>
+            <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:10px;">
+                <button class="button quiet" onclick="window.closeModal()">取消</button>
+                <button class="button primary" id="confirmSwapBtn">确定换人</button>
+            </div>
+        </div>
+    </div>
+
+
+
+    <!-- 方案 DSL 导入弹窗 -->
+    <div class="modal-overlay" id="importDslModal">
+        <div class="modal-card" style="width: 540px; max-width: 90vw;">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+                <h4 style="margin:0;">📥 导入方案 DSL 脚本</h4>
+                <button class="button quiet" onclick="window.closeModal()" style="padding:2px 8px; font-size:12px;">✕</button>
+            </div>
+            <div style="font-size:12px; color:var(--text-muted); line-height:1.5;">
+                支持单回合或多回合 DSL 指令（回合间用分号 <code>;</code> 或换行分隔）：<br>
+                例如：<code style="color:var(--gold);">s10 | a1, 2, 3</code> 或 <code style="color:var(--gold);">s20, 30 | a7, 8, 5; s10 | a6, 4, 5</code>
+            </div>
+            <textarea id="importDslText" placeholder="在此粘贴 DSL 动作脚本，例如：&#10;s10 | a1, 2, 3&#10;或 s20, 30, 40 | a7, 8, 5; s10 | a6, 4, 5; s92, 50 | m22 | a7, 4, 5" style="width:100%; height:120px; font-family:monospace; background:var(--bg-base); border:1px solid var(--line); border-radius:6px; padding:10px; font-size:13px; resize:vertical; line-height:1.5;"></textarea>
+            <div id="importDslError" style="color:var(--danger); font-size:12px; display:none;"></div>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-top:8px;">
+                <div style="display:flex; gap:8px;">
+                    <button class="button quiet" onclick="window.closeModal()">取消</button>
+                    <button class="button quiet" id="importDslPasteBtn" title="读取系统剪贴板并自动识别 DSL 脚本填入" style="padding:4px 10px; font-size:12px;">📋 识别剪贴板</button>
+                </div>
+                <div style="display:flex; gap:8px;">
+                    <button class="button" id="importDslNewBtn" title="基于导入的 DSL 新建为一个全新方案" style="background:var(--bg-card); border-color:var(--line-light);">➕ 导入为新方案</button>
+                    <button class="button primary" id="importDslOverwriteBtn" title="用导入的 DSL 覆盖当前方案的所有回合">⚡ 覆盖当前方案</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 内部配置代码隐藏缓存槽 -->
+    <textarea id="configPreview" style="display:none;" aria-hidden="true"></textarea>
+
+    <!-- 消息提示条 -->
+    <div class="toast" id="toast"></div>
+
+    <!-- 原生 ES 模块主入口 -->
+    <script type="module" src="js/main.js?v=20260924_v4"></script>
+</body>
+
+</html>

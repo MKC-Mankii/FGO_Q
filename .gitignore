@@ -4,3 +4,5 @@ docs/apps/MobileAnJian3.6.8.apk
 Q/.backup/
 __pycache__/
 *.pyc
+.tmp/
+*.tmp

@@ -1,5 +1,5 @@
 ' SetScreenScale 810, 1440, 0
-' v5 DSL
+' v5 DSL (v4 runner)
 
 Log.Open
 
@@ -7,14 +7,11 @@ Import "zm.luae"
 Import "DateTime.lua"
 zm.Init
 
-' ==================== QUICK EDIT (MANUAL) ====================
-' 0=test, 1=campaign, 2=caber, 3=grand, 4=ordeal
-Dim CFG_ACTION_GROUP_INDEX = 3
-Dim MANUAL_BATTLE_COUNT = 30
-Dim MANUAL_APPLE_ENABLE = 0  ' 是否吃苹果补充体力
-Dim MANUAL_CHOOSE_FRIEND = 0  ' 人工选助战
-Dim MANUAL_FORCE_COLOR_CARD = 0  ' 是否强制选择对应色卡
-' ============================================================
+Dim CFG_ACTION_GROUP_INDEX
+Dim MANUAL_BATTLE_COUNT
+Dim MANUAL_APPLE_ENABLE
+Dim MANUAL_CHOOSE_FRIEND
+Dim MANUAL_FORCE_COLOR_CARD
 
 Dim CFG_CONFIG_PATH = ""
 Dim CFG_RAW = ""
@@ -51,35 +48,51 @@ Function CfgGet(cfgKey, defaultVal)
 	CfgGet = defaultVal
 End Function
 
-Dim cfgCandidates = zm.DirScan("/sdcard/MobileAnJian/Script/", "*.mq", 1)
-If IsNull(cfgCandidates) Then
-	cfgCandidates = zm.DirScan("/storage/emulated/0/MobileAnJian/Script/", "*.mq", 1)
+' 优先检查 FGO_Q 直推目录中的最新配置
+If zm.FileExist("/sdcard/FGO_Q/battle_v4_config.mq") Then
+	Dim directCfgRaw = zm.FileRead("/sdcard/FGO_Q/battle_v4_config.mq")
+	If Not IsNull(directCfgRaw) And Len(CStr(directCfgRaw)) > 0 Then
+		Dim directCfgRawLower = LCase(CStr(directCfgRaw))
+		If InStr(1, directCfgRawLower, "dim dsl_") > 0 Or InStr(1, directCfgRawLower, "dim action_group_index") > 0 Then
+			CFG_CONFIG_PATH = "/sdcard/FGO_Q/battle_v4_config.mq"
+			CFG_RAW = CStr(directCfgRaw)
+		End If
+	End If
 End If
 
-If cfgCandidates Then
-	Dim cfgCandidatePath
-	For Each cfgCandidatePath In cfgCandidates
-		Dim cfgCandidatePathText = CStr(cfgCandidatePath)
-		Dim cfgCandidatePathLower = LCase(cfgCandidatePathText)
-		If InStr(1, cfgCandidatePathLower, "battle_v3_config") > 0 Then
-			Dim cfgCandidateRaw = zm.FileRead(cfgCandidatePathText)
-			If Not IsNull(cfgCandidateRaw) And Len(CStr(cfgCandidateRaw)) > 0 Then
-				Dim cfgCandidateRawLower = LCase(CStr(cfgCandidateRaw))
-				If InStr(1, cfgCandidateRawLower, "dim dsl_") > 0 Or InStr(1, cfgCandidateRawLower, "dim test_dsl") > 0 Or InStr(1, cfgCandidateRawLower, "dim action_round_index_") > 0 Then
-					CFG_CONFIG_PATH = cfgCandidatePathText
-					CFG_RAW = CStr(cfgCandidateRaw)
-					Exit For
+If Len(CFG_CONFIG_PATH) = 0 Then
+	Dim cfgCandidates = zm.DirScan("/sdcard/MobileAnJian/Script/", "*.mq", 1)
+	If IsNull(cfgCandidates) Then
+		cfgCandidates = zm.DirScan("/storage/emulated/0/MobileAnJian/Script/", "*.mq", 1)
+	End If
+
+	If cfgCandidates Then
+		Dim cfgCandidatePath
+		For Each cfgCandidatePath In cfgCandidates
+			Dim cfgCandidatePathText = CStr(cfgCandidatePath)
+			Dim cfgCandidatePathLower = LCase(cfgCandidatePathText)
+			If InStr(1, cfgCandidatePathLower, "battle_v4_config") > 0 Or InStr(1, cfgCandidatePathLower, "battle_v3_config") > 0 Then
+				Dim cfgCandidateRaw = zm.FileRead(cfgCandidatePathText)
+				If Not IsNull(cfgCandidateRaw) And Len(CStr(cfgCandidateRaw)) > 0 Then
+					Dim cfgCandidateRawLower = LCase(CStr(cfgCandidateRaw))
+					If InStr(1, cfgCandidateRawLower, "dim dsl_") > 0 Or InStr(1, cfgCandidateRawLower, "dim test_dsl") > 0 Or InStr(1, cfgCandidateRawLower, "dim action_round_index_") > 0 Or InStr(1, cfgCandidateRawLower, "dim action_group_index") > 0 Then
+						CFG_CONFIG_PATH = cfgCandidatePathText
+						CFG_RAW = CStr(cfgCandidateRaw)
+						If InStr(1, cfgCandidatePathLower, "battle_v4_config") > 0 Then
+							Exit For
+						End If
+					End If
 				End If
 			End If
-		End If
-	Next
+		Next
+	End If
 End If
 
 If Len(CFG_CONFIG_PATH) > 0 Then
 	TracePrint "CONFIG PATH FOUND:", CFG_CONFIG_PATH
 Else
 	TracePrint "CONFIG PATH NOT FOUND"
-	TracePrint "HINT:", "请先在按键精灵里编译并同步 battle_v3_config.q"
+	TracePrint "HINT:", "请先在按键精灵里编译并同步 battle_v4_config.q"
 End If
 
 If Not IsNull(CFG_RAW) And Len(CStr(CFG_RAW)) > 0 Then
@@ -110,14 +123,20 @@ If Not IsNull(CFG_RAW) And Len(CStr(CFG_RAW)) > 0 Then
 	Next
 End If
 
+CFG_ACTION_GROUP_INDEX = Int(CfgGet("action_group_index", CfgGet("cfg_action_group_index", "0")))
+MANUAL_BATTLE_COUNT = Int(CfgGet("battle_count", CfgGet("manual_battle_count", "0")))
+MANUAL_APPLE_ENABLE = Int(CfgGet("apple_enable", CfgGet("manual_apple_enable", "0")))
+MANUAL_CHOOSE_FRIEND = Int(CfgGet("manual_choose_friend", CfgGet("choose_friend_manual", "0")))
+MANUAL_FORCE_COLOR_CARD = Int(CfgGet("force_color_card", CfgGet("manual_force_color_card", "0")))
+
 CFG_FRIEND = CStr(CfgGet("friend", ""))
 Function PickActionIndexByGroup(groupIndex)
-	Dim groupIndexVal = CLng(CfgGet("action_round_index_g" & groupIndex, "0"))
+	Dim groupIndexVal = Int(CfgGet("action_round_index_g" & groupIndex, "0"))
 	If groupIndexVal > 0 Then
 		PickActionIndexByGroup = groupIndexVal
 	Else
 		' 兼容旧配置：仍支持单个 action_round_index
-		PickActionIndexByGroup = CLng(CfgGet("action_round_index", "0"))
+		PickActionIndexByGroup = Int(CfgGet("action_round_index", "0"))
 	End If
 End Function
 
@@ -126,14 +145,14 @@ CFG_ACTION_INDEX = PickActionIndexByGroup(CFG_ACTION_GROUP_INDEX)
 Function PickActivityRewardByGroupAndIndex(groupIndex, actionIndex)
 	Dim val = CStr(CfgGet("activity_reward_g" & groupIndex & "_" & actionIndex, ""))
 	If Len(val) > 0 Then
-		PickActivityRewardByGroupAndIndex = CLng(val)
+		PickActivityRewardByGroupAndIndex = Int(val)
 	Else
 		' 兼容回退：大组默认，再到全局默认
 		Dim gVal = CStr(CfgGet("activity_reward_g" & groupIndex, ""))
 		If Len(gVal) > 0 Then
-			PickActivityRewardByGroupAndIndex = CLng(gVal)
+			PickActivityRewardByGroupAndIndex = Int(gVal)
 		Else
-			PickActivityRewardByGroupAndIndex = CLng(CfgGet("activity_reward", "0"))
+			PickActivityRewardByGroupAndIndex = Int(CfgGet("activity_reward", "0"))
 		End If
 	End If
 End Function
@@ -228,11 +247,10 @@ Function PickDslByGroupAndIndex(groupIndex, roundIndex)
 	PickDslByGroupAndIndex = dslVal
 End Function
 
-Dim BATTLE_COUNT = CLng(MANUAL_BATTLE_COUNT)
-
-Dim CHOOSE_FRIEND_MANUAL = CLng(CfgGet("manual_choose_friend", MANUAL_CHOOSE_FRIEND))
-Dim APPLE_ENABLE = CLng(MANUAL_APPLE_ENABLE)
-Dim FORCE_COLOR_CARD = CLng(CfgGet("force_color_card", MANUAL_FORCE_COLOR_CARD))
+Dim BATTLE_COUNT = Int(MANUAL_BATTLE_COUNT)
+Dim CHOOSE_FRIEND_MANUAL = Int(MANUAL_CHOOSE_FRIEND)
+Dim APPLE_ENABLE = Int(MANUAL_APPLE_ENABLE)
+Dim FORCE_COLOR_CARD = Int(MANUAL_FORCE_COLOR_CARD)
 Dim ACTIVITY_REWARD = CFG_ACTIVITY_REWARD
 Dim CAN_RUN = true
 

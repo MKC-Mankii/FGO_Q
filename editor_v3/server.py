@@ -6,6 +6,12 @@ import time
 import shutil
 import glob
 
+# 兼容 pythonw.exe 无控制台运行（防止 NoneType.write 崩溃）
+if sys.stdout is None:
+    sys.stdout = open(os.devnull, 'w')
+if sys.stderr is None:
+    sys.stderr = open(os.devnull, 'w')
+
 PORT = 8099
 ROOT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 EDITOR_DIR = os.path.abspath(os.path.dirname(__file__))

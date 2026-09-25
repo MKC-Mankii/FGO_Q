@@ -1,0 +1,225 @@
+:root {
+    --bg-base: #f4f7fb;
+    --bg-panel: #ffffff;
+    --bg-card: #ffffff;
+    --bg-card-hover: #f0f6ff;
+    --line: #cbd5e1;             /* 更加清晰硬朗的 Wiki 浅灰实线 */
+    --line-light: #94a3b8;
+    --text-main: #1f2937;        /* 高对比度纯正深墨黑，彻底消除发灰感 */
+    --text-muted: #4b5563;       /* 次要文本对比度加深，告别发虚发淡 */
+    --accent: #4487df;           /* Mooncell 核心湖蓝 */
+    --accent-glow: rgba(68, 135, 223, 0.22);
+    --gold: #d9931e;             /* Mooncell 温暖醇金黄 */
+    --gold-glow: rgba(217, 147, 30, 0.25);
+    --buster: #e7615c;           /* Mooncell 红卡标色 */
+    --arts: #4487df;             /* Mooncell 蓝卡标色 */
+    --quick: #4ea824;            /* Mooncell 绿卡标色 */
+    --purple: #9c4dd6;           /* Mooncell 紫色 */
+    --shadow: 0 1px 3px rgba(0, 0, 0, 0.05), 0 1px 2px rgba(0, 0, 0, 0.03);
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    color: var(--text-main);
+    font: 14px/1.6 -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "微软雅黑", sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    background: #f4f7fb;
+    min-height: 100vh;
+    padding: 16px 20px 20px;
+    display: flex;
+    flex-direction: column;
+}
+
+button, input, select, textarea {
+    font: inherit;
+    color: inherit;
+}
+
+input, select, textarea {
+    color: var(--text-main);
+}
+
+input:focus, select:focus, textarea:focus {
+    outline: none;
+    border-color: var(--accent) !important;
+    box-shadow: 0 0 0 2px var(--accent-glow) !important;
+}
+
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #c8d6e5;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #a9c0d8;
+}
+
+button {
+    cursor: pointer;
+    border: 0;
+    transition: all 0.15s ease;
+}
+
+.shell {
+    max-width: 1440px;
+    width: 100%;
+    margin: 0 auto;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.button {
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 13px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.button.primary {
+    background: linear-gradient(135deg, #4487df, #2b75dc);
+    color: #fff;
+    box-shadow: 0 2px 8px rgba(68, 135, 223, 0.35);
+}
+
+.button.primary:hover {
+    background: linear-gradient(135deg, #5394e8, #3580e5);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(68, 135, 223, 0.45);
+}
+
+.button.quiet {
+    background: #ffffff;
+    border: 1px solid var(--line);
+    color: var(--text-main);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
+}
+
+.button.quiet:hover {
+    background: #f0f6ff;
+    border-color: var(--accent);
+    color: var(--accent);
+}
+
+.button.danger {
+    background: #fdf5f5;
+    border: 1px solid #f3acaa;
+    color: #e7615c;
+}
+
+.button.danger:hover {
+    background: #fde8e8;
+    border-color: #e7615c;
+}
+
+.checkbox-item {
+    cursor: pointer;
+    user-select: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 5px 12px;
+    background: #ffffff;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    font-size: 13px;
+    transition: all 0.15s ease;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
+}
+
+.checkbox-item:hover {
+    border-color: var(--line-light);
+    background: var(--bg-card-hover);
+}
+
+.checkbox-item.is-default {
+    border-color: rgba(217, 147, 30, 0.45);
+    background: #fef9de;
+    color: var(--gold);
+}
+
+.checkbox-item.is-active {
+    border-color: rgba(68, 135, 223, 0.45);
+    background: #ebf7fe;
+    color: var(--accent);
+}
+
+.checkbox-item input[type="checkbox"] {
+    cursor: pointer;
+    width: 15px;
+    height: 15px;
+    accent-color: var(--gold);
+    margin: 0;
+}
+
+.checkbox-item.is-active input[type="checkbox"] {
+    accent-color: var(--accent);
+}
+
+/* 实时代码预览 */
+.preview-area {
+    background: #ffffff;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 14px 18px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+}
+
+.preview-area summary {
+    cursor: pointer;
+    font-weight: 700;
+    font-size: 13px;
+    color: var(--accent);
+    user-select: none;
+}
+
+.preview-area textarea {
+    width: 100%;
+    height: 200px;
+    background: #182230;
+    border: 1px solid #2d3e52;
+    border-radius: 8px;
+    color: #68d391;
+    font: 12px/1.6 Consolas, "Liberation Mono", Menlo, monospace;
+    padding: 12px;
+    margin-top: 10px;
+    resize: vertical;
+}
+
+/* 统一 Toast 提示 */
+.toast {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    background: #4487df;
+    color: #fff;
+    padding: 10px 18px;
+    border-radius: 8px;
+    box-shadow: 0 6px 20px rgba(68, 135, 223, 0.35);
+    font-weight: 600;
+    font-size: 13px;
+    opacity: 0;
+    transform: translateY(8px);
+    transition: all 0.2s ease;
+    pointer-events: none;
+    z-index: 1000;
+}
+
+.toast.show {
+    opacity: 1;
+    transform: none;
+}

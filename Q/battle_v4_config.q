@@ -1,4 +1,4 @@
-' battle_v3_config.q
+' battle_v4_config.q
 ' 配置源文件：只保存配置，不保存战斗逻辑
 ' 按键精灵编译后会把它下发成 .mq，逻辑主脚本读取这个 mq 文件内容
 
@@ -7,12 +7,19 @@
 '       shahu, shahushan, princess, princess120, taigong, sparrow, mary, keli
 ' 优先级：FRIEND_Gx_y > FRIEND_Gx > friend（全局字段，目前未在此文件配置）。
 
-' USER CONFIG
-Dim ACTIVITY_REWARD = 0
+' ==================== 全局运行配置 (RUNNER CONFIG) ====================
+Dim ACTION_GROUP_INDEX = 3  ' 当前生效大组: 0=test, 1=campaign, 2=caber, 3=grand, 4=ordeal
+Dim BATTLE_COUNT = 30  ' 连续战斗次数
+Dim APPLE_ENABLE = 0  ' 是否吃苹果补充体力 (0=关, 1=开)
+Dim MANUAL_CHOOSE_FRIEND = 0  ' 是否人工选助战 (0=自动找图, 1=人工选择)
+Dim FORCE_COLOR_CARD = 0  ' 是否强制选择对应色卡 (0=关, 1=开)
 
-' BATTLE CONFIG
-' DSL 大组在 battle_v3_runner.q 里手动改（CFG_ACTION_GROUP_INDEX）
-' 0=test, 1=campaign, 2=caber, 3=grand, 4=ordeal
+' ==================== 兼容与兜底字段 ====================
+Dim CFG_ACTION_GROUP_INDEX = 3
+Dim MANUAL_BATTLE_COUNT = 30
+Dim MANUAL_APPLE_ENABLE = 0
+Dim MANUAL_FORCE_COLOR_CARD = 0
+Dim ACTIVITY_REWARD = 0
 
 ' -----------------------------
 ' 大组 0: test（测试战场）
@@ -60,7 +67,7 @@ Dim DSL_G1_3 = "s20, 30, 40, 52, 70, 83 | a7, 8, 5;s10 | a6, 4, 5;s92, 50 | m22 
 ' -----------------------------
 ' 大组 2: caber（术呆通用）
 Dim ACTIVITY_REWARD_G2 = 0
-Dim ACTION_ROUND_INDEX_G2 = 3
+Dim ACTION_ROUND_INDEX_G2 = 2
 Dim FRIEND_G2 = "cdai"
 ' 方案 1: cdai
 Dim ACTIVITY_REWARD_G2_1 = 0
@@ -70,10 +77,10 @@ Dim DSL_G2_1 = "s23, 33, 53, 63, 70, 90, 83 | m30 | a8, 4, 5;s10 | a8, 4, 5;s40 
 Dim ACTIVITY_REWARD_G2_2 = 0
 Dim FRIEND_G2_2 = "cdai"
 Dim DSL_G2_2 = "s10, 20, 53, 63, 70, 90, 83 | m30 | a8, 4, 5;s40 | a8, 4, 5;s33 | m10 | a8, 4, 5"
-' 方案 3: 兰丸
+' 方案 3: cdai
 Dim ACTIVITY_REWARD_G2_3 = 0
 Dim FRIEND_G2_3 = "cdai"
-Dim DSL_G2_3 = "s10, 20, 53, 63, 90 | a8, 4, 5;s40 | a8, 4, 5;m10, 30 | s33, 80 | a8, 4, 5"
+Dim DSL_G2_3 = "s10, 20, 53, 63, 80, 90 | a8, 4, 5;s40 | a8, 4, 5;s33 | m10, 30 | a8, 4, 5"
 
 ' -----------------------------
 ' 大组 3: grand（戴冠战关卡）
