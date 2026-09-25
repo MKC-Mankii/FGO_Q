@@ -1,43 +1,65 @@
-# FGO_Q 自动化战斗配置与执行体系
+# FGO_Q 自动化战斗编排与执行体系
 
-FGO 自动化战斗与策略编排系统。通过将**战斗底层引擎（Runner）**与**关卡出牌策略（Config）**彻底解耦，提供**轻量化可视化配置编辑器**，实现各关卡技能释放、御主礼装、从者换人、色卡偏好及队伍助战的直观配置与一键生效。
-
----
-
-## 📌 版本导航 (V3 vs V4)
-
-本项目目前采用 **V3 稳定版本** 与 **V4 进化版本** 双轨并行：
-
-| 模块 / 资源 | V3 归档版本 (Archived) | V4 当前版本 (Active) |
-| :--- | :--- | :--- |
-| **战斗执行引擎** | [archive/Q/battle_v3_runner.q](file:///F:/2nd%20Accra/Git/Github/FGO_Q/archive/Q/battle_v3_runner.q) | [Q/battle_v4_runner.q](file:///F:/2nd%20Accra/Git/Github/FGO_Q/Q/battle_v4_runner.q) |
-| **策略配置文件** | [archive/Q/battle_v3_config.q](file:///F:/2nd%20Accra/Git/Github/FGO_Q/archive/Q/battle_v3_config.q) | [Q/battle_v4_config.q](file:///F:/2nd%20Accra/Git/Github/FGO_Q/Q/battle_v4_config.q) |
-| **可视化编辑器** | [archive/editor_v3/](file:///F:/2nd%20Accra/Git/Github/FGO_Q/archive/editor_v3) (服务端口 `8099`) | [editor_v4/](file:///F:/2nd%20Accra/Git/Github/FGO_Q/editor_v4) (服务端口 `8098`) |
-| **桌面启动快捷方式** | [FGO_Config_Editor_V3.lnk](file:///F:/2nd%20Accra/Git/Github/FGO_Q/FGO_Config_Editor_V3.lnk) | [FGO_Config_Editor_V4.lnk](file:///F:/2nd%20Accra/Git/Github/FGO_Q/FGO_Config_Editor_V4.lnk) |
-| **架构与配置文档** | [archive/doc/battle_v3_runner_config.md](file:///F:/2nd%20Accra/Git/Github/FGO_Q/archive/doc/battle_v3_runner_config.md) | [docs/battle_v4_runner_config.md](file:///F:/2nd%20Accra/Git/Github/FGO_Q/docs/battle_v4_runner_config.md) |
+FGO_Q 是专为《Fate/Grand Order》(FGO) 设计的高效、高容错自动化战斗编排与执行系统。通过将**通用战斗执行引擎（Runner）**与**关卡出牌策略（Config）**彻底解耦，搭配**现代化独立可视化配置编辑器（Config Editor）**，实现从战术时序编排、ADB 毫秒级直推到桌面端一键直控启停的全链路闭环。
 
 ---
 
-## 🚀 核心架构与演进
+## 🌟 核心特性
 
-### V3 版本特性 (历史归档)
-- **纯粹数据分离**：将出牌与技能 DSL 提取至 `battle_v3_config.q`；
-- **五大战区划分**：测试（test）、活动（campaign）、术呆常用（caber）、戴冠战（grand）、白纸化（ordeal）；
-- **可视化时序看板**：多回合技能、御主礼装与出牌拖拽排布，自动轮转快照备份。
-
-### V4 版本关键突破 (当前主力)
-1. **参数彻底下放**：将以往写死在 Runner 中的 5 项参数（大组选择、连战次数、吃苹果、人工助战、强制色卡）全部移至 Config，支持在 Web/桌面端实时调节保存；
-2. **编辑器布局优化**：精简移除顶部横向战场 Tabs，收敛为顶栏单一下拉框统一驱动；顶栏直显运行配置，工作区视野更大；
-3. **免复制直推与离线自愈 (已完成 ✅)**：编辑器保存时自动将配置写入代码仓库源文件、同步 Windows 本地 PC 手机助手目录，并通过 ADB 毫秒级直推模拟器通信总线（`/sdcard/FGO_Q/battle_v4_config.mq`）与覆盖历史工程。内置 10 秒轻量心跳监测，模拟器连接后自动静默补推最新配置，彻底告别频繁复制粘贴；
-4. **页面直控运行与自愈闭环 (已完成 ✅)**：基于 `/sdcard/FGO_Q/` 双向文件指令与状态总线，在编辑器上一键「▶ 运行战斗」与「⏹ 停止战斗」，支持未启动拦截引导、按钮 100% 自动自愈还原、右下角无蒙层实时日志监控与内存热重载（Zero Restart）。
+- **策略与引擎彻底解耦**：战斗逻辑、图色识别与状态守卫封装于稳定引擎中；队伍技能、御主礼装与出牌策略以纯文本 DSL 独立承载，日常调优无需修改或重编引擎代码。
+- **现代化可视化编排**：提供基于 WebView2 引擎的独立桌面配置编辑器（兼支持现代浏览器 Web 端访问），支持拖拽编排多回合技能、御主换人、目标选择、宝具与色卡偏好。
+- **ADB 免复制直推与自愈**：一键保存（`Ctrl + S`）自动在 200ms 内直推至模拟器指定总线路径；内置轻量心跳监测，离线期间修改配置在模拟器就绪后自动补推。
+- **页面一键直控与自愈闭环**：在编辑器页面直接「▶ 运行战斗」与「⏹ 停止战斗」，支持离线拦截引导、按钮状态自愈还原以及右下角无遮罩实时日志终端。
+- **动态内存热重载 (Zero Restart)**：脚本启动时动态读取最新策略配置，日常修改方案或运行参数完全无需在模拟器中反复重启按键脚本。
+- **工业级容错与版本保护**：内置结算图色抗噪点容错、单动作安全退出守卫、本地日志轮转以及自动保留最近 10 份历史快照。
 
 ---
 
-## 📚 项目完整文档索引
+## 📁 仓库目录导航
 
-所有详细技术文档均归档在 [docs/](file:///F:/2nd%20Accra/Git/Github/FGO_Q/docs) 与 [archive/](file:///F:/2nd%20Accra/Git/Github/FGO_Q/archive) 目录中：
+```text
+FGO_Q/
+├── Q/                      # 核心生产脚本
+│   ├── battle_v4_runner.q  # 战斗执行主脚本 (按键精灵移动端执行引擎)
+│   ├── battle_v4_config.q  # 战术策略配置文件 (全局参数与 DSL 方案数据)
+│   └── .backup/            # 配置文件自动备份快照目录
+├── editor_v4/              # V4 可视化配置编辑器
+│   ├── launcher.py         # 桌面原生独立窗口启动器 (WebView2 引擎)
+│   ├── server.py           # 本地 Python 后端服务 (端口 8098)
+│   ├── adb_sync.py         # ADB 自动探测、直推同步与总线交互模块
+│   └── index.html          # 编辑器前端主界面
+├── docs/                   # 详细架构设计与权威指南
+│   ├── battle_v4_runner_config.md      # V4 架构权威指南与 DSL 语法规范
+│   └── tools_and_runtime_architecture.md # 底层工具体系与运行机制解析
+├── archive/                # 历史版本与过往脚本资源归档
+│   ├── Q/                  # V2/V3 及历史关卡脚本归档 (60+ 份历史脚本)
+│   ├── doc/                # V2/V3 历史版本说明文档
+│   └── editor_v3/          # V3 独立配置编辑器归档
+└── FGO_Config_Editor_V4.lnk # 桌面一键启动快捷方式
+```
 
-- **V4 权威指南**：[docs/battle_v4_runner_config.md](file:///F:/2nd%20Accra/Git/Github/FGO_Q/docs/battle_v4_runner_config.md) — V4 架构说明、技术选型演进、通信总线协议、页面直控交互、5 项运行配置与 DSL 语法规范。
-- **工具与协同架构**：[docs/tools_and_runtime_architecture.md](file:///F:/2nd%20Accra/Git/Github/FGO_Q/docs/tools_and_runtime_architecture.md) — PC 手机助手、安卓模拟器、移动端按键精灵的底层机制、打包交互与通信总线说明。
-- **V3 归档规范**：[archive/doc/battle_v3_runner_config.md](file:///F:/2nd%20Accra/Git/Github/FGO_Q/archive/doc/battle_v3_runner_config.md) — V3 架构规范与历史操作指引。
-- **历史归档**：[archive/doc/battle_v2_runner_config.md](file:///F:/2nd%20Accra/Git/Github/FGO_Q/archive/doc/battle_v2_runner_config.md) — V2 历史版本留存文档。
+---
+
+## 🚀 快速上手
+
+### 1. 启动可视化配置编辑器
+- **桌面窗口启动**：双击根目录下的 [FGO_Config_Editor_V4.lnk](file:///F:/2nd%20Accra/Git/Github/FGO_Q/FGO_Config_Editor_V4.lnk)（或在终端运行 `python editor_v4/launcher.py`），直接以独立原生窗口运行；
+- **浏览器访问**：双击 `editor_v4/start_editor.bat` 启动后台服务，浏览器打开 `http://127.0.0.1:8098`。
+
+### 2. 编排策略并保存
+- 在顶栏调整连战次数、吃苹果、选择战场方案等全局参数；
+- 在时序看板中拖拽排布技能与指令卡，按下 **`Ctrl + S`** 即可毫秒级直推模拟器生效。
+
+### 3. 运行与监控
+- **挂机运行**：在安卓模拟器中启动按键精灵 `battle_v4_runner`（启动后进入常驻待命）；
+- **页面直控**：在配置编辑器顶栏点击「▶ 运行战斗」即可开始；点击顶栏状态胶囊可展开右下角实时日志终端查看进度。
+
+---
+
+## 📚 详细文档指引
+
+想要深入了解系统设计细节、通信总线或排查故障，请参阅：
+
+- [📖 V4 权威指南与 DSL 语法规范](file:///F:/2nd%20Accra/Git/Github/FGO_Q/docs/battle_v4_runner_config.md)：涵盖解耦哲学、多端直推、双向总线协议、内存热重载、DSL 完整语法及常见问题排查。
+- [🛠️ 运行工具体系与底层架构说明](file:///F:/2nd%20Accra/Git/Github/FGO_Q/docs/tools_and_runtime_architecture.md)：深入解析 PC 助手、ADB 桥接、安卓模拟器与移动端按键精灵的底层机制与避坑规范。
+- [📦 历史归档资产](file:///F:/2nd%20Accra/Git/Github/FGO_Q/archive)：查阅过往 V2/V3 文档、早期编辑器与往期活动关卡脚本留存。
