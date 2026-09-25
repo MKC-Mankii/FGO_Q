@@ -84,7 +84,9 @@ export async function loadConfigFromBackend(onSuccess) {
             updateSaveButtonState();
             const activeGroup = Number(appState.data.runnerSettings?.activeGroup);
             appState.curGroupIdx = (!isNaN(activeGroup) && activeGroup >= 0 && activeGroup < appState.data.groups.length) ? activeGroup : 3;
-            appState.curSchemeIdx = 0;
+            const activeGrp = appState.data.groups?.[appState.curGroupIdx];
+            const defScheme = activeGrp?.defaultScheme;
+            appState.curSchemeIdx = (typeof defScheme === 'number' && defScheme >= 1 && defScheme <= (activeGrp?.schemes?.length || 0)) ? defScheme - 1 : 0;
             appState.curRoundIdx = 0;
 
             const fullPath = data.path || 'Q/battle_v4_config.q';

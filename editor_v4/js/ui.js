@@ -92,6 +92,103 @@ export function renderRunnerSettings() {
     }
 }
 
+let confirmingDeleteIdx = null;
+let confirmDeleteTimer = null;
+
+// 复位所有方案删除按钮的双击确认态
+export function resetDeleteConfirm() {
+    if (confirmDeleteTimer) {
+        clearTimeout(confirmDeleteTimer);
+        confirmDeleteTimer = null;
+    }
+    if (confirmingDeleteIdx !== null) {
+        confirmingDeleteIdx = null;
+        renderSchemeList();
+    }
+}
+
+// 点击方案项删除按钮（首次点击显示“⚠️ 确认删除？”，再次点击执行删除）
+export function handleDeleteSchemeClick(event, idx) {
+    if (event) {
+        event.stopPropagation();
+        event.preventDefault();
+    }
+
+    const group = getCurGroup();
+    if (!group || !group.schemes) return;
+
+    if (group.schemes.length <= 1) {
+        toast(TEXT_CONFIG.sidebar.cannotDeleteOnlySchemeToast || '⚠️ 每个战场至少需保留 1 个方案，无法删除');
+        return;
+    }
+
+    if (confirmingDeleteIdx === idx) {
+        // 第二次点击（双击）：执行真正删除
+        if (confirmDeleteTimer) {
+            clearTimeout(confirmDeleteTimer);
+            confirmDeleteTimer = null;
+        }
+        confirmingDeleteIdx = null;
+        deleteScheme(idx);
+    } else {
+        // 第一次点击：切换为“确认删除”态
+        if (confirmDeleteTimer) {
+            clearTimeout(confirmDeleteTimer);
+            confirmDeleteTimer = null;
+        }
+        confirmingDeleteIdx = idx;
+        renderSchemeList();
+
+        confirmDeleteTimer = setTimeout(() => {
+            if (confirmingDeleteIdx === idx) {
+                confirmingDeleteIdx = null;
+                renderSchemeList();
+            }
+        }, 2500);
+    }
+}
+
+// 执行方案删除与状态重平衡
+export function deleteScheme(idx) {
+    const group = getCurGroup();
+    if (!group || !group.schemes) return;
+
+    if (group.schemes.length <= 1) {
+        toast(TEXT_CONFIG.sidebar.cannotDeleteOnlySchemeToast || '⚠️ 每个战场至少需保留 1 个方案，无法删除');
+        return;
+    }
+
+    const deletedScheme = group.schemes[idx];
+    const deletedName = getSchemeDisplayName(deletedScheme, idx);
+
+    // 1. 从数组中移除该方案
+    group.schemes.splice(idx, 1);
+
+    // 2. 维护当前选中的方案 appState.curSchemeIdx (0-indexed)
+    if (appState.curSchemeIdx === idx) {
+        // 删除了当前正在查看的方案
+        if (appState.curSchemeIdx >= group.schemes.length) {
+            appState.curSchemeIdx = group.schemes.length - 1;
+        }
+    } else if (idx < appState.curSchemeIdx) {
+        appState.curSchemeIdx--;
+    }
+    if (appState.curSchemeIdx < 0) appState.curSchemeIdx = 0;
+
+    // 选中方案自动设为该战场的默认执行方案
+    group.defaultScheme = appState.curSchemeIdx + 1;
+
+    // 重置当前回合与编辑态，防止失效引用
+    appState.curRoundIdx = 0;
+    appState.selectedStepState = null;
+    appState.currentEditingStepInfo = null;
+
+    // 4. 提交更改并刷新视图与预览
+    commitChanges();
+    render();
+    toast(formatText(TEXT_CONFIG.sidebar.schemeDeletedToast || '🗑️ 已删除方案：{name}', { name: deletedName }));
+}
+
 // 渲染侧边栏方案列表
 export function renderSchemeList() {
     const group = getCurGroup();
@@ -100,11 +197,14 @@ export function renderSchemeList() {
     const listContainer = $('schemeList');
     if (!listContainer) return;
 
+    const isOnlyOne = (group.schemes.length <= 1);
+
     listContainer.innerHTML = group.schemes.map((s, idx) => {
         const displayName = getSchemeDisplayName(s, idx);
         const isDefault = (idx + 1 === group.defaultScheme);
         const hasReward = Boolean(s.activityReward);
         const isActive = (idx === appState.curSchemeIdx);
+        const isConfirming = (confirmingDeleteIdx === idx);
         const friendText = s.friend ? `${TEXT_CONFIG.sidebar.friendPrefix}${getFriendLabel(s.friend)}` : TEXT_CONFIG.sidebar.noFriend;
         const defaultTag = isDefault ? TEXT_CONFIG.sidebar.defaultTag : '';
         const rewardTag = hasReward ? ' · 🎁 点数奖励' : '';
@@ -113,6 +213,11 @@ export function renderSchemeList() {
             name: displayName,
             defaultTag: `${defaultTag}${rewardTag}`
         });
+
+        const delBtnTitle = isOnlyOne 
+            ? (TEXT_CONFIG.sidebar.cannotDeleteOnlySchemeToast || '⚠️ 每个战场至少需保留 1 个方案，无法删除')
+            : (isConfirming ? (TEXT_CONFIG.sidebar.btnDeleteSchemeConfirm || '⚠️ 确认删除？再次点击执行') : (TEXT_CONFIG.sidebar.btnDeleteSchemeTitle || '删除方案 (双击确认)'));
+
         return `
             <div class="scheme-item ${isActive ? 'active' : ''} ${isDefault ? 'is-default' : ''}" 
                  draggable="true"
@@ -129,6 +234,12 @@ export function renderSchemeList() {
                     </div>
                     <div class="scheme-item-sub">${escapeHtml(friendText)}</div>
                 </div>
+                <button type="button" 
+                        class="scheme-item-del-btn ${isConfirming ? 'is-confirming' : ''} ${isOnlyOne ? 'is-disabled' : ''}"
+                        title="${escapeHtml(delBtnTitle)}"
+                        onclick="window.handleDeleteSchemeClick(event, ${idx})">
+                    ${isConfirming ? '<span class="del-confirm-text">⚠️ 确认删除？</span>' : '<span class="del-icon">🗑️</span>'}
+                </button>
             </div>
         `;
     }).join('');
@@ -167,17 +278,7 @@ export function setupSchemeDragAndDrop() {
             group.schemes.splice(newIdx, 0, movedItem);
 
             appState.curSchemeIdx = newIdx;
-
-            // 维护默认方案编号
-            let defIdx = group.defaultScheme - 1;
-            if (defIdx === oldIdx) {
-                defIdx = newIdx;
-            } else if (oldIdx < defIdx && newIdx >= defIdx) {
-                defIdx--;
-            } else if (oldIdx > defIdx && newIdx <= defIdx) {
-                defIdx++;
-            }
-            group.defaultScheme = defIdx + 1;
+            group.defaultScheme = newIdx + 1;
 
             commitChanges();
             renderSchemeList();
@@ -293,32 +394,13 @@ export function renderSchemeDetails() {
         };
     }
 
-    // 方案标题处的默认方案开关标签
-    const isCurDefault = (appState.curSchemeIdx + 1 === group.defaultScheme);
-    const defaultTagBtn = $('schemeDefaultTag');
-    if (defaultTagBtn) {
-        if (isCurDefault) {
-            defaultTagBtn.classList.add('is-default');
-            defaultTagBtn.innerHTML = '<span class="scheme-star-icon">⭐</span>';
-            defaultTagBtn.title = TEXT_CONFIG.schemeBar.defaultTagActiveTitle || '⭐ 当前战场的默认方案';
-        } else {
-            defaultTagBtn.classList.remove('is-default');
-            defaultTagBtn.innerHTML = '<span class="scheme-star-icon">☆</span>';
-            defaultTagBtn.title = TEXT_CONFIG.schemeBar.defaultTagInactiveTitle || '☆ 点击设为当前战场的默认方案';
-        }
-
-        defaultTagBtn.onclick = () => {
-            if (isCurDefault) {
-                toast(TEXT_CONFIG.schemeBar.alreadyDefaultToast || 'ℹ️ 当前方案已是该战场的默认运行方案');
-            } else {
-                group.defaultScheme = appState.curSchemeIdx + 1;
-                renderGroupTabs();
-                renderSchemeList();
-                renderSchemeDetails();
-                renderConfigPreview();
-                toast(formatText(TEXT_CONFIG.schemeBar.setDefaultSuccessToast, { index: appState.curSchemeIdx + 1 }));
-            }
-        };
+    // 方案标题处的默认方案星星图标（静态展示，不可点击）
+    const defaultTagEl = $('schemeDefaultTag');
+    if (defaultTagEl) {
+        defaultTagEl.classList.add('is-default');
+        defaultTagEl.innerHTML = '<span class="scheme-star-icon">⭐</span>';
+        defaultTagEl.title = TEXT_CONFIG.schemeBar.defaultTagActiveTitle || '⭐ 当前方案为该战场的默认执行方案';
+        defaultTagEl.onclick = null;
     }
 }
 
