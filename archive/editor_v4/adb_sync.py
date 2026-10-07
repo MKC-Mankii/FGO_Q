@@ -322,6 +322,28 @@ def send_runner_command(cmd, device=None):
         return {"success": False, "connected": False, "message": f"下发指令异常: {str(e)}"}
 
 
+def format_duration(seconds):
+    """将秒数格式化为人类友好的时间跨度（自动进位为秒/分/小时/天）"""
+    s = max(0, int(seconds or 0))
+    if s < 60:
+        return f"{s}秒"
+    days = s // 86400
+    hours = (s % 86400) // 3600
+    minutes = (s % 3600) // 60
+    secs = s % 60
+
+    res = ""
+    if days > 0:
+        res += f"{days}天"
+    if hours > 0:
+        res += f"{hours}小时"
+    if minutes > 0 or (hours > 0 and secs > 0):
+        res += f"{minutes}分"
+    if secs > 0 or (not days and not hours):
+        res += f"{secs}秒"
+    return res
+
+
 def get_runner_status(device=None):
     """
     读取并解析模拟器 /sdcard/FGO_Q/status.txt 与最新运行日志，判断脚本运行状态与真实心跳
@@ -424,7 +446,8 @@ def get_runner_status(device=None):
         if time_diff > timeout_threshold:
             alive = False
             state = "OFFLINE"
-            status_msg = f"脚本已停止或退出 (最后活跃于 {time_diff} 秒前)"
+            formatted_diff = format_duration(time_diff)
+            status_msg = f"脚本已停止或退出 (已离线 {formatted_diff})"
         else:
             alive = True
             state = raw_state
