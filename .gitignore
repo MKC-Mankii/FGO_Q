@@ -7,7 +7,25 @@ __pycache__/
 .tmp/
 *.tmp
 
-# Logs
+# Logs & Cache Profiles
 logs/
 editor_v4/logs/
+editor_v5/logs/
 *.log
+.webview_profile/
+**/.webview_profile/
+.app_profile/
+**/.app_profile/
+
+# Image & Asset Backups
+images_backup/
+backup_images/
+**/backup_images/
+images/.backup/
+
+# Scratch & Temporary Development Artifacts
+scratch/
+
+# Device runtime cache
+.selected_device.json
+**/.selected_device.json

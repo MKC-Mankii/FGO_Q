@@ -1,6 +1,6 @@
 # Runner 与配置文件说明（v4 版本权威指南）
 
-本文档是 FGO_Q 自动化体系 **v4 架构、通信总线与配置系统** 的官方权威技术指南与工程手册。全面涵盖 `battle_v4_runner.q`（战斗执行引擎）、`battle_v4_config.q`（策略配置与战术 DSL）、配套独立桌面/Web 可视化配置编辑器（[editor_v4/](file:///F:/2nd%20Accra/Git/Github/FGO_Q/editor_v4)）的完整系统设计、通信总线协议、页面直控交互及按键移动端底层稳定性规范。
+本文档是 FGO_Q 自动化体系 **v4 架构、通信总线与配置系统** 的官方权威技术指南与工程手册（现已归档至 `archive/`）。全面涵盖 `battle_v4_runner.q`（战斗执行引擎）、`battle_v4_config.q`（策略配置与战术 DSL）、配套独立桌面/Web 可视化配置编辑器（[archive/editor_v4/](file:///F:/2nd%20Accra/Git/Github/FGO_Q/archive/editor_v4)）的完整系统设计、通信总线协议、页面直控交互及按键移动端底层稳定性规范。
 
 > [!NOTE]
 > 关于 PC 手机助手、安卓模拟器与移动端按键精灵底层工具的机制说明、打包交互与环境避坑指南，请参阅 [docs/tools_and_runtime_architecture.md](file:///f:/2nd%20Accra/Git/Github/FGO_Q/docs/tools_and_runtime_architecture.md)。

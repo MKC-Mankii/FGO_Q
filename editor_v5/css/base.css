@@ -1,0 +1,315 @@
+:root {
+    --bg-base: #f4f7fb;
+    --bg-panel: #ffffff;
+    --bg-card: #ffffff;
+    --bg-card-hover: #f0f6ff;
+    --line: #cbd5e1;             /* 更加清晰硬朗的 Wiki 浅灰实线 */
+    --line-light: #e2e8f0;       /* Wiki 次级细分隔线 */
+    --line-dark: #94a3b8;
+    --text-main: #1f2937;        /* 高对比度纯正深墨黑 */
+    --text-muted: #4b5563;       /* 次要文本 */
+    --text-subtle: #6b7280;      /* 辅助弱文本 */
+
+    /* Mooncell 官方正统色阶体系 (来自 site.styles) */
+    --theme: #2196F3;
+    --lightblue: #EBF7FE;
+    --blue: #85C1F7;
+    --darkblue: #4487DF;         /* Arts / 核心主色 */
+    --accent: #4487DF;
+    --accent-glow: rgba(68, 135, 223, 0.22);
+
+    --lightyellow: #FEF9DE;
+    --yellow: #F9E179;
+    --darkyellow: #F1BD4C;       /* 金黄 / 御主 / 稀有度 */
+    --gold: #d9931e;
+    --gold-glow: rgba(217, 147, 30, 0.25);
+
+    --lightred: #FDF5F5;
+    --red: #F3ACAA;
+    --darkred: #E7615C;          /* Buster / 猩红危险 */
+    --buster: #e7615c;
+
+    --lightorange: #FFF7ED;
+    --orange: #F4C89C;
+    --darkorange: #E7815C;
+
+    --lightgreen: #F9FFEA;
+    --green: #B9E66B;
+    --darkgreen: #84B63C;        /* Quick / 育成翠绿 */
+    --quick: #4ea824;
+
+    --lightpurple: #F7F1FC;
+    --purple: #C794F6;
+    --darkpurple: #A443DF;       /* 锁定 / 特殊 / 固有 */
+
+    --shadow: 0 1px 3px rgba(0, 0, 0, 0.05), 0 1px 2px rgba(0, 0, 0, 0.03);
+    --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    color: var(--text-main);
+    font: 14px/1.6 -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "微软雅黑", sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    background: #f4f7fb;
+    min-height: 100vh;
+    padding: 16px 20px 20px;
+    display: flex;
+    flex-direction: column;
+}
+
+button, input, select, textarea {
+    font: inherit;
+    color: inherit;
+}
+
+input, select, textarea {
+    color: var(--text-main);
+}
+
+input:focus, select:focus, textarea:focus {
+    outline: none;
+    border-color: var(--accent) !important;
+    box-shadow: 0 0 0 2px var(--accent-glow) !important;
+}
+
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #c8d6e5;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #a9c0d8;
+}
+
+button {
+    cursor: pointer;
+    border: 0;
+    transition: all 0.15s ease;
+}
+
+.shell {
+    max-width: 1440px;
+    width: 100%;
+    margin: 0 auto;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.button {
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 13px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.button.primary {
+    background: linear-gradient(135deg, #4487df, #2b75dc);
+    color: #fff;
+    box-shadow: 0 2px 8px rgba(68, 135, 223, 0.35);
+}
+
+.button.primary:hover {
+    background: linear-gradient(135deg, #5394e8, #3580e5);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(68, 135, 223, 0.45);
+}
+
+/* 保存按钮待保存（Dirty）动态高亮与呼吸效果 - 尺寸绝对严格锁定不变 */
+#saveBtn {
+    position: relative;
+    box-sizing: border-box;
+    transition: background 0.25s ease, box-shadow 0.25s ease, transform 0.15s ease;
+}
+
+#saveBtn.has-changes {
+    background: linear-gradient(135deg, #dd6b20, #ed8936);
+    color: #ffffff;
+    box-shadow: 0 0 0 0 rgba(237, 137, 54, 0.7), 0 2px 8px rgba(221, 107, 32, 0.45);
+    animation: save-btn-pulse 2s infinite ease-in-out;
+}
+
+#saveBtn.has-changes:hover {
+    background: linear-gradient(135deg, #ea580c, #f97316);
+    transform: translateY(-1px);
+    box-shadow: 0 0 0 4px rgba(237, 137, 54, 0.3), 0 4px 14px rgba(237, 137, 54, 0.6);
+}
+
+#saveBtn.has-changes::after {
+    content: '';
+    position: absolute;
+    top: -3px;
+    right: -3px;
+    width: 8px;
+    height: 8px;
+    background: #fc8181;
+    border: 2px solid #ffffff;
+    border-radius: 50%;
+    box-shadow: 0 0 6px #e53e3e;
+    animation: save-dot-glow 1.5s ease-in-out infinite alternate;
+    pointer-events: none;
+}
+
+@keyframes save-btn-pulse {
+    0%, 100% {
+        box-shadow: 0 0 0 0 rgba(237, 137, 54, 0.6), 0 2px 8px rgba(221, 107, 32, 0.45);
+        filter: brightness(1);
+    }
+    50% {
+        box-shadow: 0 0 0 4px rgba(237, 137, 54, 0.25), 0 3px 14px rgba(237, 137, 54, 0.6);
+        filter: brightness(1.08);
+    }
+}
+
+@keyframes save-dot-glow {
+    0% {
+        transform: scale(0.9);
+        opacity: 0.85;
+    }
+    100% {
+        transform: scale(1.25);
+        opacity: 1;
+        box-shadow: 0 0 8px #f56565;
+    }
+}
+
+.button.quiet {
+    background: #ffffff;
+    border: 1px solid var(--line);
+    color: var(--text-main);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
+}
+
+.button.quiet:hover {
+    background: #f0f6ff;
+    border-color: var(--accent);
+    color: var(--accent);
+}
+
+.button.danger {
+    background: #fdf5f5;
+    border: 1px solid #f3acaa;
+    color: #e7615c;
+}
+
+.button.danger:hover {
+    background: #fde8e8;
+    border-color: #e7615c;
+}
+
+.checkbox-item {
+    cursor: pointer;
+    user-select: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 5px 12px;
+    background: #ffffff;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    font-size: 13px;
+    transition: all 0.15s ease;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
+}
+
+.checkbox-item:hover {
+    border-color: var(--line-light);
+    background: var(--bg-card-hover);
+}
+
+.checkbox-item.is-default {
+    border-color: rgba(217, 147, 30, 0.45);
+    background: #fef9de;
+    color: var(--gold);
+}
+
+.checkbox-item.is-active {
+    border-color: rgba(68, 135, 223, 0.45);
+    background: #ebf7fe;
+    color: var(--accent);
+}
+
+.checkbox-item input[type="checkbox"] {
+    cursor: pointer;
+    width: 15px;
+    height: 15px;
+    accent-color: var(--gold);
+    margin: 0;
+}
+
+.checkbox-item.is-active input[type="checkbox"] {
+    accent-color: var(--accent);
+}
+
+/* 实时代码预览 */
+.preview-area {
+    background: #ffffff;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 14px 18px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+}
+
+.preview-area summary {
+    cursor: pointer;
+    font-weight: 700;
+    font-size: 13px;
+    color: var(--accent);
+    user-select: none;
+}
+
+.preview-area textarea {
+    width: 100%;
+    height: 200px;
+    background: #182230;
+    border: 1px solid #2d3e52;
+    border-radius: 8px;
+    color: #68d391;
+    font: 12px/1.6 Consolas, "Liberation Mono", Menlo, monospace;
+    padding: 12px;
+    margin-top: 10px;
+    resize: vertical;
+}
+
+/* 统一 Toast 提示 */
+.toast {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    background: #1e293b;
+    color: #f8fafc;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    padding: 12px 20px;
+    border-radius: 10px;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.45), 0 8px 10px -6px rgba(0, 0, 0, 0.3);
+    font-weight: 500;
+    font-size: 13.5px;
+    line-height: 1.6;
+    white-space: pre-line;
+    max-width: 460px;
+    opacity: 0;
+    transform: translateY(12px) scale(0.98);
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    pointer-events: none;
+    z-index: 1000;
+}
+
+.toast.show {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+}

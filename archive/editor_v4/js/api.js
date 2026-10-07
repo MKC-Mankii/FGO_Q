@@ -20,6 +20,25 @@ function getNowTimeString() {
     return `${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
 }
 
+// 人类友好时长自动进位格式化（如超过 60 秒自动进位为几分几秒，支持天/小时/分/秒）
+export function formatDuration(seconds) {
+    const s = Math.max(0, Math.floor(Number(seconds) || 0));
+    if (s < 60) {
+        return `${s}秒`;
+    }
+    const days = Math.floor(s / 86400);
+    const hours = Math.floor((s % 86400) / 3600);
+    const minutes = Math.floor((s % 3600) / 60);
+    const secs = s % 60;
+
+    let res = '';
+    if (days > 0) res += `${days}天`;
+    if (hours > 0) res += `${hours}小时`;
+    if (minutes > 0 || (hours > 0 && secs > 0)) res += `${minutes}分`;
+    if (secs > 0 || (!days && !hours)) res += `${secs}秒`;
+    return res;
+}
+
 // 统一更新配置同步与就绪状态胶囊
 export function updateSyncStatus(type, label, tooltip) {
     const syncStatus = $('syncStatus');
@@ -314,9 +333,18 @@ export function updateRunnerUI(data) {
     } else if (newState === 'OFFLINE') {
         // 模拟器在线，但按键脚本未启动或已退出
         indicator.className = 'runner-badge offline';
-        const ageMsg = data.heartbeat_age_s ? ` (离线 ${data.heartbeat_age_s}s)` : '';
-        indicator.textContent = `⚪ 脚本未启动${ageMsg}`;
-        indicator.title = `${data.message || '模拟器在线，但按键脚本未在运行'}\n请在 PC 手机助手按 F5 启动 battle_v4_runner 进入待命`;
+        indicator.textContent = '⚪ 脚本未启动';
+
+        const offlineDuration = data.heartbeat_age_s ? formatDuration(data.heartbeat_age_s) : '';
+        let msg = data.message || '模拟器在线，但按键脚本未在运行';
+        if (offlineDuration) {
+            if (msg.includes('最后活跃于')) {
+                msg = msg.replace(/最后活跃于\s*\d+\s*秒前/, `已离线 ${offlineDuration}`);
+            } else if (!msg.includes(offlineDuration)) {
+                msg = `${msg} (已离线 ${offlineDuration})`;
+            }
+        }
+        indicator.title = `${msg}\n请在 PC 手机助手按 F5 启动 battle_v4_runner 进入待命`;
         restoreReadyButtons(false, '脚本未启动，点击查看启动引导（需在 PC 助手按 F5 启动）');
     } else if (newState === 'RUNNING') {
         // 战斗执行中
@@ -392,7 +420,8 @@ export function updateRunnerMonitorPanel(data) {
             statusDot.title = '正在安全退出...';
         } else {
             statusDot.textContent = '⚪';
-            statusDot.title = '脚本未启动';
+            const offlineDuration = (data && data.heartbeat_age_s) ? formatDuration(data.heartbeat_age_s) : '';
+            statusDot.title = offlineDuration ? `脚本未启动 (已离线 ${offlineDuration})` : '脚本未启动';
         }
     }
 

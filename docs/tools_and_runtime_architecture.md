@@ -3,7 +3,7 @@
 本文档详细说明 FGO_Q 自动化项目中涉及的底层开发、调试与运行工具，解析 **PC 按键精灵手机助手**、**安卓模拟器** 以及 **模拟器中的按键精灵手机版** 之间的底层机制、打包交互逻辑、典型陷阱与移动端运行限制。
 
 > [!NOTE]
-> 本文档专职介绍底层运行工具本身的技术原理、运行机制与排查避坑规范。有关可视化配置编辑器（Editor V4）的系统设计、通信总线、技术选型演进、页面直控与本地日志等具体业务逻辑，请参阅 [docs/battle_v4_runner_config.md](file:///f:/2nd%20Accra/Git/Github/FGO_Q/docs/battle_v4_runner_config.md)。
+> 本文档专职介绍底层运行工具本身的技术原理、运行机制与排查避坑规范。有关可视化配置编辑器与标定工坊（Editor V5）的系统设计、通信总线、坐标解耦、页面直控与本地日志等具体业务逻辑，请参阅 [docs/battle_v5_runner_config.md](file:///f:/2nd%20Accra/Git/Github/FGO_Q/docs/battle_v5_runner_config.md)。历史 V4 规范请参阅 [archive/doc/battle_v4_runner_config.md](file:///f:/2nd%20Accra/Git/Github/FGO_Q/archive/doc/battle_v4_runner_config.md)。
 
 ---
 
@@ -30,11 +30,12 @@
 │   ┌────────────────────────────────────────────────────────────────┐   │
 │   │ Android 共享存储区 (/sdcard/)                                   │   │
 │   │   ├── /sdcard/FGO_Q/                   ◄── [规范化独立数据目录] │   │
-│   │   │     └── battle_v4_config.mq            (外部配置与总线数据) │   │
+│   │   │     ├── battle_v5_config.mq            (外部配置与总线数据) │   │
+│   │   │     └── images/                        (动态热覆盖找图资源) │   │
 │   │   └── /sdcard/MobileAnJian/Script/     ◄── [按键精灵内部工作区] │   │
-│   │         ├── fgo_battle_v4_runner(...).mq   (Runner 执行引擎)   │   │
-│   │         ├── fgo_battle_v4_runner(...).atc  (图色特征/紫猫插件) │   │
-│   │         └── fgo_battle_v4_config(...).mq   (工程历史配置)       │   │
+│   │         ├── fgo_battle_v5_runner(...).mq   (Runner 执行引擎)   │   │
+│   │         ├── fgo_battle_v5_runner(...).atc  (图色特征/紫猫插件) │   │
+│   │         └── fgo_battle_v5_config(...).mq   (工程历史配置)       │   │
 │   └────────────────────────────────────────────────────────────────┘   │
 │                                 ▲                                      │
 │                                 │ 读写交互与执行注入                   │
@@ -182,8 +183,8 @@ adb -s emulator-5554 shell cat /sdcard/com.cyjh.mobileanjian/log/2026-9-25-9-58-
 
 | 资产类型 | 代表文件 | 同步策略 | 责任方与操作方式 | 设计原因与维护边界 |
 | :--- | :--- | :--- | :--- | :--- |
-| **策略配置 (Config)** | `Q/battle_v4_config.q` | **Editor 自动直推与心跳补推** | 保存时自动推送至 PC 助手工程与模拟器 `/sdcard/FGO_Q/` | 配置为纯数据，日常频繁调优，自动同步消灭人工复制粘贴成本与版本漂移。 |
-| **执行引擎 (Runner)** | `Q/battle_v4_runner.q` | **改动时三端同步**<br>(模拟器宿主 + 总线 + PC 助手) | **当未来逻辑改动时，同步覆写至模拟器与 PC 助手目录** | Runner 为核心执行引擎，版本稳定后极少变更。目前状态下，**除非需要修改/新增找图图片特征，否则一般不会打开 PC 手机助手**；日常在模拟器内脱机常驻运行即可。当未来发生逻辑变更时，需同步覆盖至模拟器端与 PC 助手工程目录，保持本地基准一致。 |
+| **策略配置 (Config)** | `Q/battle_v5_config.q` | **Editor 自动直推与心跳补推** | 保存时自动推送至 PC 助手工程与模拟器 `/sdcard/FGO_Q/` | 配置为纯数据，日常频繁调优，自动同步消灭人工复制粘贴成本与版本漂移。 |
+| **执行引擎 (Runner)** | `Q/battle_v5_runner.q` | **改动时三端同步**<br>(模拟器宿主 + 总线 + PC 助手) | **当未来逻辑改动时，同步覆写至模拟器与 PC 助手目录** | Runner 为核心执行引擎，版本稳定后极少变更。目前状态下，**除非需要修改/新增找图图片特征，否则一般不会打开 PC 手机助手**；日常在模拟器内脱机常驻运行即可。当未来发生逻辑变更时，需同步覆盖至模拟器端与 PC 助手工程目录，保持本地基准一致。 |
 
 ---
 
