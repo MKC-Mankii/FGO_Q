@@ -364,13 +364,14 @@ class CalibrationEngine:
             "targets": result_list
         }
 
-    def save_target_definition(self, target_key, crop_rect, tap_coord, anchor, search_area=None, target_file=None, target_name=None, category=None, profile_file="default_1440x810.json"):
+    def save_target_definition(self, target_key, crop_rect, tap_coord, anchor, search_area=None, target_file=None, target_name=None, category=None, profile_file="default_1440x810.json", description=None):
         """
         更新 profile 文件中某个目标的双套坐标与元数据：
         - crop_area: 本次裁切使用的精确像素坐标 (持久化留存，未来重截时可一键复位)
         - search_area: 运行时找图匹配范围
         - tap_coord: 推荐点击坐标
         - anchor: 锚点属性
+        - description: 目标业务描述说明
         """
         profile_path = os.path.join(self.profiles_dir, profile_file)
         if not os.path.isfile(profile_path):
@@ -383,7 +384,26 @@ class CalibrationEngine:
         target = targets.setdefault(target_key, {})
         
         target["key"] = target_key
+        old_file = target.get("file")
         if target_file:
+            # 如果文件名发生了变更，且原图在图库中存在，同步复制一份到新文件名，避免资产改名后特征图丢失
+            if old_file and target_file != old_file:
+                old_path = self.resolve_image_path(old_file)
+                if old_path and os.path.isfile(old_path):
+                    import shutil
+                    new_cache = os.path.join(self.images_dir, target_file)
+                    if not os.path.exists(new_cache):
+                        try:
+                            shutil.copy2(old_path, new_cache)
+                        except Exception as e:
+                            logger.warning(f"Failed to copy image to cache: {e}")
+                    old_dir = os.path.dirname(old_path)
+                    new_in_same_dir = os.path.join(old_dir, target_file)
+                    if not os.path.exists(new_in_same_dir):
+                        try:
+                            shutil.copy2(old_path, new_in_same_dir)
+                        except Exception as e:
+                            logger.warning(f"Failed to copy image to same dir: {e}")
             target["file"] = target_file
         elif "file" not in target:
             target["file"] = f"{target_key}.png"
@@ -397,6 +417,9 @@ class CalibrationEngine:
             target["category"] = category
         elif "category" not in target:
             target["category"] = self._infer_category(target.get("file", ""))
+
+        if description is not None:
+            target["description"] = description
         
         # 1. 保存精确裁切区域 (若为 None 则保持或跳过，便于纯点击锚点保存)
         if crop_rect is not None:

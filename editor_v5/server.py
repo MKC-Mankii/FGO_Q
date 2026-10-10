@@ -38,16 +38,45 @@ ROOT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 EDITOR_DIR = os.path.abspath(os.path.dirname(__file__))
 LOG_DIR = os.path.join(EDITOR_DIR, "logs")
 os.makedirs(LOG_DIR, exist_ok=True)
-LOG_FILE = os.path.join(LOG_DIR, "editor.log")
 
-# 配置 Editor 本地滚动日志系统
+def _generate_log_filename(log_dir):
+    """每次启动生成带有时间戳的独立日志文件名，若冲突则追加递增序号"""
+    base_ts = time.strftime("%Y%m%d_%H%M%S")
+    cand = os.path.join(log_dir, f"editor_{base_ts}.log")
+    if not os.path.exists(cand):
+        return cand
+    idx = 1
+    while True:
+        cand = os.path.join(log_dir, f"editor_{base_ts}_{idx}.log")
+        if not os.path.exists(cand):
+            return cand
+        idx += 1
+
+def _cleanup_old_logs(log_dir, max_keep=20):
+    """自动清理过旧的历史启动日志，默认最多保留最新的 20 份启动日志"""
+    try:
+        log_files = glob.glob(os.path.join(log_dir, "editor_*.log*"))
+        log_files.sort(key=os.path.getmtime)
+        while len(log_files) > max_keep:
+            oldest = log_files.pop(0)
+            try:
+                os.remove(oldest)
+            except OSError:
+                pass
+    except Exception:
+        pass
+
+_cleanup_old_logs(LOG_DIR, max_keep=20)
+LOG_FILE = _generate_log_filename(LOG_DIR)
+
+# 配置 Editor 本地滚动日志系统（每次启动新建独立 log 文件）
 logger = logging.getLogger("editor")
 logger.setLevel(logging.INFO)
 
 if not logger.handlers:
-    # 轮转日志：每个文件上限 5MB，最多保留 5 份历史文件，全局 UTF-8
+    # 轮转日志：单次会话上限 5MB，最多保留 3 份历史分片，全局 UTF-8
     file_handler = RotatingFileHandler(
-        LOG_FILE, maxBytes=5 * 1024 * 1024, backupCount=5, encoding="utf-8"
+        LOG_FILE, maxBytes=5 * 1024 * 1024, backupCount=3, encoding="utf-8"
     )
     file_formatter = logging.Formatter(
         "[%(asctime)s] [%(levelname)s] %(message)s", datefmt="%Y-%m-%d %H:%M:%S"
@@ -63,6 +92,8 @@ if not logger.handlers:
         except Exception:
             pass
 
+if ROOT_DIR not in sys.path:
+    sys.path.insert(0, ROOT_DIR)
 if EDITOR_DIR not in sys.path:
     sys.path.insert(0, EDITOR_DIR)
 
@@ -192,7 +223,34 @@ class ConfigEditorHandler(http.server.SimpleHTTPRequestHandler):
     def do_GET(self):
         check_and_reload_adb_sync()
 
-        if self.path.startswith('/api/config'):
+        if self.path.startswith('/api/friends'):
+            friends_file = os.path.join(EDITOR_DIR, "profiles", "friends.json")
+            data = {"version": "1.0", "friends": []}
+            if os.path.isfile(friends_file):
+                try:
+                    with open(friends_file, "r", encoding="utf-8") as f:
+                        data = json.load(f)
+                except Exception as e:
+                    logger.warning(f"Failed to read friends.json: {e}")
+            
+            # 检测每张图片的物理存在性
+            img_status = {}
+            for fr in data.get("friends", []):
+                for img_name in fr.get("images", []):
+                    img_path = os.path.join(EDITOR_DIR, "images", img_name)
+                    img_status[img_name] = bool(os.path.isfile(img_path) and os.path.getsize(img_path) > 0)
+            
+            self.send_response(200)
+            self.send_header('Content-Type', 'application/json; charset=utf-8')
+            self.send_header('Cache-Control', 'no-cache')
+            self.end_headers()
+            self.wfile.write(json.dumps({
+                "status": "ok",
+                "friends": data.get("friends", []),
+                "image_status": img_status
+            }, ensure_ascii=False).encode('utf-8'))
+            return
+        elif self.path.startswith('/api/config'):
             target_path = CONFIG_PATH_V5
 
             if os.path.exists(target_path):
@@ -281,6 +339,24 @@ class ConfigEditorHandler(http.server.SimpleHTTPRequestHandler):
             self.end_headers()
             self.wfile.write(json.dumps(res, ensure_ascii=False).encode('utf-8'))
             return
+        elif self.path.startswith('/api/star_map/status') or self.path.startswith('/api/star_map/progress'):
+            if adb_sync and hasattr(adb_sync, 'get_star_map_progress'):
+                res = adb_sync.get_star_map_progress()
+            else:
+                try:
+                    try:
+                        from star_map_unlocker import get_star_map_progress
+                    except ImportError:
+                        from editor_v5.star_map_unlocker import get_star_map_progress
+                    res = get_star_map_progress()
+                except Exception as e:
+                    res = {"running": False, "status": "ERROR", "message": str(e)}
+            self.send_response(200)
+            self.send_header('Content-Type', 'application/json; charset=utf-8')
+            self.send_header('Cache-Control', 'no-cache')
+            self.end_headers()
+            self.wfile.write(json.dumps(res, ensure_ascii=False).encode('utf-8'))
+            return
         elif self.path.startswith('/api/runner/ready_status'):
             progress = adb_sync.get_ready_env_progress() if (adb_sync and hasattr(adb_sync, 'get_ready_env_progress')) else {}
             self.send_response(200)
@@ -288,6 +364,17 @@ class ConfigEditorHandler(http.server.SimpleHTTPRequestHandler):
             self.send_header('Cache-Control', 'no-cache')
             self.end_headers()
             self.wfile.write(json.dumps(progress, ensure_ascii=False).encode('utf-8'))
+            return
+        elif self.path.startswith('/api/runner/ready_env/cancel') or self.path.startswith('/api/runner/cancel_ready_env'):
+            if adb_sync and hasattr(adb_sync, 'request_cancel_ready_env'):
+                res = adb_sync.request_cancel_ready_env()
+            else:
+                res = {"success": False, "message": "adb_sync 模块未加载或不支持取消"}
+            self.send_response(200)
+            self.send_header('Content-Type', 'application/json; charset=utf-8')
+            self.send_header('Cache-Control', 'no-cache')
+            self.end_headers()
+            self.wfile.write(json.dumps(res, ensure_ascii=False).encode('utf-8'))
             return
         elif self.path.startswith('/api/runner/ready_env'):
             if adb_sync:
@@ -468,8 +555,9 @@ class ConfigEditorHandler(http.server.SimpleHTTPRequestHandler):
             else:
                 self.send_response(404)
                 self.end_headers()
-        elif self.path in ('/', '/index.html'):
-            self.path = '/battle_config_editor.html'
+        elif self.path.split('?')[0] in ('/', '/battle_config_editor.html'):
+            query = ('?' + self.path.split('?', 1)[1]) if '?' in self.path else ''
+            self.path = '/index.html' + query
             return super().do_GET()
         else:
             return super().do_GET()
@@ -488,6 +576,60 @@ class ConfigEditorHandler(http.server.SimpleHTTPRequestHandler):
                 print("[Server] POST /api/shutdown received. Exiting...", flush=True)
                 os._exit(0)
             threading.Thread(target=_stop, daemon=True).start()
+            return
+        elif self.path.startswith('/api/friends'):
+            length = int(self.headers.get('Content-Length', 0))
+            body = self.rfile.read(length).decode('utf-8') if length > 0 else "{}"
+            req = {}
+            if body:
+                try:
+                    req = json.loads(body)
+                except Exception as e:
+                    logger.warning(f"Failed to parse /api/friends body: {e}")
+            friends_data = req.get('friends', [])
+            
+            friends_file = os.path.join(EDITOR_DIR, "profiles", "friends.json")
+            with open(friends_file, "w", encoding="utf-8") as f:
+                json.dump({"version": "1.0", "friends": friends_data}, f, ensure_ascii=False, indent=2)
+            
+            # 自动向 default_1440x810.json 的 targets 补充尚未声明的 friend target 占位
+            profile_path = os.path.join(EDITOR_DIR, "profiles", "default_1440x810.json")
+            if os.path.isfile(profile_path):
+                try:
+                    with open(profile_path, "r", encoding="utf-8") as pf:
+                        p_data = json.load(pf)
+                    targets = p_data.get("targets", {})
+                    updated = False
+                    for fr in friends_data:
+                        fr_name = fr.get("name", fr.get("key"))
+                        for idx, img_file in enumerate(fr.get("images", []), 1):
+                            t_key = os.path.splitext(img_file)[0]
+                            if t_key not in targets:
+                                targets[t_key] = {
+                                    "key": t_key,
+                                    "name": f"助战: {fr_name} {idx}",
+                                    "category": "friend",
+                                    "file": img_file,
+                                    "anchor": "top_left",
+                                    "search_area": [40, 180, 920, 800],
+                                    "crop_area": None,
+                                    "area": [40, 180, 920, 800],
+                                    "tap_coord": None,
+                                    "description": f"助战特征图: {fr_name}"
+                                }
+                                updated = True
+                    if updated:
+                        p_data["targets"] = targets
+                        with open(profile_path, "w", encoding="utf-8") as pf:
+                            json.dump(p_data, pf, ensure_ascii=False, indent=2)
+                except Exception as e:
+                    logger.warning(f"Failed to update profile targets with friends: {e}")
+            
+            self.send_response(200)
+            self.send_header('Content-Type', 'application/json; charset=utf-8')
+            self.send_header('Cache-Control', 'no-cache')
+            self.end_headers()
+            self.wfile.write(json.dumps({"success": True, "message": "助战配置已保存", "count": len(friends_data)}, ensure_ascii=False).encode('utf-8'))
             return
         elif self.path.startswith('/api/adb/device'):
             length = int(self.headers.get('Content-Length', 0))
@@ -534,6 +676,7 @@ class ConfigEditorHandler(http.server.SimpleHTTPRequestHandler):
             target_file = req.get('file')
             target_name = req.get('name')
             category = req.get('category')
+            description = req.get('description')
             image_base64 = req.get('image_base64')
             target_dev = req_dev or (adb_sync.get_selected_device() if hasattr(adb_sync, 'get_selected_device') else None)
             
@@ -577,7 +720,8 @@ class ConfigEditorHandler(http.server.SimpleHTTPRequestHandler):
                         # 更新 profile (双套坐标: crop_area 与 search_area)
                         cal_engine.save_target_definition(
                             target_key, rect, tap_coord, anchor,
-                            search_area=search_area, target_file=fname, target_name=target_name, category=category
+                            search_area=search_area, target_file=fname, target_name=target_name, category=category,
+                            description=description
                         )
                         updated_cfg = cal_engine.sync_target_to_config_file(target_key, CONFIG_PATH_V5)
                         
@@ -608,7 +752,8 @@ class ConfigEditorHandler(http.server.SimpleHTTPRequestHandler):
                         # 纯点击锚点或仅更新属性/搜索范围
                         cal_engine.save_target_definition(
                             target_key, None, tap_coord, anchor,
-                            search_area=search_area, target_file=fname, target_name=target_name, category=category
+                            search_area=search_area, target_file=fname, target_name=target_name, category=category,
+                            description=description
                         )
                         updated_cfg = cal_engine.sync_target_to_config_file(target_key, CONFIG_PATH_V5)
                         dev = target_dev or (adb_sync.get_adb_status().get('device') if adb_sync else None)
@@ -780,6 +925,16 @@ class ConfigEditorHandler(http.server.SimpleHTTPRequestHandler):
             self.send_header('Cache-Control', 'no-cache')
             self.end_headers()
             self.wfile.write(json.dumps(res, ensure_ascii=False).encode('utf-8'))
+        elif self.path.startswith('/api/runner/ready_env/cancel') or self.path.startswith('/api/runner/cancel_ready_env'):
+            if adb_sync and hasattr(adb_sync, 'request_cancel_ready_env'):
+                res = adb_sync.request_cancel_ready_env()
+            else:
+                res = {"success": False, "message": "adb_sync 模块未加载或不支持取消"}
+            self.send_response(200)
+            self.send_header('Content-Type', 'application/json; charset=utf-8')
+            self.send_header('Cache-Control', 'no-cache')
+            self.end_headers()
+            self.wfile.write(json.dumps(res, ensure_ascii=False).encode('utf-8'))
             return
         elif self.path.startswith('/api/runner/ready_env'):
             length = int(self.headers.get('Content-Length', 0))
@@ -807,6 +962,56 @@ class ConfigEditorHandler(http.server.SimpleHTTPRequestHandler):
             else:
                 res = {"success": False, "connected": False, "message": "adb_sync 模块未加载"}
 
+            self.send_response(200)
+            self.send_header('Content-Type', 'application/json; charset=utf-8')
+            self.send_header('Cache-Control', 'no-cache')
+            self.end_headers()
+            self.wfile.write(json.dumps(res, ensure_ascii=False).encode('utf-8'))
+            return
+        elif self.path.startswith('/api/star_map/start'):
+            length = int(self.headers.get('Content-Length', 0))
+            body = self.rfile.read(length).decode('utf-8') if length > 0 else ""
+            target_dev = None
+            auto_swipe = True
+            if body:
+                try:
+                    req_data = json.loads(body)
+                    target_dev = req_data.get('device')
+                    if "auto_swipe" in req_data:
+                        auto_swipe = bool(req_data.get('auto_swipe'))
+                except Exception:
+                    pass
+            logger.info(f"[API] 收到 POST /api/star_map/start (device={target_dev}, auto_swipe={auto_swipe})")
+            if adb_sync and hasattr(adb_sync, 'start_star_map_unlock'):
+                res = adb_sync.start_star_map_unlock(device=target_dev, auto_swipe=auto_swipe)
+            else:
+                try:
+                    try:
+                        from star_map_unlocker import start_star_map_unlock
+                    except ImportError:
+                        from editor_v5.star_map_unlocker import start_star_map_unlock
+                    res = start_star_map_unlock(device=target_dev, auto_swipe=auto_swipe)
+                except Exception as e:
+                    res = {"success": False, "message": str(e)}
+            self.send_response(200)
+            self.send_header('Content-Type', 'application/json; charset=utf-8')
+            self.send_header('Cache-Control', 'no-cache')
+            self.end_headers()
+            self.wfile.write(json.dumps(res, ensure_ascii=False).encode('utf-8'))
+            return
+        elif self.path.startswith('/api/star_map/stop'):
+            logger.info("[API] 收到 POST /api/star_map/stop")
+            if adb_sync and hasattr(adb_sync, 'stop_star_map_unlock'):
+                res = adb_sync.stop_star_map_unlock()
+            else:
+                try:
+                    try:
+                        from star_map_unlocker import request_stop_star_map
+                    except ImportError:
+                        from editor_v5.star_map_unlocker import request_stop_star_map
+                    res = request_stop_star_map()
+                except Exception as e:
+                    res = {"success": False, "message": str(e)}
             self.send_response(200)
             self.send_header('Content-Type', 'application/json; charset=utf-8')
             self.send_header('Cache-Control', 'no-cache')
@@ -981,6 +1186,8 @@ def create_server(host='127.0.0.1', port=PORT):
 
 def start_server_thread(host='127.0.0.1', port=PORT):
     server = create_server(host, port)
+    logger.info(f"=== FGO Q Editor Server thread running on {host}:{port} ===")
+    logger.info(f"Local log file: {LOG_FILE}")
     import threading
     t = threading.Thread(target=server.serve_forever, daemon=True)
     t.start()

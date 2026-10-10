@@ -257,12 +257,338 @@
 }
 
 .cal-toolbar-primary {
-    border-bottom: 1px solid var(--line-light, #e2e8f0);
-    padding-bottom: 7px;
+    padding-top: 2px;
+    padding-bottom: 2px;
 }
 
 .cal-toolbar-secondary {
     padding-top: 1px;
+}
+
+/* 第二部分：目标属性与指引面板 (3 行分栏结构) */
+.cal-target-strip {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 7px 10px;
+    background: #f8fafc;
+    border: 1px solid var(--line-light, #e2e8f0);
+    border-radius: 6px;
+    box-sizing: border-box;
+    transition: all 0.15s ease;
+}
+
+.cal-target-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 24px;
+}
+
+/* 第 1 行：资产名字与图片名 */
+.cal-target-row-meta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding-bottom: 5px;
+    border-bottom: 1px dashed rgba(203, 213, 225, 0.65);
+    flex-wrap: wrap;
+}
+
+/* 目标属性行图标统一规范 (保证 3 行左侧绝对垂直对齐) */
+.cal-target-lead-icon {
+    width: 18px;
+    height: 18px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13.5px;
+    line-height: 1;
+    user-select: none;
+    flex-shrink: 0;
+}
+
+/* 内联可编辑胶囊包装器 (资产名称、图片文件名通用) */
+.cal-inline-wrap {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 6px;
+    border-radius: 4px;
+    cursor: pointer;
+    border: 1px dashed transparent;
+    transition: all 0.15s ease;
+    user-select: none;
+    min-width: 0;
+}
+
+.cal-inline-wrap:hover {
+    background: #ffffff;
+    border-color: var(--blue, #85c1f7);
+    box-shadow: 0 1px 3px rgba(68, 135, 223, 0.12);
+}
+
+.cal-inline-wrap.cal-readonly {
+    cursor: default;
+    border-color: transparent !important;
+    background: transparent !important;
+    box-shadow: none !important;
+}
+
+/* 统一铅笔编辑图标 */
+.cal-edit-pencil-icon {
+    font-size: 11px;
+    color: var(--darkblue, #4487df);
+    opacity: 0.55;
+    transition: opacity 0.15s ease, transform 0.15s ease;
+    flex-shrink: 0;
+    user-select: none;
+    line-height: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1px 2px;
+    border-radius: 3px;
+}
+
+.cal-inline-wrap:hover .cal-edit-pencil-icon,
+.cal-desc-display:hover .cal-edit-pencil-icon {
+    opacity: 1;
+    transform: scale(1.15);
+}
+
+/* 内联编辑器容器 */
+.cal-inline-editor {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    animation: calInlineFadeIn 0.15s ease;
+}
+
+@keyframes calInlineFadeIn {
+    from { opacity: 0; transform: translateY(-2px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.cal-inline-input {
+    height: 26px;
+    padding: 2px 8px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-main, #1f2937);
+    background: #ffffff;
+    border: 1px solid var(--darkblue, #4487df);
+    border-radius: 4px;
+    outline: none;
+    box-shadow: 0 0 0 1.5px rgba(68, 135, 223, 0.2);
+    box-sizing: border-box;
+    min-width: 120px;
+    max-width: 180px;
+}
+
+/* 图片文件名复合输入框 (前缀输入 + 固定 .png 后缀) */
+.cal-file-input-group {
+    display: inline-flex;
+    align-items: center;
+    height: 26px;
+    background: #ffffff;
+    border: 1px solid var(--darkblue, #4487df);
+    border-radius: 4px;
+    overflow: hidden;
+    box-shadow: 0 0 0 1.5px rgba(68, 135, 223, 0.2);
+    box-sizing: border-box;
+}
+
+.cal-file-input {
+    border: none;
+    outline: none;
+    height: 100%;
+    padding: 0 6px;
+    font-size: 11.5px;
+    font-weight: 600;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    color: var(--text-main, #1f2937);
+    background: transparent;
+    min-width: 130px;
+    max-width: 200px;
+    box-sizing: border-box;
+}
+
+.cal-file-ext-suffix {
+    height: 100%;
+    display: inline-flex;
+    align-items: center;
+    background: #ebf8ff;
+    color: #2b6cb0;
+    font-size: 11px;
+    font-weight: 700;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    padding: 0 7px;
+    border-left: 1px solid #bee3f8;
+    user-select: none;
+    box-sizing: border-box;
+}
+
+.cal-target-name-val {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text-main, #1f2937);
+    white-space: nowrap;
+}
+
+.cal-target-file-badge {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    font-size: 11.5px;
+    font-weight: 600;
+    color: #2b6cb0;
+    background: #ebf8ff;
+    border: 1px solid #bee3f8;
+    border-radius: 4px;
+    padding: 1px 6px;
+    white-space: nowrap;
+}
+
+/* 第 2 行：描述默认显示占一行 */
+.cal-target-row-desc {
+    width: 100%;
+    padding-bottom: 5px;
+    border-bottom: 1px dashed rgba(203, 213, 225, 0.65);
+}
+
+.cal-desc-display {
+    flex: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 2px 6px;
+    border-radius: 4px;
+    cursor: pointer;
+    border: 1px dashed transparent;
+    background: transparent;
+    transition: all 0.15s ease;
+    user-select: none;
+    min-width: 0;
+}
+
+.cal-desc-display:hover {
+    background: #ffffff;
+    border-color: var(--blue, #85c1f7);
+    box-shadow: 0 1px 3px rgba(68, 135, 223, 0.12);
+}
+
+.cal-desc-text {
+    font-size: 12px;
+    color: var(--text-main, #334155);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 1.4;
+    flex: 1;
+}
+
+.cal-desc-text.empty-desc {
+    color: var(--text-subtle, #94a3b8);
+    font-style: italic;
+}
+
+/* 描述编辑态 */
+.cal-desc-editor {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    width: 100%;
+    animation: calDescFadeIn 0.18s ease;
+}
+
+@keyframes calDescFadeIn {
+    from { opacity: 0; transform: translateY(-2px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.cal-desc-input {
+    flex: 1;
+    min-width: 160px;
+    height: 26px;
+    padding: 2px 8px;
+    font-size: 12px;
+    color: var(--text-main, #1f2937);
+    background: #ffffff;
+    border: 1px solid var(--darkblue, #4487df);
+    border-radius: 4px;
+    outline: none;
+    box-shadow: 0 0 0 1.5px rgba(68, 135, 223, 0.2);
+    box-sizing: border-box;
+}
+
+.cal-desc-actions {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    flex-shrink: 0;
+}
+
+.cal-desc-action-btn {
+    padding: 2px 8px;
+    height: 24px;
+    font-size: 11px;
+    font-weight: 600;
+    border-radius: 4px;
+    border: 1px solid transparent;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    transition: all 0.12s ease;
+    box-sizing: border-box;
+    white-space: nowrap;
+    user-select: none;
+}
+
+.cal-desc-action-btn.save {
+    background: var(--lightgreen, #f9ffea);
+    border-color: var(--green, #b9e66b);
+    color: #276749;
+}
+
+.cal-desc-action-btn.save:hover {
+    background: #e2f7cf;
+    border-color: #92d64a;
+}
+
+.cal-desc-action-btn.cancel {
+    background: #f8fafc;
+    border-color: var(--line, #cbd5e1);
+    color: var(--text-muted, #64748b);
+}
+
+.cal-desc-action-btn.cancel:hover {
+    background: #edf2f7;
+    color: var(--text-main, #1f2937);
+}
+
+/* 第 3 行：选取匹配和操作指引单独占一行 */
+.cal-target-row-guide {
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.cal-guide-lead-label {
+    font-size: 11.5px;
+    font-weight: 600;
+    color: var(--text-muted, #64748b);
+    user-select: none;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.cal-guide-badges {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
 }
 
 .cal-toolbar-group {
@@ -704,6 +1030,194 @@
     flex-shrink: 0;
 }
 
+/* 卡片头部右侧操作按钮组 (显示/可编辑独立操作按钮) */
+.cal-card-actions {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    flex-shrink: 0;
+}
+
+.cal-opt-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    height: 23px;
+    padding: 0 7px;
+    font-size: 11px;
+    font-weight: 600;
+    line-height: 1;
+    border-radius: 4px;
+    border: 1px solid var(--line, #cbd5e1);
+    background: #ffffff;
+    color: var(--text-muted, #475569);
+    cursor: pointer;
+    user-select: none;
+    white-space: nowrap;
+    transition: all 0.15s ease;
+    box-sizing: border-box;
+    outline: none;
+}
+
+.cal-opt-btn:hover {
+    background: #f8fafc;
+    border-color: #94a3b8;
+    color: var(--text-main, #1e293b);
+}
+
+.cal-opt-btn:active {
+    transform: translateY(1px);
+}
+
+/* 状态指示小圆点与图标 */
+.cal-opt-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    display: inline-block;
+    flex-shrink: 0;
+}
+
+.cal-opt-dot.green {
+    background: var(--quick, #4ea824);
+    box-shadow: 0 0 0 1px rgba(78, 168, 36, 0.25);
+}
+
+.cal-opt-dot.blue {
+    background: var(--darkblue, #4487df);
+    box-shadow: 0 0 0 1px rgba(68, 135, 223, 0.25);
+}
+
+.cal-opt-dot.muted {
+    background: #94a3b8;
+}
+
+/* 状态指示勾选框 SVG (编辑按钮) */
+.cal-opt-check {
+    width: 12px;
+    height: 12px;
+    display: inline-block;
+    flex-shrink: 0;
+    transition: all 0.15s ease;
+}
+
+/* 未激活（未勾选状态）：空心框 */
+.cal-opt-btn.btn-edit:not(.is-active) .cal-check-bg {
+    fill: #ffffff;
+    stroke: var(--line-dark, #94a3b8);
+    stroke-width: 1.6;
+}
+
+.cal-opt-btn.btn-edit:not(.is-active) .cal-check-tick {
+    display: none;
+}
+
+.cal-opt-btn.btn-edit:not(.is-active):hover .cal-check-bg {
+    stroke: var(--text-main, #334155);
+}
+
+/* 1. 显示/隐藏 按钮状态 */
+/* 激活显示中 */
+.cal-card-crop .cal-opt-btn.btn-vis.is-active {
+    background: var(--lightgreen, #f9ffea);
+    border-color: var(--green, #b9e66b);
+    color: #276749;
+}
+
+.cal-card-crop .cal-opt-btn.btn-vis.is-active:hover {
+    background: #f1fad8;
+    border-color: var(--darkgreen, #84b63c);
+}
+
+.cal-card-search .cal-opt-btn.btn-vis.is-active {
+    background: var(--lightblue, #ebf7fe);
+    border-color: var(--blue, #85c1f7);
+    color: #1e40af;
+}
+
+.cal-card-search .cal-opt-btn.btn-vis.is-active:hover {
+    background: #e0f1fc;
+    border-color: var(--darkblue, #4487df);
+}
+
+/* 未激活（已隐藏） */
+.cal-opt-btn.btn-vis:not(.is-active) {
+    background: #f8fafc;
+    border-color: var(--line, #cbd5e1);
+    color: #94a3b8;
+}
+
+.cal-opt-btn.btn-vis:not(.is-active):hover {
+    background: #f1f5f9;
+    border-color: #94a3b8;
+    color: #64748b;
+}
+
+/* 2. 可编辑 按钮状态 (勾选与未勾选) */
+/* 激活（当前处于编辑模式：白底实心框+主题色对勾） */
+.cal-card-crop .cal-opt-btn.btn-edit.is-active {
+    background: var(--quick, #4ea824);
+    border-color: var(--quick, #4ea824);
+    color: #ffffff;
+    font-weight: 700;
+    box-shadow: 0 1px 3px rgba(78, 168, 36, 0.35);
+}
+
+.cal-card-crop .cal-opt-btn.btn-edit.is-active:hover {
+    background: #44971f;
+    border-color: #44971f;
+}
+
+.cal-card-crop .cal-opt-btn.btn-edit.is-active .cal-check-bg {
+    fill: #ffffff;
+    stroke: #ffffff;
+    stroke-width: 1;
+}
+
+.cal-card-crop .cal-opt-btn.btn-edit.is-active .cal-check-tick {
+    display: block;
+    stroke: var(--quick, #4ea824);
+}
+
+.cal-card-search .cal-opt-btn.btn-edit.is-active {
+    background: var(--darkblue, #4487df);
+    border-color: var(--darkblue, #4487df);
+    color: #ffffff;
+    font-weight: 700;
+    box-shadow: 0 1px 3px rgba(68, 135, 223, 0.35);
+}
+
+.cal-card-search .cal-opt-btn.btn-edit.is-active:hover {
+    background: #3577ce;
+    border-color: #3577ce;
+}
+
+.cal-card-search .cal-opt-btn.btn-edit.is-active .cal-check-bg {
+    fill: #ffffff;
+    stroke: #ffffff;
+    stroke-width: 1;
+}
+
+.cal-card-search .cal-opt-btn.btn-edit.is-active .cal-check-tick {
+    display: block;
+    stroke: var(--darkblue, #4487df);
+}
+
+/* 未激活（非当前编辑目标：未勾选状态） */
+.cal-opt-btn.btn-edit:not(.is-active) {
+    background: #ffffff;
+    border-color: var(--line, #cbd5e1);
+    color: var(--text-muted, #475569);
+}
+
+.cal-opt-btn.btn-edit:not(.is-active):hover {
+    background: #f8fafc;
+    border-color: #94a3b8;
+    color: var(--text-main, #1e293b);
+}
+
+/* 兼容性辅助样式 (保留原有辅助类定义防止潜在遗漏) */
 .cal-layer-item {
     display: inline-flex;
     align-items: center;
@@ -712,97 +1226,7 @@
     border-radius: 5px;
     border: 1px solid var(--line, #cbd5e1);
     background: #ffffff;
-    transition: all 0.2s ease;
-    user-select: none;
-    white-space: nowrap !important;
-    flex-shrink: 0;
     cursor: pointer;
-}
-
-.cal-layer-item:hover {
-    background: var(--bg-card-hover, #f0f6ff);
-    border-color: var(--blue, #85c1f7);
-}
-
-.cal-layer-item.layer-crop.is-editing {
-    background: var(--lightgreen, #f9ffea);
-    border-color: var(--darkgreen, #84b63c);
-    box-shadow: 0 0 0 1px var(--darkgreen, #84b63c);
-}
-
-.cal-layer-item.layer-search.is-editing {
-    background: var(--lightblue, #ebf7fe);
-    border-color: var(--darkblue, #4487df);
-    box-shadow: 0 0 0 1px var(--darkblue, #4487df);
-}
-
-.cal-layer-check {
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    cursor: pointer;
-    font-size: 11px;
-    font-weight: 600;
-    color: var(--text-main, #1f2937);
-    margin: 0;
-}
-
-.cal-layer-check input[type="checkbox"] {
-    accent-color: var(--quick, #4ea824);
-    cursor: pointer;
-    width: 13px;
-    height: 13px;
-    margin: 0;
-}
-
-.cal-layer-item.layer-search .cal-layer-check input[type="checkbox"] {
-    accent-color: var(--darkblue, #4487df);
-}
-
-.cal-layer-label {
-    font-size: 11px;
-    white-space: nowrap;
-}
-
-.cal-layer-edit {
-    display: inline-flex;
-    align-items: center;
-    cursor: pointer;
-    margin: 0;
-}
-
-.cal-layer-edit input[type="radio"] {
-    display: none;
-}
-
-.cal-edit-pill {
-    padding: 1px 6px;
-    font-size: 10px;
-    font-weight: 700;
-    border-radius: 8px;
-    background: #edf2f7;
-    color: var(--text-muted, #4b5563);
-    border: 1px solid var(--line, #cbd5e1);
-    transition: all 0.18s ease;
-    white-space: nowrap;
-    line-height: 1.3;
-}
-
-.cal-layer-edit:hover .cal-edit-pill {
-    background: #e2e8f0;
-    color: var(--text-main, #1f2937);
-}
-
-.cal-layer-item.layer-crop.is-editing .cal-edit-pill {
-    background: var(--quick, #4ea824);
-    color: #ffffff;
-    border-color: var(--quick, #4ea824);
-}
-
-.cal-layer-item.layer-search.is-editing .cal-edit-pill {
-    background: var(--darkblue, #4487df);
-    color: #ffffff;
-    border-color: var(--darkblue, #4487df);
 }
 
 .mode-dot {
@@ -832,10 +1256,32 @@
     transition: all 0.15s ease;
 }
 
-.cal-btn-mini:hover {
+.cal-btn-mini:hover:not(:disabled) {
     background: var(--bg-card-hover, #f0f6ff);
     color: var(--darkblue, #4487df);
     border-color: var(--darkblue, #4487df);
+}
+
+#btnResetSearchArea:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+    background: #f8fafc !important;
+    color: #94a3b8 !important;
+    border-color: #cbd5e1 !important;
+}
+
+#btnResetSearchArea:not(:disabled) {
+    background: #ffffff;
+    color: var(--darkblue, #4487df);
+    border-color: var(--blue, #85c1f7);
+    font-weight: 700;
+    cursor: pointer;
+}
+
+#btnResetSearchArea:not(:disabled):hover {
+    background: var(--lightblue, #ebf7fe);
+    border-color: var(--darkblue, #4487df);
+    color: #1e40af;
 }
 
 .cal-card-crop {

@@ -8,10 +8,11 @@
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
     <!-- 原生模块化样式层 (Mooncell 官方规范统一版本) -->
     <link rel="stylesheet" href="css/base.css?v=20261006_mooncell">
-    <link rel="stylesheet" href="css/layout.css?v=20261006_mooncell">
+    <link rel="stylesheet" href="css/layout.css?v=20261009_cancel_ready">
     <link rel="stylesheet" href="css/timeline.css?v=20261006_mooncell">
     <link rel="stylesheet" href="css/modals.css?v=20261006_mooncell">
     <link rel="stylesheet" href="css/calibration.css?v=20261006_mooncell">
+    <link rel="stylesheet" href="css/friends.css?v=20261009_v3">
     <!-- 拖拽支持 -->
     <script src="sortable.min.js"></script>
     <script>
@@ -214,6 +215,7 @@
                         <button class="main-view-tab active" id="tabNavConfig" onclick="window.switchEditorView('config')">⚔️ 战术编排</button>
                         <button class="main-view-tab" id="tabNavExtra" onclick="window.switchEditorView('extra')">🛠️ 后勤整备</button>
                         <button class="main-view-tab" id="tabNavCalibrate" onclick="window.switchEditorView('calibrate')">📐 屏幕标定</button>
+                        <button class="main-view-tab" id="tabNavSupport" onclick="window.switchEditorView('support')">👥 管理助战</button>
                     </div>
                 </div>
 
@@ -263,7 +265,7 @@
                     <!-- 组 3：按键脚本执行中枢 (分体双核待命 · 合体统一停机) -->
                     <div class="action-group runner-group" title="按键脚本运行状态与执行中枢">
                         <span id="runnerIndicator" class="runner-badge offline" style="display:none;" title="按键脚本运行状态 (点击展开脚本监控日志)">⚪ 模拟器离线</span>
-                        <button class="button launch-runner-btn" id="readyEnvBtn" style="display:inline-flex;" title="【脚本未启动】点击智能就绪环境：拉起按键脚本并推进至 FGO 游戏主页"><span class="ready-btn-icon">⚡</span><span class="ready-btn-text">就绪环境</span></button>
+                        <button class="button launch-runner-btn" id="readyEnvBtn" style="display:inline-flex;" title="智能就绪环境：拉起按键脚本并推进至 FGO 游戏主页（已就绪状态下点击展示日志）"><span class="ready-btn-icon">⚡</span><span class="ready-btn-text">就绪环境</span></button>
                         <div class="runner-action-cluster" id="runnerActionCluster">
                             <div class="twin-run-group" id="twinRunGroup">
                                 <button class="twin-btn twin-battle context-active" id="btnRunBattle" title="启动当前配置的关卡战斗 (3T 编排)">
@@ -786,6 +788,123 @@
                         <span>目标: POOLFRIEND</span>
                     </div>
                 </div>
+
+                <!-- 6. 职阶星图自动解放 (Editor 原生极速 ADB 引擎，独立于按键精灵) -->
+                <div class="extra-card star-map-card" id="cardStarMapUnlock">
+                    <div class="extra-card-header">
+                        <span class="extra-card-icon">🌌</span>
+                        <span class="extra-card-title">职阶星图解放 (Class Score)</span>
+                    </div>
+                    <div class="extra-card-desc">Editor 原生 ADB 视觉引擎，不依赖按键脚本。自动识别星座黄色星光与旅程锁，全自动点击确认与弹窗关闭，支持全图滑动巡航搜索，秒级批量解放。</div>
+                    <div class="extra-card-settings-group">
+                        <div class="extra-card-setting">
+                            <label for="cfgStarMapAutoSwipe" class="card-setting-label" style="cursor: pointer; user-select: none; flex: 1;">🔄 全图自动滑动巡航:</label>
+                            <input type="checkbox" id="cfgStarMapAutoSwipe" checked style="cursor: pointer; width: 17px; height: 17px; accent-color: var(--accent, #4487df); margin: 0;">
+                        </div>
+                        <div class="star-map-action-box">
+                            <button type="button" class="button star-map-btn-start" id="btnStartStarMap">
+                                <span class="btn-icon">🚀</span>
+                                <span class="btn-text">开始自动解放</span>
+                            </button>
+                            <button type="button" class="button star-map-btn-stop" id="btnStopStarMap" disabled>
+                                <span class="btn-icon">⏹</span>
+                                <span class="btn-text">停止</span>
+                            </button>
+                        </div>
+                        <div id="starMapStatusBanner" class="star-map-status-banner">
+                            <span id="starMapStatusIcon">⚪</span>
+                            <span id="starMapStatusText" class="star-map-status-text">待命中（进入星图界面后点击开始）</span>
+                            <span id="starMapCountBadge" class="star-map-count-badge" style="display: none;">已解放: 0</span>
+                        </div>
+                    </div>
+                    <div class="extra-card-footer">
+                        <div class="extra-card-tags">
+                            <span class="extra-card-tag">全图滑动</span>
+                            <span class="extra-card-tag">旅程锁</span>
+                        </div>
+                        <span>引擎: Editor 原生 (ADB)</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        
+        <!-- 管理助战工作台容器 -->
+        <div id="supportViewMain" class="support-view-container" style="display: none;">
+            <div class="friends-layout">
+                <!-- 左侧：助战名录侧栏 -->
+                <div class="friends-sidebar">
+                    <div class="friends-sidebar-toolbar">
+                        <div class="friends-search-row">
+                            <input type="text" class="friends-search-input" id="friendsSearchInput" placeholder="🔍 搜索助战名称 / 代号..." oninput="window.friendsState.searchKeyword = this.value; window.friendsModule.renderFriendsSidebar();">
+                            <button type="button" class="friends-add-btn" onclick="window.friendsModule.createNewFriend()" title="新建一位助战从者">
+                                ➕ 新建助战
+                            </button>
+                        </div>
+                        <div class="friends-list-meta">
+                            <span id="friendsCountText">加载中...</span>
+                            <button type="button" class="friends-meta-btn" onclick="window.friendsModule.restorePresets()" data-tip="恢复预设">
+                                 🔄 恢复预设
+                            </button>
+                        </div>
+                    </div>
+                    <div class="friends-list" id="friendsListContainer"></div>
+                </div>
+
+                <!-- 右侧：从者档案与槽位编辑主区 -->
+                <div class="friends-detail-panel">
+                    <div class="friends-detail-header">
+                        <div class="friends-detail-title-group">
+                            <h3 class="friends-detail-title" id="friendDetailTitle">编辑助战从者</h3>
+                        </div>
+                    </div>
+
+                    <div class="friends-detail-body">
+                        <!-- 基础信息 -->
+                        <div class="friends-section">
+                            <div class="friends-section-title">📌 基础信息与代号</div>
+                            <div class="friends-form-grid">
+                                <div class="friends-field">
+                                    <label class="friends-label">从者名称 <span class="req">*</span></label>
+                                    <input type="text" class="friends-input" id="friendNameInput" placeholder="如：提亚马特、妖精兰斯洛特">
+                                </div>
+                                <div class="friends-field">
+                                    <label class="friends-label">英文代号 (Key) <span class="req">*</span></label>
+                                    <input type="text" class="friends-input" id="friendKeyInput" placeholder="如：tiamat, melusine">
+                                </div>
+                                <div class="friends-field full">
+                                    <label class="friends-label">说明备注</label>
+                                    <input type="text" class="friends-input" id="friendDescInput" placeholder="如：狂阶泛用自充打手，各关卡通用">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 匹配图槽位列表 -->
+                        <div class="friends-section">
+                            <div class="friends-section-title">🖼️ 匹配特征图槽位</div>
+                            <div class="friends-slots-list" id="friendSlotsContainer"></div>
+
+                            <button type="button" class="friends-add-slot-btn" onclick="window.friendsModule.addSlot()" data-tip="添加槽位">
+                                ➕ 添加匹配图槽位
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="friends-detail-footer">
+                        <div class="friends-footer-left">
+                            <div class="friends-tip-wrap" id="friendDeleteTipWrap" data-tip-dir="top-left">
+                                <button type="button" class="friends-delete-btn" id="friendDeleteBtn" onclick="window.friendsModule.deleteFriend()">
+                                    🗑️ 删除此助战
+                                </button>
+                            </div>
+                        </div>
+                        <div class="friends-footer-right">
+                            <button type="button" class="friends-save-btn" onclick="window.friendsModule.saveFriend()" data-tip="保存配置" data-tip-dir="top-right">
+                                💾 保存助战配置
+                            </button>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -811,14 +930,74 @@
             <!-- 中间：Canvas 交互区 -->
             <section class="cal-workspace">
                 <div class="cal-toolbar">
-                    <!-- 第一行：设备选择、截屏 与 核心动作 -->
+                    <!-- 第一部分：目标属性与指引面板 (3 行布局：1.资产名+图片名；2.描述默认显示整行；3.选取匹配与操作指引) -->
+                    <div class="cal-target-strip" id="calTargetStrip">
+                        <!-- 第 1 行：资产名字和图片名 (均支持点击内联编辑) -->
+                        <div class="cal-target-row cal-target-row-meta">
+                            <span class="cal-target-lead-icon" title="目标资产">🎯</span>
+                            
+                            <!-- 资产名称内联编辑 -->
+                            <div class="cal-inline-wrap" id="calTargetNameWrap" title="点击编辑资产名称">
+                                <strong class="cal-target-name-val" id="calTargetName">-</strong>
+                                <span class="cal-edit-pencil-icon" title="点击编辑资产名称">✏️</span>
+                            </div>
+                            <div class="cal-inline-editor" id="calTargetNameEditor" style="display:none;">
+                                <input type="text" id="calTargetNameInput" class="cal-inline-input" placeholder="输入资产名称..." maxlength="40">
+                                <div class="cal-desc-actions">
+                                    <button type="button" class="cal-desc-action-btn save" id="btnSaveTargetName" title="保存名称 (Enter)">✔</button>
+                                    <button type="button" class="cal-desc-action-btn cancel" id="btnCancelTargetName" title="取消编辑 (Esc)">✖</button>
+                                </div>
+                            </div>
+
+                            <!-- 图片文件名内联编辑 (仅编辑 .png 前缀主名) -->
+                            <div class="cal-inline-wrap" id="calTargetFileWrap" title="点击编辑图片文件名">
+                                <code class="cal-target-file-badge" id="calTargetFile">-</code>
+                                <span class="cal-edit-pencil-icon" id="calTargetFileEditIcon" title="点击编辑图片文件名">✏️</span>
+                            </div>
+                            <div class="cal-inline-editor" id="calTargetFileEditor" style="display:none;">
+                                <div class="cal-file-input-group">
+                                    <input type="text" id="calTargetFileInput" class="cal-file-input" placeholder="输入图片文件名..." maxlength="60">
+                                    <span class="cal-file-ext-suffix">.png</span>
+                                </div>
+                                <div class="cal-desc-actions">
+                                    <button type="button" class="cal-desc-action-btn save" id="btnSaveTargetFile" title="保存文件名 (Enter)">✔</button>
+                                    <button type="button" class="cal-desc-action-btn cancel" id="btnCancelTargetFile" title="取消编辑 (Esc)">✖</button>
+                                </div>
+                            </div>
+
+                            <span id="calTargetKey" style="display:none;">-</span>
+                        </div>
+
+                        <!-- 第 2 行：描述默认显示，占一行 (支持点击内联编辑) -->
+                        <div class="cal-target-row cal-target-row-desc">
+                            <span class="cal-target-lead-icon" title="功能描述">📝</span>
+                            <div class="cal-desc-display" id="calDescDisplay" title="点击编辑目标描述说明">
+                                <span class="cal-desc-text empty-desc" id="calTargetDesc">暂无描述 (点击添加)</span>
+                                <span class="cal-edit-pencil-icon" title="点击编辑描述">✏️</span>
+                            </div>
+                            <div class="cal-desc-editor" id="calDescEditor" style="display:none;">
+                                <input type="text" id="calTargetDescInput" class="cal-desc-input" placeholder="输入目标功能描述说明..." maxlength="200">
+                                <div class="cal-desc-actions">
+                                    <button type="button" class="cal-desc-action-btn save" id="btnSaveTargetDesc" title="保存描述 (Enter)">✔</button>
+                                    <button type="button" class="cal-desc-action-btn cancel" id="btnCancelTargetDesc" title="取消编辑 (Esc)">✖</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 第 3 行：选取匹配和操作指引单独占一行 -->
+                        <div class="cal-target-row cal-target-row-guide">
+                            <span class="cal-target-lead-icon" title="操作指引">💡</span>
+                            <div class="cal-guide-badges">
+                                <span class="cal-hint-badge crop" title="绿框为特征图片裁切范围">🟩 截图选区</span>
+                                <span class="cal-hint-badge search" title="蓝框为运行时 OpenCV 搜索范围">🟦 匹配范围</span>
+                                <span class="cal-hint-badge drag" title="在画面中按住左键拖拽选区框整体平移，或在空白处按住左键拖拽重新框选">🖱️ 拖拽/框选: 调整范围</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 第二部分：截屏 与 核心动作 (紧贴画面上方) -->
                     <div class="cal-toolbar-row cal-toolbar-primary">
                         <div class="cal-toolbar-group cal-group-left">
-                            <div class="cal-device-picker" title="选择当前操作的目标模拟器">
-                                <span class="cal-device-icon">📱</span>
-                                <select id="calDeviceSelect" class="cal-device-select" title="选择当前操作的目标模拟器"></select>
-                                <button class="cal-icon-btn" id="calBtnRefreshDevices" title="重新检测/扫描在线模拟器">🔄</button>
-                            </div>
                             <button class="cal-btn primary" id="calBtnCapture" title="从当前选中的模拟器抓取画面 (快捷键: F8 / 空格)">📸 截取当前画面</button>
                             <span class="cal-badge" id="calScreenBadge">尚未抓屏</span>
                         </div>
@@ -828,16 +1007,6 @@
                             <span class="cal-save-tip" id="calSaveTip" style="display:none;"></span>
                         </div>
                     </div>
-
-                    <!-- 第二行：工作台操作提示 -->
-                    <div class="cal-toolbar-row cal-toolbar-secondary">
-                        <div class="cal-toolbar-group cal-group-left cal-hints-group">
-                            <span class="cal-row-label">💡 画面标注:</span>
-                            <span class="cal-hint-badge" title="绿框为特征图片裁切范围">🟩 绿框: 截图选区</span>
-                            <span class="cal-hint-badge" title="蓝框为运行时 OpenCV 搜索范围">🟦 蓝框: 匹配范围</span>
-                            <span class="cal-hint-badge" title="按住 Alt 键在画面中点击，直接标注点击锚点">📌 Alt+点击: 设点击点</span>
-                        </div>
-                    </div>
                 </div>
                 <div class="cal-canvas-wrapper">
                     <canvas id="calScreenCanvas"></canvas>
@@ -845,9 +1014,9 @@
                         <span class="cal-empty-icon">📱</span>
                         <span class="cal-empty-title">请先点击上方「📸 截取当前画面」加载模拟器屏幕</span>
                         <div class="cal-empty-sub">
-                            <span class="cal-hint-badge">🟩 绿框: 截图选区</span>
-                            <span class="cal-hint-badge">🟦 蓝框: 匹配范围</span>
-                            <span class="cal-hint-badge">📌 Alt+点击: 设点击点</span>
+                            <span class="cal-hint-badge">🟩 截图选区</span>
+                            <span class="cal-hint-badge">🟦 匹配范围</span>
+                            <span class="cal-hint-badge">🖱️ 拖拽/框选: 调整范围</span>
                         </div>
                     </div>
                 </div>
@@ -855,38 +1024,10 @@
 
             <!-- 右侧：属性检查器 (Mooncell Wiki 浅色卡片) -->
             <aside class="cal-panel cal-inspector">
-                <div class="cal-card">
-                    <div class="cal-card-title">目标属性</div>
-                    <div class="cal-form-row">
-                        <span style="color:var(--text-muted, #4b5563); font-weight:600;">目标标识:</span>
-                        <strong id="calTargetKey" style="color:var(--darkblue, #4487df);">-</strong>
-                    </div>
-                    <div class="cal-form-row">
-                        <span style="color:var(--text-muted, #4b5563); font-weight:600;">中文名称:</span>
-                        <span id="calTargetName" style="color:var(--text-main, #1f2937); font-weight:700;">-</span>
-                    </div>
-                    <p id="calTargetDesc" style="font-size:11.5px; color:var(--text-muted, #64748b); margin-top:6px; line-height:1.45;">-</p>
-
-                    <!-- 高级设置 (平时折叠隐藏，无需关心) -->
-                    <details class="cal-advanced-details" style="margin-top:8px; border-top:1px solid var(--line-light, #e2e8f0); padding-top:6px;">
-                        <summary style="font-size:11.5px; color:var(--text-muted, #64748b); cursor:pointer; user-select:none;">⚙️ 高级设置 (多分辨率边缘吸附)</summary>
-                        <div class="cal-form-row" style="margin-top:6px;">
-                            <span style="color:var(--text-muted, #4b5563); font-weight:600;" title="非16:9比例或带黑边宽屏时使用的边缘吸附对齐方式">边缘吸附对齐:</span>
-                            <select id="calTargetAnchor" class="cal-select">
-                                <option value="center">视口居中 (Center · 默认)</option>
-                                <option value="bottom_right">右下吸附 (BottomRight)</option>
-                                <option value="bottom_left">左下吸附 (BottomLeft)</option>
-                                <option value="top_right">右上吸附 (TopRight)</option>
-                                <option value="top_left">左上吸附 (TopLeft)</option>
-                            </select>
-                        </div>
-                    </details>
-                </div>
 
                 <div class="cal-card">
-                    <div class="cal-card-title" style="display:flex; justify-content:space-between; align-items:center;">
+                    <div class="cal-card-title">
                         <span>特征裁剪图预览</span>
-                        <span id="calPreviewSourceBadge" class="cal-badge" style="font-size:10.5px; color:var(--gold, #d9931e);">-</span>
                     </div>
                     <div class="cal-preview-box" id="calPreviewBox">
                         <img id="calPreviewImg" alt="特征预览" style="display:none;">
@@ -904,16 +1045,18 @@
                             <span class="cal-card-title-text" style="color:var(--quick, #4ea824);">✂️ 截图选区</span>
                             <span id="calCropSizeBadge" class="cal-badge" style="color:var(--quick, #4ea824); border-color:var(--green, #b9e66b); background:var(--lightgreen, #f9ffea);">未预设</span>
                         </div>
-                        <div class="cal-layer-item layer-crop is-editing" id="layerCropItem" title="截图选区控制 (勾选显示/隐藏，点击设为可编辑)">
-                            <label class="cal-layer-check" title="勾选以在画面中显示截图选区，取消勾选隐藏">
-                                <input type="checkbox" id="chkShowCrop" checked>
-                                <span class="mode-dot green"></span>
-                                <span class="cal-layer-label">显示</span>
-                            </label>
-                            <label class="cal-layer-edit" title="设为当前鼠标拖拽与微调的编辑目标">
-                                <input type="radio" name="calEditTarget" id="radioEditCrop" value="crop" checked>
-                                <span class="cal-edit-pill">可编辑</span>
-                            </label>
+                        <div class="cal-card-actions">
+                            <button type="button" class="cal-opt-btn btn-vis is-active" id="btnToggleCropVis" title="当前已在画面中显示，点击隐藏">
+                                <span class="cal-opt-dot green"></span>
+                                <span class="cal-opt-text">显示</span>
+                            </button>
+                            <button type="button" class="cal-opt-btn btn-edit is-active" id="btnEditCrop" title="当前已选为编辑目标（可在画面中拖拽调整）">
+                                <svg class="cal-opt-check" viewBox="0 0 16 16" width="12" height="12">
+                                    <rect class="cal-check-bg" x="1.5" y="1.5" width="13" height="13" rx="3"/>
+                                    <path class="cal-check-tick" d="M4.5 8.2L7 10.7L12 4.8" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                                <span class="cal-opt-text">编辑</span>
+                            </button>
                         </div>
                     </div>
                     <div class="cal-form-row">
@@ -944,16 +1087,18 @@
                             <span class="cal-card-title-text" style="color:var(--darkblue, #4487df);">🔍 匹配范围</span>
                             <span id="calSearchSizeBadge" class="cal-badge" style="color:var(--darkblue, #4487df); border-color:var(--blue, #85c1f7); background:var(--lightblue, #ebf7fe);">-</span>
                         </div>
-                        <div class="cal-layer-item layer-search" id="layerSearchItem" title="匹配范围控制 (勾选显示/隐藏，点击设为可编辑)">
-                            <label class="cal-layer-check" title="勾选以在画面中显示运行时匹配范围，取消勾选隐藏">
-                                <input type="checkbox" id="chkShowSearch" checked>
-                                <span class="mode-dot blue"></span>
-                                <span class="cal-layer-label">显示</span>
-                            </label>
-                            <label class="cal-layer-edit" title="设为当前鼠标拖拽与微调的编辑目标">
-                                <input type="radio" name="calEditTarget" id="radioEditSearch" value="search">
-                                <span class="cal-edit-pill">可编辑</span>
-                            </label>
+                        <div class="cal-card-actions">
+                            <button type="button" class="cal-opt-btn btn-vis is-active" id="btnToggleSearchVis" title="当前已在画面中显示，点击隐藏">
+                                <span class="cal-opt-dot blue"></span>
+                                <span class="cal-opt-text">显示</span>
+                            </button>
+                            <button type="button" class="cal-opt-btn btn-edit" id="btnEditSearch" title="点击设为当前编辑目标">
+                                <svg class="cal-opt-check" viewBox="0 0 16 16" width="12" height="12">
+                                    <rect class="cal-check-bg" x="1.5" y="1.5" width="13" height="13" rx="3"/>
+                                    <path class="cal-check-tick" d="M4.5 8.2L7 10.7L12 4.8" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                                <span class="cal-opt-text">编辑</span>
+                            </button>
                         </div>
                     </div>
                     <div class="cal-form-row">
@@ -971,7 +1116,8 @@
                         </div>
                     </div>
                     <div style="display:flex; gap:6px; margin-top:8px;">
-                        <button class="cal-btn-mini" id="btnExpandSearchFromCrop" type="button" title="基于截图框四周各外扩30像素生成匹配搜索范围">由截图框外扩 (+30px)</button>
+                        <button class="cal-btn-mini" id="btnExpandSearchFromCrop" type="button" style="flex:1;" title="基于截图框四周各外扩30像素生成匹配搜索范围">由截图框外扩 (+30px)</button>
+                        <button class="cal-btn-mini" id="btnResetSearchArea" type="button" disabled title="当前坐标与配置一致，无需还原">↺ 还原</button>
                     </div>
                 </div>
 
@@ -984,7 +1130,22 @@
                             <input type="number" id="calInTapY" class="cal-input" placeholder="Tap Y">
                         </div>
                     </div>
-                    <div style="font-size:11.5px; color:var(--text-muted, #64748b); margin-top:4px;">Alt+左键 或 右键点击画面可设定锚点</div>
+                    <div style="font-size:11.5px; color:var(--text-muted, #64748b); margin-top:4px;">在纯点击目标下，画面中左键点击即可设定或拖拽坐标</div>
+                </div>
+
+                <div class="cal-card">
+                    <div class="cal-card-title">⚙️ 高级设置</div>
+                    <div class="cal-form-row">
+                        <span style="color:var(--text-muted, #4b5563); font-weight:600;" title="非16:9比例或带黑边宽屏时使用的边缘吸附对齐方式">边缘吸附对齐:</span>
+                        <select id="calTargetAnchor" class="cal-select">
+                            <option value="center">视口居中 (Center · 默认)</option>
+                            <option value="bottom_right">右下吸附 (BottomRight)</option>
+                            <option value="bottom_left">左下吸附 (BottomLeft)</option>
+                            <option value="top_right">右上吸附 (TopRight)</option>
+                            <option value="top_left">左上吸附 (TopLeft)</option>
+                        </select>
+                    </div>
+                    <div style="font-size:11.5px; color:var(--text-muted, #64748b); margin-top:4px;">非 16:9 比例或宽屏设备找图时的边缘对齐基准</div>
                 </div>
             </aside>
         </section>
@@ -1078,6 +1239,23 @@
         </div>
     </div>
 
+    <!-- 通用确认对话框 (遵循 Mooncell 卡片标准规范) -->
+    <div class="modal-overlay" id="confirmModal">
+        <div class="modal-card" style="width: 380px;">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+                <h4 id="confirmModalTitle" style="margin:0; border-left: 3.5px solid var(--buster, #e7615c); padding-left: 8px;">🗑️ 删除助战</h4>
+                <button class="button quiet" onclick="window.closeModal()" style="padding:2px 8px; font-size:12px;">✕</button>
+            </div>
+            <div id="confirmModalMessage" style="font-size:13.5px; color:var(--text-main); line-height:1.5; padding:6px 0;">
+                确定删除助战吗？
+            </div>
+            <div style="display:flex; justify-content:flex-end; gap:8px; margin-top:8px;">
+                <button class="button quiet" id="confirmModalCancelBtn" onclick="window.closeModal()">取消</button>
+                <button class="button danger" id="confirmModalOkBtn">确定删除</button>
+            </div>
+        </div>
+    </div>
+
     <!-- 右下角极简脚本监控浮层 (无蒙层，超紧凑) -->
     <div class="runner-monitor-panel" id="runnerMonitorPanel" style="display:none;">
         <!-- 第一行：左上角状态图标 + 状态/轮次 + 同步时间，右上角虚浮操作按钮 (同一行) -->
@@ -1114,8 +1292,9 @@
     <div class="toast" id="toast"></div>
 
     <!-- 原生 ES 模块主入口 -->
-    <script src="js/calibration.js?v=20261006_no_alert"></script>
-    <script type="module" src="js/main.js?v=20261003_ui_clean"></script>
+    <script src="js/calibration.js?v=20261009_v4"></script>
+    <script type="module" src="js/friends.js?v=20261009_v8"></script>
+    <script type="module" src="js/main.js?v=20261009_v8"></script>
 </body>
 
 </html>

@@ -1,0 +1,189 @@
+{
+  "version": "1.0",
+  "friends": [
+    {
+      "key": "aobao",
+      "name": "奥伯龙",
+      "shortLabel": "奥伯龙",
+      "builtin": true,
+      "images": [
+        "friendAobao1.png",
+        "friendAobao2.png",
+        "friendAobao3.png",
+        "friendAobao5.png"
+      ],
+      "description": "70充能群充核心拐"
+    },
+    {
+      "key": "aobaoshan",
+      "name": "奥伯龙+善",
+      "shortLabel": "奥伯龙+善",
+      "builtin": true,
+      "images": [
+        "friendAobao3Shan.png"
+      ],
+      "description": "善阵营奥伯龙"
+    },
+    {
+      "key": "cdai",
+      "name": "术呆",
+      "shortLabel": "术呆",
+      "builtin": true,
+      "images": [
+        "friendCDai.png",
+        "friendCDai2.png",
+        "friendCDai3.png"
+      ],
+      "description": "蓝卡核心拐"
+    },
+    {
+      "key": "daoman",
+      "name": "道满",
+      "shortLabel": "道满",
+      "builtin": true,
+      "images": [
+        "friendDaoMan.png",
+        "DaoMan.png",
+        "friendDaoMan3.png"
+      ],
+      "description": "混沌恶暴击拐/即死打手"
+    },
+    {
+      "key": "cba",
+      "name": "术斯卡蒂",
+      "shortLabel": "术斯卡蒂",
+      "builtin": true,
+      "images": [
+        "friendCba.png"
+      ],
+      "description": "绿卡核心拐"
+    },
+    {
+      "key": "rba",
+      "name": "尺斯卡蒂",
+      "shortLabel": "尺斯卡蒂",
+      "builtin": true,
+      "images": [
+        "friendRba1.png",
+        "friendRba2.png",
+        "friendRba3.png",
+        "friendRba4.png"
+      ],
+      "description": "尺阶绿卡核心拐"
+    },
+    {
+      "key": "rbashan",
+      "name": "尺斯卡蒂+善",
+      "shortLabel": "尺斯卡蒂+善",
+      "builtin": true,
+      "images": [
+        "friendRba3Shan.png"
+      ],
+      "description": "善阵营尺斯卡蒂"
+    },
+    {
+      "key": "shahu",
+      "name": "杀狐",
+      "shortLabel": "杀狐",
+      "builtin": true,
+      "images": [
+        "friendShaHu1.png",
+        "friendShaHu2.png",
+        "friendShaHu3.png"
+      ],
+      "description": "红卡核心拐"
+    },
+    {
+      "key": "shahushan",
+      "name": "杀狐+善",
+      "shortLabel": "杀狐+善",
+      "builtin": true,
+      "images": [
+        "friendShaHuShan1.png",
+        "friendShaHuShan2.png",
+        "friendShaHuShan3.png"
+      ],
+      "description": "善阵营杀狐"
+    },
+    {
+      "key": "princess",
+      "name": "公主",
+      "shortLabel": "公主",
+      "builtin": true,
+      "images": [
+        "friendPrincess.png",
+        "friendPrincess2.png",
+        "friendPrincess3.png"
+      ],
+      "description": "爱尔奎特·月癌阶光炮打手"
+    },
+    {
+      "key": "princess120",
+      "name": "公主120",
+      "shortLabel": "公主120",
+      "builtin": true,
+      "images": [
+        "friendPrincess120.png",
+        "friendPrincess1202.png",
+        "friendPrincess1203.png"
+      ],
+      "description": "120级满级公主"
+    },
+    {
+      "key": "taigong",
+      "name": "太公望",
+      "shortLabel": "太公望",
+      "builtin": true,
+      "images": [
+        "friendtaigong.png"
+      ],
+      "description": "骑阶绿卡多核辅助/打手"
+    },
+    {
+      "key": "sparrow",
+      "name": "红阎魔",
+      "shortLabel": "红阎魔",
+      "builtin": true,
+      "images": [
+        "friendSparrow.png"
+      ],
+      "description": "剑阶单体打手"
+    },
+    {
+      "key": "mary",
+      "name": "奥尔加玛丽",
+      "shortLabel": "奥尔加玛丽",
+      "builtin": true,
+      "images": [
+        "friendMary1.png",
+        "friendMary2.png",
+        "friendMary3.png"
+      ],
+      "description": "所长打手"
+    },
+    {
+      "key": "keli",
+      "name": "水飞嫂",
+      "shortLabel": "水飞嫂",
+      "builtin": true,
+      "images": [
+        "friendKeli1.png",
+        "friendKeli2.png",
+        "friendKeli3.png"
+      ],
+      "description": "狂阶光炮打手"
+    },
+    {
+      "key": "bdai",
+      "name": "狂呆",
+      "shortLabel": "狂呆",
+      "builtin": true,
+      "images": [
+        "friendBdai1.png",
+        "friendBdai2.png",
+        "friendBdai3.png"
+      ],
+      "description": "狂阶单体打手"
+    }
+  ]
+}

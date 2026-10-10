@@ -1,5 +1,6 @@
 import { appState, getCurGroup, getCurScheme, getInitialSnapshot } from './state.js';
 import { DEFAULT_ROUND_ATTACK } from './constants.js';
+import { friendsState } from './friends.js';
 
 // 创建标准空回合结构（统一新建方案与新建wave的默认出牌和动作配置）
 export function createDefaultRound() {
@@ -270,6 +271,32 @@ export function generateConfigText(stateData) {
     out.push("' ordeal   = 白纸化地球 Ordeal Call 配置");
     out.push("' custom   = 手工逐项修改上面字段");
     out.push("");
+
+    // 助战特征匹配图模板映射 (严格防错：未标定或缺失的图片严禁生成空项或 ||)
+    if (friendsState && Array.isArray(friendsState.friends) && friendsState.friends.length > 0) {
+        out.push("");
+        out.push("' ==================== 助战特征匹配图模板 (FRIEND TEMPLATES) ====================");
+        friendsState.friends.forEach(f => {
+            const key = f.key;
+            if (!key) return;
+            const pascal = key.charAt(0).toUpperCase() + key.slice(1);
+            const varName = `ATT_${pascal}`;
+            const images = f.images || [];
+
+            // 严格过滤：仅取真实存在且有效的图片
+            const validImages = images.filter(img => Boolean(friendsState.imageStatus && friendsState.imageStatus[img]));
+
+            if (validImages.length > 0) {
+                // 安全数组 join，绝不产生 "||" 或多余首尾 "|"
+                const attValue = validImages.map(img => `Attachment:${img}`).join('|');
+                out.push(`Dim ${varName} = "${attValue}"`);
+            } else {
+                // 全空/未标定时，输出安全注释，避免生成 Dim ATT_X = "" 导致找图崩溃
+                out.push(`' [待标定] 助战 ${key} (${f.name || ''}) 暂无已标定图片，跳过 ATT 声明`);
+            }
+        });
+        out.push("");
+    }
 
     if (stateData.targetsConfigBlock && stateData.targetsConfigBlock.trim().length > 0) {
         out.push(stateData.targetsConfigBlock.trim());

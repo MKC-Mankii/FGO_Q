@@ -35,6 +35,13 @@ export function closeModal() {
     const editM = $('editStepModal');
     if (editM) editM.classList.remove('show');
 
+    if (typeof window.closeConfirmModal === 'function') {
+        window.closeConfirmModal();
+    } else {
+        const confM = $('confirmModal');
+        if (confM) confM.classList.remove('show');
+    }
+
     appState.pendingAction = null;
     appState.currentEditingStepInfo = null;
 }

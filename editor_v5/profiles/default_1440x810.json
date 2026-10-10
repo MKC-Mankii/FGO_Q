@@ -1,3107 +1,3425 @@
 {
-    "name": "1440x810 标准基准预设 (16:9)",
-    "screen_width": 1440,
-    "screen_height": 810,
-    "aspect_ratio": "16:9",
-    "safe_area": {
-        "offset_x": 0,
-        "offset_y": 0,
-        "viewport_w": 1440,
-        "viewport_h": 810,
-        "scale": 1.0
+  "name": "1440x810 标准基准预设 (16:9)",
+  "screen_width": 1440,
+  "screen_height": 810,
+  "aspect_ratio": "16:9",
+  "safe_area": {
+    "offset_x": 0,
+    "offset_y": 0,
+    "viewport_w": 1440,
+    "viewport_h": 810,
+    "scale": 1.0
+  },
+  "targets": {
+    "START_BTN": {
+      "key": "START_BTN",
+      "name": "战斗开始按钮",
+      "category": "battle",
+      "file": "START_BTN.png",
+      "anchor": "center",
+      "area": [
+        1200,
+        700,
+        1420,
+        800
+      ],
+      "tap_coord": [
+        1310,
+        750
+      ],
+      "description": "队伍编成准备界面的金色「开始战斗」大按钮",
+      "search_area": [
+        1200,
+        700,
+        1420,
+        800
+      ],
+      "crop_area": [
+        1234,
+        736,
+        1246,
+        774
+      ]
     },
-    "targets": {
-        "START_BTN": {
-            "key": "START_BTN",
-            "name": "战斗开始按钮",
-            "category": "battle",
-            "file": "START_BTN.png",
-            "anchor": "center",
-            "area": [
-                1200,
-                700,
-                1420,
-                800
-            ],
-            "tap_coord": [
-                1310,
-                750
-            ],
-            "description": "队伍编成准备界面的金色「开始战斗」大按钮",
-            "search_area": [
-                1200,
-                700,
-                1420,
-                800
-            ],
-            "crop_area": null
-        },
-        "ATTACK_BTN": {
-            "key": "ATTACK_BTN",
-            "name": "出牌 Attack 按钮",
-            "category": "battle",
-            "file": "ATTACK_BTN.png",
-            "anchor": "bottom_right",
-            "area": [
-                1200,
-                700,
-                1350,
-                750
-            ],
-            "tap_coord": [
-                1275,
-                725
-            ],
-            "description": "战斗回合开始时右下角进入选卡阶段的蓝色大按钮",
-            "search_area": [
-                1200,
-                700,
-                1350,
-                750
-            ],
-            "crop_area": null
-        },
-        "BATTLE_HERO_SKILL_CHECK": {
-            "key": "BATTLE_HERO_SKILL_CHECK",
-            "name": "技能就绪状态校验",
-            "category": "battle",
-            "file": "ATTACK_BTN.png",
-            "anchor": "bottom_right",
-            "area": [
-                1200,
-                700,
-                1350,
-                750
-            ],
-            "tap_coord": null,
-            "description": "技能释放动效播放完成后，用于确认回合恢复操作权",
-            "search_area": [
-                1200,
-                700,
-                1350,
-                750
-            ],
-            "crop_area": null
-        },
-        "BATTLE_SKILL_GRANT_CHECK": {
-            "key": "BATTLE_SKILL_GRANT_CHECK",
-            "name": "指向性技能选人弹窗",
-            "category": "battle",
-            "file": "BATTLE_SKILL_GRANT_CHECK.png",
-            "anchor": "center",
-            "area": [
-                1205,
-                142,
-                1267,
-                198
-            ],
-            "tap_coord": null,
-            "description": "释放需选定从者的技能时弹出的右上角关闭叉号或标题特征",
-            "search_area": [
-                1205,
-                142,
-                1267,
-                198
-            ],
-            "crop_area": null
-        },
-        "BATTLE_SKILL_CHANGE_CHECK": {
-            "key": "BATTLE_SKILL_CHANGE_CHECK",
-            "name": "战斗换人确认弹窗",
-            "category": "battle",
-            "file": "BATTLE_SKILL_CHANGE_CHECK.png",
-            "anchor": "center",
-            "area": [
-                723,
-                685,
-                777,
-                719
-            ],
-            "tap_coord": null,
-            "description": "战斗御主换人礼装弹出时的居中确认按钮",
-            "search_area": [
-                723,
-                685,
-                777,
-                719
-            ],
-            "crop_area": null
-        },
-        "BATTLE_MASTER_SKILL_OPEN": {
-            "key": "BATTLE_MASTER_SKILL_OPEN",
-            "name": "御主技能展开按钮",
-            "category": "battle",
-            "file": "BATTLE_MASTER_SKILL_OPEN.png",
-            "anchor": "top_right",
-            "area": [
-                1280,
-                300,
-                1410,
-                420
-            ],
-            "tap_coord": [
-                1317,
-                325
-            ],
-            "description": "战斗界面右侧展开御主技能栏的圆形按钮",
-            "search_area": [
-                1280,
-                300,
-                1410,
-                420
-            ],
-            "crop_area": null
-        },
-        "BATTLE_ATTACK_BACK": {
-            "key": "BATTLE_ATTACK_BACK",
-            "name": "选卡返回按钮",
-            "category": "battle",
-            "file": "BATTLE_ATTACK_BACK.png",
-            "anchor": "bottom_right",
-            "area": [
-                1300,
-                750,
-                1390,
-                785
-            ],
-            "tap_coord": [
-                1345,
-                765
-            ],
-            "description": "进入选卡状态后，右下角的金色返回按钮",
-            "search_area": [
-                1300,
-                750,
-                1390,
-                785
-            ],
-            "crop_area": null
-        },
-        "AWARD_TREASURE_NEXT": {
-            "key": "AWARD_TREASURE_NEXT",
-            "name": "结算下一步/连续出击",
-            "category": "reward",
-            "file": "AWARD_TREASURE_NEXT.png",
-            "anchor": "bottom_right",
-            "area": [
-                1178,
-                696,
-                1282,
-                740
-            ],
-            "tap_coord": [
-                1230,
-                718
-            ],
-            "description": "战斗通关后经验/战利品结算界面的「下一步」或「连续出击」按钮",
-            "search_area": [
-                1178,
-                696,
-                1282,
-                740
-            ],
-            "crop_area": null
-        },
-        "AWARD_TIE": {
-            "key": "AWARD_TIE",
-            "name": "从者羁绊提升标志",
-            "category": "reward",
-            "file": "AWARD_TIE.png",
-            "anchor": "top_left",
-            "area": [
-                90,
-                190,
-                330,
-                225
-            ],
-            "tap_coord": [
-                166,
-                60
-            ],
-            "description": "通关结算从者羁绊等级提升时的横幅特征",
-            "search_area": [
-                90,
-                190,
-                330,
-                225
-            ],
-            "crop_area": null
-        },
-        "APPLE_DISPLAY": {
-            "key": "APPLE_DISPLAY",
-            "name": "体力不足吃苹果窗口",
-            "category": "reward",
-            "file": "APPLE_DISPLAY.png",
-            "anchor": "center",
-            "area": [
-                634,
-                37,
-                743,
-                83
-            ],
-            "tap_coord": null,
-            "description": "体力耗尽时弹出的「行动力恢复」标题特征",
-            "search_area": [
-                634,
-                37,
-                743,
-                83
-            ],
-            "crop_area": null
-        },
-        "APPLE_CONFIRM": {
-            "key": "APPLE_CONFIRM",
-            "name": "确认吃苹果按钮",
-            "category": "reward",
-            "file": "APPLE_CONFIRM.png",
-            "anchor": "center",
-            "area": [
-                895,
-                608,
-                992,
-                660
-            ],
-            "tap_coord": [
-                943,
-                634
-            ],
-            "description": "选中金/银苹果后右下角的确定恢复按钮",
-            "search_area": [
-                895,
-                608,
-                992,
-                660
-            ],
-            "crop_area": null
-        },
-        "AGAIN_ALERT_AGAIN": {
-            "key": "AGAIN_ALERT_AGAIN",
-            "name": "连续出击确认按钮",
-            "category": "reward",
-            "file": "AGAIN_ALERT_AGAIN.png",
-            "anchor": "center",
-            "area": [
-                795,
-                620,
-                1030,
-                700
-            ],
-            "tap_coord": [
-                912,
-                660
-            ],
-            "description": "点击连续出击后二次弹窗的「决定出击」按钮",
-            "search_area": [
-                795,
-                620,
-                1030,
-                700
-            ],
-            "crop_area": null
-        },
-        "ADD_FRIEND_CLOSE": {
-            "key": "ADD_FRIEND_CLOSE",
-            "name": "申请好友弹窗关闭",
-            "category": "reward",
-            "file": "ADD_FRIEND_CLOSE.png",
-            "anchor": "center",
-            "area": [
-                325,
-                670,
-                415,
-                715
-            ],
-            "tap_coord": [
-                370,
-                692
-            ],
-            "description": "借用非好友助战通关后，弹出的申请好友界面关闭按钮",
-            "search_area": [
-                325,
-                670,
-                415,
-                715
-            ],
-            "crop_area": null
-        },
-        "friend_cba": {
-            "key": "friend_cba",
-            "name": "助战：斯卡哈·斯卡蒂 (CBA)",
-            "category": "friend",
-            "file": "friendCba.png",
-            "anchor": "top_left",
-            "area": [
-                40,
-                180,
-                920,
-                800
-            ],
-            "tap_coord": null,
-            "description": "助战列表中的 C阶 斯卡蒂 (Cba) 选人特征",
-            "search_area": [
-                40,
-                180,
-                920,
-                800
-            ],
-            "crop_area": null
-        },
-        "friend_aobao": {
-            "key": "friend_aobao",
-            "name": "助战：奥伯龙",
-            "category": "friend",
-            "file": "friendAobao1.png",
-            "anchor": "top_left",
-            "area": [
-                40,
-                180,
-                920,
-                800
-            ],
-            "tap_coord": null,
-            "description": "助战列表中的奥伯龙头像选人特征",
-            "search_area": [
-                40,
-                180,
-                920,
-                800
-            ],
-            "crop_area": null
-        },
-        "friend_equip_goodness": {
-            "key": "friend_equip_goodness",
-            "name": "助战礼装：午餐/茶位/蒙娜丽莎",
-            "category": "friend",
-            "file": "friend_equip_goodness.png",
-            "anchor": "top_left",
-            "area": [
-                40,
-                180,
-                920,
-                800
-            ],
-            "tap_coord": null,
-            "description": "助战列表中的羁绊/QP加成礼装特征识别",
-            "search_area": [
-                40,
-                180,
-                920,
-                800
-            ],
-            "crop_area": null
-        },
-        "AGAIN_ALERT_CLOSE": {
-            "key": "AGAIN_ALERT_CLOSE",
-            "name": "AGAIN ALERT CLOSE",
-            "category": "reward",
-            "file": "AGAIN_ALERT_CLOSE.png",
-            "anchor": "center",
-            "search_area": [
-                370,
-                620,
-                620,
-                700
-            ],
-            "crop_area": null,
-            "area": [
-                370,
-                620,
-                620,
-                700
-            ],
-            "tap_coord": null,
-            "description": "源自原生工程识别定义: AGAIN_ALERT_CLOSE"
-        },
-        "AGAIN_BATTLE_OUT_MENU": {
-            "key": "AGAIN_BATTLE_OUT_MENU",
-            "name": "AGAIN BATTLE OUT MENU",
-            "category": "reward",
-            "file": "AGAIN_BATTLE_OUT_MENU.png",
-            "anchor": "center",
-            "search_area": [
-                1301,
-                689,
-                1360,
-                715
-            ],
-            "crop_area": null,
-            "area": [
-                1301,
-                689,
-                1360,
-                715
-            ],
-            "tap_coord": null,
-            "description": "源自原生工程识别定义: AGAIN_BATTLE_OUT_MENU"
-        },
-        "AGAIN_ORDEAL_NO_TICKET": {
-            "key": "AGAIN_ORDEAL_NO_TICKET",
-            "name": "AGAIN ORDEAL NO TICKET",
-            "category": "reward",
-            "file": "AGAIN_ORDEAL_NO_TICKET.png",
-            "anchor": "center",
-            "search_area": [
-                600,
-                600,
-                850,
-                670
-            ],
-            "crop_area": null,
-            "area": [
-                600,
-                600,
-                850,
-                670
-            ],
-            "tap_coord": null,
-            "description": "源自原生工程识别定义: AGAIN_ORDEAL_NO_TICKET"
-        },
-        "AWARD_TIE_UP": {
-            "key": "AWARD_TIE_UP",
-            "name": "AWARD TIE UP",
-            "category": "reward",
-            "file": "AWARD_TIE_UP.png",
-            "anchor": "center",
-            "search_area": [
-                696,
-                101,
-                828,
-                245
-            ],
-            "crop_area": null,
-            "area": [
-                696,
-                101,
-                828,
-                245
-            ],
-            "tap_coord": null,
-            "description": "源自原生工程识别定义: AWARD_TIE_UP"
-        },
-        "BATTLE_ATTACK_CARD_3_FIRST_TAPED": {
-            "key": "BATTLE_ATTACK_CARD_3_FIRST_TAPED",
-            "name": "选卡出牌: BATTLE_ATTACK_CARD_3_FIRST_TAPED",
-            "category": "battle",
-            "file": "BATTLE_ATTACK_CARD_3_FIRST_TAPED.png",
-            "anchor": "center",
-            "search_area": [
-                650,
-                550,
-                780,
-                600
-            ],
-            "crop_area": null,
-            "area": [
-                650,
-                550,
-                780,
-                600
-            ],
-            "tap_coord": null,
-            "description": "源自原生工程识别定义: BATTLE_ATTACK_CARD_3_FIRST_TAPED"
-        },
-        "BATTLE_ATTACK_CARD_4_SECOND_TAPED": {
-            "key": "BATTLE_ATTACK_CARD_4_SECOND_TAPED",
-            "name": "选卡出牌: BATTLE_ATTACK_CARD_4_SECOND_TAPED",
-            "category": "battle",
-            "file": "BATTLE_ATTACK_CARD_4_SECOND_TAPED.png",
-            "anchor": "center",
-            "search_area": [
-                950,
-                560,
-                1071,
-                600
-            ],
-            "crop_area": null,
-            "area": [
-                950,
-                560,
-                1071,
-                600
-            ],
-            "tap_coord": null,
-            "description": "源自原生工程识别定义: BATTLE_ATTACK_CARD_4_SECOND_TAPED"
-        },
-        "BATTLE_ATTACK_CARD_6_SECOND_TAPED": {
-            "key": "BATTLE_ATTACK_CARD_6_SECOND_TAPED",
-            "name": "选卡出牌: BATTLE_ATTACK_CARD_6_SECOND_TAPED",
-            "category": "battle",
-            "file": "BATTLE_ATTACK_CARD_6_SECOND_TAPED.png",
-            "anchor": "center",
-            "search_area": [
-                400,
-                213,
-                520,
-                355
-            ],
-            "crop_area": null,
-            "area": [
-                400,
-                213,
-                520,
-                355
-            ],
-            "tap_coord": null,
-            "description": "源自原生工程识别定义: BATTLE_ATTACK_CARD_6_SECOND_TAPED"
-        },
-        "BATTLE_ATTACK_CARD_7_SECOND_TAPED": {
-            "key": "BATTLE_ATTACK_CARD_7_SECOND_TAPED",
-            "name": "选卡出牌: BATTLE_ATTACK_CARD_7_SECOND_TAPED",
-            "category": "battle",
-            "file": "BATTLE_ATTACK_CARD_7_SECOND_TAPED.png",
-            "anchor": "center",
-            "search_area": [
-                700,
-                227,
-                727,
-                238
-            ],
-            "crop_area": null,
-            "area": [
-                700,
-                227,
-                727,
-                238
-            ],
-            "tap_coord": null,
-            "description": "源自原生工程识别定义: BATTLE_ATTACK_CARD_7_SECOND_TAPED"
-        },
-        "BATTLE_ATTACK_CARD_7_SECOND_TAPED2": {
-            "key": "BATTLE_ATTACK_CARD_7_SECOND_TAPED2",
-            "name": "选卡出牌: BATTLE_ATTACK_CARD_7_SECOND_TAPED2",
-            "category": "battle",
-            "file": "BATTLE_ATTACK_CARD_7_SECOND_TAPED2.png",
-            "anchor": "center",
-            "search_area": [
-                700,
-                227,
-                727,
-                238
-            ],
-            "crop_area": null,
-            "area": [
-                700,
-                227,
-                727,
-                238
-            ],
-            "tap_coord": null,
-            "description": "源自原生工程识别定义: BATTLE_ATTACK_CARD_7_SECOND_TAPED2"
-        },
-        "BATTLE_ATTACK_CARD_8_SECOND_TAPED": {
-            "key": "BATTLE_ATTACK_CARD_8_SECOND_TAPED",
-            "name": "选卡出牌: BATTLE_ATTACK_CARD_8_SECOND_TAPED",
-            "category": "battle",
-            "file": "BATTLE_ATTACK_CARD_8_SECOND_TAPED.png",
-            "anchor": "center",
-            "search_area": [
-                960,
-                227,
-                987,
-                238
-            ],
-            "crop_area": null,
-            "area": [
-                960,
-                227,
-                987,
-                238
-            ],
-            "tap_coord": null,
-            "description": "源自原生工程识别定义: BATTLE_ATTACK_CARD_8_SECOND_TAPED"
-        },
-        "BATTLE_ATTACK_CARD_ARTS": {
-            "key": "BATTLE_ATTACK_CARD_ARTS",
-            "name": "选卡出牌: BATTLE_ATTACK_CARD_ARTS",
-            "category": "battle",
-            "file": "BATTLE_ATTACK_CARD_ARTS.png",
-            "anchor": "center",
-            "search_area": [
-                55,
-                460,
-                1390,
-                690
-            ],
-            "crop_area": null,
-            "area": [
-                55,
-                460,
-                1390,
-                690
-            ],
-            "tap_coord": null,
-            "description": "源自原生工程识别定义: BATTLE_ATTACK_CARD_ARTS"
-        },
-        "BATTLE_ATTACK_CARD_BUSTER": {
-            "key": "BATTLE_ATTACK_CARD_BUSTER",
-            "name": "选卡出牌: BATTLE_ATTACK_CARD_BUSTER",
-            "category": "battle",
-            "file": "BATTLE_ATTACK_CARD_BUSTER.png",
-            "anchor": "center",
-            "search_area": [
-                55,
-                460,
-                1390,
-                690
-            ],
-            "crop_area": null,
-            "area": [
-                55,
-                460,
-                1390,
-                690
-            ],
-            "tap_coord": null,
-            "description": "源自原生工程识别定义: BATTLE_ATTACK_CARD_BUSTER"
-        },
-        "BATTLE_ATTACK_CARD_QUICK": {
-            "key": "BATTLE_ATTACK_CARD_QUICK",
-            "name": "选卡出牌: BATTLE_ATTACK_CARD_QUICK",
-            "category": "battle",
-            "file": "BATTLE_ATTACK_CARD_QUICK.png",
-            "anchor": "center",
-            "search_area": [
-                55,
-                460,
-                1390,
-                690
-            ],
-            "crop_area": null,
-            "area": [
-                55,
-                460,
-                1390,
-                690
-            ],
-            "tap_coord": null,
-            "description": "源自原生工程识别定义: BATTLE_ATTACK_CARD_QUICK"
-        },
-        "BATTLE_ATTACK_Hero_Card_beni": {
-            "key": "BATTLE_ATTACK_Hero_Card_beni",
-            "name": "从者强化: BATTLE_ATTACK_Hero_Card_beni",
-            "category": "battle",
-            "file": "BATTLE_ATTACK_Hero_Card_beni.png",
-            "anchor": "center",
-            "search_area": [
-                55,
-                460,
-                1390,
-                690
-            ],
-            "crop_area": null,
-            "area": [
-                55,
-                460,
-                1390,
-                690
-            ],
-            "tap_coord": null,
-            "description": "源自原生工程识别定义: BATTLE_ATTACK_Hero_Card_beni"
-        },
-        "BATTLE_ATTACK_Hero_Card_okita": {
-            "key": "BATTLE_ATTACK_Hero_Card_okita",
-            "name": "从者强化: BATTLE_ATTACK_Hero_Card_okita",
-            "category": "battle",
-            "file": "BATTLE_ATTACK_Hero_Card_okita.png",
-            "anchor": "center",
-            "search_area": [
-                55,
-                460,
-                1390,
-                690
-            ],
-            "crop_area": null,
-            "area": [
-                55,
-                460,
-                1390,
-                690
-            ],
-            "tap_coord": null,
-            "description": "源自原生工程识别定义: BATTLE_ATTACK_Hero_Card_okita"
-        },
-        "BATTLE_MASTER_SKILL_DISPLAY": {
-            "key": "BATTLE_MASTER_SKILL_DISPLAY",
-            "name": "技能: BATTLE_MASTER_SKILL_DISPLAY",
-            "category": "battle",
-            "file": "BATTLE_MASTER_SKILL_DISPLAY.png",
-            "anchor": "top_right",
-            "search_area": [
-                980,
-                310,
-                1059,
-                316
-            ],
-            "crop_area": null,
-            "area": [
-                980,
-                310,
-                1059,
-                316
-            ],
-            "tap_coord": null,
-            "description": "源自原生工程识别定义: BATTLE_MASTER_SKILL_DISPLAY"
-        },
-        "BATTLE_SKILL_CHANGE_SELECTEED_CHECK": {
-            "key": "BATTLE_SKILL_CHANGE_SELECTEED_CHECK",
-            "name": "技能: BATTLE_SKILL_CHANGE_SELECTEED_CHECK",
-            "category": "battle",
-            "file": "BATTLE_SKILL_CHANGE_SELECTEED_CHECK.png",
-            "anchor": "center",
-            "search_area": [
-                723,
-                685,
-                777,
-                719
-            ],
-            "crop_area": null,
-            "area": [
-                723,
-                685,
-                777,
-                719
-            ],
-            "tap_coord": null,
-            "description": "源自原生工程识别定义: BATTLE_SKILL_CHANGE_SELECTEED_CHECK"
-        },
-        "BATTLE_SKILL_SPECIAL_SKILL_A": {
-            "key": "BATTLE_SKILL_SPECIAL_SKILL_A",
-            "name": "技能: BATTLE_SKILL_SPECIAL_SKILL_A",
-            "category": "battle",
-            "file": "BATTLE_SKILL_SPECIAL_SKILL_A.png",
-            "anchor": "center",
-            "search_area": [
-                180,
-                240,
-                345,
-                410
-            ],
-            "crop_area": null,
-            "area": [
-                180,
-                240,
-                345,
-                410
-            ],
-            "tap_coord": null,
-            "description": "源自原生工程识别定义: BATTLE_SKILL_SPECIAL_SKILL_A"
-        },
-        "ENHANCE_EQUIP": {
-            "key": "ENHANCE_EQUIP",
-            "name": "礼装强化: ENHANCE_EQUIP",
-            "category": "enhance",
-            "file": "ENHANCE_EQUIP.png",
-            "anchor": "bottom_right",
-            "search_area": [
-                880,
-                5,
-                1300,
-                70
-            ],
-            "crop_area": null,
-            "area": [
-                880,
-                5,
-                1300,
-                70
-            ],
-            "tap_coord": null,
-            "description": "源自原生工程识别定义: ENHANCE_EQUIP"
-        },
-        "ENHANCE_EQUIP_ENHANCE": {
-            "key": "ENHANCE_EQUIP_ENHANCE",
-            "name": "礼装强化: ENHANCE_EQUIP_ENHANCE",
-            "category": "enhance",
-            "file": "ENHANCE_EQUIP_ENHANCE.png",
-            "anchor": "bottom_right",
-            "search_area": [
-                1340,
-                716,
-                1438,
-                798
-            ],
-            "crop_area": null,
-            "area": [
-                1340,
-                716,
-                1438,
-                798
-            ],
-            "tap_coord": null,
-            "description": "源自原生工程识别定义: ENHANCE_EQUIP_ENHANCE"
-        },
-        "ENHANCE_EQUIP_ENHANCE_CONFIRM": {
-            "key": "ENHANCE_EQUIP_ENHANCE_CONFIRM",
-            "name": "礼装强化: ENHANCE_EQUIP_ENHANCE_CONFIRM",
-            "category": "enhance",
-            "file": "ENHANCE_EQUIP_ENHANCE_CONFIRM.png",
-            "anchor": "center",
-            "search_area": [
-                877,
-                632,
-                1006,
-                698
-            ],
-            "crop_area": null,
-            "area": [
-                877,
-                632,
-                1006,
-                698
-            ],
-            "tap_coord": null,
-            "description": "源自原生工程识别定义: ENHANCE_EQUIP_ENHANCE_CONFIRM"
-        },
-        "ENHANCE_EQUIP_SELECT_CONFIRM": {
-            "key": "ENHANCE_EQUIP_SELECT_CONFIRM",
-            "name": "礼装强化: ENHANCE_EQUIP_SELECT_CONFIRM",
-            "category": "enhance",
-            "file": "ENHANCE_EQUIP_SELECT_CONFIRM.png",
-            "anchor": "center",
-            "search_area": [
-                1200,
-                725,
-                1260,
-                790
-            ],
-            "crop_area": null,
-            "area": [
-                1200,
-                725,
-                1260,
-                790
-            ],
-            "tap_coord": null,
-            "description": "源自原生工程识别定义: ENHANCE_EQUIP_SELECT_CONFIRM"
-        },
-        "ENHANCE_EQUIP_SELECT_READY": {
-            "key": "ENHANCE_EQUIP_SELECT_READY",
-            "name": "礼装强化: ENHANCE_EQUIP_SELECT_READY",
-            "category": "enhance",
-            "file": "ENHANCE_EQUIP_SELECT_READY.png",
-            "anchor": "bottom_right",
-            "search_area": [
-                1205,
-                204,
-                1226,
-                267
-            ],
-            "crop_area": null,
-            "area": [
-                1205,
-                204,
-                1226,
-                267
-            ],
-            "tap_coord": null,
-            "description": "源自原生工程识别定义: ENHANCE_EQUIP_SELECT_READY"
-        },
-        "ENHANCE_EQUIP_SELECT_STOP": {
-            "key": "ENHANCE_EQUIP_SELECT_STOP",
-            "name": "礼装强化: ENHANCE_EQUIP_SELECT_STOP",
-            "category": "enhance",
-            "file": "ENHANCE_EQUIP_SELECT_STOP.png",
-            "anchor": "bottom_right",
-            "search_area": [
-                80,
-                530,
-                1116,
-                809
-            ],
-            "crop_area": null,
-            "area": [
-                80,
-                530,
-                1116,
-                809
-            ],
-            "tap_coord": null,
-            "description": "源自原生工程识别定义: ENHANCE_EQUIP_SELECT_STOP"
-        },
-        "ENHANCE_EQUIP_SELECT_STOP2": {
-            "key": "ENHANCE_EQUIP_SELECT_STOP2",
-            "name": "礼装强化: ENHANCE_EQUIP_SELECT_STOP2",
-            "category": "enhance",
-            "file": "ENHANCE_EQUIP_SELECT_STOP2.png",
-            "anchor": "bottom_right",
-            "search_area": [
-                80,
-                530,
-                1116,
-                809
-            ],
-            "crop_area": null,
-            "area": [
-                80,
-                530,
-                1116,
-                809
-            ],
-            "tap_coord": null,
-            "description": "源自原生工程识别定义: ENHANCE_EQUIP_SELECT_STOP2"
-        },
-        "ENHANCE_EQUIP_START": {
-            "key": "ENHANCE_EQUIP_START",
-            "name": "礼装强化: ENHANCE_EQUIP_START",
-            "category": "enhance",
-            "file": "ENHANCE_EQUIP_START.png",
-            "anchor": "bottom_right",
-            "search_area": [
-                446,
-                216,
-                532,
-                315
-            ],
-            "crop_area": null,
-            "area": [
-                446,
-                216,
-                532,
-                315
-            ],
-            "tap_coord": null,
-            "description": "源自原生工程识别定义: ENHANCE_EQUIP_START"
-        },
-        "ENHANCE_HERO": {
-            "key": "ENHANCE_HERO",
-            "name": "从者强化: ENHANCE_HERO",
-            "category": "enhance",
-            "file": "ENHANCE_HERO.png",
-            "anchor": "bottom_right",
-            "search_area": [
-                880,
-                5,
-                1300,
-                70
-            ],
-            "crop_area": null,
-            "area": [
-                880,
-                5,
-                1300,
-                70
-            ],
-            "tap_coord": null,
-            "description": "源自原生工程识别定义: ENHANCE_HERO"
-        },
-        "ENHANCE_HERO_ENHANCE": {
-            "key": "ENHANCE_HERO_ENHANCE",
-            "name": "从者强化: ENHANCE_HERO_ENHANCE",
-            "category": "enhance",
-            "file": "ENHANCE_HERO_ENHANCE.png",
-            "anchor": "bottom_right",
-            "search_area": [
-                1340,
-                716,
-                1438,
-                798
-            ],
-            "crop_area": null,
-            "area": [
-                1340,
-                716,
-                1438,
-                798
-            ],
-            "tap_coord": null,
-            "description": "源自原生工程识别定义: ENHANCE_HERO_ENHANCE"
-        },
-        "ENHANCE_HERO_ENHANCE_CONFIRM": {
-            "key": "ENHANCE_HERO_ENHANCE_CONFIRM",
-            "name": "从者强化: ENHANCE_HERO_ENHANCE_CONFIRM",
-            "category": "enhance",
-            "file": "ENHANCE_HERO_ENHANCE_CONFIRM.png",
-            "anchor": "center",
-            "search_area": [
-                877,
-                632,
-                1006,
-                698
-            ],
-            "crop_area": null,
-            "area": [
-                877,
-                632,
-                1006,
-                698
-            ],
-            "tap_coord": null,
-            "description": "源自原生工程识别定义: ENHANCE_HERO_ENHANCE_CONFIRM"
-        },
-        "ENHANCE_HERO_RECOMMAND": {
-            "key": "ENHANCE_HERO_RECOMMAND",
-            "name": "从者强化: ENHANCE_HERO_RECOMMAND",
-            "category": "enhance",
-            "file": "ENHANCE_HERO_RECOMMAND.png",
-            "anchor": "bottom_right",
-            "search_area": [
-                1240,
-                150,
-                1370,
-                208
-            ],
-            "crop_area": null,
-            "area": [
-                1240,
-                150,
-                1370,
-                208
-            ],
-            "tap_coord": null,
-            "description": "源自原生工程识别定义: ENHANCE_HERO_RECOMMAND"
-        },
-        "ENHANCE_HERO_RECOMMAND_CONFIRM": {
-            "key": "ENHANCE_HERO_RECOMMAND_CONFIRM",
-            "name": "从者强化: ENHANCE_HERO_RECOMMAND_CONFIRM",
-            "category": "enhance",
-            "file": "ENHANCE_HERO_RECOMMAND_CONFIRM.png",
-            "anchor": "center",
-            "search_area": [
-                880,
-                680,
-                1006,
-                745
-            ],
-            "crop_area": null,
-            "area": [
-                880,
-                680,
-                1006,
-                745
-            ],
-            "tap_coord": null,
-            "description": "源自原生工程识别定义: ENHANCE_HERO_RECOMMAND_CONFIRM"
-        },
-        "ENHANCE_SKILL": {
-            "key": "ENHANCE_SKILL",
-            "name": "技能: ENHANCE_SKILL",
-            "category": "enhance",
-            "file": "ENHANCE_SKILL.png",
-            "anchor": "bottom_right",
-            "search_area": [
-                880,
-                5,
-                1300,
-                70
-            ],
-            "crop_area": null,
-            "area": [
-                880,
-                5,
-                1300,
-                70
-            ],
-            "tap_coord": null,
-            "description": "源自原生工程识别定义: ENHANCE_SKILL"
-        },
-        "ENHANCE_SKILL_ENHANCE": {
-            "key": "ENHANCE_SKILL_ENHANCE",
-            "name": "技能: ENHANCE_SKILL_ENHANCE",
-            "category": "enhance",
-            "file": "ENHANCE_SKILL_ENHANCE.png",
-            "anchor": "bottom_right",
-            "search_area": [
-                1185,
-                725,
-                1230,
-                785
-            ],
-            "crop_area": null,
-            "area": [
-                1185,
-                725,
-                1230,
-                785
-            ],
-            "tap_coord": null,
-            "description": "源自原生工程识别定义: ENHANCE_SKILL_ENHANCE"
-        },
-        "ENHANCE_SKILL_ENHANCE_CONFIRM": {
-            "key": "ENHANCE_SKILL_ENHANCE_CONFIRM",
-            "name": "技能: ENHANCE_SKILL_ENHANCE_CONFIRM",
-            "category": "enhance",
-            "file": "ENHANCE_SKILL_ENHANCE_CONFIRM.png",
-            "anchor": "center",
-            "search_area": [
-                820,
-                640,
-                890,
-                690
-            ],
-            "crop_area": null,
-            "area": [
-                820,
-                640,
-                890,
-                690
-            ],
-            "tap_coord": null,
-            "description": "源自原生工程识别定义: ENHANCE_SKILL_ENHANCE_CONFIRM"
-        },
-        "ENHANCE_SKILL_ENHANCE_L10": {
-            "key": "ENHANCE_SKILL_ENHANCE_L10",
-            "name": "技能: ENHANCE_SKILL_ENHANCE_L10",
-            "category": "enhance",
-            "file": "ENHANCE_SKILL_ENHANCE_L10.png",
-            "anchor": "bottom_right",
-            "search_area": [
-                450,
-                490,
-                610,
-                630
-            ],
-            "crop_area": null,
-            "area": [
-                450,
-                490,
-                610,
-                630
-            ],
-            "tap_coord": null,
-            "description": "源自原生工程识别定义: ENHANCE_SKILL_ENHANCE_L10"
-        },
-        "POOLFRIEND_CONTINUE": {
-            "key": "POOLFRIEND_CONTINUE",
-            "name": "POOLFRIEND CONTINUE",
-            "category": "enhance",
-            "file": "POOLFRIEND_CONTINUE.png",
-            "anchor": "bottom_right",
-            "search_area": [
-                720,
-                720,
-                990,
-                800
-            ],
-            "crop_area": null,
-            "area": [
-                720,
-                720,
-                990,
-                800
-            ],
-            "tap_coord": null,
-            "description": "源自原生工程识别定义: POOLFRIEND_CONTINUE"
-        },
-        "POOLFRIEND_GO": {
-            "key": "POOLFRIEND_GO",
-            "name": "POOLFRIEND GO",
-            "category": "enhance",
-            "file": "POOLFRIEND_GO.png",
-            "anchor": "bottom_right",
-            "search_area": [
-                830,
-                600,
-                1080,
-                670
-            ],
-            "crop_area": null,
-            "area": [
-                830,
-                600,
-                1080,
-                670
-            ],
-            "tap_coord": null,
-            "description": "源自原生工程识别定义: POOLFRIEND_GO"
-        },
-        "ROLL10-1": {
-            "key": "ROLL10-1",
-            "name": "抽卡无限池: ROLL10-1",
-            "category": "enhance",
-            "file": "ROLL10-1.png",
-            "anchor": "center",
-            "search_area": [
-                330,
-                370,
-                620,
-                610
-            ],
-            "crop_area": null,
-            "area": [
-                330,
-                370,
-                620,
-                610
-            ],
-            "tap_coord": null,
-            "description": "源自原生工程识别定义: ROLL10-1"
-        },
-        "ROLL10": {
-            "key": "ROLL10",
-            "name": "抽卡无限池: ROLL10",
-            "category": "enhance",
-            "file": "ROLL10.png",
-            "anchor": "center",
-            "search_area": [
-                330,
-                370,
-                620,
-                610
-            ],
-            "crop_area": null,
-            "area": [
-                330,
-                370,
-                620,
-                610
-            ],
-            "tap_coord": null,
-            "description": "源自原生工程识别定义: ROLL10"
-        },
-        "ROLL100-1": {
-            "key": "ROLL100-1",
-            "name": "抽卡无限池: ROLL100-1",
-            "category": "enhance",
-            "file": "ROLL100-1.png",
-            "anchor": "center",
-            "search_area": [
-                330,
-                370,
-                620,
-                610
-            ],
-            "crop_area": null,
-            "area": [
-                330,
-                370,
-                620,
-                610
-            ],
-            "tap_coord": null,
-            "description": "源自原生工程识别定义: ROLL100-1"
-        },
-        "ROLL100": {
-            "key": "ROLL100",
-            "name": "抽卡无限池: ROLL100",
-            "category": "enhance",
-            "file": "ROLL100.png",
-            "anchor": "center",
-            "search_area": [
-                330,
-                370,
-                620,
-                610
-            ],
-            "crop_area": null,
-            "area": [
-                330,
-                370,
-                620,
-                610
-            ],
-            "tap_coord": null,
-            "description": "源自原生工程识别定义: ROLL100"
-        },
-        "ULT_Taped_Blue2": {
-            "key": "ULT_Taped_Blue2",
-            "name": "选卡出牌: ULT_Taped_Blue2",
-            "category": "battle",
-            "file": "ULT_Taped_Blue2.png",
-            "anchor": "center",
-            "search_area": [
-                680,
-                210,
-                790,
-                352
-            ],
-            "crop_area": null,
-            "area": [
-                680,
-                210,
-                790,
-                352
-            ],
-            "tap_coord": null,
-            "description": "源自原生工程识别定义: ULT_Taped_Blue2"
-        },
-        "ULT_Taped_Blue3": {
-            "key": "ULT_Taped_Blue3",
-            "name": "选卡出牌: ULT_Taped_Blue3",
-            "category": "battle",
-            "file": "ULT_Taped_Blue3.png",
-            "anchor": "center",
-            "search_area": [
-                930,
-                210,
-                1048,
-                259
-            ],
-            "crop_area": null,
-            "area": [
-                930,
-                210,
-                1048,
-                259
-            ],
-            "tap_coord": null,
-            "description": "源自原生工程识别定义: ULT_Taped_Blue3"
-        },
-        "ULT_Taped_Green1": {
-            "key": "ULT_Taped_Green1",
-            "name": "选卡出牌: ULT_Taped_Green1",
-            "category": "battle",
-            "file": "ULT_Taped_Green1.png",
-            "anchor": "center",
-            "search_area": [
-                400,
-                210,
-                550,
-                352
-            ],
-            "crop_area": null,
-            "area": [
-                400,
-                210,
-                550,
-                352
-            ],
-            "tap_coord": null,
-            "description": "源自原生工程识别定义: ULT_Taped_Green1"
-        },
-        "ULT_Taped_Green2": {
-            "key": "ULT_Taped_Green2",
-            "name": "选卡出牌: ULT_Taped_Green2",
-            "category": "battle",
-            "file": "ULT_Taped_Green2.png",
-            "anchor": "center",
-            "search_area": [
-                680,
-                210,
-                790,
-                352
-            ],
-            "crop_area": null,
-            "area": [
-                680,
-                210,
-                790,
-                352
-            ],
-            "tap_coord": null,
-            "description": "源自原生工程识别定义: ULT_Taped_Green2"
-        },
-        "ULT_Taped_Green3": {
-            "key": "ULT_Taped_Green3",
-            "name": "选卡出牌: ULT_Taped_Green3",
-            "category": "battle",
-            "file": "ULT_Taped_Green3.png",
-            "anchor": "center",
-            "search_area": [
-                930,
-                210,
-                1048,
-                259
-            ],
-            "crop_area": null,
-            "area": [
-                930,
-                210,
-                1048,
-                259
-            ],
-            "tap_coord": null,
-            "description": "源自原生工程识别定义: ULT_Taped_Green3"
-        },
-        "ULT_Taped_Red1": {
-            "key": "ULT_Taped_Red1",
-            "name": "选卡出牌: ULT_Taped_Red1",
-            "category": "battle",
-            "file": "ULT_Taped_Red1.png",
-            "anchor": "center",
-            "search_area": [
-                400,
-                210,
-                550,
-                352
-            ],
-            "crop_area": null,
-            "area": [
-                400,
-                210,
-                550,
-                352
-            ],
-            "tap_coord": null,
-            "description": "源自原生工程识别定义: ULT_Taped_Red1"
-        },
-        "ULT_Taped_Red2": {
-            "key": "ULT_Taped_Red2",
-            "name": "选卡出牌: ULT_Taped_Red2",
-            "category": "battle",
-            "file": "ULT_Taped_Red2.png",
-            "anchor": "center",
-            "search_area": [
-                680,
-                210,
-                790,
-                352
-            ],
-            "crop_area": null,
-            "area": [
-                680,
-                210,
-                790,
-                352
-            ],
-            "tap_coord": null,
-            "description": "源自原生工程识别定义: ULT_Taped_Red2"
-        },
-        "ULT_Taped_Red3": {
-            "key": "ULT_Taped_Red3",
-            "name": "选卡出牌: ULT_Taped_Red3",
-            "category": "battle",
-            "file": "ULT_Taped_Red3.png",
-            "anchor": "center",
-            "search_area": [
-                930,
-                210,
-                1048,
-                259
-            ],
-            "crop_area": null,
-            "area": [
-                930,
-                210,
-                1048,
-                259
-            ],
-            "tap_coord": null,
-            "description": "源自原生工程识别定义: ULT_Taped_Red3"
-        },
-        "friendAobao2": {
-            "key": "friendAobao2",
-            "name": "助战: Aobao2",
-            "category": "friend",
-            "file": "friendAobao2.png",
-            "anchor": "top_left",
-            "search_area": [
-                40,
-                180,
-                920,
-                800
-            ],
-            "crop_area": null,
-            "area": [
-                40,
-                180,
-                920,
-                800
-            ],
-            "tap_coord": null,
-            "description": "源自原生工程识别定义: friendAobao2"
-        },
-        "friendAobao3": {
-            "key": "friendAobao3",
-            "name": "助战: Aobao3",
-            "category": "friend",
-            "file": "friendAobao3.png",
-            "anchor": "top_left",
-            "search_area": [
-                40,
-                180,
-                920,
-                800
-            ],
-            "crop_area": null,
-            "area": [
-                40,
-                180,
-                920,
-                800
-            ],
-            "tap_coord": null,
-            "description": "源自原生工程识别定义: friendAobao3"
-        },
-        "friendAobao3Shan": {
-            "key": "friendAobao3Shan",
-            "name": "助战: Aobao3Shan",
-            "category": "friend",
-            "file": "friendAobao3Shan.png",
-            "anchor": "top_left",
-            "search_area": [
-                40,
-                180,
-                920,
-                800
-            ],
-            "crop_area": null,
-            "area": [
-                40,
-                180,
-                920,
-                800
-            ],
-            "tap_coord": null,
-            "description": "源自原生工程识别定义: friendAobao3Shan"
-        },
-        "friendAobao5": {
-            "key": "friendAobao5",
-            "name": "助战: Aobao5",
-            "category": "friend",
-            "file": "friendAobao5.png",
-            "anchor": "top_left",
-            "search_area": [
-                40,
-                180,
-                920,
-                800
-            ],
-            "crop_area": null,
-            "area": [
-                40,
-                180,
-                920,
-                800
-            ],
-            "tap_coord": null,
-            "description": "源自原生工程识别定义: friendAobao5"
-        },
-        "friendCDai": {
-            "key": "friendCDai",
-            "name": "助战: CDai",
-            "category": "friend",
-            "file": "friendCDai.png",
-            "anchor": "top_left",
-            "search_area": [
-                40,
-                180,
-                920,
-                800
-            ],
-            "crop_area": null,
-            "area": [
-                40,
-                180,
-                920,
-                800
-            ],
-            "tap_coord": null,
-            "description": "源自原生工程识别定义: friendCDai"
-        },
-        "friendCDai2": {
-            "key": "friendCDai2",
-            "name": "助战: CDai2",
-            "category": "friend",
-            "file": "friendCDai2.png",
-            "anchor": "top_left",
-            "search_area": [
-                40,
-                180,
-                920,
-                800
-            ],
-            "crop_area": null,
-            "area": [
-                40,
-                180,
-                920,
-                800
-            ],
-            "tap_coord": null,
-            "description": "源自原生工程识别定义: friendCDai2"
-        },
-        "friendCDai3": {
-            "key": "friendCDai3",
-            "name": "助战: CDai3",
-            "category": "friend",
-            "file": "friendCDai3.png",
-            "anchor": "top_left",
-            "search_area": [
-                40,
-                180,
-                920,
-                800
-            ],
-            "crop_area": null,
-            "area": [
-                40,
-                180,
-                920,
-                800
-            ],
-            "tap_coord": null,
-            "description": "源自原生工程识别定义: friendCDai3"
-        },
-        "friendDaoman3": {
-            "key": "friendDaoman3",
-            "name": "助战: Daoman3",
-            "category": "friend",
-            "file": "friendDaoman3.png",
-            "anchor": "top_left",
-            "search_area": [
-                40,
-                180,
-                920,
-                800
-            ],
-            "crop_area": null,
-            "area": [
-                40,
-                180,
-                920,
-                800
-            ],
-            "tap_coord": null,
-            "description": "源自原生工程识别定义: friendDaoman3"
-        },
-        "friendKeli1": {
-            "key": "friendKeli1",
-            "name": "助战: Keli1",
-            "category": "friend",
-            "file": "friendKeli1.png",
-            "anchor": "top_left",
-            "search_area": [
-                40,
-                180,
-                920,
-                800
-            ],
-            "crop_area": null,
-            "area": [
-                40,
-                180,
-                920,
-                800
-            ],
-            "tap_coord": null,
-            "description": "源自原生工程识别定义: friendKeli1"
-        },
-        "friendKeli2": {
-            "key": "friendKeli2",
-            "name": "助战: Keli2",
-            "category": "friend",
-            "file": "friendKeli2.png",
-            "anchor": "top_left",
-            "search_area": [
-                40,
-                180,
-                920,
-                800
-            ],
-            "crop_area": null,
-            "area": [
-                40,
-                180,
-                920,
-                800
-            ],
-            "tap_coord": null,
-            "description": "源自原生工程识别定义: friendKeli2"
-        },
-        "friendKeli3": {
-            "key": "friendKeli3",
-            "name": "助战: Keli3",
-            "category": "friend",
-            "file": "friendKeli3.png",
-            "anchor": "top_left",
-            "search_area": [
-                40,
-                180,
-                920,
-                800
-            ],
-            "crop_area": null,
-            "area": [
-                40,
-                180,
-                920,
-                800
-            ],
-            "tap_coord": null,
-            "description": "源自原生工程识别定义: friendKeli3"
-        },
-        "friendMary1": {
-            "key": "friendMary1",
-            "name": "助战: Mary1",
-            "category": "friend",
-            "file": "friendMary1.png",
-            "anchor": "top_left",
-            "search_area": [
-                40,
-                180,
-                920,
-                800
-            ],
-            "crop_area": null,
-            "area": [
-                40,
-                180,
-                920,
-                800
-            ],
-            "tap_coord": null,
-            "description": "源自原生工程识别定义: friendMary1"
-        },
-        "friendMary2": {
-            "key": "friendMary2",
-            "name": "助战: Mary2",
-            "category": "friend",
-            "file": "friendMary2.png",
-            "anchor": "top_left",
-            "search_area": [
-                40,
-                180,
-                920,
-                800
-            ],
-            "crop_area": null,
-            "area": [
-                40,
-                180,
-                920,
-                800
-            ],
-            "tap_coord": null,
-            "description": "源自原生工程识别定义: friendMary2"
-        },
-        "friendMeilinC3": {
-            "key": "friendMeilinC3",
-            "name": "助战: MeilinC3",
-            "category": "friend",
-            "file": "friendMeilinC3.png",
-            "anchor": "top_left",
-            "search_area": [
-                40,
-                180,
-                920,
-                800
-            ],
-            "crop_area": null,
-            "area": [
-                40,
-                180,
-                920,
-                800
-            ],
-            "tap_coord": null,
-            "description": "源自原生工程识别定义: friendMeilinC3"
-        },
-        "friendPrincess": {
-            "key": "friendPrincess",
-            "name": "助战: Princess",
-            "category": "friend",
-            "file": "friendPrincess.png",
-            "anchor": "top_left",
-            "search_area": [
-                40,
-                180,
-                920,
-                800
-            ],
-            "crop_area": null,
-            "area": [
-                40,
-                180,
-                920,
-                800
-            ],
-            "tap_coord": null,
-            "description": "源自原生工程识别定义: friendPrincess"
-        },
-        "friendPrincess120": {
-            "key": "friendPrincess120",
-            "name": "助战: Princess120",
-            "category": "friend",
-            "file": "friendPrincess120.png",
-            "anchor": "top_left",
-            "search_area": [
-                40,
-                180,
-                920,
-                800
-            ],
-            "crop_area": null,
-            "area": [
-                40,
-                180,
-                920,
-                800
-            ],
-            "tap_coord": null,
-            "description": "源自原生工程识别定义: friendPrincess120"
-        },
-        "friendPrincess1202": {
-            "key": "friendPrincess1202",
-            "name": "助战: Princess1202",
-            "category": "friend",
-            "file": "friendPrincess1202.png",
-            "anchor": "top_left",
-            "search_area": [
-                40,
-                180,
-                920,
-                800
-            ],
-            "crop_area": null,
-            "area": [
-                40,
-                180,
-                920,
-                800
-            ],
-            "tap_coord": null,
-            "description": "源自原生工程识别定义: friendPrincess1202"
-        },
-        "friendPrincess1203": {
-            "key": "friendPrincess1203",
-            "name": "助战: Princess1203",
-            "category": "friend",
-            "file": "friendPrincess1203.png",
-            "anchor": "top_left",
-            "search_area": [
-                40,
-                180,
-                920,
-                800
-            ],
-            "crop_area": null,
-            "area": [
-                40,
-                180,
-                920,
-                800
-            ],
-            "tap_coord": null,
-            "description": "源自原生工程识别定义: friendPrincess1203"
-        },
-        "friendPrincess2": {
-            "key": "friendPrincess2",
-            "name": "助战: Princess2",
-            "category": "friend",
-            "file": "friendPrincess2.png",
-            "anchor": "top_left",
-            "search_area": [
-                40,
-                180,
-                920,
-                800
-            ],
-            "crop_area": null,
-            "area": [
-                40,
-                180,
-                920,
-                800
-            ],
-            "tap_coord": null,
-            "description": "源自原生工程识别定义: friendPrincess2"
-        },
-        "friendPrincess3": {
-            "key": "friendPrincess3",
-            "name": "助战: Princess3",
-            "category": "friend",
-            "file": "friendPrincess3.png",
-            "anchor": "top_left",
-            "search_area": [
-                40,
-                180,
-                920,
-                800
-            ],
-            "crop_area": null,
-            "area": [
-                40,
-                180,
-                920,
-                800
-            ],
-            "tap_coord": null,
-            "description": "源自原生工程识别定义: friendPrincess3"
-        },
-        "friendQP": {
-            "key": "friendQP",
-            "name": "助战: QP",
-            "category": "friend",
-            "file": "friendQP.png",
-            "anchor": "top_left",
-            "search_area": [
-                40,
-                180,
-                920,
-                800
-            ],
-            "crop_area": null,
-            "area": [
-                40,
-                180,
-                920,
-                800
-            ],
-            "tap_coord": null,
-            "description": "源自原生工程识别定义: friendQP"
-        },
-        "friendRba1": {
-            "key": "friendRba1",
-            "name": "助战: Rba1",
-            "category": "friend",
-            "file": "friendRba1.png",
-            "anchor": "top_left",
-            "search_area": [
-                40,
-                180,
-                920,
-                800
-            ],
-            "crop_area": null,
-            "area": [
-                40,
-                180,
-                920,
-                800
-            ],
-            "tap_coord": null,
-            "description": "源自原生工程识别定义: friendRba1"
-        },
-        "friendRba2": {
-            "key": "friendRba2",
-            "name": "助战: Rba2",
-            "category": "friend",
-            "file": "friendRba2.png",
-            "anchor": "top_left",
-            "search_area": [
-                40,
-                180,
-                920,
-                800
-            ],
-            "crop_area": null,
-            "area": [
-                40,
-                180,
-                920,
-                800
-            ],
-            "tap_coord": null,
-            "description": "源自原生工程识别定义: friendRba2"
-        },
-        "friendRba3": {
-            "key": "friendRba3",
-            "name": "助战: Rba3",
-            "category": "friend",
-            "file": "friendRba3.png",
-            "anchor": "top_left",
-            "search_area": [
-                40,
-                180,
-                920,
-                800
-            ],
-            "crop_area": null,
-            "area": [
-                40,
-                180,
-                920,
-                800
-            ],
-            "tap_coord": null,
-            "description": "源自原生工程识别定义: friendRba3"
-        },
-        "friendRba3Shan": {
-            "key": "friendRba3Shan",
-            "name": "助战: Rba3Shan",
-            "category": "friend",
-            "file": "friendRba3Shan.png",
-            "anchor": "top_left",
-            "search_area": [
-                40,
-                180,
-                920,
-                800
-            ],
-            "crop_area": null,
-            "area": [
-                40,
-                180,
-                920,
-                800
-            ],
-            "tap_coord": null,
-            "description": "源自原生工程识别定义: friendRba3Shan"
-        },
-        "friendRba4": {
-            "key": "friendRba4",
-            "name": "助战: Rba4",
-            "category": "friend",
-            "file": "friendRba4.png",
-            "anchor": "top_left",
-            "search_area": [
-                40,
-                180,
-                920,
-                800
-            ],
-            "crop_area": null,
-            "area": [
-                40,
-                180,
-                920,
-                800
-            ],
-            "tap_coord": null,
-            "description": "源自原生工程识别定义: friendRba4"
-        },
-        "friendShaHu1Shan": {
-            "key": "friendShaHu1Shan",
-            "name": "助战: ShaHu1Shan",
-            "category": "friend",
-            "file": "friendShaHu1Shan.png",
-            "anchor": "top_left",
-            "search_area": [
-                40,
-                180,
-                920,
-                800
-            ],
-            "crop_area": null,
-            "area": [
-                40,
-                180,
-                920,
-                800
-            ],
-            "tap_coord": null,
-            "description": "源自原生工程识别定义: friendShaHu1Shan"
-        },
-        "friendShaHu2": {
-            "key": "friendShaHu2",
-            "name": "助战: ShaHu2",
-            "category": "friend",
-            "file": "friendShaHu2.png",
-            "anchor": "top_left",
-            "search_area": [
-                40,
-                180,
-                920,
-                800
-            ],
-            "crop_area": [
-                409,
-                319,
-                588,
-                345
-            ],
-            "area": [
-                40,
-                180,
-                920,
-                800
-            ],
-            "tap_coord": null,
-            "description": "源自原生工程识别定义: friendShaHu2"
-        },
-        "friendShaHu3": {
-            "key": "friendShaHu3",
-            "name": "助战: ShaHu3",
-            "category": "friend",
-            "file": "friendShaHu3.png",
-            "anchor": "top_left",
-            "search_area": [
-                40,
-                180,
-                920,
-                800
-            ],
-            "crop_area": [
-                163,
-                280,
-                179,
-                301
-            ],
-            "area": [
-                40,
-                180,
-                920,
-                800
-            ],
-            "tap_coord": null,
-            "description": "源自原生工程识别定义: friendShaHu3"
-        },
-        "friendShaHu3Shan": {
-            "key": "friendShaHu3Shan",
-            "name": "助战: ShaHu3Shan",
-            "category": "friend",
-            "file": "friendShaHu3Shan.png",
-            "anchor": "top_left",
-            "search_area": [
-                40,
-                180,
-                920,
-                800
-            ],
-            "crop_area": null,
-            "area": [
-                40,
-                180,
-                920,
-                800
-            ],
-            "tap_coord": null,
-            "description": "源自原生工程识别定义: friendShaHu3Shan"
-        },
-        "friendSparrow": {
-            "key": "friendSparrow",
-            "name": "助战: Sparrow",
-            "category": "friend",
-            "file": "friendSparrow.png",
-            "anchor": "top_left",
-            "search_area": [
-                40,
-                180,
-                920,
-                800
-            ],
-            "crop_area": null,
-            "area": [
-                40,
-                180,
-                920,
-                800
-            ],
-            "tap_coord": null,
-            "description": "源自原生工程识别定义: friendSparrow"
-        },
-        "friendtaigong": {
-            "key": "friendtaigong",
-            "name": "助战: taigong",
-            "category": "friend",
-            "file": "friendtaigong.png",
-            "anchor": "top_left",
-            "search_area": [
-                40,
-                180,
-                920,
-                800
-            ],
-            "crop_area": null,
-            "area": [
-                40,
-                180,
-                920,
-                800
-            ],
-            "tap_coord": null,
-            "description": "源自原生工程识别定义: friendtaigong"
-        },
-        "TAP_HERO_SKILL_1_1": {
-            "name": "从者1-技能1",
-            "category": "tap",
-            "tap_coord": [
-                84,
-                650
-            ],
-            "anchor": "bottom_left",
-            "description": "从者1第1技能点击位置 (BATTLE_HERO_SKILL_COORDS[0])"
-        },
-        "TAP_HERO_SKILL_1_2": {
-            "name": "从者1-技能2",
-            "category": "tap",
-            "tap_coord": [
-                183,
-                650
-            ],
-            "anchor": "bottom_left",
-            "description": "从者1第2技能点击位置 (BATTLE_HERO_SKILL_COORDS[1])"
-        },
-        "TAP_HERO_SKILL_1_3": {
-            "name": "从者1-技能3",
-            "category": "tap",
-            "tap_coord": [
-                282,
-                650
-            ],
-            "anchor": "bottom_left",
-            "description": "从者1第3技能点击位置 (BATTLE_HERO_SKILL_COORDS[2])"
-        },
-        "TAP_HERO_SKILL_2_1": {
-            "name": "从者2-技能1",
-            "category": "tap",
-            "tap_coord": [
-                441,
-                650
-            ],
-            "anchor": "bottom_left",
-            "description": "从者2第1技能点击位置 (BATTLE_HERO_SKILL_COORDS[3])"
-        },
-        "TAP_HERO_SKILL_2_2": {
-            "name": "从者2-技能2",
-            "category": "tap",
-            "tap_coord": [
-                540,
-                650
-            ],
-            "anchor": "bottom_left",
-            "description": "从者2第2技能点击位置 (BATTLE_HERO_SKILL_COORDS[4])"
-        },
-        "TAP_HERO_SKILL_2_3": {
-            "name": "从者2-技能3",
-            "category": "tap",
-            "tap_coord": [
-                639,
-                650
-            ],
-            "anchor": "bottom_left",
-            "description": "从者2第3技能点击位置 (BATTLE_HERO_SKILL_COORDS[5])"
-        },
-        "TAP_HERO_SKILL_3_1": {
-            "name": "从者3-技能1",
-            "category": "tap",
-            "tap_coord": [
-                799,
-                650
-            ],
-            "anchor": "bottom_left",
-            "description": "从者3第1技能点击位置 (BATTLE_HERO_SKILL_COORDS[6])"
-        },
-        "TAP_HERO_SKILL_3_2": {
-            "name": "从者3-技能2",
-            "category": "tap",
-            "tap_coord": [
-                897,
-                650
-            ],
-            "anchor": "bottom_left",
-            "description": "从者3第2技能点击位置 (BATTLE_HERO_SKILL_COORDS[7])"
-        },
-        "TAP_HERO_SKILL_3_3": {
-            "name": "从者3-技能3",
-            "category": "tap",
-            "tap_coord": [
-                996,
-                650
-            ],
-            "anchor": "bottom_left",
-            "description": "从者3第3技能点击位置 (BATTLE_HERO_SKILL_COORDS[8])"
-        },
-        "TAP_SKILL_GRANT_HERO_1": {
-            "name": "选人-己方从者1",
-            "category": "tap",
-            "tap_coord": [
-                360,
-                500
-            ],
-            "anchor": "center",
-            "description": "目标类技能选人: 己方从者1点击位置 (BATTLE_SKILL_GRANT_HREO_COORDS[0])"
-        },
-        "TAP_SKILL_GRANT_HERO_2": {
-            "name": "选人-己方从者2",
-            "category": "tap",
-            "tap_coord": [
-                717,
-                500
-            ],
-            "anchor": "center",
-            "description": "目标类技能选人: 己方从者2点击位置 (BATTLE_SKILL_GRANT_HREO_COORDS[1])"
-        },
-        "TAP_SKILL_GRANT_HERO_3": {
-            "name": "选人-己方从者3",
-            "category": "tap",
-            "tap_coord": [
-                1074,
-                500
-            ],
-            "anchor": "center",
-            "description": "目标类技能选人: 己方从者3点击位置 (BATTLE_SKILL_GRANT_HREO_COORDS[2])"
-        },
-        "TAP_SKILL_CHANGE_FRONT_1": {
-            "name": "换人-前排从者1",
-            "category": "tap",
-            "tap_coord": [
-                150,
-                390
-            ],
-            "anchor": "center",
-            "description": "换人决战礼装: 前排从者1点击位置 (BATTLE_SKILL_CHANGE_HERO_COORDS[0])"
-        },
-        "TAP_SKILL_CHANGE_FRONT_2": {
-            "name": "换人-前排从者2",
-            "category": "tap",
-            "tap_coord": [
-                375,
-                390
-            ],
-            "anchor": "center",
-            "description": "换人决战礼装: 前排从者2点击位置 (BATTLE_SKILL_CHANGE_HERO_COORDS[1])"
-        },
-        "TAP_SKILL_CHANGE_FRONT_3": {
-            "name": "换人-前排从者3",
-            "category": "tap",
-            "tap_coord": [
-                600,
-                390
-            ],
-            "anchor": "center",
-            "description": "换人决战礼装: 前排从者3点击位置 (BATTLE_SKILL_CHANGE_HERO_COORDS[2])"
-        },
-        "TAP_SKILL_CHANGE_BACK_1": {
-            "name": "换人-后排从者1",
-            "category": "tap",
-            "tap_coord": [
-                825,
-                390
-            ],
-            "anchor": "center",
-            "description": "换人决战礼装: 后排从者1点击位置 (BATTLE_SKILL_CHANGE_HERO_COORDS[3])"
-        },
-        "TAP_SKILL_CHANGE_BACK_2": {
-            "name": "换人-后排从者2",
-            "category": "tap",
-            "tap_coord": [
-                1050,
-                390
-            ],
-            "anchor": "center",
-            "description": "换人决战礼装: 后排从者2点击位置 (BATTLE_SKILL_CHANGE_HERO_COORDS[4])"
-        },
-        "TAP_SKILL_CHANGE_BACK_3": {
-            "name": "换人-后排从者3",
-            "category": "tap",
-            "tap_coord": [
-                1275,
-                390
-            ],
-            "anchor": "center",
-            "description": "换人决战礼装: 后排从者3点击位置 (BATTLE_SKILL_CHANGE_HERO_COORDS[5])"
-        },
-        "TAP_MASTER_SKILL_OPEN": {
-            "name": "御主技能展开按钮",
-            "category": "tap",
-            "tap_coord": [
-                1317,
-                325
-            ],
-            "anchor": "top_right",
-            "description": "点击右侧展开御主技能栏 (BATTLE_MASTER_SKILL_OPEN_COORDS)"
-        },
-        "TAP_MASTER_SKILL_1": {
-            "name": "御主技能1",
-            "category": "tap",
-            "tap_coord": [
-                1020,
-                350
-            ],
-            "anchor": "top_right",
-            "description": "御主礼装技能1点击位置 (BATTLE_MASTER_SKILL_COORDS[0])"
-        },
-        "TAP_MASTER_SKILL_2": {
-            "name": "御主技能2",
-            "category": "tap",
-            "tap_coord": [
-                1120,
-                350
-            ],
-            "anchor": "top_right",
-            "description": "御主礼装技能2点击位置 (BATTLE_MASTER_SKILL_COORDS[1])"
-        },
-        "TAP_MASTER_SKILL_3": {
-            "name": "御主技能3",
-            "category": "tap",
-            "tap_coord": [
-                1220,
-                350
-            ],
-            "anchor": "top_right",
-            "description": "御主礼装技能3点击位置 (BATTLE_MASTER_SKILL_COORDS[2])"
-        },
-        "TAP_TARGET_ENEMY_1": {
-            "name": "敌方目标1 (左)",
-            "category": "tap",
-            "tap_coord": [
-                159,
-                33
-            ],
-            "anchor": "top_left",
-            "description": "指定敌方第1个目标点击位置 (BATTLE_TARGET_COORDS[0])"
-        },
-        "TAP_TARGET_ENEMY_2": {
-            "name": "敌方目标2 (中)",
-            "category": "tap",
-            "tap_coord": [
-                424,
-                33
-            ],
-            "anchor": "top_left",
-            "description": "指定敌方第2个目标点击位置 (BATTLE_TARGET_COORDS[1])"
-        },
-        "TAP_TARGET_ENEMY_3": {
-            "name": "敌方目标3 (右)",
-            "category": "tap",
-            "tap_coord": [
-                689,
-                33
-            ],
-            "anchor": "top_left",
-            "description": "指定敌方第3个目标点击位置 (BATTLE_TARGET_COORDS[2])"
-        },
-        "TAP_TARGET_ENEMY_4": {
-            "name": "敌方首领/大型1",
-            "category": "tap",
-            "tap_coord": [
-                130,
-                150
-            ],
-            "anchor": "top_left",
-            "description": "大型怪/首领目标1点击位置 (BATTLE_TARGET_COORDS[3])"
-        },
-        "TAP_TARGET_ENEMY_5": {
-            "name": "敌方首领/大型2",
-            "category": "tap",
-            "tap_coord": [
-                355,
-                150
-            ],
-            "anchor": "top_left",
-            "description": "大型怪/首领目标2点击位置 (BATTLE_TARGET_COORDS[4])"
-        },
-        "TAP_TARGET_ENEMY_6": {
-            "name": "敌方首领/大型3",
-            "category": "tap",
-            "tap_coord": [
-                580,
-                150
-            ],
-            "anchor": "top_left",
-            "description": "大型怪/首领目标3点击位置 (BATTLE_TARGET_COORDS[5])"
-        },
-        "TAP_CARD_NORMAL_1": {
-            "name": "普攻手牌1 (发牌第1张)",
-            "category": "tap",
-            "tap_coord": [
-                118,
-                581
-            ],
-            "anchor": "bottom_left",
-            "description": "发牌卡池第1张普攻牌点击位置 (BATTLE_ATTACK_CARD_COORDS[0])"
-        },
-        "TAP_CARD_NORMAL_2": {
-            "name": "普攻手牌2 (发牌第2张)",
-            "category": "tap",
-            "tap_coord": [
-                408,
-                581
-            ],
-            "anchor": "bottom_left",
-            "description": "发牌卡池第2张普攻牌点击位置 (BATTLE_ATTACK_CARD_COORDS[1])"
-        },
-        "TAP_CARD_NORMAL_3": {
-            "name": "普攻手牌3 (发牌第3张)",
-            "category": "tap",
-            "tap_coord": [
-                698,
-                581
-            ],
-            "anchor": "bottom_center",
-            "description": "发牌卡池第3张普攻牌点击位置 (BATTLE_ATTACK_CARD_COORDS[2])"
-        },
-        "TAP_CARD_NORMAL_4": {
-            "name": "普攻手牌4 (发牌第4张)",
-            "category": "tap",
-            "tap_coord": [
-                991,
-                581
-            ],
-            "anchor": "bottom_right",
-            "description": "发牌卡池第4张普攻牌点击位置 (BATTLE_ATTACK_CARD_COORDS[3])"
-        },
-        "TAP_CARD_NORMAL_5": {
-            "name": "普攻手牌5 (发牌第5张)",
-            "category": "tap",
-            "tap_coord": [
-                1278,
-                581
-            ],
-            "anchor": "bottom_right",
-            "description": "发牌卡池第5张普攻牌点击位置 (BATTLE_ATTACK_CARD_COORDS[4])"
-        },
-        "TAP_CARD_NP_1": {
-            "name": "从者1宝具卡 (位置6)",
-            "category": "tap",
-            "tap_coord": [
-                412,
-                322
-            ],
-            "anchor": "center",
-            "description": "从者1宝具指令卡点击位置 (BATTLE_ATTACK_CARD_COORDS[5])"
-        },
-        "TAP_CARD_NP_2": {
-            "name": "从者2宝具卡 (位置7)",
-            "category": "tap",
-            "tap_coord": [
-                699,
-                322
-            ],
-            "anchor": "center",
-            "description": "从者2宝具指令卡点击位置 (BATTLE_ATTACK_CARD_COORDS[6])"
-        },
-        "TAP_CARD_NP_3": {
-            "name": "从者3宝具卡 (位置8)",
-            "category": "tap",
-            "tap_coord": [
-                986,
-                322
-            ],
-            "anchor": "center",
-            "description": "从者3宝具指令卡点击位置 (BATTLE_ATTACK_CARD_COORDS[7])"
-        },
-        "TAP_APPLE_GOLDEN": {
-            "name": "体力恢复-金苹果",
-            "category": "tap",
-            "tap_coord": [
-                420,
-                360
-            ],
-            "anchor": "center",
-            "description": "吃金苹果选项点击位置 (APPLE_GLODEN_COORD)"
-        },
-        "TAP_APPLE_SILVER": {
-            "name": "体力恢复-银苹果",
-            "category": "tap",
-            "tap_coord": [
-                420,
-                520
-            ],
-            "anchor": "center",
-            "description": "吃银苹果选项点击位置 (APPLE_SILVER_COORD)"
-        },
-        "TAP_APPLE_CLOSE": {
-            "name": "体力弹窗-取消关闭",
-            "category": "tap",
-            "tap_coord": [
-                720,
-                695
-            ],
-            "anchor": "center",
-            "description": "吃苹果弹窗取消按钮点击位置 (APPLE_CLOSE_COORD)"
-        },
-        "TAP_AWARD_SKIP": {
-            "name": "结算跳过空白点击",
-            "category": "tap",
-            "tap_coord": [
-                166,
-                60
-            ],
-            "anchor": "center",
-            "description": "战斗结算空白处点击以快速跳过 (AWARD_TAP_COORD)"
-        },
-        "FGO_HOME_MENU": {
-            "key": "FGO_HOME_MENU",
-            "name": "FGO 终端主页菜单按钮",
-            "category": "system",
-            "file": "FGO_HOME_MENU.png",
-            "anchor": "bottom_right",
-            "area": [
-                1240,
-                680,
-                1440,
-                790
-            ],
-            "search_area": [
-                1240,
-                680,
-                1440,
-                790
-            ],
-            "tap_coord": [
-                1350,
-                735
-            ],
-            "crop_area": null,
-            "description": "FGO 游戏主页/终端右下角的金色圆角「菜单」按钮，用于确认已完全就绪"
-        },
-        "FGO_NOTICE_X": {
-            "key": "FGO_NOTICE_X",
-            "name": "FGO 全屏公告右上角关闭叉号",
-            "category": "system",
-            "file": "FGO_NOTICE_X.png",
-            "anchor": "top_right",
-            "area": [
-                1340,
-                0,
-                1440,
-                120
-            ],
-            "search_area": [
-                1340,
-                0,
-                1440,
-                120
-            ],
-            "tap_coord": [
-                1400,
-                42
-            ],
-            "crop_area": null,
-            "description": "游戏启动后全屏游戏公告右上角的黑白关闭叉号 [X]"
-        },
-        "FGO_DIALOG_X": {
-            "key": "FGO_DIALOG_X",
-            "name": "FGO 弹窗右上角关闭叉号",
-            "category": "system",
-            "file": "FGO_DIALOG_X.png",
-            "anchor": "top_right",
-            "area": [
-                1340,
-                0,
-                1440,
-                120
-            ],
-            "search_area": [
-                1340,
-                0,
-                1440,
-                120
-            ],
-            "tap_coord": [
-                1395,
-                42
-            ],
-            "crop_area": null,
-            "description": "游戏游玩指引、活动通告等模态弹窗右上角带银边的关闭叉号 [X]"
-        },
-        "FGO_MODAL_CLOSE": {
-            "key": "FGO_MODAL_CLOSE",
-            "name": "FGO 弹窗关闭胶囊按钮",
-            "category": "system",
-            "file": "FGO_MODAL_CLOSE.png",
-            "anchor": "bottom_left",
-            "area": [
-                100,
-                620,
-                450,
-                750
-            ],
-            "search_area": [
-                100,
-                620,
-                650,
-                750
-            ],
-            "tap_coord": [
-                306,
-                698
-            ],
-            "crop_area": null,
-            "description": "友情点数结算、签到等弹窗底部的白色圆角「关闭」按钮"
-        },
-        "FGO_CALENDAR_TITLE": {
-            "key": "FGO_CALENDAR_TITLE",
-            "name": "FGO 日历提醒订阅弹窗标题",
-            "category": "system",
-            "file": "FGO_CALENDAR_TITLE.png",
-            "anchor": "center",
-            "area": [
-                480,
-                132,
-                960,
-                204
-            ],
-            "search_area": [
-                400,
-                100,
-                1040,
-                300
-            ],
-            "tap_coord": [
-                467,
-                628
-            ],
-            "crop_area": null,
-            "description": "FGO 日历提醒订阅功能弹窗标题栏"
-        },
-        "FGO_MODAL_CANCEL": {
-            "key": "FGO_MODAL_CANCEL",
-            "name": "FGO 弹窗取消胶囊按钮",
-            "category": "system",
-            "file": "FGO_MODAL_CANCEL.png",
-            "anchor": "bottom_left",
-            "area": [
-                346,
-                598,
-                589,
-                659
-            ],
-            "search_area": [
-                80,
-                520,
-                1360,
-                760
-            ],
-            "tap_coord": [
-                467,
-                628
-            ],
-            "crop_area": null,
-            "description": "日历提醒订阅等系统弹窗左侧的白色圆角「取消」按钮"
-        },
-        "FGO_TITLE_SERVER": {
-            "key": "FGO_TITLE_SERVER",
-            "name": "FGO 标题画面区服选择",
-            "category": "system",
-            "file": "FGO_TITLE_SERVER.png",
-            "anchor": "bottom_right",
-            "area": [
-                1150,
-                580,
-                1440,
-                720
-            ],
-            "search_area": [
-                1150,
-                580,
-                1440,
-                720
-            ],
-            "tap_coord": [
-                720,
-                500
-            ],
-            "crop_area": null,
-            "description": "FGO 启动标题画面右下角「区服选择」标识，代表处于标题待点入状态"
-        },
-        "FGO_TITLE_CACHE": {
-            "key": "FGO_TITLE_CACHE",
-            "name": "FGO 标题画面清除缓存",
-            "category": "system",
-            "file": "FGO_TITLE_CACHE.png",
-            "anchor": "bottom_left",
-            "area": [
-                20,
-                580,
-                300,
-                720
-            ],
-            "search_area": [
-                20,
-                580,
-                300,
-                720
-            ],
-            "tap_coord": [
-                720,
-                500
-            ],
-            "crop_area": null,
-            "description": "FGO 启动标题画面左下角「清除缓存」标识"
-        },
-        "FGO_TAP_GAME": {
-            "key": "FGO_TAP_GAME",
-            "name": "FGO 请点击游戏界面提示",
-            "category": "system",
-            "file": "FGO_TAP_GAME.png",
-            "anchor": "center",
-            "area": [
-                500,
-                680,
-                950,
-                800
-            ],
-            "search_area": [
-                500,
-                680,
-                950,
-                800
-            ],
-            "tap_coord": [
-                720,
-                500
-            ],
-            "crop_area": null,
-            "description": "进入游戏前加载画面出现的「请点击游戏界面」提示"
-        },
-        "ENHANCE_SKILL_MAX_L10": {
-            "key": "ENHANCE_SKILL_MAX_L10",
-            "name": "技能强化: 无法继续强化(10级满级)",
-            "category": "enhance",
-            "file": "ENHANCE_SKILL_MAX_L10.png",
-            "anchor": "bottom_right",
-            "search_area": [
-                1150,
-                720,
-                1410,
-                800
-            ],
-            "crop_area": null,
-            "area": [
-                1150,
-                720,
-                1410,
-                800
-            ],
-            "tap_coord": null,
-            "description": "技能达到10级满级时右下角显示的无法继续强化状态"
-        },
-        "TAP_ENHANCE_SKILL_1": {
-            "name": "从者强化-技能1",
-            "category": "tap",
-            "tap_coord": [
-                532,
-                286
-            ],
-            "anchor": "top_left",
-            "description": "技能强化界面: 从者第1个技能选择位置"
-        },
-        "TAP_ENHANCE_SKILL_2": {
-            "name": "从者强化-技能2",
-            "category": "tap",
-            "tap_coord": [
-                852,
-                286
-            ],
-            "anchor": "top_left",
-            "description": "技能强化界面: 从者第2个技能选择位置"
-        },
-        "TAP_ENHANCE_SKILL_3": {
-            "name": "从者强化-技能3",
-            "category": "tap",
-            "tap_coord": [
-                1172,
-                286
-            ],
-            "anchor": "top_left",
-            "description": "技能强化界面: 从者第3个技能选择位置"
-        },
-        "ENHANCE_SKILL_HERO_UNSELECTED": {
-            "key": "ENHANCE_SKILL_HERO_UNSELECTED",
-            "name": "技能强化: 左侧未选中从者(已全部满级)",
-            "category": "enhance",
-            "file": "ENHANCE_SKILL_HERO_UNSELECTED.png",
-            "anchor": "bottom_left",
-            "search_area": [
-                140,
-                560,
-                300,
-                630
-            ],
-            "crop_area": null,
-            "area": [
-                140,
-                560,
-                300,
-                630
-            ],
-            "tap_coord": null,
-            "description": "从者3个技能全部强化满级后，左侧自动取消从者选中呈现点击选择状态"
-        },
-        "ENHANCE_HERO_TO_ASCEND": {
-            "key": "ENHANCE_HERO_TO_ASCEND",
-            "name": "从者强化: 前往灵基再临",
-            "category": "enhance",
-            "file": "ENHANCE_HERO_TO_ASCEND.png",
-            "anchor": "bottom_right",
-            "search_area": [
-                1050,
-                580,
-                1320,
-                680
-            ],
-            "crop_area": null,
-            "area": [
-                1050,
-                580,
-                1320,
-                680
-            ],
-            "tap_coord": [
-                1185,
-                628
-            ],
-            "description": "从者达当前阶段满级时，右下角显示的「前往灵基再临」引导按钮"
-        },
-        "ENHANCE_ASCEND": {
-            "key": "ENHANCE_ASCEND",
-            "name": "灵基再临: 顶部标题",
-            "category": "enhance",
-            "file": "ENHANCE_ASCEND.png",
-            "anchor": "top_right",
-            "search_area": [
-                880,
-                5,
-                1300,
-                70
-            ],
-            "crop_area": null,
-            "area": [
-                880,
-                5,
-                1300,
-                70
-            ],
-            "tap_coord": null,
-            "description": "灵基再临界面顶部标题标识"
-        },
-        "ENHANCE_ASCEND_BTN": {
-            "key": "ENHANCE_ASCEND_BTN",
-            "name": "灵基再临: 执行再临按钮",
-            "category": "enhance",
-            "file": "ENHANCE_ASCEND_BTN.png",
-            "anchor": "bottom_right",
-            "search_area": [
-                1340,
-                716,
-                1438,
-                798
-            ],
-            "crop_area": null,
-            "area": [
-                1340,
-                716,
-                1438,
-                798
-            ],
-            "tap_coord": [
-                1391,
-                739
-            ],
-            "description": "灵基再临界面右下角灵基再临执行按钮"
-        },
-        "ENHANCE_ASCEND_TO_HERO": {
-            "key": "ENHANCE_ASCEND_TO_HERO",
-            "name": "灵基再临: 前往强化从者",
-            "category": "enhance",
-            "file": "ENHANCE_ASCEND_TO_HERO.png",
-            "anchor": "center_right",
-            "search_area": [
-                1000,
-                270,
-                1360,
-                370
-            ],
-            "crop_area": null,
-            "area": [
-                1000,
-                270,
-                1360,
-                370
-            ],
-            "tap_coord": [
-                1180,
-                321
-            ],
-            "description": "灵基再临完成后，右侧中间快捷返回「前往强化从者」按钮"
-        },
-        "ENHANCE_ASCEND_BACK": {
-            "key": "ENHANCE_ASCEND_BACK",
-            "name": "灵基再临: 左上角返回",
-            "category": "enhance",
-            "file": "ENHANCE_ASCEND_BACK.png",
-            "anchor": "top_left",
-            "search_area": [
-                40,
-                10,
-                120,
-                65
-            ],
-            "crop_area": null,
-            "area": [
-                40,
-                10,
-                120,
-                65
-            ],
-            "tap_coord": [
-                85,
-                36
-            ],
-            "description": "灵基再临界面左上角返回按钮"
-        },
-        "ENHANCE_HERO_REFUND_CLOSE": {
-            "key": "ENHANCE_HERO_REFUND_CLOSE",
-            "name": "从者强化: 素材返还关闭",
-            "category": "enhance",
-            "file": "ENHANCE_HERO_REFUND_CLOSE.png",
-            "anchor": "center",
-            "search_area": [
-                550,
-                580,
-                890,
-                680
-            ],
-            "crop_area": null,
-            "area": [
-                550,
-                580,
-                890,
-                680
-            ],
-            "tap_coord": [
-                686,
-                614
-            ],
-            "description": "强化大成功/极大成功达到上限返还素材弹窗关闭按钮"
-        },
-        "ENHANCE_HERO_TO_GRAIL": {
-            "key": "ENHANCE_HERO_TO_GRAIL",
-            "name": "从者强化: 前往圣杯转临",
-            "category": "enhance",
-            "file": "ENHANCE_HERO_TO_GRAIL.png",
-            "anchor": "bottom_right",
-            "search_area": [
-                1050,
-                580,
-                1320,
-                680
-            ],
-            "crop_area": null,
-            "area": [
-                1050,
-                580,
-                1320,
-                680
-            ],
-            "tap_coord": [
-                1185,
-                628
-            ],
-            "description": "从者达当前满级时右下角显示的「前往圣杯转临」按钮"
-        },
-        "ENHANCE_GRAIL": {
-            "key": "ENHANCE_GRAIL",
-            "name": "从者强化: 圣杯转临界面",
-            "category": "enhance",
-            "file": "ENHANCE_GRAIL.png",
-            "anchor": "top_right",
-            "search_area": [
-                1050,
-                5,
-                1420,
-                70
-            ],
-            "crop_area": null,
-            "area": [
-                1050,
-                5,
-                1420,
-                70
-            ],
-            "tap_coord": [
-                1280,
-                35
-            ],
-            "description": "圣杯转临主界面右上角标题特征"
-        },
-        "ENHANCE_GRAIL_CONFIRM": {
-            "key": "ENHANCE_GRAIL_CONFIRM",
-            "name": "从者强化: 圣杯转临决定按钮",
-            "category": "enhance",
-            "file": "ENHANCE_HERO_ENHANCE_CONFIRM.png",
-            "anchor": "bottom_right",
-            "search_area": [
-                877,
-                632,
-                1006,
-                698
-            ],
-            "crop_area": null,
-            "area": [
-                877,
-                632,
-                1006,
-                698
-            ],
-            "tap_coord": [
-                943,
-                662
-            ],
-            "description": "圣杯转临确认弹窗的「决定」按钮"
-        }
+    "ATTACK_BTN": {
+      "key": "ATTACK_BTN",
+      "name": "出牌 Attack 按钮",
+      "category": "battle",
+      "file": "ATTACK_BTN.png",
+      "anchor": "bottom_right",
+      "area": [
+        1200,
+        700,
+        1350,
+        750
+      ],
+      "tap_coord": [
+        1275,
+        725
+      ],
+      "description": "战斗回合开始时右下角进入选卡阶段的蓝色大按钮",
+      "search_area": [
+        1200,
+        700,
+        1350,
+        750
+      ],
+      "crop_area": null
+    },
+    "BATTLE_HERO_SKILL_CHECK": {
+      "key": "BATTLE_HERO_SKILL_CHECK",
+      "name": "技能就绪状态校验",
+      "category": "battle",
+      "file": "ATTACK_BTN.png",
+      "anchor": "bottom_right",
+      "area": [
+        1200,
+        700,
+        1350,
+        750
+      ],
+      "tap_coord": null,
+      "description": "技能释放动效播放完成后，用于确认回合恢复操作权",
+      "search_area": [
+        1200,
+        700,
+        1350,
+        750
+      ],
+      "crop_area": null
+    },
+    "BATTLE_SKILL_GRANT_CHECK": {
+      "key": "BATTLE_SKILL_GRANT_CHECK",
+      "name": "指向性技能选人弹窗",
+      "category": "battle",
+      "file": "BATTLE_SKILL_GRANT_CHECK.png",
+      "anchor": "center",
+      "area": [
+        1205,
+        142,
+        1267,
+        198
+      ],
+      "tap_coord": null,
+      "description": "释放需选定从者的技能时弹出的右上角关闭叉号或标题特征",
+      "search_area": [
+        1205,
+        142,
+        1267,
+        198
+      ],
+      "crop_area": null
+    },
+    "BATTLE_SKILL_CHANGE_CHECK": {
+      "key": "BATTLE_SKILL_CHANGE_CHECK",
+      "name": "战斗换人确认弹窗",
+      "category": "battle",
+      "file": "BATTLE_SKILL_CHANGE_CHECK.png",
+      "anchor": "center",
+      "area": [
+        723,
+        685,
+        777,
+        719
+      ],
+      "tap_coord": null,
+      "description": "战斗御主换人礼装弹出时的居中确认按钮",
+      "search_area": [
+        723,
+        685,
+        777,
+        719
+      ],
+      "crop_area": null
+    },
+    "BATTLE_MASTER_SKILL_OPEN": {
+      "key": "BATTLE_MASTER_SKILL_OPEN",
+      "name": "御主技能展开按钮",
+      "category": "battle",
+      "file": "BATTLE_MASTER_SKILL_OPEN.png",
+      "anchor": "top_right",
+      "area": [
+        1280,
+        300,
+        1410,
+        420
+      ],
+      "tap_coord": [
+        1317,
+        325
+      ],
+      "description": "战斗界面右侧展开御主技能栏的圆形按钮",
+      "search_area": [
+        1280,
+        300,
+        1410,
+        420
+      ],
+      "crop_area": null
+    },
+    "BATTLE_ATTACK_BACK": {
+      "key": "BATTLE_ATTACK_BACK",
+      "name": "选卡返回按钮",
+      "category": "battle",
+      "file": "BATTLE_ATTACK_BACK.png",
+      "anchor": "bottom_right",
+      "area": [
+        1300,
+        750,
+        1390,
+        785
+      ],
+      "tap_coord": [
+        1345,
+        765
+      ],
+      "description": "进入选卡状态后，右下角的金色返回按钮",
+      "search_area": [
+        1300,
+        750,
+        1390,
+        785
+      ],
+      "crop_area": null
+    },
+    "AWARD_TREASURE_NEXT": {
+      "key": "AWARD_TREASURE_NEXT",
+      "name": "结算下一步/连续出击",
+      "category": "reward",
+      "file": "AWARD_TREASURE_NEXT.png",
+      "anchor": "bottom_right",
+      "area": [
+        1178,
+        696,
+        1282,
+        740
+      ],
+      "tap_coord": [
+        1230,
+        718
+      ],
+      "description": "战斗通关后经验/战利品结算界面的「下一步」或「连续出击」按钮",
+      "search_area": [
+        1178,
+        696,
+        1282,
+        740
+      ],
+      "crop_area": null
+    },
+    "AWARD_TIE": {
+      "key": "AWARD_TIE",
+      "name": "从者羁绊提升标志",
+      "category": "reward",
+      "file": "AWARD_TIE.png",
+      "anchor": "top_left",
+      "area": [
+        90,
+        190,
+        330,
+        225
+      ],
+      "tap_coord": [
+        166,
+        60
+      ],
+      "description": "通关结算从者羁绊等级提升时的横幅特征",
+      "search_area": [
+        90,
+        190,
+        330,
+        225
+      ],
+      "crop_area": null
+    },
+    "APPLE_DISPLAY": {
+      "key": "APPLE_DISPLAY",
+      "name": "体力不足吃苹果窗口",
+      "category": "reward",
+      "file": "APPLE_DISPLAY.png",
+      "anchor": "center",
+      "area": [
+        634,
+        37,
+        743,
+        83
+      ],
+      "tap_coord": null,
+      "description": "体力耗尽时弹出的「行动力恢复」标题特征",
+      "search_area": [
+        634,
+        37,
+        743,
+        83
+      ],
+      "crop_area": null
+    },
+    "APPLE_CONFIRM": {
+      "key": "APPLE_CONFIRM",
+      "name": "确认吃苹果按钮",
+      "category": "reward",
+      "file": "APPLE_CONFIRM.png",
+      "anchor": "center",
+      "area": [
+        895,
+        608,
+        992,
+        660
+      ],
+      "tap_coord": [
+        943,
+        634
+      ],
+      "description": "选中金/银苹果后右下角的确定恢复按钮",
+      "search_area": [
+        895,
+        608,
+        992,
+        660
+      ],
+      "crop_area": null
+    },
+    "AGAIN_ALERT_AGAIN": {
+      "key": "AGAIN_ALERT_AGAIN",
+      "name": "连续出击确认按钮",
+      "category": "reward",
+      "file": "AGAIN_ALERT_AGAIN.png",
+      "anchor": "center",
+      "area": [
+        795,
+        620,
+        1030,
+        700
+      ],
+      "tap_coord": [
+        912,
+        660
+      ],
+      "description": "点击连续出击后二次弹窗的「决定出击」按钮",
+      "search_area": [
+        795,
+        620,
+        1030,
+        700
+      ],
+      "crop_area": null
+    },
+    "ADD_FRIEND_CLOSE": {
+      "key": "ADD_FRIEND_CLOSE",
+      "name": "申请好友弹窗关闭",
+      "category": "reward",
+      "file": "ADD_FRIEND_CLOSE.png",
+      "anchor": "center",
+      "area": [
+        325,
+        670,
+        415,
+        715
+      ],
+      "tap_coord": [
+        370,
+        692
+      ],
+      "description": "借用非好友助战通关后，弹出的申请好友界面关闭按钮",
+      "search_area": [
+        325,
+        670,
+        415,
+        715
+      ],
+      "crop_area": null
+    },
+    "friend_cba": {
+      "key": "friend_cba",
+      "name": "助战：斯卡哈·斯卡蒂 (CBA)",
+      "category": "friend",
+      "file": "friendCba.png",
+      "anchor": "top_left",
+      "area": [
+        40,
+        180,
+        920,
+        800
+      ],
+      "tap_coord": null,
+      "description": "助战列表中的 C阶 斯卡蒂 (Cba) 选人特征",
+      "search_area": [
+        40,
+        180,
+        920,
+        800
+      ],
+      "crop_area": null
+    },
+    "friend_aobao": {
+      "key": "friend_aobao",
+      "name": "助战：奥伯龙",
+      "category": "friend",
+      "file": "friendAobao1.png",
+      "anchor": "top_left",
+      "area": [
+        40,
+        180,
+        920,
+        800
+      ],
+      "tap_coord": null,
+      "description": "助战列表中的奥伯龙头像选人特征",
+      "search_area": [
+        40,
+        180,
+        920,
+        800
+      ],
+      "crop_area": null
+    },
+    "friend_equip_goodness": {
+      "key": "friend_equip_goodness",
+      "name": "助战礼装：午餐/茶位/蒙娜丽莎",
+      "category": "friend",
+      "file": "friend_equip_goodness.png",
+      "anchor": "top_left",
+      "area": [
+        40,
+        180,
+        920,
+        800
+      ],
+      "tap_coord": null,
+      "description": "助战列表中的羁绊/QP加成礼装特征识别",
+      "search_area": [
+        40,
+        180,
+        920,
+        800
+      ],
+      "crop_area": null
+    },
+    "AGAIN_ALERT_CLOSE": {
+      "key": "AGAIN_ALERT_CLOSE",
+      "name": "AGAIN ALERT CLOSE",
+      "category": "reward",
+      "file": "AGAIN_ALERT_CLOSE.png",
+      "anchor": "center",
+      "search_area": [
+        370,
+        620,
+        620,
+        700
+      ],
+      "crop_area": null,
+      "area": [
+        370,
+        620,
+        620,
+        700
+      ],
+      "tap_coord": null,
+      "description": "源自原生工程识别定义: AGAIN_ALERT_CLOSE"
+    },
+    "AGAIN_BATTLE_OUT_MENU": {
+      "key": "AGAIN_BATTLE_OUT_MENU",
+      "name": "AGAIN BATTLE OUT MENU",
+      "category": "reward",
+      "file": "AGAIN_BATTLE_OUT_MENU.png",
+      "anchor": "center",
+      "search_area": [
+        1301,
+        689,
+        1360,
+        715
+      ],
+      "crop_area": null,
+      "area": [
+        1301,
+        689,
+        1360,
+        715
+      ],
+      "tap_coord": null,
+      "description": "源自原生工程识别定义: AGAIN_BATTLE_OUT_MENU"
+    },
+    "AGAIN_ORDEAL_NO_TICKET": {
+      "key": "AGAIN_ORDEAL_NO_TICKET",
+      "name": "AGAIN ORDEAL NO TICKET",
+      "category": "reward",
+      "file": "AGAIN_ORDEAL_NO_TICKET.png",
+      "anchor": "center",
+      "search_area": [
+        600,
+        600,
+        850,
+        670
+      ],
+      "crop_area": null,
+      "area": [
+        600,
+        600,
+        850,
+        670
+      ],
+      "tap_coord": null,
+      "description": "源自原生工程识别定义: AGAIN_ORDEAL_NO_TICKET"
+    },
+    "AWARD_TIE_UP": {
+      "key": "AWARD_TIE_UP",
+      "name": "AWARD TIE UP",
+      "category": "reward",
+      "file": "AWARD_TIE_UP.png",
+      "anchor": "center",
+      "search_area": [
+        696,
+        101,
+        828,
+        245
+      ],
+      "crop_area": null,
+      "area": [
+        696,
+        101,
+        828,
+        245
+      ],
+      "tap_coord": null,
+      "description": "源自原生工程识别定义: AWARD_TIE_UP"
+    },
+    "BATTLE_ATTACK_CARD_3_FIRST_TAPED": {
+      "key": "BATTLE_ATTACK_CARD_3_FIRST_TAPED",
+      "name": "选卡出牌: BATTLE_ATTACK_CARD_3_FIRST_TAPED",
+      "category": "battle",
+      "file": "BATTLE_ATTACK_CARD_3_FIRST_TAPED.png",
+      "anchor": "center",
+      "search_area": [
+        650,
+        550,
+        780,
+        600
+      ],
+      "crop_area": null,
+      "area": [
+        650,
+        550,
+        780,
+        600
+      ],
+      "tap_coord": null,
+      "description": "源自原生工程识别定义: BATTLE_ATTACK_CARD_3_FIRST_TAPED"
+    },
+    "BATTLE_ATTACK_CARD_4_SECOND_TAPED": {
+      "key": "BATTLE_ATTACK_CARD_4_SECOND_TAPED",
+      "name": "选卡出牌: BATTLE_ATTACK_CARD_4_SECOND_TAPED",
+      "category": "battle",
+      "file": "BATTLE_ATTACK_CARD_4_SECOND_TAPED.png",
+      "anchor": "center",
+      "search_area": [
+        950,
+        560,
+        1071,
+        600
+      ],
+      "crop_area": null,
+      "area": [
+        950,
+        560,
+        1071,
+        600
+      ],
+      "tap_coord": null,
+      "description": "源自原生工程识别定义: BATTLE_ATTACK_CARD_4_SECOND_TAPED"
+    },
+    "BATTLE_ATTACK_CARD_6_SECOND_TAPED": {
+      "key": "BATTLE_ATTACK_CARD_6_SECOND_TAPED",
+      "name": "选卡出牌: BATTLE_ATTACK_CARD_6_SECOND_TAPED",
+      "category": "battle",
+      "file": "BATTLE_ATTACK_CARD_6_SECOND_TAPED.png",
+      "anchor": "center",
+      "search_area": [
+        400,
+        213,
+        520,
+        355
+      ],
+      "crop_area": null,
+      "area": [
+        400,
+        213,
+        520,
+        355
+      ],
+      "tap_coord": null,
+      "description": "源自原生工程识别定义: BATTLE_ATTACK_CARD_6_SECOND_TAPED"
+    },
+    "BATTLE_ATTACK_CARD_7_SECOND_TAPED": {
+      "key": "BATTLE_ATTACK_CARD_7_SECOND_TAPED",
+      "name": "选卡出牌: BATTLE_ATTACK_CARD_7_SECOND_TAPED",
+      "category": "battle",
+      "file": "BATTLE_ATTACK_CARD_7_SECOND_TAPED.png",
+      "anchor": "center",
+      "search_area": [
+        700,
+        227,
+        727,
+        238
+      ],
+      "crop_area": null,
+      "area": [
+        700,
+        227,
+        727,
+        238
+      ],
+      "tap_coord": null,
+      "description": "源自原生工程识别定义: BATTLE_ATTACK_CARD_7_SECOND_TAPED"
+    },
+    "BATTLE_ATTACK_CARD_7_SECOND_TAPED2": {
+      "key": "BATTLE_ATTACK_CARD_7_SECOND_TAPED2",
+      "name": "选卡出牌: BATTLE_ATTACK_CARD_7_SECOND_TAPED2",
+      "category": "battle",
+      "file": "BATTLE_ATTACK_CARD_7_SECOND_TAPED2.png",
+      "anchor": "center",
+      "search_area": [
+        700,
+        227,
+        727,
+        238
+      ],
+      "crop_area": null,
+      "area": [
+        700,
+        227,
+        727,
+        238
+      ],
+      "tap_coord": null,
+      "description": "源自原生工程识别定义: BATTLE_ATTACK_CARD_7_SECOND_TAPED2"
+    },
+    "BATTLE_ATTACK_CARD_8_SECOND_TAPED": {
+      "key": "BATTLE_ATTACK_CARD_8_SECOND_TAPED",
+      "name": "选卡出牌: BATTLE_ATTACK_CARD_8_SECOND_TAPED",
+      "category": "battle",
+      "file": "BATTLE_ATTACK_CARD_8_SECOND_TAPED.png",
+      "anchor": "center",
+      "search_area": [
+        960,
+        227,
+        987,
+        238
+      ],
+      "crop_area": null,
+      "area": [
+        960,
+        227,
+        987,
+        238
+      ],
+      "tap_coord": null,
+      "description": "源自原生工程识别定义: BATTLE_ATTACK_CARD_8_SECOND_TAPED"
+    },
+    "BATTLE_ATTACK_CARD_ARTS": {
+      "key": "BATTLE_ATTACK_CARD_ARTS",
+      "name": "选卡出牌: BATTLE_ATTACK_CARD_ARTS",
+      "category": "battle",
+      "file": "BATTLE_ATTACK_CARD_ARTS.png",
+      "anchor": "center",
+      "search_area": [
+        55,
+        460,
+        1390,
+        690
+      ],
+      "crop_area": null,
+      "area": [
+        55,
+        460,
+        1390,
+        690
+      ],
+      "tap_coord": null,
+      "description": "源自原生工程识别定义: BATTLE_ATTACK_CARD_ARTS"
+    },
+    "BATTLE_ATTACK_CARD_BUSTER": {
+      "key": "BATTLE_ATTACK_CARD_BUSTER",
+      "name": "选卡出牌: BATTLE_ATTACK_CARD_BUSTER",
+      "category": "battle",
+      "file": "BATTLE_ATTACK_CARD_BUSTER.png",
+      "anchor": "center",
+      "search_area": [
+        55,
+        460,
+        1390,
+        690
+      ],
+      "crop_area": null,
+      "area": [
+        55,
+        460,
+        1390,
+        690
+      ],
+      "tap_coord": null,
+      "description": "源自原生工程识别定义: BATTLE_ATTACK_CARD_BUSTER"
+    },
+    "BATTLE_ATTACK_CARD_QUICK": {
+      "key": "BATTLE_ATTACK_CARD_QUICK",
+      "name": "选卡出牌: BATTLE_ATTACK_CARD_QUICK",
+      "category": "battle",
+      "file": "BATTLE_ATTACK_CARD_QUICK.png",
+      "anchor": "center",
+      "search_area": [
+        55,
+        460,
+        1390,
+        690
+      ],
+      "crop_area": null,
+      "area": [
+        55,
+        460,
+        1390,
+        690
+      ],
+      "tap_coord": null,
+      "description": "源自原生工程识别定义: BATTLE_ATTACK_CARD_QUICK"
+    },
+    "BATTLE_ATTACK_Hero_Card_beni": {
+      "key": "BATTLE_ATTACK_Hero_Card_beni",
+      "name": "从者强化: BATTLE_ATTACK_Hero_Card_beni",
+      "category": "battle",
+      "file": "BATTLE_ATTACK_Hero_Card_beni.png",
+      "anchor": "center",
+      "search_area": [
+        55,
+        460,
+        1390,
+        690
+      ],
+      "crop_area": null,
+      "area": [
+        55,
+        460,
+        1390,
+        690
+      ],
+      "tap_coord": null,
+      "description": "源自原生工程识别定义: BATTLE_ATTACK_Hero_Card_beni"
+    },
+    "BATTLE_ATTACK_Hero_Card_okita": {
+      "key": "BATTLE_ATTACK_Hero_Card_okita",
+      "name": "从者强化: BATTLE_ATTACK_Hero_Card_okita",
+      "category": "battle",
+      "file": "BATTLE_ATTACK_Hero_Card_okita.png",
+      "anchor": "center",
+      "search_area": [
+        55,
+        460,
+        1390,
+        690
+      ],
+      "crop_area": null,
+      "area": [
+        55,
+        460,
+        1390,
+        690
+      ],
+      "tap_coord": null,
+      "description": "源自原生工程识别定义: BATTLE_ATTACK_Hero_Card_okita"
+    },
+    "BATTLE_MASTER_SKILL_DISPLAY": {
+      "key": "BATTLE_MASTER_SKILL_DISPLAY",
+      "name": "技能: BATTLE_MASTER_SKILL_DISPLAY",
+      "category": "battle",
+      "file": "BATTLE_MASTER_SKILL_DISPLAY.png",
+      "anchor": "top_right",
+      "search_area": [
+        980,
+        310,
+        1059,
+        316
+      ],
+      "crop_area": null,
+      "area": [
+        980,
+        310,
+        1059,
+        316
+      ],
+      "tap_coord": null,
+      "description": "源自原生工程识别定义: BATTLE_MASTER_SKILL_DISPLAY"
+    },
+    "BATTLE_SKILL_CHANGE_SELECTEED_CHECK": {
+      "key": "BATTLE_SKILL_CHANGE_SELECTEED_CHECK",
+      "name": "技能: BATTLE_SKILL_CHANGE_SELECTEED_CHECK",
+      "category": "battle",
+      "file": "BATTLE_SKILL_CHANGE_SELECTEED_CHECK.png",
+      "anchor": "center",
+      "search_area": [
+        723,
+        685,
+        777,
+        719
+      ],
+      "crop_area": null,
+      "area": [
+        723,
+        685,
+        777,
+        719
+      ],
+      "tap_coord": null,
+      "description": "源自原生工程识别定义: BATTLE_SKILL_CHANGE_SELECTEED_CHECK"
+    },
+    "BATTLE_SKILL_SPECIAL_SKILL_A": {
+      "key": "BATTLE_SKILL_SPECIAL_SKILL_A",
+      "name": "技能: BATTLE_SKILL_SPECIAL_SKILL_A",
+      "category": "battle",
+      "file": "BATTLE_SKILL_SPECIAL_SKILL_A.png",
+      "anchor": "center",
+      "search_area": [
+        180,
+        240,
+        345,
+        410
+      ],
+      "crop_area": null,
+      "area": [
+        180,
+        240,
+        345,
+        410
+      ],
+      "tap_coord": null,
+      "description": "源自原生工程识别定义: BATTLE_SKILL_SPECIAL_SKILL_A"
+    },
+    "ENHANCE_EQUIP": {
+      "key": "ENHANCE_EQUIP",
+      "name": "礼装强化: ENHANCE_EQUIP",
+      "category": "enhance",
+      "file": "ENHANCE_EQUIP.png",
+      "anchor": "bottom_right",
+      "search_area": [
+        880,
+        5,
+        1300,
+        70
+      ],
+      "crop_area": null,
+      "area": [
+        880,
+        5,
+        1300,
+        70
+      ],
+      "tap_coord": null,
+      "description": "源自原生工程识别定义: ENHANCE_EQUIP"
+    },
+    "ENHANCE_EQUIP_ENHANCE": {
+      "key": "ENHANCE_EQUIP_ENHANCE",
+      "name": "礼装强化: ENHANCE_EQUIP_ENHANCE",
+      "category": "enhance",
+      "file": "ENHANCE_EQUIP_ENHANCE.png",
+      "anchor": "bottom_right",
+      "search_area": [
+        1340,
+        716,
+        1438,
+        798
+      ],
+      "crop_area": null,
+      "area": [
+        1340,
+        716,
+        1438,
+        798
+      ],
+      "tap_coord": null,
+      "description": "源自原生工程识别定义: ENHANCE_EQUIP_ENHANCE"
+    },
+    "ENHANCE_EQUIP_ENHANCE_CONFIRM": {
+      "key": "ENHANCE_EQUIP_ENHANCE_CONFIRM",
+      "name": "礼装强化: ENHANCE_EQUIP_ENHANCE_CONFIRM",
+      "category": "enhance",
+      "file": "ENHANCE_EQUIP_ENHANCE_CONFIRM.png",
+      "anchor": "center",
+      "search_area": [
+        877,
+        632,
+        1006,
+        698
+      ],
+      "crop_area": null,
+      "area": [
+        877,
+        632,
+        1006,
+        698
+      ],
+      "tap_coord": null,
+      "description": "源自原生工程识别定义: ENHANCE_EQUIP_ENHANCE_CONFIRM"
+    },
+    "ENHANCE_EQUIP_SELECT_CONFIRM": {
+      "key": "ENHANCE_EQUIP_SELECT_CONFIRM",
+      "name": "礼装强化: ENHANCE_EQUIP_SELECT_CONFIRM",
+      "category": "enhance",
+      "file": "ENHANCE_EQUIP_SELECT_CONFIRM.png",
+      "anchor": "center",
+      "search_area": [
+        1200,
+        725,
+        1260,
+        790
+      ],
+      "crop_area": null,
+      "area": [
+        1200,
+        725,
+        1260,
+        790
+      ],
+      "tap_coord": null,
+      "description": "源自原生工程识别定义: ENHANCE_EQUIP_SELECT_CONFIRM"
+    },
+    "ENHANCE_EQUIP_SELECT_READY": {
+      "key": "ENHANCE_EQUIP_SELECT_READY",
+      "name": "礼装强化: ENHANCE_EQUIP_SELECT_READY",
+      "category": "enhance",
+      "file": "ENHANCE_EQUIP_SELECT_READY.png",
+      "anchor": "bottom_right",
+      "search_area": [
+        1205,
+        204,
+        1226,
+        267
+      ],
+      "crop_area": null,
+      "area": [
+        1205,
+        204,
+        1226,
+        267
+      ],
+      "tap_coord": null,
+      "description": "源自原生工程识别定义: ENHANCE_EQUIP_SELECT_READY"
+    },
+    "ENHANCE_EQUIP_SELECT_STOP": {
+      "key": "ENHANCE_EQUIP_SELECT_STOP",
+      "name": "礼装强化: ENHANCE_EQUIP_SELECT_STOP",
+      "category": "enhance",
+      "file": "ENHANCE_EQUIP_SELECT_STOP.png",
+      "anchor": "bottom_right",
+      "search_area": [
+        80,
+        530,
+        1116,
+        809
+      ],
+      "crop_area": null,
+      "area": [
+        80,
+        530,
+        1116,
+        809
+      ],
+      "tap_coord": null,
+      "description": "源自原生工程识别定义: ENHANCE_EQUIP_SELECT_STOP"
+    },
+    "ENHANCE_EQUIP_SELECT_STOP2": {
+      "key": "ENHANCE_EQUIP_SELECT_STOP2",
+      "name": "礼装强化: ENHANCE_EQUIP_SELECT_STOP2",
+      "category": "enhance",
+      "file": "ENHANCE_EQUIP_SELECT_STOP2.png",
+      "anchor": "bottom_right",
+      "search_area": [
+        80,
+        530,
+        1116,
+        809
+      ],
+      "crop_area": null,
+      "area": [
+        80,
+        530,
+        1116,
+        809
+      ],
+      "tap_coord": null,
+      "description": "源自原生工程识别定义: ENHANCE_EQUIP_SELECT_STOP2"
+    },
+    "ENHANCE_EQUIP_START": {
+      "key": "ENHANCE_EQUIP_START",
+      "name": "礼装强化: ENHANCE_EQUIP_START",
+      "category": "enhance",
+      "file": "ENHANCE_EQUIP_START.png",
+      "anchor": "bottom_right",
+      "search_area": [
+        446,
+        216,
+        532,
+        315
+      ],
+      "crop_area": null,
+      "area": [
+        446,
+        216,
+        532,
+        315
+      ],
+      "tap_coord": null,
+      "description": "源自原生工程识别定义: ENHANCE_EQUIP_START"
+    },
+    "ENHANCE_HERO": {
+      "key": "ENHANCE_HERO",
+      "name": "从者强化: ENHANCE_HERO",
+      "category": "enhance",
+      "file": "ENHANCE_HERO.png",
+      "anchor": "bottom_right",
+      "search_area": [
+        880,
+        5,
+        1300,
+        70
+      ],
+      "crop_area": null,
+      "area": [
+        880,
+        5,
+        1300,
+        70
+      ],
+      "tap_coord": null,
+      "description": "源自原生工程识别定义: ENHANCE_HERO"
+    },
+    "ENHANCE_HERO_ENHANCE": {
+      "key": "ENHANCE_HERO_ENHANCE",
+      "name": "从者强化: ENHANCE_HERO_ENHANCE",
+      "category": "enhance",
+      "file": "ENHANCE_HERO_ENHANCE.png",
+      "anchor": "bottom_right",
+      "search_area": [
+        1340,
+        716,
+        1438,
+        798
+      ],
+      "crop_area": null,
+      "area": [
+        1340,
+        716,
+        1438,
+        798
+      ],
+      "tap_coord": null,
+      "description": "源自原生工程识别定义: ENHANCE_HERO_ENHANCE"
+    },
+    "ENHANCE_HERO_ENHANCE_CONFIRM": {
+      "key": "ENHANCE_HERO_ENHANCE_CONFIRM",
+      "name": "从者强化: ENHANCE_HERO_ENHANCE_CONFIRM",
+      "category": "enhance",
+      "file": "ENHANCE_HERO_ENHANCE_CONFIRM.png",
+      "anchor": "center",
+      "search_area": [
+        877,
+        632,
+        1006,
+        698
+      ],
+      "crop_area": null,
+      "area": [
+        877,
+        632,
+        1006,
+        698
+      ],
+      "tap_coord": null,
+      "description": "源自原生工程识别定义: ENHANCE_HERO_ENHANCE_CONFIRM"
+    },
+    "ENHANCE_HERO_RECOMMAND": {
+      "key": "ENHANCE_HERO_RECOMMAND",
+      "name": "从者强化: ENHANCE_HERO_RECOMMAND",
+      "category": "enhance",
+      "file": "ENHANCE_HERO_RECOMMAND.png",
+      "anchor": "bottom_right",
+      "search_area": [
+        1240,
+        150,
+        1370,
+        208
+      ],
+      "crop_area": null,
+      "area": [
+        1240,
+        150,
+        1370,
+        208
+      ],
+      "tap_coord": null,
+      "description": "源自原生工程识别定义: ENHANCE_HERO_RECOMMAND"
+    },
+    "ENHANCE_HERO_RECOMMAND_CONFIRM": {
+      "key": "ENHANCE_HERO_RECOMMAND_CONFIRM",
+      "name": "从者强化: ENHANCE_HERO_RECOMMAND_CONFIRM",
+      "category": "enhance",
+      "file": "ENHANCE_HERO_RECOMMAND_CONFIRM.png",
+      "anchor": "center",
+      "search_area": [
+        880,
+        680,
+        1006,
+        745
+      ],
+      "crop_area": null,
+      "area": [
+        880,
+        680,
+        1006,
+        745
+      ],
+      "tap_coord": null,
+      "description": "源自原生工程识别定义: ENHANCE_HERO_RECOMMAND_CONFIRM"
+    },
+    "ENHANCE_SKILL": {
+      "key": "ENHANCE_SKILL",
+      "name": "技能: ENHANCE_SKILL",
+      "category": "enhance",
+      "file": "ENHANCE_SKILL.png",
+      "anchor": "bottom_right",
+      "search_area": [
+        880,
+        5,
+        1300,
+        70
+      ],
+      "crop_area": null,
+      "area": [
+        880,
+        5,
+        1300,
+        70
+      ],
+      "tap_coord": null,
+      "description": "源自原生工程识别定义: ENHANCE_SKILL"
+    },
+    "ENHANCE_SKILL_ENHANCE": {
+      "key": "ENHANCE_SKILL_ENHANCE",
+      "name": "技能: ENHANCE_SKILL_ENHANCE",
+      "category": "enhance",
+      "file": "ENHANCE_SKILL_ENHANCE.png",
+      "anchor": "bottom_right",
+      "search_area": [
+        1185,
+        725,
+        1230,
+        785
+      ],
+      "crop_area": null,
+      "area": [
+        1185,
+        725,
+        1230,
+        785
+      ],
+      "tap_coord": null,
+      "description": "源自原生工程识别定义: ENHANCE_SKILL_ENHANCE"
+    },
+    "ENHANCE_SKILL_ENHANCE_CONFIRM": {
+      "key": "ENHANCE_SKILL_ENHANCE_CONFIRM",
+      "name": "技能: ENHANCE_SKILL_ENHANCE_CONFIRM",
+      "category": "enhance",
+      "file": "ENHANCE_SKILL_ENHANCE_CONFIRM.png",
+      "anchor": "center",
+      "search_area": [
+        820,
+        640,
+        890,
+        690
+      ],
+      "crop_area": null,
+      "area": [
+        820,
+        640,
+        890,
+        690
+      ],
+      "tap_coord": null,
+      "description": "源自原生工程识别定义: ENHANCE_SKILL_ENHANCE_CONFIRM"
+    },
+    "ENHANCE_SKILL_ENHANCE_L10": {
+      "key": "ENHANCE_SKILL_ENHANCE_L10",
+      "name": "技能: ENHANCE_SKILL_ENHANCE_L10",
+      "category": "enhance",
+      "file": "ENHANCE_SKILL_ENHANCE_L10.png",
+      "anchor": "bottom_right",
+      "search_area": [
+        450,
+        490,
+        610,
+        630
+      ],
+      "crop_area": null,
+      "area": [
+        450,
+        490,
+        610,
+        630
+      ],
+      "tap_coord": null,
+      "description": "源自原生工程识别定义: ENHANCE_SKILL_ENHANCE_L10"
+    },
+    "POOLFRIEND_CONTINUE": {
+      "key": "POOLFRIEND_CONTINUE",
+      "name": "POOLFRIEND CONTINUE",
+      "category": "enhance",
+      "file": "POOLFRIEND_CONTINUE.png",
+      "anchor": "bottom_right",
+      "search_area": [
+        720,
+        720,
+        990,
+        800
+      ],
+      "crop_area": null,
+      "area": [
+        720,
+        720,
+        990,
+        800
+      ],
+      "tap_coord": null,
+      "description": "源自原生工程识别定义: POOLFRIEND_CONTINUE"
+    },
+    "POOLFRIEND_GO": {
+      "key": "POOLFRIEND_GO",
+      "name": "POOLFRIEND GO",
+      "category": "enhance",
+      "file": "POOLFRIEND_GO.png",
+      "anchor": "bottom_right",
+      "search_area": [
+        830,
+        600,
+        1080,
+        670
+      ],
+      "crop_area": null,
+      "area": [
+        830,
+        600,
+        1080,
+        670
+      ],
+      "tap_coord": null,
+      "description": "源自原生工程识别定义: POOLFRIEND_GO"
+    },
+    "ROLL10-1": {
+      "key": "ROLL10-1",
+      "name": "抽卡无限池: ROLL10-1",
+      "category": "enhance",
+      "file": "ROLL10-1.png",
+      "anchor": "center",
+      "search_area": [
+        330,
+        370,
+        620,
+        610
+      ],
+      "crop_area": null,
+      "area": [
+        330,
+        370,
+        620,
+        610
+      ],
+      "tap_coord": null,
+      "description": "源自原生工程识别定义: ROLL10-1"
+    },
+    "ROLL10": {
+      "key": "ROLL10",
+      "name": "抽卡无限池: ROLL10",
+      "category": "enhance",
+      "file": "ROLL10.png",
+      "anchor": "center",
+      "search_area": [
+        330,
+        370,
+        620,
+        610
+      ],
+      "crop_area": null,
+      "area": [
+        330,
+        370,
+        620,
+        610
+      ],
+      "tap_coord": null,
+      "description": "源自原生工程识别定义: ROLL10"
+    },
+    "ROLL100-1": {
+      "key": "ROLL100-1",
+      "name": "抽卡无限池: ROLL100-1",
+      "category": "enhance",
+      "file": "ROLL100-1.png",
+      "anchor": "center",
+      "search_area": [
+        330,
+        370,
+        620,
+        610
+      ],
+      "crop_area": null,
+      "area": [
+        330,
+        370,
+        620,
+        610
+      ],
+      "tap_coord": null,
+      "description": "源自原生工程识别定义: ROLL100-1"
+    },
+    "ROLL100": {
+      "key": "ROLL100",
+      "name": "抽卡无限池: ROLL100",
+      "category": "enhance",
+      "file": "ROLL100.png",
+      "anchor": "center",
+      "search_area": [
+        330,
+        370,
+        620,
+        610
+      ],
+      "crop_area": null,
+      "area": [
+        330,
+        370,
+        620,
+        610
+      ],
+      "tap_coord": null,
+      "description": "源自原生工程识别定义: ROLL100"
+    },
+    "ULT_Taped_Blue2": {
+      "key": "ULT_Taped_Blue2",
+      "name": "选卡出牌: ULT_Taped_Blue2",
+      "category": "battle",
+      "file": "ULT_Taped_Blue2.png",
+      "anchor": "center",
+      "search_area": [
+        680,
+        210,
+        790,
+        352
+      ],
+      "crop_area": null,
+      "area": [
+        680,
+        210,
+        790,
+        352
+      ],
+      "tap_coord": null,
+      "description": "源自原生工程识别定义: ULT_Taped_Blue2"
+    },
+    "ULT_Taped_Blue3": {
+      "key": "ULT_Taped_Blue3",
+      "name": "选卡出牌: ULT_Taped_Blue3",
+      "category": "battle",
+      "file": "ULT_Taped_Blue3.png",
+      "anchor": "center",
+      "search_area": [
+        930,
+        210,
+        1048,
+        259
+      ],
+      "crop_area": null,
+      "area": [
+        930,
+        210,
+        1048,
+        259
+      ],
+      "tap_coord": null,
+      "description": "源自原生工程识别定义: ULT_Taped_Blue3"
+    },
+    "ULT_Taped_Green1": {
+      "key": "ULT_Taped_Green1",
+      "name": "选卡出牌: ULT_Taped_Green1",
+      "category": "battle",
+      "file": "ULT_Taped_Green1.png",
+      "anchor": "center",
+      "search_area": [
+        400,
+        210,
+        550,
+        352
+      ],
+      "crop_area": null,
+      "area": [
+        400,
+        210,
+        550,
+        352
+      ],
+      "tap_coord": null,
+      "description": "源自原生工程识别定义: ULT_Taped_Green1"
+    },
+    "ULT_Taped_Green2": {
+      "key": "ULT_Taped_Green2",
+      "name": "选卡出牌: ULT_Taped_Green2",
+      "category": "battle",
+      "file": "ULT_Taped_Green2.png",
+      "anchor": "center",
+      "search_area": [
+        680,
+        210,
+        790,
+        352
+      ],
+      "crop_area": null,
+      "area": [
+        680,
+        210,
+        790,
+        352
+      ],
+      "tap_coord": null,
+      "description": "源自原生工程识别定义: ULT_Taped_Green2"
+    },
+    "ULT_Taped_Green3": {
+      "key": "ULT_Taped_Green3",
+      "name": "选卡出牌: ULT_Taped_Green3",
+      "category": "battle",
+      "file": "ULT_Taped_Green3.png",
+      "anchor": "center",
+      "search_area": [
+        930,
+        210,
+        1048,
+        259
+      ],
+      "crop_area": null,
+      "area": [
+        930,
+        210,
+        1048,
+        259
+      ],
+      "tap_coord": null,
+      "description": "源自原生工程识别定义: ULT_Taped_Green3"
+    },
+    "ULT_Taped_Red1": {
+      "key": "ULT_Taped_Red1",
+      "name": "选卡出牌: ULT_Taped_Red1",
+      "category": "battle",
+      "file": "ULT_Taped_Red1.png",
+      "anchor": "center",
+      "search_area": [
+        400,
+        210,
+        550,
+        352
+      ],
+      "crop_area": null,
+      "area": [
+        400,
+        210,
+        550,
+        352
+      ],
+      "tap_coord": null,
+      "description": "源自原生工程识别定义: ULT_Taped_Red1"
+    },
+    "ULT_Taped_Red2": {
+      "key": "ULT_Taped_Red2",
+      "name": "选卡出牌: ULT_Taped_Red2",
+      "category": "battle",
+      "file": "ULT_Taped_Red2.png",
+      "anchor": "center",
+      "search_area": [
+        680,
+        210,
+        790,
+        352
+      ],
+      "crop_area": null,
+      "area": [
+        680,
+        210,
+        790,
+        352
+      ],
+      "tap_coord": null,
+      "description": "源自原生工程识别定义: ULT_Taped_Red2"
+    },
+    "ULT_Taped_Red3": {
+      "key": "ULT_Taped_Red3",
+      "name": "选卡出牌: ULT_Taped_Red3",
+      "category": "battle",
+      "file": "ULT_Taped_Red3.png",
+      "anchor": "center",
+      "search_area": [
+        930,
+        210,
+        1048,
+        259
+      ],
+      "crop_area": null,
+      "area": [
+        930,
+        210,
+        1048,
+        259
+      ],
+      "tap_coord": null,
+      "description": "源自原生工程识别定义: ULT_Taped_Red3"
+    },
+    "friendAobao2": {
+      "key": "friendAobao2",
+      "name": "助战: Aobao2",
+      "category": "friend",
+      "file": "friendAobao2.png",
+      "anchor": "top_left",
+      "search_area": [
+        40,
+        180,
+        920,
+        800
+      ],
+      "crop_area": null,
+      "area": [
+        40,
+        180,
+        920,
+        800
+      ],
+      "tap_coord": null,
+      "description": "源自原生工程识别定义: friendAobao2"
+    },
+    "friendAobao3": {
+      "key": "friendAobao3",
+      "name": "助战: Aobao3",
+      "category": "friend",
+      "file": "friendAobao3.png",
+      "anchor": "top_left",
+      "search_area": [
+        40,
+        180,
+        920,
+        800
+      ],
+      "crop_area": null,
+      "area": [
+        40,
+        180,
+        920,
+        800
+      ],
+      "tap_coord": null,
+      "description": "源自原生工程识别定义: friendAobao3"
+    },
+    "friendAobao3Shan": {
+      "key": "friendAobao3Shan",
+      "name": "助战: Aobao3Shan",
+      "category": "friend",
+      "file": "friendAobao3Shan.png",
+      "anchor": "top_left",
+      "search_area": [
+        40,
+        180,
+        920,
+        800
+      ],
+      "crop_area": null,
+      "area": [
+        40,
+        180,
+        920,
+        800
+      ],
+      "tap_coord": null,
+      "description": "源自原生工程识别定义: friendAobao3Shan"
+    },
+    "friendAobao5": {
+      "key": "friendAobao5",
+      "name": "助战: Aobao5",
+      "category": "friend",
+      "file": "friendAobao5.png",
+      "anchor": "top_left",
+      "search_area": [
+        40,
+        180,
+        920,
+        800
+      ],
+      "crop_area": null,
+      "area": [
+        40,
+        180,
+        920,
+        800
+      ],
+      "tap_coord": null,
+      "description": "源自原生工程识别定义: friendAobao5"
+    },
+    "friendCDai": {
+      "key": "friendCDai",
+      "name": "助战: CDai",
+      "category": "friend",
+      "file": "friendCDai.png",
+      "anchor": "top_left",
+      "search_area": [
+        40,
+        180,
+        920,
+        800
+      ],
+      "crop_area": null,
+      "area": [
+        40,
+        180,
+        920,
+        800
+      ],
+      "tap_coord": null,
+      "description": "源自原生工程识别定义: friendCDai"
+    },
+    "friendCDai2": {
+      "key": "friendCDai2",
+      "name": "助战: CDai2",
+      "category": "friend",
+      "file": "friendCDai2.png",
+      "anchor": "top_left",
+      "search_area": [
+        40,
+        180,
+        920,
+        800
+      ],
+      "crop_area": null,
+      "area": [
+        40,
+        180,
+        920,
+        800
+      ],
+      "tap_coord": null,
+      "description": "源自原生工程识别定义: friendCDai2"
+    },
+    "friendCDai3": {
+      "key": "friendCDai3",
+      "name": "助战: CDai3",
+      "category": "friend",
+      "file": "friendCDai3.png",
+      "anchor": "top_left",
+      "search_area": [
+        40,
+        180,
+        920,
+        800
+      ],
+      "crop_area": null,
+      "area": [
+        40,
+        180,
+        920,
+        800
+      ],
+      "tap_coord": null,
+      "description": "源自原生工程识别定义: friendCDai3"
+    },
+    "friendDaoman3": {
+      "key": "friendDaoman3",
+      "name": "助战: Daoman3",
+      "category": "friend",
+      "file": "friendDaoman3.png",
+      "anchor": "top_left",
+      "search_area": [
+        40,
+        180,
+        920,
+        800
+      ],
+      "crop_area": null,
+      "area": [
+        40,
+        180,
+        920,
+        800
+      ],
+      "tap_coord": null,
+      "description": "源自原生工程识别定义: friendDaoman3"
+    },
+    "friendKeli1": {
+      "key": "friendKeli1",
+      "name": "助战: Keli1",
+      "category": "friend",
+      "file": "friendKeli1.png",
+      "anchor": "top_left",
+      "search_area": [
+        40,
+        180,
+        920,
+        800
+      ],
+      "crop_area": null,
+      "area": [
+        40,
+        180,
+        920,
+        800
+      ],
+      "tap_coord": null,
+      "description": "源自原生工程识别定义: friendKeli1"
+    },
+    "friendKeli2": {
+      "key": "friendKeli2",
+      "name": "助战: Keli2",
+      "category": "friend",
+      "file": "friendKeli2.png",
+      "anchor": "top_left",
+      "search_area": [
+        40,
+        180,
+        920,
+        800
+      ],
+      "crop_area": null,
+      "area": [
+        40,
+        180,
+        920,
+        800
+      ],
+      "tap_coord": null,
+      "description": "源自原生工程识别定义: friendKeli2"
+    },
+    "friendKeli3": {
+      "key": "friendKeli3",
+      "name": "助战: Keli3",
+      "category": "friend",
+      "file": "friendKeli3.png",
+      "anchor": "top_left",
+      "search_area": [
+        40,
+        180,
+        920,
+        800
+      ],
+      "crop_area": null,
+      "area": [
+        40,
+        180,
+        920,
+        800
+      ],
+      "tap_coord": null,
+      "description": "源自原生工程识别定义: friendKeli3"
+    },
+    "friendMary1": {
+      "key": "friendMary1",
+      "name": "助战: Mary1",
+      "category": "friend",
+      "file": "friendMary1.png",
+      "anchor": "top_left",
+      "search_area": [
+        40,
+        180,
+        920,
+        800
+      ],
+      "crop_area": null,
+      "area": [
+        40,
+        180,
+        920,
+        800
+      ],
+      "tap_coord": null,
+      "description": "源自原生工程识别定义: friendMary1"
+    },
+    "friendMary2": {
+      "key": "friendMary2",
+      "name": "助战: Mary2",
+      "category": "friend",
+      "file": "friendMary2.png",
+      "anchor": "top_left",
+      "search_area": [
+        40,
+        180,
+        920,
+        800
+      ],
+      "crop_area": null,
+      "area": [
+        40,
+        180,
+        920,
+        800
+      ],
+      "tap_coord": null,
+      "description": "源自原生工程识别定义: friendMary2"
+    },
+    "friendMeilinC3": {
+      "key": "friendMeilinC3",
+      "name": "助战: MeilinC3",
+      "category": "friend",
+      "file": "friendMeilinC3.png",
+      "anchor": "top_left",
+      "search_area": [
+        40,
+        180,
+        920,
+        800
+      ],
+      "crop_area": null,
+      "area": [
+        40,
+        180,
+        920,
+        800
+      ],
+      "tap_coord": null,
+      "description": "源自原生工程识别定义: friendMeilinC3"
+    },
+    "friendPrincess": {
+      "key": "friendPrincess",
+      "name": "助战: Princess",
+      "category": "friend",
+      "file": "friendPrincess.png",
+      "anchor": "top_left",
+      "search_area": [
+        40,
+        180,
+        920,
+        800
+      ],
+      "crop_area": null,
+      "area": [
+        40,
+        180,
+        920,
+        800
+      ],
+      "tap_coord": null,
+      "description": "源自原生工程识别定义: friendPrincess"
+    },
+    "friendPrincess120": {
+      "key": "friendPrincess120",
+      "name": "助战: Princess120",
+      "category": "friend",
+      "file": "friendPrincess120.png",
+      "anchor": "top_left",
+      "search_area": [
+        40,
+        180,
+        920,
+        800
+      ],
+      "crop_area": null,
+      "area": [
+        40,
+        180,
+        920,
+        800
+      ],
+      "tap_coord": null,
+      "description": "源自原生工程识别定义: friendPrincess120"
+    },
+    "friendPrincess1202": {
+      "key": "friendPrincess1202",
+      "name": "助战: Princess1202",
+      "category": "friend",
+      "file": "friendPrincess1202.png",
+      "anchor": "top_left",
+      "search_area": [
+        40,
+        180,
+        920,
+        800
+      ],
+      "crop_area": null,
+      "area": [
+        40,
+        180,
+        920,
+        800
+      ],
+      "tap_coord": null,
+      "description": "源自原生工程识别定义: friendPrincess1202"
+    },
+    "friendPrincess1203": {
+      "key": "friendPrincess1203",
+      "name": "助战: Princess1203",
+      "category": "friend",
+      "file": "friendPrincess1203.png",
+      "anchor": "top_left",
+      "search_area": [
+        40,
+        180,
+        920,
+        800
+      ],
+      "crop_area": null,
+      "area": [
+        40,
+        180,
+        920,
+        800
+      ],
+      "tap_coord": null,
+      "description": "源自原生工程识别定义: friendPrincess1203"
+    },
+    "friendPrincess2": {
+      "key": "friendPrincess2",
+      "name": "助战: Princess2",
+      "category": "friend",
+      "file": "friendPrincess2.png",
+      "anchor": "top_left",
+      "search_area": [
+        40,
+        180,
+        920,
+        800
+      ],
+      "crop_area": null,
+      "area": [
+        40,
+        180,
+        920,
+        800
+      ],
+      "tap_coord": null,
+      "description": "源自原生工程识别定义: friendPrincess2"
+    },
+    "friendPrincess3": {
+      "key": "friendPrincess3",
+      "name": "助战: Princess3",
+      "category": "friend",
+      "file": "friendPrincess3.png",
+      "anchor": "top_left",
+      "search_area": [
+        40,
+        180,
+        920,
+        800
+      ],
+      "crop_area": null,
+      "area": [
+        40,
+        180,
+        920,
+        800
+      ],
+      "tap_coord": null,
+      "description": "源自原生工程识别定义: friendPrincess3"
+    },
+    "friendQP": {
+      "key": "friendQP",
+      "name": "助战: QP",
+      "category": "friend",
+      "file": "friendQP.png",
+      "anchor": "top_left",
+      "search_area": [
+        40,
+        180,
+        920,
+        800
+      ],
+      "crop_area": null,
+      "area": [
+        40,
+        180,
+        920,
+        800
+      ],
+      "tap_coord": null,
+      "description": "源自原生工程识别定义: friendQP"
+    },
+    "friendRba1": {
+      "key": "friendRba1",
+      "name": "助战: Rba1",
+      "category": "friend",
+      "file": "friendRba1.png",
+      "anchor": "top_left",
+      "search_area": [
+        40,
+        180,
+        920,
+        800
+      ],
+      "crop_area": null,
+      "area": [
+        40,
+        180,
+        920,
+        800
+      ],
+      "tap_coord": null,
+      "description": "源自原生工程识别定义: friendRba1"
+    },
+    "friendRba2": {
+      "key": "friendRba2",
+      "name": "助战: Rba2",
+      "category": "friend",
+      "file": "friendRba2.png",
+      "anchor": "top_left",
+      "search_area": [
+        40,
+        180,
+        920,
+        800
+      ],
+      "crop_area": null,
+      "area": [
+        40,
+        180,
+        920,
+        800
+      ],
+      "tap_coord": null,
+      "description": "源自原生工程识别定义: friendRba2"
+    },
+    "friendRba3": {
+      "key": "friendRba3",
+      "name": "助战: Rba3",
+      "category": "friend",
+      "file": "friendRba3.png",
+      "anchor": "top_left",
+      "search_area": [
+        40,
+        180,
+        920,
+        800
+      ],
+      "crop_area": null,
+      "area": [
+        40,
+        180,
+        920,
+        800
+      ],
+      "tap_coord": null,
+      "description": "源自原生工程识别定义: friendRba3"
+    },
+    "friendRba3Shan": {
+      "key": "friendRba3Shan",
+      "name": "助战: Rba3Shan",
+      "category": "friend",
+      "file": "friendRba3Shan.png",
+      "anchor": "top_left",
+      "search_area": [
+        40,
+        180,
+        920,
+        800
+      ],
+      "crop_area": null,
+      "area": [
+        40,
+        180,
+        920,
+        800
+      ],
+      "tap_coord": null,
+      "description": "源自原生工程识别定义: friendRba3Shan"
+    },
+    "friendRba4": {
+      "key": "friendRba4",
+      "name": "助战: Rba4",
+      "category": "friend",
+      "file": "friendRba4.png",
+      "anchor": "top_left",
+      "search_area": [
+        40,
+        180,
+        920,
+        800
+      ],
+      "crop_area": null,
+      "area": [
+        40,
+        180,
+        920,
+        800
+      ],
+      "tap_coord": null,
+      "description": "源自原生工程识别定义: friendRba4"
+    },
+    "friendShaHu1": {
+      "key": "friendShaHu1",
+      "name": "助战: ShaHu1",
+      "category": "friend",
+      "file": "friendShaHu1.png",
+      "anchor": "top_left",
+      "search_area": [
+        40,
+        180,
+        920,
+        800
+      ],
+      "crop_area": [
+        168,
+        291,
+        188,
+        310
+      ],
+      "area": [
+        40,
+        180,
+        920,
+        800
+      ],
+      "tap_coord": null,
+      "description": "源自原生工程识别定义: friendShaHu1"
+    },
+    "friendShaHu2": {
+      "key": "friendShaHu2",
+      "name": "助战: ShaHu2",
+      "category": "friend",
+      "file": "friendShaHu2.png",
+      "anchor": "top_left",
+      "search_area": [
+        40,
+        180,
+        920,
+        800
+      ],
+      "crop_area": [
+        132,
+        297,
+        153,
+        313
+      ],
+      "area": [
+        40,
+        180,
+        920,
+        800
+      ],
+      "tap_coord": null,
+      "description": "源自原生工程识别定义: friendShaHu2"
+    },
+    "friendShaHu3": {
+      "key": "friendShaHu3",
+      "name": "助战: ShaHu3",
+      "category": "friend",
+      "file": "friendShaHu3.png",
+      "anchor": "top_left",
+      "search_area": [
+        40,
+        180,
+        920,
+        800
+      ],
+      "crop_area": [
+        163,
+        280,
+        179,
+        301
+      ],
+      "area": [
+        40,
+        180,
+        920,
+        800
+      ],
+      "tap_coord": null,
+      "description": "源自原生工程识别定义: friendShaHu3"
+    },
+    "friendShaHuShan1": {
+      "key": "friendShaHuShan1",
+      "name": "助战: ShaHuShan1",
+      "category": "friend",
+      "file": "friendShaHuShan1.png",
+      "anchor": "top_left",
+      "search_area": [
+        40,
+        180,
+        920,
+        800
+      ],
+      "crop_area": null,
+      "area": [
+        40,
+        180,
+        920,
+        800
+      ],
+      "tap_coord": null,
+      "description": "源自原生工程识别定义: friendShaHuShan1"
+    },
+    "friendShaHuShan2": {
+      "key": "friendShaHuShan2",
+      "name": "助战: ShaHuShan2",
+      "category": "friend",
+      "file": "friendShaHuShan2.png",
+      "anchor": "top_left",
+      "search_area": [
+        40,
+        180,
+        920,
+        800
+      ],
+      "crop_area": null,
+      "area": [
+        40,
+        180,
+        920,
+        800
+      ],
+      "tap_coord": null,
+      "description": "源自原生工程识别定义: friendShaHuShan2"
+    },
+    "friendShaHuShan3": {
+      "key": "friendShaHuShan3",
+      "name": "助战: ShaHuShan3",
+      "category": "friend",
+      "file": "friendShaHuShan3.png",
+      "anchor": "top_left",
+      "search_area": [
+        40,
+        180,
+        920,
+        800
+      ],
+      "crop_area": null,
+      "area": [
+        40,
+        180,
+        920,
+        800
+      ],
+      "tap_coord": null,
+      "description": "源自原生工程识别定义: friendShaHuShan3"
+    },
+    "friendSparrow": {
+      "key": "friendSparrow",
+      "name": "助战: Sparrow",
+      "category": "friend",
+      "file": "friendSparrow.png",
+      "anchor": "top_left",
+      "search_area": [
+        40,
+        180,
+        920,
+        800
+      ],
+      "crop_area": null,
+      "area": [
+        40,
+        180,
+        920,
+        800
+      ],
+      "tap_coord": null,
+      "description": "源自原生工程识别定义: friendSparrow"
+    },
+    "friendtaigong": {
+      "key": "friendtaigong",
+      "name": "助战: taigong",
+      "category": "friend",
+      "file": "friendtaigong.png",
+      "anchor": "top_left",
+      "search_area": [
+        40,
+        180,
+        920,
+        800
+      ],
+      "crop_area": null,
+      "area": [
+        40,
+        180,
+        920,
+        800
+      ],
+      "tap_coord": null,
+      "description": "源自原生工程识别定义: friendtaigong"
+    },
+    "TAP_HERO_SKILL_1_1": {
+      "name": "从者1-技能1",
+      "category": "tap",
+      "tap_coord": [
+        84,
+        650
+      ],
+      "anchor": "bottom_left",
+      "description": "从者1第1技能点击位置 (BATTLE_HERO_SKILL_COORDS[0])"
+    },
+    "TAP_HERO_SKILL_1_2": {
+      "name": "从者1-技能2",
+      "category": "tap",
+      "tap_coord": [
+        183,
+        650
+      ],
+      "anchor": "bottom_left",
+      "description": "从者1第2技能点击位置 (BATTLE_HERO_SKILL_COORDS[1])"
+    },
+    "TAP_HERO_SKILL_1_3": {
+      "name": "从者1-技能3",
+      "category": "tap",
+      "tap_coord": [
+        282,
+        650
+      ],
+      "anchor": "bottom_left",
+      "description": "从者1第3技能点击位置 (BATTLE_HERO_SKILL_COORDS[2])"
+    },
+    "TAP_HERO_SKILL_2_1": {
+      "name": "从者2-技能1",
+      "category": "tap",
+      "tap_coord": [
+        441,
+        650
+      ],
+      "anchor": "bottom_left",
+      "description": "从者2第1技能点击位置 (BATTLE_HERO_SKILL_COORDS[3])"
+    },
+    "TAP_HERO_SKILL_2_2": {
+      "name": "从者2-技能2",
+      "category": "tap",
+      "tap_coord": [
+        540,
+        650
+      ],
+      "anchor": "bottom_left",
+      "description": "从者2第2技能点击位置 (BATTLE_HERO_SKILL_COORDS[4])"
+    },
+    "TAP_HERO_SKILL_2_3": {
+      "name": "从者2-技能3",
+      "category": "tap",
+      "tap_coord": [
+        639,
+        650
+      ],
+      "anchor": "bottom_left",
+      "description": "从者2第3技能点击位置 (BATTLE_HERO_SKILL_COORDS[5])"
+    },
+    "TAP_HERO_SKILL_3_1": {
+      "name": "从者3-技能1",
+      "category": "tap",
+      "tap_coord": [
+        799,
+        650
+      ],
+      "anchor": "bottom_left",
+      "description": "从者3第1技能点击位置 (BATTLE_HERO_SKILL_COORDS[6])"
+    },
+    "TAP_HERO_SKILL_3_2": {
+      "name": "从者3-技能2",
+      "category": "tap",
+      "tap_coord": [
+        897,
+        650
+      ],
+      "anchor": "bottom_left",
+      "description": "从者3第2技能点击位置 (BATTLE_HERO_SKILL_COORDS[7])"
+    },
+    "TAP_HERO_SKILL_3_3": {
+      "name": "从者3-技能3",
+      "category": "tap",
+      "tap_coord": [
+        996,
+        650
+      ],
+      "anchor": "bottom_left",
+      "description": "从者3第3技能点击位置 (BATTLE_HERO_SKILL_COORDS[8])"
+    },
+    "TAP_SKILL_GRANT_HERO_1": {
+      "name": "选人-己方从者1",
+      "category": "tap",
+      "tap_coord": [
+        360,
+        500
+      ],
+      "anchor": "center",
+      "description": "目标类技能选人: 己方从者1点击位置 (BATTLE_SKILL_GRANT_HREO_COORDS[0])"
+    },
+    "TAP_SKILL_GRANT_HERO_2": {
+      "name": "选人-己方从者2",
+      "category": "tap",
+      "tap_coord": [
+        717,
+        500
+      ],
+      "anchor": "center",
+      "description": "目标类技能选人: 己方从者2点击位置 (BATTLE_SKILL_GRANT_HREO_COORDS[1])"
+    },
+    "TAP_SKILL_GRANT_HERO_3": {
+      "name": "选人-己方从者3",
+      "category": "tap",
+      "tap_coord": [
+        1074,
+        500
+      ],
+      "anchor": "center",
+      "description": "目标类技能选人: 己方从者3点击位置 (BATTLE_SKILL_GRANT_HREO_COORDS[2])"
+    },
+    "TAP_SKILL_CHANGE_FRONT_1": {
+      "name": "换人-前排从者1",
+      "category": "tap",
+      "tap_coord": [
+        150,
+        390
+      ],
+      "anchor": "center",
+      "description": "换人决战礼装: 前排从者1点击位置 (BATTLE_SKILL_CHANGE_HERO_COORDS[0])"
+    },
+    "TAP_SKILL_CHANGE_FRONT_2": {
+      "name": "换人-前排从者2",
+      "category": "tap",
+      "tap_coord": [
+        375,
+        390
+      ],
+      "anchor": "center",
+      "description": "换人决战礼装: 前排从者2点击位置 (BATTLE_SKILL_CHANGE_HERO_COORDS[1])"
+    },
+    "TAP_SKILL_CHANGE_FRONT_3": {
+      "name": "换人-前排从者3",
+      "category": "tap",
+      "tap_coord": [
+        600,
+        390
+      ],
+      "anchor": "center",
+      "description": "换人决战礼装: 前排从者3点击位置 (BATTLE_SKILL_CHANGE_HERO_COORDS[2])"
+    },
+    "TAP_SKILL_CHANGE_BACK_1": {
+      "name": "换人-后排从者1",
+      "category": "tap",
+      "tap_coord": [
+        825,
+        390
+      ],
+      "anchor": "center",
+      "description": "换人决战礼装: 后排从者1点击位置 (BATTLE_SKILL_CHANGE_HERO_COORDS[3])"
+    },
+    "TAP_SKILL_CHANGE_BACK_2": {
+      "name": "换人-后排从者2",
+      "category": "tap",
+      "tap_coord": [
+        1050,
+        390
+      ],
+      "anchor": "center",
+      "description": "换人决战礼装: 后排从者2点击位置 (BATTLE_SKILL_CHANGE_HERO_COORDS[4])"
+    },
+    "TAP_SKILL_CHANGE_BACK_3": {
+      "name": "换人-后排从者3",
+      "category": "tap",
+      "tap_coord": [
+        1275,
+        390
+      ],
+      "anchor": "center",
+      "description": "换人决战礼装: 后排从者3点击位置 (BATTLE_SKILL_CHANGE_HERO_COORDS[5])"
+    },
+    "TAP_MASTER_SKILL_OPEN": {
+      "name": "御主技能展开按钮",
+      "category": "tap",
+      "tap_coord": [
+        1317,
+        325
+      ],
+      "anchor": "top_right",
+      "description": "点击右侧展开御主技能栏 (BATTLE_MASTER_SKILL_OPEN_COORDS)"
+    },
+    "TAP_MASTER_SKILL_1": {
+      "name": "御主技能1",
+      "category": "tap",
+      "tap_coord": [
+        1020,
+        350
+      ],
+      "anchor": "top_right",
+      "description": "御主礼装技能1点击位置 (BATTLE_MASTER_SKILL_COORDS[0])"
+    },
+    "TAP_MASTER_SKILL_2": {
+      "name": "御主技能2",
+      "category": "tap",
+      "tap_coord": [
+        1120,
+        350
+      ],
+      "anchor": "top_right",
+      "description": "御主礼装技能2点击位置 (BATTLE_MASTER_SKILL_COORDS[1])"
+    },
+    "TAP_MASTER_SKILL_3": {
+      "name": "御主技能3",
+      "category": "tap",
+      "tap_coord": [
+        1220,
+        350
+      ],
+      "anchor": "top_right",
+      "description": "御主礼装技能3点击位置 (BATTLE_MASTER_SKILL_COORDS[2])"
+    },
+    "TAP_TARGET_ENEMY_1": {
+      "name": "敌方目标1 (左)",
+      "category": "tap",
+      "tap_coord": [
+        159,
+        33
+      ],
+      "anchor": "top_left",
+      "description": "指定敌方第1个目标点击位置 (BATTLE_TARGET_COORDS[0])"
+    },
+    "TAP_TARGET_ENEMY_2": {
+      "name": "敌方目标2 (中)",
+      "category": "tap",
+      "tap_coord": [
+        424,
+        33
+      ],
+      "anchor": "top_left",
+      "description": "指定敌方第2个目标点击位置 (BATTLE_TARGET_COORDS[1])"
+    },
+    "TAP_TARGET_ENEMY_3": {
+      "name": "敌方目标3 (右)",
+      "category": "tap",
+      "tap_coord": [
+        689,
+        33
+      ],
+      "anchor": "top_left",
+      "description": "指定敌方第3个目标点击位置 (BATTLE_TARGET_COORDS[2])"
+    },
+    "TAP_TARGET_ENEMY_4": {
+      "name": "敌方首领/大型1",
+      "category": "tap",
+      "tap_coord": [
+        130,
+        150
+      ],
+      "anchor": "top_left",
+      "description": "大型怪/首领目标1点击位置 (BATTLE_TARGET_COORDS[3])"
+    },
+    "TAP_TARGET_ENEMY_5": {
+      "name": "敌方首领/大型2",
+      "category": "tap",
+      "tap_coord": [
+        355,
+        150
+      ],
+      "anchor": "top_left",
+      "description": "大型怪/首领目标2点击位置 (BATTLE_TARGET_COORDS[4])"
+    },
+    "TAP_TARGET_ENEMY_6": {
+      "name": "敌方首领/大型3",
+      "category": "tap",
+      "tap_coord": [
+        580,
+        150
+      ],
+      "anchor": "top_left",
+      "description": "大型怪/首领目标3点击位置 (BATTLE_TARGET_COORDS[5])"
+    },
+    "TAP_CARD_NORMAL_1": {
+      "name": "普攻手牌1 (发牌第1张)",
+      "category": "tap",
+      "tap_coord": [
+        118,
+        581
+      ],
+      "anchor": "bottom_left",
+      "description": "发牌卡池第1张普攻牌点击位置 (BATTLE_ATTACK_CARD_COORDS[0])"
+    },
+    "TAP_CARD_NORMAL_2": {
+      "name": "普攻手牌2 (发牌第2张)",
+      "category": "tap",
+      "tap_coord": [
+        408,
+        581
+      ],
+      "anchor": "bottom_left",
+      "description": "发牌卡池第2张普攻牌点击位置 (BATTLE_ATTACK_CARD_COORDS[1])"
+    },
+    "TAP_CARD_NORMAL_3": {
+      "name": "普攻手牌3 (发牌第3张)",
+      "category": "tap",
+      "tap_coord": [
+        698,
+        581
+      ],
+      "anchor": "bottom_center",
+      "description": "发牌卡池第3张普攻牌点击位置 (BATTLE_ATTACK_CARD_COORDS[2])"
+    },
+    "TAP_CARD_NORMAL_4": {
+      "name": "普攻手牌4 (发牌第4张)",
+      "category": "tap",
+      "tap_coord": [
+        991,
+        581
+      ],
+      "anchor": "bottom_right",
+      "description": "发牌卡池第4张普攻牌点击位置 (BATTLE_ATTACK_CARD_COORDS[3])"
+    },
+    "TAP_CARD_NORMAL_5": {
+      "name": "普攻手牌5 (发牌第5张)",
+      "category": "tap",
+      "tap_coord": [
+        1278,
+        581
+      ],
+      "anchor": "bottom_right",
+      "description": "发牌卡池第5张普攻牌点击位置 (BATTLE_ATTACK_CARD_COORDS[4])"
+    },
+    "TAP_CARD_NP_1": {
+      "name": "从者1宝具卡 (位置6)",
+      "category": "tap",
+      "tap_coord": [
+        412,
+        322
+      ],
+      "anchor": "center",
+      "description": "从者1宝具指令卡点击位置 (BATTLE_ATTACK_CARD_COORDS[5])"
+    },
+    "TAP_CARD_NP_2": {
+      "name": "从者2宝具卡 (位置7)",
+      "category": "tap",
+      "tap_coord": [
+        699,
+        322
+      ],
+      "anchor": "center",
+      "description": "从者2宝具指令卡点击位置 (BATTLE_ATTACK_CARD_COORDS[6])"
+    },
+    "TAP_CARD_NP_3": {
+      "name": "从者3宝具卡 (位置8)",
+      "category": "tap",
+      "tap_coord": [
+        986,
+        322
+      ],
+      "anchor": "center",
+      "description": "从者3宝具指令卡点击位置 (BATTLE_ATTACK_CARD_COORDS[7])"
+    },
+    "TAP_APPLE_GOLDEN": {
+      "name": "体力恢复-金苹果",
+      "category": "tap",
+      "tap_coord": [
+        420,
+        360
+      ],
+      "anchor": "center",
+      "description": "吃金苹果选项点击位置 (APPLE_GLODEN_COORD)"
+    },
+    "TAP_APPLE_SILVER": {
+      "name": "体力恢复-银苹果",
+      "category": "tap",
+      "tap_coord": [
+        420,
+        520
+      ],
+      "anchor": "center",
+      "description": "吃银苹果选项点击位置 (APPLE_SILVER_COORD)"
+    },
+    "TAP_APPLE_CLOSE": {
+      "name": "体力弹窗-取消关闭",
+      "category": "tap",
+      "tap_coord": [
+        720,
+        695
+      ],
+      "anchor": "center",
+      "description": "吃苹果弹窗取消按钮点击位置 (APPLE_CLOSE_COORD)"
+    },
+    "TAP_AWARD_SKIP": {
+      "name": "结算跳过空白点击",
+      "category": "tap",
+      "tap_coord": [
+        166,
+        60
+      ],
+      "anchor": "center",
+      "description": "战斗结算空白处点击以快速跳过 (AWARD_TAP_COORD)"
+    },
+    "FGO_HOME_MENU": {
+      "key": "FGO_HOME_MENU",
+      "name": "FGO 终端主页菜单按钮",
+      "category": "system",
+      "file": "FGO_HOME_MENU.png",
+      "anchor": "bottom_right",
+      "area": [
+        1240,
+        680,
+        1440,
+        790
+      ],
+      "search_area": [
+        1240,
+        680,
+        1440,
+        790
+      ],
+      "tap_coord": [
+        1350,
+        735
+      ],
+      "crop_area": null,
+      "description": "FGO 游戏主页/终端右下角的金色圆角「菜单」按钮，用于确认已完全就绪"
+    },
+    "FGO_NOTICE_X": {
+      "key": "FGO_NOTICE_X",
+      "name": "FGO 全屏公告右上角关闭叉号",
+      "category": "system",
+      "file": "FGO_NOTICE_X.png",
+      "anchor": "top_right",
+      "area": [
+        1340,
+        0,
+        1440,
+        120
+      ],
+      "search_area": [
+        1340,
+        0,
+        1440,
+        120
+      ],
+      "tap_coord": [
+        1400,
+        42
+      ],
+      "crop_area": null,
+      "description": "游戏启动后全屏游戏公告右上角的黑白关闭叉号 [X]"
+    },
+    "FGO_DIALOG_X": {
+      "key": "FGO_DIALOG_X",
+      "name": "FGO 弹窗右上角关闭叉号",
+      "category": "system",
+      "file": "FGO_DIALOG_X.png",
+      "anchor": "top_right",
+      "area": [
+        1340,
+        0,
+        1440,
+        120
+      ],
+      "search_area": [
+        1340,
+        0,
+        1440,
+        120
+      ],
+      "tap_coord": [
+        1395,
+        42
+      ],
+      "crop_area": null,
+      "description": "游戏游玩指引、活动通告等模态弹窗右上角带银边的关闭叉号 [X]"
+    },
+    "FGO_MODAL_CLOSE": {
+      "key": "FGO_MODAL_CLOSE",
+      "name": "FGO 弹窗关闭胶囊按钮",
+      "category": "system",
+      "file": "FGO_MODAL_CLOSE.png",
+      "anchor": "bottom_left",
+      "area": [
+        100,
+        620,
+        450,
+        750
+      ],
+      "search_area": [
+        100,
+        620,
+        650,
+        750
+      ],
+      "tap_coord": [
+        306,
+        698
+      ],
+      "crop_area": null,
+      "description": "友情点数结算、签到等弹窗底部的白色圆角「关闭」按钮"
+    },
+    "FGO_CALENDAR_TITLE": {
+      "key": "FGO_CALENDAR_TITLE",
+      "name": "FGO 日历提醒订阅弹窗标题",
+      "category": "system",
+      "file": "FGO_CALENDAR_TITLE.png",
+      "anchor": "center",
+      "area": [
+        480,
+        132,
+        960,
+        204
+      ],
+      "search_area": [
+        400,
+        100,
+        1040,
+        300
+      ],
+      "tap_coord": [
+        467,
+        628
+      ],
+      "crop_area": null,
+      "description": "FGO 日历提醒订阅功能弹窗标题栏"
+    },
+    "FGO_MODAL_CANCEL": {
+      "key": "FGO_MODAL_CANCEL",
+      "name": "FGO 弹窗取消胶囊按钮",
+      "category": "system",
+      "file": "FGO_MODAL_CANCEL.png",
+      "anchor": "bottom_left",
+      "area": [
+        346,
+        598,
+        589,
+        659
+      ],
+      "search_area": [
+        80,
+        520,
+        1360,
+        760
+      ],
+      "tap_coord": [
+        467,
+        628
+      ],
+      "crop_area": null,
+      "description": "日历提醒订阅等系统弹窗左侧的白色圆角「取消」按钮"
+    },
+    "FGO_TITLE_SERVER": {
+      "key": "FGO_TITLE_SERVER",
+      "name": "FGO 标题画面区服选择",
+      "category": "system",
+      "file": "FGO_TITLE_SERVER.png",
+      "anchor": "bottom_right",
+      "area": [
+        1150,
+        580,
+        1440,
+        720
+      ],
+      "search_area": [
+        1150,
+        580,
+        1440,
+        720
+      ],
+      "tap_coord": [
+        720,
+        500
+      ],
+      "crop_area": null,
+      "description": "FGO 启动标题画面右下角「区服选择」标识，代表处于标题待点入状态"
+    },
+    "FGO_TITLE_CACHE": {
+      "key": "FGO_TITLE_CACHE",
+      "name": "FGO 标题画面清除缓存",
+      "category": "system",
+      "file": "FGO_TITLE_CACHE.png",
+      "anchor": "bottom_left",
+      "area": [
+        20,
+        580,
+        300,
+        720
+      ],
+      "search_area": [
+        20,
+        580,
+        300,
+        720
+      ],
+      "tap_coord": [
+        720,
+        500
+      ],
+      "crop_area": null,
+      "description": "FGO 启动标题画面左下角「清除缓存」标识"
+    },
+    "FGO_TAP_GAME": {
+      "key": "FGO_TAP_GAME",
+      "name": "FGO 请点击游戏界面提示",
+      "category": "system",
+      "file": "FGO_TAP_GAME.png",
+      "anchor": "center",
+      "area": [
+        500,
+        680,
+        950,
+        800
+      ],
+      "search_area": [
+        500,
+        680,
+        950,
+        800
+      ],
+      "tap_coord": [
+        720,
+        500
+      ],
+      "crop_area": null,
+      "description": "进入游戏前加载画面出现的「请点击游戏界面」提示"
+    },
+    "ENHANCE_SKILL_MAX_L10": {
+      "key": "ENHANCE_SKILL_MAX_L10",
+      "name": "技能强化: 无法继续强化(10级满级)",
+      "category": "enhance",
+      "file": "ENHANCE_SKILL_MAX_L10.png",
+      "anchor": "bottom_right",
+      "search_area": [
+        1150,
+        720,
+        1410,
+        800
+      ],
+      "crop_area": null,
+      "area": [
+        1150,
+        720,
+        1410,
+        800
+      ],
+      "tap_coord": null,
+      "description": "技能达到10级满级时右下角显示的无法继续强化状态"
+    },
+    "TAP_ENHANCE_SKILL_1": {
+      "name": "从者强化-技能1",
+      "category": "tap",
+      "tap_coord": [
+        532,
+        286
+      ],
+      "anchor": "top_left",
+      "description": "技能强化界面: 从者第1个技能选择位置"
+    },
+    "TAP_ENHANCE_SKILL_2": {
+      "name": "从者强化-技能2",
+      "category": "tap",
+      "tap_coord": [
+        852,
+        286
+      ],
+      "anchor": "top_left",
+      "description": "技能强化界面: 从者第2个技能选择位置"
+    },
+    "TAP_ENHANCE_SKILL_3": {
+      "name": "从者强化-技能3",
+      "category": "tap",
+      "tap_coord": [
+        1172,
+        286
+      ],
+      "anchor": "top_left",
+      "description": "技能强化界面: 从者第3个技能选择位置"
+    },
+    "ENHANCE_SKILL_HERO_UNSELECTED": {
+      "key": "ENHANCE_SKILL_HERO_UNSELECTED",
+      "name": "技能强化: 左侧未选中从者(已全部满级)",
+      "category": "enhance",
+      "file": "ENHANCE_SKILL_HERO_UNSELECTED.png",
+      "anchor": "bottom_left",
+      "search_area": [
+        140,
+        560,
+        300,
+        630
+      ],
+      "crop_area": null,
+      "area": [
+        140,
+        560,
+        300,
+        630
+      ],
+      "tap_coord": null,
+      "description": "从者3个技能全部强化满级后，左侧自动取消从者选中呈现点击选择状态"
+    },
+    "ENHANCE_HERO_TO_ASCEND": {
+      "key": "ENHANCE_HERO_TO_ASCEND",
+      "name": "从者强化: 前往灵基再临",
+      "category": "enhance",
+      "file": "ENHANCE_HERO_TO_ASCEND.png",
+      "anchor": "bottom_right",
+      "search_area": [
+        1050,
+        580,
+        1320,
+        680
+      ],
+      "crop_area": null,
+      "area": [
+        1050,
+        580,
+        1320,
+        680
+      ],
+      "tap_coord": [
+        1185,
+        628
+      ],
+      "description": "从者达当前阶段满级时，右下角显示的「前往灵基再临」引导按钮"
+    },
+    "ENHANCE_ASCEND": {
+      "key": "ENHANCE_ASCEND",
+      "name": "灵基再临: 顶部标题",
+      "category": "enhance",
+      "file": "ENHANCE_ASCEND.png",
+      "anchor": "top_right",
+      "search_area": [
+        880,
+        5,
+        1300,
+        70
+      ],
+      "crop_area": null,
+      "area": [
+        880,
+        5,
+        1300,
+        70
+      ],
+      "tap_coord": null,
+      "description": "灵基再临界面顶部标题标识"
+    },
+    "ENHANCE_ASCEND_BTN": {
+      "key": "ENHANCE_ASCEND_BTN",
+      "name": "灵基再临: 执行再临按钮",
+      "category": "enhance",
+      "file": "ENHANCE_ASCEND_BTN.png",
+      "anchor": "bottom_right",
+      "search_area": [
+        1340,
+        716,
+        1438,
+        798
+      ],
+      "crop_area": null,
+      "area": [
+        1340,
+        716,
+        1438,
+        798
+      ],
+      "tap_coord": [
+        1391,
+        739
+      ],
+      "description": "灵基再临界面右下角灵基再临执行按钮"
+    },
+    "ENHANCE_ASCEND_TO_HERO": {
+      "key": "ENHANCE_ASCEND_TO_HERO",
+      "name": "灵基再临: 前往强化从者",
+      "category": "enhance",
+      "file": "ENHANCE_ASCEND_TO_HERO.png",
+      "anchor": "center_right",
+      "search_area": [
+        1000,
+        270,
+        1360,
+        370
+      ],
+      "crop_area": null,
+      "area": [
+        1000,
+        270,
+        1360,
+        370
+      ],
+      "tap_coord": [
+        1180,
+        321
+      ],
+      "description": "灵基再临完成后，右侧中间快捷返回「前往强化从者」按钮"
+    },
+    "ENHANCE_ASCEND_BACK": {
+      "key": "ENHANCE_ASCEND_BACK",
+      "name": "灵基再临: 左上角返回",
+      "category": "enhance",
+      "file": "ENHANCE_ASCEND_BACK.png",
+      "anchor": "top_left",
+      "search_area": [
+        40,
+        10,
+        120,
+        65
+      ],
+      "crop_area": null,
+      "area": [
+        40,
+        10,
+        120,
+        65
+      ],
+      "tap_coord": [
+        85,
+        36
+      ],
+      "description": "灵基再临界面左上角返回按钮"
+    },
+    "ENHANCE_HERO_REFUND_CLOSE": {
+      "key": "ENHANCE_HERO_REFUND_CLOSE",
+      "name": "从者强化: 素材返还关闭",
+      "category": "enhance",
+      "file": "ENHANCE_HERO_REFUND_CLOSE.png",
+      "anchor": "center",
+      "search_area": [
+        550,
+        580,
+        890,
+        680
+      ],
+      "crop_area": null,
+      "area": [
+        550,
+        580,
+        890,
+        680
+      ],
+      "tap_coord": [
+        686,
+        614
+      ],
+      "description": "强化大成功/极大成功达到上限返还素材弹窗关闭按钮"
+    },
+    "ENHANCE_HERO_TO_GRAIL": {
+      "key": "ENHANCE_HERO_TO_GRAIL",
+      "name": "从者强化: 前往圣杯转临",
+      "category": "enhance",
+      "file": "ENHANCE_HERO_TO_GRAIL.png",
+      "anchor": "bottom_right",
+      "search_area": [
+        1050,
+        580,
+        1320,
+        680
+      ],
+      "crop_area": null,
+      "area": [
+        1050,
+        580,
+        1320,
+        680
+      ],
+      "tap_coord": [
+        1185,
+        628
+      ],
+      "description": "从者达当前满级时右下角显示的「前往圣杯转临」按钮"
+    },
+    "ENHANCE_GRAIL": {
+      "key": "ENHANCE_GRAIL",
+      "name": "从者强化: 圣杯转临界面",
+      "category": "enhance",
+      "file": "ENHANCE_GRAIL.png",
+      "anchor": "top_right",
+      "search_area": [
+        1050,
+        5,
+        1420,
+        70
+      ],
+      "crop_area": null,
+      "area": [
+        1050,
+        5,
+        1420,
+        70
+      ],
+      "tap_coord": [
+        1280,
+        35
+      ],
+      "description": "圣杯转临主界面右上角标题特征"
+    },
+    "ENHANCE_GRAIL_CONFIRM": {
+      "key": "ENHANCE_GRAIL_CONFIRM",
+      "name": "从者强化: 圣杯转临决定按钮",
+      "category": "enhance",
+      "file": "ENHANCE_HERO_ENHANCE_CONFIRM.png",
+      "anchor": "bottom_right",
+      "search_area": [
+        877,
+        632,
+        1006,
+        698
+      ],
+      "crop_area": null,
+      "area": [
+        877,
+        632,
+        1006,
+        698
+      ],
+      "tap_coord": [
+        943,
+        662
+      ],
+      "description": "圣杯转临确认弹窗的「决定」按钮"
+    },
+    "friendAobao1": {
+      "key": "friendAobao1",
+      "name": "助战: 奥伯龙 1",
+      "category": "friend",
+      "file": "friendAobao1.png",
+      "anchor": "top_left",
+      "search_area": [
+        40,
+        180,
+        920,
+        800
+      ],
+      "crop_area": null,
+      "area": [
+        40,
+        180,
+        920,
+        800
+      ],
+      "tap_coord": null,
+      "description": "助战特征图: 奥伯龙"
+    },
+    "friendDaoMan": {
+      "key": "friendDaoMan",
+      "name": "助战: 道满 1",
+      "category": "friend",
+      "file": "friendDaoMan.png",
+      "anchor": "top_left",
+      "search_area": [
+        40,
+        180,
+        920,
+        800
+      ],
+      "crop_area": null,
+      "area": [
+        40,
+        180,
+        920,
+        800
+      ],
+      "tap_coord": null,
+      "description": "助战特征图: 道满"
+    },
+    "DaoMan": {
+      "key": "DaoMan",
+      "name": "助战: 道满 2",
+      "category": "friend",
+      "file": "DaoMan.png",
+      "anchor": "top_left",
+      "search_area": [
+        40,
+        180,
+        920,
+        800
+      ],
+      "crop_area": null,
+      "area": [
+        40,
+        180,
+        920,
+        800
+      ],
+      "tap_coord": null,
+      "description": "助战特征图: 道满"
+    },
+    "friendDaoMan3": {
+      "key": "friendDaoMan3",
+      "name": "助战: 道满 3",
+      "category": "friend",
+      "file": "friendDaoMan3.png",
+      "anchor": "top_left",
+      "search_area": [
+        40,
+        180,
+        920,
+        800
+      ],
+      "crop_area": null,
+      "area": [
+        40,
+        180,
+        920,
+        800
+      ],
+      "tap_coord": null,
+      "description": "助战特征图: 道满"
+    },
+    "friendCba": {
+      "key": "friendCba",
+      "name": "助战: 术斯卡蒂 1",
+      "category": "friend",
+      "file": "friendCba.png",
+      "anchor": "top_left",
+      "search_area": [
+        40,
+        180,
+        920,
+        800
+      ],
+      "crop_area": null,
+      "area": [
+        40,
+        180,
+        920,
+        800
+      ],
+      "tap_coord": null,
+      "description": "助战特征图: 术斯卡蒂"
+    },
+    "friendMary3": {
+      "key": "friendMary3",
+      "name": "助战: 奥尔加玛丽 3",
+      "category": "friend",
+      "file": "friendMary3.png",
+      "anchor": "top_left",
+      "search_area": [
+        40,
+        180,
+        920,
+        800
+      ],
+      "crop_area": null,
+      "area": [
+        40,
+        180,
+        920,
+        800
+      ],
+      "tap_coord": null,
+      "description": "助战特征图: 奥尔加玛丽"
+    },
+    "friendBdai1": {
+      "key": "friendBdai1",
+      "name": "助战: 狂呆 / 呆呆 1",
+      "category": "friend",
+      "file": "friendBdai1.png",
+      "anchor": "top_left",
+      "search_area": [
+        40,
+        180,
+        920,
+        800
+      ],
+      "crop_area": null,
+      "area": [
+        40,
+        180,
+        920,
+        800
+      ],
+      "tap_coord": null,
+      "description": "助战特征图: 狂呆 / 呆呆"
+    },
+    "friendBdai2": {
+      "key": "friendBdai2",
+      "name": "助战: 狂呆 / 呆呆 2",
+      "category": "friend",
+      "file": "friendBdai2.png",
+      "anchor": "top_left",
+      "search_area": [
+        40,
+        180,
+        920,
+        800
+      ],
+      "crop_area": null,
+      "area": [
+        40,
+        180,
+        920,
+        800
+      ],
+      "tap_coord": null,
+      "description": "助战特征图: 狂呆 / 呆呆"
+    },
+    "friendBdai3": {
+      "key": "friendBdai3",
+      "name": "助战: 狂呆 / 呆呆 3",
+      "category": "friend",
+      "file": "friendBdai3.png",
+      "anchor": "top_left",
+      "search_area": [
+        40,
+        180,
+        920,
+        800
+      ],
+      "crop_area": null,
+      "area": [
+        40,
+        180,
+        920,
+        800
+      ],
+      "tap_coord": null,
+      "description": "助战特征图: 狂呆 / 呆呆"
+    },
+    "friendTt1": {
+      "key": "friendTt1",
+      "name": "助战: tt 1",
+      "category": "friend",
+      "file": "friendTt1.png",
+      "anchor": "top_left",
+      "search_area": [
+        40,
+        180,
+        920,
+        800
+      ],
+      "crop_area": null,
+      "area": [
+        40,
+        180,
+        920,
+        800
+      ],
+      "tap_coord": null,
+      "description": "助战特征图: tt"
+    },
+    "friendTt2": {
+      "key": "friendTt2",
+      "name": "助战: tt 2",
+      "category": "friend",
+      "file": "friendTt2.png",
+      "anchor": "top_left",
+      "search_area": [
+        40,
+        180,
+        920,
+        800
+      ],
+      "crop_area": null,
+      "area": [
+        40,
+        180,
+        920,
+        800
+      ],
+      "tap_coord": null,
+      "description": "助战特征图: tt"
+    },
+    "friendTt3": {
+      "key": "friendTt3",
+      "name": "助战: tt 3",
+      "category": "friend",
+      "file": "friendTt3.png",
+      "anchor": "top_left",
+      "search_area": [
+        40,
+        180,
+        920,
+        800
+      ],
+      "crop_area": null,
+      "area": [
+        40,
+        180,
+        920,
+        800
+      ],
+      "tap_coord": null,
+      "description": "助战特征图: tt"
     }
+  }
 }

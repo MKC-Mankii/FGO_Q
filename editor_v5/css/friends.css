@@ -1,0 +1,643 @@
+/* ==========================================================================
+   管理助战 (Friend Servant Management) 样式表
+   适配 Mooncell 风格高对比度纯净主题
+   ========================================================================== */
+
+.support-view-container {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    margin-top: 4px;
+}
+
+.friends-layout {
+    display: grid;
+    grid-template-columns: 320px 1fr;
+    gap: 16px;
+    height: calc(100vh - 175px);
+    min-height: 560px;
+    align-items: stretch;
+}
+
+/* ---------------- 左侧侧栏：助战名录列表 ---------------- */
+.friends-sidebar {
+    display: flex;
+    flex-direction: column;
+    background: #ffffff;
+    border: 1px solid var(--line, #cbd5e1);
+    border-radius: 8px;
+    box-shadow: var(--shadow, 0 1px 3px rgba(0, 0, 0, 0.05));
+    overflow: hidden;
+}
+
+.friends-sidebar-toolbar {
+    padding: 12px;
+    border-bottom: 1px solid var(--line-light, #e2e8f0);
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    background: #fafcff;
+}
+
+.friends-search-row {
+    display: flex;
+    gap: 8px;
+}
+
+.friends-search-input {
+    flex: 1;
+    height: 32px;
+    padding: 0 10px;
+    border: 1px solid var(--line, #cbd5e1);
+    border-radius: 6px;
+    font-size: 13px;
+    background: #ffffff;
+    color: var(--text-main, #1f2937);
+    outline: none;
+    transition: all 0.2s;
+}
+.friends-search-input:focus {
+    border-color: var(--darkblue, #4487df);
+    box-shadow: 0 0 0 2px var(--accent-glow, rgba(68, 135, 223, 0.22));
+}
+
+.friends-add-btn {
+    height: 32px;
+    padding: 0 12px;
+    background: var(--darkblue, #4487df);
+    color: #ffffff;
+    border: none;
+    border-radius: 6px;
+    font-size: 12.5px;
+    font-weight: 700;
+    cursor: pointer;
+    white-space: nowrap;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    transition: all 0.2s;
+}
+.friends-add-btn:hover {
+    background: #2b70ce;
+    box-shadow: 0 2px 6px rgba(68, 135, 223, 0.35);
+}
+
+.friends-list-meta {
+    font-size: 11.5px;
+    color: var(--text-subtle, #6b7280);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 2px;
+}
+
+.friends-list {
+    flex: 1;
+    overflow-y: auto;
+    padding: 6px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.friend-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 10px;
+    border-radius: 6px;
+    border: 1px solid transparent;
+    cursor: pointer;
+    transition: all 0.18s ease;
+    user-select: none;
+    background: #ffffff;
+}
+.friend-item:hover {
+    background: var(--bg-card-hover, #f0f6ff);
+    border-color: var(--line-light, #e2e8f0);
+}
+.friend-item.active {
+    background: #eaf3fe;
+    border-color: var(--darkblue, #4487df);
+    box-shadow: 0 1px 3px rgba(68, 135, 223, 0.15);
+}
+
+.friend-item-avatar {
+    width: 38px;
+    height: 38px;
+    border-radius: 6px;
+    background: #e2e8f0;
+    border: 1px solid var(--line, #cbd5e1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: 800;
+    color: var(--darkblue, #4487df);
+    overflow: hidden;
+    flex-shrink: 0;
+}
+.friend-item-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.friend-item-info {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.friend-item-title {
+    font-size: 13.5px;
+    font-weight: 700;
+    color: var(--text-main, #1f2937);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.friend-item.active .friend-item-title {
+    color: var(--darkblue, #4487df);
+}
+
+.friend-item-badges {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+}
+
+.friend-key-badge {
+    padding: 1px 5px;
+    background: #f1f5f9;
+    color: var(--text-muted, #4b5563);
+    border-radius: 4px;
+    font-family: monospace;
+    font-weight: 600;
+}
+
+.friend-status-badge {
+    padding: 1px 5px;
+    border-radius: 4px;
+    font-weight: 600;
+}
+.friend-status-badge.ready {
+    background: #edfbd8;
+    color: #437a0f;
+}
+.friend-status-badge.partial {
+    background: #fef3c7;
+    color: #92400e;
+}
+.friend-status-badge.empty {
+    background: #fee2e2;
+    color: #991b1b;
+}
+
+/* ---------------- 右侧主区：助战档案与槽位编辑 ---------------- */
+.friends-detail-panel {
+    display: flex;
+    flex-direction: column;
+    background: #ffffff;
+    border: 1px solid var(--line, #cbd5e1);
+    border-radius: 8px;
+    box-shadow: var(--shadow, 0 1px 3px rgba(0, 0, 0, 0.05));
+    overflow: hidden;
+}
+
+.friends-detail-header {
+    padding: 14px 18px;
+    border-bottom: 1px solid var(--line-light, #e2e8f0);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #fafcff;
+}
+
+.friends-detail-title-group {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.friends-detail-title {
+    font-size: 16px;
+    font-weight: 800;
+    color: var(--text-main, #1f2937);
+    margin: 0;
+}
+
+.friends-detail-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.friends-section {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.friends-section-title {
+    font-size: 13.5px;
+    font-weight: 800;
+    color: var(--text-main, #1f2937);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.friends-section-desc {
+    font-size: 12px;
+    color: var(--text-muted, #4b5563);
+    margin-top: -6px;
+    line-height: 1.5;
+}
+
+/* 表单输入组 (精简为 2 列：从者名称 + 英文代号) */
+.friends-form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 14px;
+}
+
+.friends-field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+.friends-field.full {
+    grid-column: 1 / -1;
+}
+
+.friends-label {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--text-main, #1f2937);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+.friends-label .req {
+    color: var(--darkred, #e7615c);
+}
+
+.friends-input {
+    height: 34px;
+    padding: 0 10px;
+    border: 1px solid var(--line, #cbd5e1);
+    border-radius: 6px;
+    font-size: 13px;
+    background: #ffffff;
+    color: var(--text-main, #1f2937);
+    outline: none;
+    transition: all 0.2s;
+}
+.friends-input:focus {
+    border-color: var(--darkblue, #4487df);
+    box-shadow: 0 0 0 2px var(--accent-glow, rgba(68, 135, 223, 0.22));
+}
+.friends-input[readonly] {
+    background: #f8fafc;
+    color: var(--text-muted, #4b5563);
+    cursor: not-allowed;
+}
+
+/* 槽位列表卡片容器 */
+.friends-slots-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.friend-slot-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 14px;
+    border: 1px solid var(--line, #cbd5e1);
+    border-radius: 8px;
+    background: #ffffff;
+    transition: all 0.18s ease;
+}
+.friend-slot-row:hover {
+    border-color: #94a3b8;
+    background: #fafcff;
+}
+.friend-slot-row.missing {
+    background: #fffdf8;
+    border-color: #fed7aa;
+}
+
+.friend-slot-index {
+    font-size: 12px;
+    font-weight: 800;
+    color: var(--text-subtle, #6b7280);
+    width: 24px;
+    text-align: center;
+}
+
+.friend-slot-thumb {
+    width: 48px;
+    height: 48px;
+    border-radius: 6px;
+    border: 1px solid var(--line, #cbd5e1);
+    background: #f1f5f9;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    flex-shrink: 0;
+}
+.friend-slot-thumb img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    display: block;
+}
+.friend-slot-thumb.placeholder {
+    border: 1.5px dashed #cbd5e1;
+    color: #94a3b8;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.friend-slot-info {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.friend-slot-filename {
+    font-size: 13px;
+    font-family: monospace;
+    font-weight: 700;
+    color: var(--text-main, #1f2937);
+}
+
+.friend-slot-status {
+    font-size: 11.5px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.slot-tag {
+    font-weight: 700;
+    padding: 1px 6px;
+    border-radius: 4px;
+    font-size: 11px;
+}
+.slot-tag.ok {
+    background: #dcfce7;
+    color: #15803d;
+}
+.slot-tag.pending {
+    background: #fef3c7;
+    color: #b45309;
+}
+
+.friend-slot-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.slot-btn {
+    height: 30px;
+    padding: 0 10px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    transition: all 0.18s;
+}
+.slot-btn.calibrate {
+    background: #eff6ff;
+    color: var(--darkblue, #4487df);
+    border: 1px solid #bfdbfe;
+}
+.slot-btn.calibrate:hover {
+    background: var(--darkblue, #4487df);
+    color: #ffffff;
+}
+
+.slot-btn.remove {
+    background: transparent;
+    color: var(--darkred, #e7615c);
+    border: 1px solid transparent;
+}
+.slot-btn.remove:hover {
+    background: #fee2e2;
+    border-color: #fca5a5;
+}
+
+.friends-add-slot-btn {
+    height: 36px;
+    border: 1.5px dashed var(--line, #cbd5e1);
+    background: #ffffff;
+    border-radius: 8px;
+    color: var(--darkblue, #4487df);
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    transition: all 0.2s;
+    margin-top: 4px;
+}
+.friends-add-slot-btn:hover {
+    border-color: var(--darkblue, #4487df);
+    background: #f0f7ff;
+    box-shadow: 0 1px 4px rgba(68, 135, 223, 0.15);
+}
+
+/* 底部操作栏 */
+.friends-detail-footer {
+    padding: 12px 20px;
+    border-top: 1px solid var(--line-light, #e2e8f0);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #fafcff;
+}
+
+.friends-footer-left,
+.friends-footer-right {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.friends-save-btn {
+    height: 36px;
+    padding: 0 18px;
+    background: var(--darkblue, #4487df);
+    color: #ffffff;
+    border: none;
+    border-radius: 6px;
+    font-size: 13.5px;
+    font-weight: 700;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.2s;
+}
+.friends-save-btn:hover {
+    background: #2b70ce;
+    box-shadow: 0 2px 8px rgba(68, 135, 223, 0.4);
+}
+
+.friends-delete-btn {
+    height: 36px;
+    padding: 0 14px;
+    background: transparent;
+    color: var(--darkred, #e7615c);
+    border: 1px solid #fecaca;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    transition: all 0.2s;
+}
+.friends-delete-btn:hover {
+    background: #fee2e2;
+    border-color: #f87171;
+    color: #dc2626;
+    box-shadow: 0 1px 4px rgba(231, 97, 92, 0.2);
+}
+.friends-delete-btn:active {
+    transform: translateY(1px);
+}
+.friends-delete-btn:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+    border-color: var(--line, #cbd5e1);
+    color: var(--text-subtle, #6b7280);
+    background: #f8fafc;
+    box-shadow: none;
+    pointer-events: none; /* 穿透至外层 wrapper 保证 hover tooltip 触发 */
+}
+
+.friends-meta-btn {
+    background: transparent;
+    border: 1px solid var(--line, #cbd5e1);
+    color: var(--text-muted, #4b5563);
+    font-size: 11px;
+    font-weight: 600;
+    padding: 1px 7px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.18s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+}
+.friends-meta-btn:hover {
+    color: var(--darkblue, #4487df);
+    border-color: var(--darkblue, #4487df);
+    background: #eff6ff;
+}
+
+.friends-tip-wrap {
+    display: inline-flex;
+    align-items: center;
+    position: relative;
+}
+.friends-tip-wrap.is-disabled {
+    cursor: not-allowed;
+}
+
+/* ---------------- 统一即时响应悬浮 Tooltip ---------------- */
+[data-tip] {
+    position: relative;
+}
+[data-tip]::before {
+    content: attr(data-tip);
+    position: absolute;
+    bottom: calc(100% + 7px);
+    left: 50%;
+    transform: translateX(-50%) translateY(3px);
+    background: rgba(15, 23, 42, 0.94);
+    color: #f8fafc;
+    padding: 5px 9px;
+    border-radius: 5px;
+    font-size: 11.5px;
+    font-weight: 500;
+    line-height: 1.35;
+    white-space: nowrap;
+    pointer-events: none;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.12s ease, transform 0.12s ease;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+    z-index: 9999;
+}
+[data-tip]::after {
+    content: '';
+    position: absolute;
+    bottom: calc(100% + 1px);
+    left: 50%;
+    transform: translateX(-50%) translateY(3px);
+    border: 5px solid transparent;
+    border-top-color: rgba(15, 23, 42, 0.94);
+    pointer-events: none;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.12s ease, transform 0.12s ease;
+    z-index: 9999;
+}
+[data-tip]:hover::before,
+[data-tip]:hover::after {
+    opacity: 1;
+    visibility: visible;
+    transform: translateX(-50%) translateY(0);
+}
+
+/* 偏左对齐 Tooltip */
+[data-tip-dir="top-left"]::before {
+    left: 0;
+    transform: translateY(3px);
+}
+[data-tip-dir="top-left"]::after {
+    left: 20px;
+    transform: translateY(3px);
+}
+[data-tip-dir="top-left"]:hover::before,
+[data-tip-dir="top-left"]:hover::after {
+    transform: translateY(0);
+}
+
+/* 偏右对齐 Tooltip */
+[data-tip-dir="top-right"]::before {
+    left: auto;
+    right: 0;
+    transform: translateY(3px);
+}
+[data-tip-dir="top-right"]::after {
+    left: auto;
+    right: 20px;
+    transform: translateY(3px);
+}
+[data-tip-dir="top-right"]:hover::before,
+[data-tip-dir="top-right"]:hover::after {
+    transform: translateY(0);
+}
+
