@@ -334,8 +334,8 @@ Dim ATT_DaoMan = "Attachment:friendDaoMan.png|Attachment:DaoMan.png|Attachment:f
 Dim ATT_Cba = "Attachment:friendCba.png"
 Dim ATT_RBA = "Attachment:friendRba1.png|Attachment:friendRba2.png|Attachment:friendRba3.png|Attachment:friendRba4.png"
 Dim ATT_RBAShan = "Attachment:friendRba3Shan.png"
-Dim ATT_Shahu = "Attachment:friendShaHu2.png|Attachment:friendShaHu3.png"
-Dim ATT_ShahuShan = "Attachment:friendShaHu1Shan.png|Attachment:friendShaHu2Shan.png|Attachment:friendShaHu3Shan.png"
+Dim ATT_Shahu = "Attachment:friendShaHu1.png|Attachment:friendShaHu2.png|Attachment:friendShaHu3.png"
+Dim ATT_ShahuShan = "Attachment:friendShaHuShan1.png|Attachment:friendShaHuShan2.png|Attachment:friendShaHuShan3.png"
 Dim ATT_MeilinC = "Attachment:friendMeilinC3.png"
 Dim ATT_Taigong = "Attachment:friendtaigong.png"
 Dim ATT_Princess = "Attachment:friendPrincess.png|Attachment:friendPrincess2.png|Attachment:friendPrincess3.png"
@@ -744,7 +744,11 @@ Sub ReloadConfig()
 	End If
 
 	If Len(selectedFriendKey) > 0 Then
-		If selectedFriendKey = "aobao" Then
+		Dim customAtt = Trim(CStr(CfgGet("att_" & selectedFriendKey, "")))
+		If Len(customAtt) > 0 And customAtt <> "Attachment:" Then
+			PREPARE_FRIEND_TAR = Array(PREPARE_FRIEND_AREA[1], PREPARE_FRIEND_AREA[2], PREPARE_FRIEND_AREA[3], PREPARE_FRIEND_AREA[4], customAtt)
+			HAS_FRIEND_CONFIG = true
+		ElseIf selectedFriendKey = "aobao" Then
 			PREPARE_FRIEND_TAR = Array(PREPARE_FRIEND_AREA[1], PREPARE_FRIEND_AREA[2], PREPARE_FRIEND_AREA[3], PREPARE_FRIEND_AREA[4], ATT_Aobao)
 			HAS_FRIEND_CONFIG = true
 		ElseIf selectedFriendKey = "cdai" Then

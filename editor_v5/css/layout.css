@@ -711,27 +711,92 @@
     text-align: center;
 }
 
-/* 就绪环境按钮：工作/进行中状态（不可点击，深黛蓝底座 + 2px 高亮白炽电光流转带） */
 .button.launch-runner-btn:disabled,
-#readyEnvBtn:disabled,
-.button.launch-runner-btn.working,
-#readyEnvBtn.working,
-.button.launch-runner-btn.ready,
-#readyEnvBtn.ready {
+#readyEnvBtn:disabled {
     cursor: not-allowed !important;
 }
 
+/* 就绪环境按钮：工作/进行中状态（支持再次点击取消当前执行，深金底座 + 电光流转带） */
 .button.launch-runner-btn.working,
 #readyEnvBtn.working {
+    cursor: pointer !important;
     position: relative !important;
     overflow: hidden !important;
     border: none !important;
     background: #b45309 !important; /* 边框外轨暖金基底，绝不死黑，与明亮页面完全融合 */
     color: #ffffff !important;
     box-shadow: 0 2px 6px rgba(217, 119, 6, 0.35) !important;
+    pointer-events: auto !important;
+    transform: none !important;
+    border-radius: 6px !important;
+    transition: box-shadow 0.2s ease, transform 0.15s ease, filter 0.2s ease;
+}
+
+.button.launch-runner-btn.working:hover,
+#readyEnvBtn.working:hover {
+    filter: brightness(1.08);
+    transform: translateY(-1px) !important;
+    box-shadow: 0 0 0 1.5px rgba(239, 68, 68, 0.7), 0 3px 10px rgba(220, 38, 38, 0.45) !important;
+}
+
+.button.launch-runner-btn.working:hover::after,
+#readyEnvBtn.working:hover::after {
+    background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%) !important;
+}
+
+.button.launch-runner-btn.working:hover::before,
+#readyEnvBtn.working:hover::before {
+    background: conic-gradient(
+        from 0deg,
+        transparent 0deg 250deg,
+        rgba(255, 255, 255, 0.2) 280deg,
+        #fca5a5 315deg,
+        #ffffff 345deg,
+        #ffffff 355deg,
+        transparent 360deg
+    ) !important;
+}
+
+.button.launch-runner-btn.working:active,
+#readyEnvBtn.working:active {
+    transform: translateY(0) !important;
+}
+
+/* 取消中状态：红黑过渡反馈 */
+.button.launch-runner-btn.cancelling,
+#readyEnvBtn.cancelling {
+    position: relative !important;
+    overflow: hidden !important;
+    border: none !important;
+    background: #991b1b !important;
+    color: #ffffff !important;
+    box-shadow: 0 2px 6px rgba(185, 28, 28, 0.45) !important;
+    cursor: wait !important;
     pointer-events: none !important;
     transform: none !important;
     border-radius: 6px !important;
+}
+
+.button.launch-runner-btn.cancelling::after,
+#readyEnvBtn.cancelling::after {
+    content: '' !important;
+    position: absolute !important;
+    inset: 2px !important;
+    background: linear-gradient(135deg, #dc2626 0%, #7f1d1d 100%) !important;
+    border-radius: 4px !important;
+    box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.25) !important;
+    z-index: 1 !important;
+    pointer-events: none !important;
+}
+
+.button.launch-runner-btn.cancelling .ready-btn-icon,
+#readyEnvBtn.cancelling .ready-btn-icon,
+.button.launch-runner-btn.cancelling .ready-btn-text,
+#readyEnvBtn.cancelling .ready-btn-text {
+    position: relative !important;
+    z-index: 2 !important;
+    color: #ffffff !important;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8) !important;
 }
 
 /* 边缘流光带：纯白高光核 + 耀金流光，在金黄底座边框上飞驰掠过，光芒耀眼清晰 */
@@ -793,17 +858,18 @@
     }
 }
 
-/* 就绪环境按钮：完全就绪状态（清爽静谧的浅翠绿胶囊态，让出主操作视觉焦点） */
+/* 就绪环境按钮：完全就绪状态（清爽静谧的浅翠绿胶囊态，点击直接查看脚本日志） */
 .button.launch-runner-btn.ready,
 #readyEnvBtn.ready {
     background: #ecfdf5 !important;
     border: 1px solid #10b981 !important;
     color: #047857 !important;
     box-shadow: 0 1px 2px rgba(16, 185, 129, 0.12) !important;
-    cursor: not-allowed !important;
-    pointer-events: none !important;
+    cursor: pointer !important;
+    pointer-events: auto !important;
     transform: none !important;
     opacity: 1 !important;
+    transition: all 0.15s ease !important;
 }
 
 .button.launch-runner-btn.ready .ready-btn-text,
@@ -819,13 +885,20 @@
 }
 
 .button.launch-runner-btn.ready:hover,
-#readyEnvBtn.ready:hover,
+#readyEnvBtn.ready:hover {
+    background: #d1fae5 !important;
+    border-color: #059669 !important;
+    color: #065f46 !important;
+    box-shadow: 0 2px 6px rgba(16, 185, 129, 0.28) !important;
+    transform: translateY(-1px) !important;
+    cursor: pointer !important;
+}
+
 .button.launch-runner-btn.ready:active,
 #readyEnvBtn.ready:active {
-    transform: none !important;
-    box-shadow: 0 1px 2px rgba(16, 185, 129, 0.12) !important;
-    cursor: not-allowed !important;
-    pointer-events: none !important;
+    background: #a7f3d0 !important;
+    transform: translateY(0) !important;
+    box-shadow: 0 1px 2px rgba(16, 185, 129, 0.2) !important;
 }
 
 
@@ -2453,3 +2526,168 @@
     font-weight: 700;
     box-shadow: 0 1px 3px rgba(78, 168, 36, 0.35);
 }
+
+/* 职阶星图自动解放 (遵循 Mooncell 官方色阶规范体系: Arts 核心主色 & Buster 危险色) */
+.star-map-card {
+    border-color: var(--line, #cbd5e1);
+}
+
+.star-map-card:hover {
+    border-color: var(--darkblue, #4487df);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md, 0 4px 12px rgba(0, 0, 0, 0.08));
+}
+
+.star-map-card .extra-card-header .extra-card-title {
+    color: var(--text-main, #1f2937);
+}
+
+.star-map-action-box {
+    display: flex;
+    gap: 8px;
+    margin-top: 4px;
+}
+
+/* 开始按钮：严格对齐项目 .button.primary (Arts 核心蓝渐变阶梯与高光) */
+.star-map-btn-start {
+    flex: 1;
+    padding: 7px 12px;
+    font-size: 13px;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    border-radius: 6px;
+    background: linear-gradient(135deg, #4487df, #2b75dc);
+    color: #ffffff;
+    border: none;
+    box-shadow: 0 2px 8px rgba(68, 135, 223, 0.35);
+    transition: all 0.15s ease;
+    cursor: pointer;
+}
+
+.star-map-btn-start:hover:not(:disabled) {
+    background: linear-gradient(135deg, #5394e8, #3580e5);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(68, 135, 223, 0.45);
+}
+
+.star-map-btn-start:active:not(:disabled) {
+    transform: translateY(0);
+}
+
+.star-map-btn-start:disabled {
+    background: #f1f5f9;
+    border: 1px solid var(--line-light, #e2e8f0);
+    color: var(--text-subtle, #94a3b8);
+    box-shadow: none;
+    cursor: not-allowed;
+    opacity: 0.7;
+    transform: none;
+}
+
+/* 停止按钮：默认未启动时低调浅灰不可点，激活时为项目标准 Buster 猩红停止色 */
+.star-map-btn-stop {
+    padding: 7px 14px;
+    font-size: 13px;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    border-radius: 6px;
+    border: 1px solid var(--line-light, #e2e8f0);
+    background: #f1f5f9;
+    color: var(--text-subtle, #94a3b8);
+    box-shadow: none;
+    cursor: not-allowed;
+    opacity: 0.7;
+    transition: all 0.15s ease;
+}
+
+.star-map-btn-stop:not(:disabled) {
+    background: linear-gradient(135deg, #e7615c, #c53030);
+    border: none;
+    color: #ffffff;
+    box-shadow: 0 2px 6px rgba(231, 97, 92, 0.35);
+    cursor: pointer;
+    opacity: 1;
+}
+
+.star-map-btn-stop:not(:disabled):hover {
+    background: linear-gradient(135deg, #ef4444, #b91c1c);
+    box-shadow: 0 3px 10px rgba(239, 68, 68, 0.45);
+    transform: translateY(-1px);
+}
+
+.star-map-btn-stop:not(:disabled):active {
+    transform: translateY(0);
+}
+
+/* 状态展示条：严格遵循项目状态指示色规范体系 */
+.star-map-status-banner {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    padding: 6px 10px;
+    border-radius: 6px;
+    background: #f8fafc;
+    border: 1px solid var(--line-light, #e2e8f0);
+    color: var(--text-muted, #4b5563);
+    min-height: 32px;
+    box-sizing: border-box;
+    transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+}
+
+.star-map-status-banner.is-running {
+    background: var(--lightblue, #ebf7fe);
+    border-color: var(--blue, #85c1f7);
+    color: var(--darkblue, #4487df);
+}
+
+.star-map-status-banner.is-finished {
+    background: var(--lightgreen, #f9ffea);
+    border-color: var(--green, #b9e66b);
+    color: #276749;
+}
+
+.star-map-status-banner.is-stopped {
+    background: var(--lightyellow, #fef9de);
+    border-color: var(--yellow, #f9e179);
+    color: #975a16;
+}
+
+.star-map-status-banner.is-error {
+    background: var(--lightred, #fdf5f5);
+    border-color: var(--red, #f3acaa);
+    color: var(--darkred, #e7615c);
+}
+
+.star-map-status-text {
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.star-map-count-badge {
+    font-size: 11px;
+    font-weight: 700;
+    padding: 1px 7px;
+    border-radius: 4px;
+    background: var(--lightblue, #ebf7fe);
+    border: 1px solid var(--blue, #85c1f7);
+    color: var(--darkblue, #4487df);
+    white-space: nowrap;
+}
+
+.extra-card-tags {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+
+

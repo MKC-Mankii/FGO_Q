@@ -1,14 +1,27 @@
 import { appState, getCurGroup, getCurScheme, resetStateToInitial } from './state.js';
 import { CARD_INFO } from './constants.js';
 import { getCurSchemeRounds, commitChanges, generateConfigText, resetCurSchemeRoundsToInitial, createDefaultRound, compileSchemeDsl, extractDslFromText } from './dsl.js';
-import { $, toast, loadConfigFromBackend, saveConfigToBackend, shutdownServer, checkAdbStatus, startAdbAutoWatcher, setPendingSimulatorSync, updateSyncStatus, triggerRunBattle, triggerRunExtra, triggerStopBattle, detectExtraScene, startRunnerStatusWatcher, checkRunnerStatus, toggleRunnerMonitorPanel, openRunnerMonitorPanel, closeRunnerMonitorPanel, updateRunnerMonitorPanel, launchRunner, navigateFgoToHome, readyEnvironment, refreshAdbDevices } from './api.js';
+import { $, toast, loadConfigFromBackend, saveConfigToBackend, shutdownServer, checkAdbStatus, startAdbAutoWatcher, setPendingSimulatorSync, updateSyncStatus, triggerRunBattle, triggerRunExtra, triggerStopBattle, detectExtraScene, startRunnerStatusWatcher, checkRunnerStatus, toggleRunnerMonitorPanel, openRunnerMonitorPanel, closeRunnerMonitorPanel, updateRunnerMonitorPanel, launchRunner, navigateFgoToHome, readyEnvironment, cancelReadyEnvironment, refreshAdbDevices, startStarMapUnlock, stopStarMapUnlock, pollStarMapProgress } from './api.js';
 import { TEXT_CONFIG, formatText } from './text_config.js';
+
+import { loadFriends } from './friends.js';
 
 // 挂载到 window 方便全局调试与查看文本字典
 window.TEXT_CONFIG = TEXT_CONFIG;
 window.readyEnvironment = readyEnvironment;
+window.cancelReadyEnvironment = cancelReadyEnvironment;
 window.launchRunner = launchRunner;
 window.navigateFgoToHome = navigateFgoToHome;
+
+// 助战名录更新时自动联动重绘方案助战选择与侧栏标签
+window.onFriendsUpdated = () => {
+    try {
+        renderSchemeDetails();
+        renderSchemeList();
+    } catch (e) {
+        console.warn('onFriendsUpdated 联动刷新异常:', e);
+    }
+};
 
 import {
     closeModal,
@@ -844,18 +857,44 @@ function initEventBindings() {
         };
     }
 
-    // 智能就绪环境：合并「拉起脚本」与「进入主页」，按需自动执行
+    // 职阶星图自动解放按钮绑定
+    const btnStartStarMap = $('btnStartStarMap');
+    if (btnStartStarMap) {
+        btnStartStarMap.onclick = () => {
+            startStarMapUnlock();
+        };
+    }
+    const btnStopStarMap = $('btnStopStarMap');
+    if (btnStopStarMap) {
+        btnStopStarMap.onclick = () => {
+            stopStarMapUnlock();
+        };
+    }
+
+    // 智能就绪环境：已就绪点击展示日志，未就绪点击启动就绪，就绪中点击取消
     const readyEnvBtn = $('readyEnvBtn');
     if (readyEnvBtn) {
         readyEnvBtn.onclick = () => {
-            if (readyEnvBtn.disabled || readyEnvBtn.classList.contains('ready') || readyEnvBtn.classList.contains('working')) {
+            if (readyEnvBtn.classList.contains('cancelling')) {
+                return;
+            }
+            if (readyEnvBtn.classList.contains('working')) {
+                cancelReadyEnvironment();
+                return;
+            }
+            if (readyEnvBtn.classList.contains('ready')) {
+                toggleRunnerMonitorPanel();
                 return;
             }
             readyEnvironment();
         };
         readyEnvBtn.oncontextmenu = (e) => {
             e.preventDefault();
-            toggleRunnerMonitorPanel();
+            if (readyEnvBtn.classList.contains('ready')) {
+                readyEnvironment(true);
+            } else {
+                toggleRunnerMonitorPanel();
+            }
         };
     }
 
@@ -889,7 +928,11 @@ function initEventBindings() {
     const monitorReadyEnvBtn = $('monitorReadyEnvBtn');
     if (monitorReadyEnvBtn) {
         monitorReadyEnvBtn.onclick = () => {
-            readyEnvironment();
+            if (monitorReadyEnvBtn.textContent === '✅') {
+                readyEnvironment(true);
+            } else {
+                readyEnvironment();
+            }
         };
     }
 
@@ -1041,6 +1084,7 @@ function bootstrapApp() {
 
     initEventBindings();
     render();
+    loadFriends();
     loadConfigFromBackend(render);
     startAdbAutoWatcher(getCurrentConfigText);
     startRunnerStatusWatcher();

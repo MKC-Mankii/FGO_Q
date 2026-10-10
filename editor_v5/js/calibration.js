@@ -16,6 +16,7 @@
         // 核心双套范围
         cropArea: null,    // 截图裁切范围 [x1, y1, x2, y2] (可为 null)
         searchArea: null,  // 运行时匹配搜图范围 [x1, y1, x2, y2]
+        initialSearchArea: null, // 目标初始配置的匹配范围（用于检测修改与一键还原）
         showCrop: true,    // 是否在画面中呈现截图选区 (默认显示)
         showSearch: true,  // 是否在画面中呈现匹配范围 (默认显示)
         activeMode: 'crop',// 当前可编辑目标: 'crop' | 'search' (同时仅能有一种)
@@ -43,6 +44,8 @@
         dom.tabConfig = document.getElementById('tabNavConfig');
         dom.tabExtra = document.getElementById('tabNavExtra');
         dom.tabCalibrate = document.getElementById('tabNavCalibrate');
+        dom.tabSupport = document.getElementById('tabNavSupport');
+        dom.supportView = document.getElementById('supportViewMain');
 
         dom.targetsList = document.getElementById('calTargetsList');
         dom.targetCountBadge = document.getElementById('calTargetCountBadge');
@@ -52,8 +55,14 @@
         dom.ctx = dom.canvas ? dom.canvas.getContext('2d') : null;
         dom.emptyState = document.getElementById('calEmptyState');
 
-        dom.deviceSelect = document.getElementById('calDeviceSelect');
-        dom.btnRefreshDevices = document.getElementById('calBtnRefreshDevices');
+        // 同步顶部导航栏当前选中的模拟器
+        const topAdbSelect = document.getElementById('adbDeviceSelect');
+        if (topAdbSelect && topAdbSelect.value) {
+            state.selectedDevice = topAdbSelect.value;
+        } else if (typeof window.getSelectedAdbDevice === 'function') {
+            state.selectedDevice = window.getSelectedAdbDevice() || null;
+        }
+
         dom.btnCapture = document.getElementById('calBtnCapture');
         dom.btnTestMatch = document.getElementById('calBtnTestMatch');
         dom.btnSaveTarget = document.getElementById('calBtnSaveTarget');
@@ -65,10 +74,39 @@
         dom.layerCropItem = document.getElementById('layerCropItem');
         dom.layerSearchItem = document.getElementById('layerSearchItem');
 
+        // 新增截图选区与匹配范围独立操作按钮 (显示/隐藏 与 编辑)
+        dom.btnToggleCropVis = document.getElementById('btnToggleCropVis');
+        dom.btnToggleSearchVis = document.getElementById('btnToggleSearchVis');
+        dom.btnEditCrop = document.getElementById('btnEditCrop');
+        dom.btnEditSearch = document.getElementById('btnEditSearch');
+
         dom.targetName = document.getElementById('calTargetName');
         dom.targetKey = document.getElementById('calTargetKey');
+        dom.targetFile = document.getElementById('calTargetFile');
         dom.targetAnchor = document.getElementById('calTargetAnchor');
         dom.targetDesc = document.getElementById('calTargetDesc');
+
+        // 资产名称展示与内联编辑控件
+        dom.targetNameWrap = document.getElementById('calTargetNameWrap');
+        dom.targetNameEditor = document.getElementById('calTargetNameEditor');
+        dom.targetNameInput = document.getElementById('calTargetNameInput');
+        dom.btnSaveTargetName = document.getElementById('btnSaveTargetName');
+        dom.btnCancelTargetName = document.getElementById('btnCancelTargetName');
+
+        // 图片文件名展示与内联编辑控件
+        dom.targetFileWrap = document.getElementById('calTargetFileWrap');
+        dom.targetFileEditIcon = document.getElementById('calTargetFileEditIcon');
+        dom.targetFileEditor = document.getElementById('calTargetFileEditor');
+        dom.targetFileInput = document.getElementById('calTargetFileInput');
+        dom.btnSaveTargetFile = document.getElementById('btnSaveTargetFile');
+        dom.btnCancelTargetFile = document.getElementById('btnCancelTargetFile');
+
+        // 目标描述展示与内联编辑控件
+        dom.descDisplay = document.getElementById('calDescDisplay');
+        dom.descEditor = document.getElementById('calDescEditor');
+        dom.targetDescInput = document.getElementById('calTargetDescInput');
+        dom.btnSaveTargetDesc = document.getElementById('btnSaveTargetDesc');
+        dom.btnCancelTargetDesc = document.getElementById('btnCancelTargetDesc');
 
         // 截图选区控件
         dom.cropX1 = document.getElementById('calCropX1');
@@ -85,13 +123,13 @@
         dom.searchY2 = document.getElementById('calSearchY2');
         dom.searchSizeBadge = document.getElementById('calSearchSizeBadge');
         dom.btnExpandSearchFromCrop = document.getElementById('btnExpandSearchFromCrop');
+        dom.btnResetSearchArea = document.getElementById('btnResetSearchArea');
 
         // 点击锚点控件
         dom.inTapX = document.getElementById('calInTapX');
         dom.inTapY = document.getElementById('calInTapY');
 
         dom.previewImg = document.getElementById('calPreviewImg');
-        dom.previewSourceBadge = document.getElementById('calPreviewSourceBadge');
         dom.previewPlaceholder = document.getElementById('calPreviewPlaceholder');
         dom.matchResult = document.getElementById('calMatchResult');
         dom.cardCrop = document.querySelector('.cal-card-crop');
@@ -152,11 +190,13 @@
             if (dom.configView) dom.configView.style.display = 'none';
             if (dom.settingsBar) dom.settingsBar.style.display = 'none';
             if (dom.extraView) dom.extraView.style.display = 'none';
+            if (dom.supportView) dom.supportView.style.display = 'none';
             if (dom.container) dom.container.classList.add('active');
             if (shell) shell.classList.add('calibration-active');
 
             if (dom.tabConfig) dom.tabConfig.classList.remove('active');
             if (dom.tabExtra) dom.tabExtra.classList.remove('active');
+            if (dom.tabSupport) dom.tabSupport.classList.remove('active');
             if (dom.tabCalibrate) dom.tabCalibrate.classList.add('active');
 
             if (subtext) subtext.textContent = '校准不同分辨率与环境下的界面找图区域与点击坐标。';
@@ -176,25 +216,50 @@
             if (shell) shell.classList.remove('calibration-active');
             if (dom.configView) dom.configView.style.display = 'none';
             if (dom.settingsBar) dom.settingsBar.style.display = 'none';
+            if (dom.supportView) dom.supportView.style.display = 'none';
             if (dom.extraView) dom.extraView.style.display = '';
 
             if (dom.tabConfig) dom.tabConfig.classList.remove('active');
             if (dom.tabCalibrate) dom.tabCalibrate.classList.remove('active');
+            if (dom.tabSupport) dom.tabSupport.classList.remove('active');
             if (dom.tabExtra) dom.tabExtra.classList.add('active');
 
             if (subtext) subtext.textContent = '自动化执行从者强化、礼装强化、技能升级、友情点召唤与无限池抽奖。';
             if (twinBattle) twinBattle.classList.remove('context-active');
             if (twinExtra) twinExtra.classList.add('context-active');
+        } else if (viewName === 'support') {
+            console.log('[View] 切换到管理助战视图');
+            if (dom.container) dom.container.classList.remove('active');
+            if (shell) shell.classList.remove('calibration-active');
+            if (dom.configView) dom.configView.style.display = 'none';
+            if (dom.settingsBar) dom.settingsBar.style.display = 'none';
+            if (dom.extraView) dom.extraView.style.display = 'none';
+            if (dom.supportView) dom.supportView.style.display = '';
+
+            if (dom.tabConfig) dom.tabConfig.classList.remove('active');
+            if (dom.tabCalibrate) dom.tabCalibrate.classList.remove('active');
+            if (dom.tabExtra) dom.tabExtra.classList.remove('active');
+            if (dom.tabSupport) dom.tabSupport.classList.add('active');
+
+            if (subtext) subtext.textContent = '管理助战从者档案、代号索引与特征匹配图槽位。';
+            if (twinBattle) twinBattle.classList.remove('context-active');
+            if (twinExtra) twinExtra.classList.remove('context-active');
+
+            if (window.friendsModule && window.friendsModule.loadFriends) {
+                window.friendsModule.loadFriends();
+            }
         } else {
             console.log('[View] 切换到战术配置时序视图');
             if (dom.container) dom.container.classList.remove('active');
             if (shell) shell.classList.remove('calibration-active');
             if (dom.extraView) dom.extraView.style.display = 'none';
+            if (dom.supportView) dom.supportView.style.display = 'none';
             if (dom.configView) dom.configView.style.display = '';
             if (dom.settingsBar) dom.settingsBar.style.display = '';
 
             if (dom.tabCalibrate) dom.tabCalibrate.classList.remove('active');
             if (dom.tabExtra) dom.tabExtra.classList.remove('active');
+            if (dom.tabSupport) dom.tabSupport.classList.remove('active');
             if (dom.tabConfig) dom.tabConfig.classList.add('active');
 
             if (subtext) subtext.textContent = '可视化配置各关卡技能、换人与出牌时序。';
@@ -203,27 +268,86 @@
         }
     };
 
+    // 统一同步卡片头部独立操作按钮 UI 状态 (显示/隐藏 与 可编辑)
+    function updateControlButtonsUI() {
+        // 1. 截图选区显示按钮
+        if (dom.btnToggleCropVis) {
+            const isVis = Boolean(state.showCrop);
+            dom.btnToggleCropVis.classList.toggle('is-active', isVis);
+            dom.btnToggleCropVis.title = isVis ? '当前已在画面中显示，点击隐藏' : '当前已隐藏，点击在画面中显示';
+            const dot = dom.btnToggleCropVis.querySelector('.cal-opt-dot');
+            if (dot) dot.className = `cal-opt-dot ${isVis ? 'green' : 'muted'}`;
+            const text = dom.btnToggleCropVis.querySelector('.cal-opt-text');
+            if (text) text.textContent = isVis ? '显示' : '隐藏';
+        }
+
+        // 2. 截图选区编辑按钮 (保持文字恒为“编辑”，仅通过图标勾选状态表达，避免按钮宽度跳动)
+        if (dom.btnEditCrop) {
+            const isEditing = state.activeMode === 'crop';
+            dom.btnEditCrop.classList.toggle('is-active', isEditing);
+            dom.btnEditCrop.title = isEditing ? '当前已勾选为编辑目标（可在画面中拖拽调整）' : '点击勾选为当前编辑目标';
+            const text = dom.btnEditCrop.querySelector('.cal-opt-text');
+            if (text) text.textContent = '编辑';
+        }
+
+        // 3. 匹配范围显示按钮
+        if (dom.btnToggleSearchVis) {
+            const isVis = Boolean(state.showSearch);
+            dom.btnToggleSearchVis.classList.toggle('is-active', isVis);
+            dom.btnToggleSearchVis.title = isVis ? '当前已在画面中显示，点击隐藏' : '当前已隐藏，点击在画面中显示';
+            const dot = dom.btnToggleSearchVis.querySelector('.cal-opt-dot');
+            if (dot) dot.className = `cal-opt-dot ${isVis ? 'blue' : 'muted'}`;
+            const text = dom.btnToggleSearchVis.querySelector('.cal-opt-text');
+            if (text) text.textContent = isVis ? '显示' : '隐藏';
+        }
+
+        // 4. 匹配范围编辑按钮 (保持文字恒为“编辑”，仅通过图标勾选状态表达，避免按钮宽度跳动)
+        if (dom.btnEditSearch) {
+            const isEditing = state.activeMode === 'search';
+            dom.btnEditSearch.classList.toggle('is-active', isEditing);
+            dom.btnEditSearch.title = isEditing ? '当前已勾选为编辑目标（可在画面中拖拽调整）' : '点击勾选为当前编辑目标';
+            const text = dom.btnEditSearch.querySelector('.cal-opt-text');
+            if (text) text.textContent = '编辑';
+        }
+
+        // 5. 卡片外框激活态高亮联动
+        if (dom.cardCrop) dom.cardCrop.classList.toggle('active-mode', state.activeMode === 'crop');
+        if (dom.cardSearch) dom.cardSearch.classList.toggle('active-mode', state.activeMode === 'search');
+
+        // 6. 兼容性旧元素同步
+        if (dom.chkShowCrop) dom.chkShowCrop.checked = Boolean(state.showCrop);
+        if (dom.chkShowSearch) dom.chkShowSearch.checked = Boolean(state.showSearch);
+        if (dom.radioEditCrop) dom.radioEditCrop.checked = state.activeMode === 'crop';
+        if (dom.radioEditSearch) dom.radioEditSearch.checked = state.activeMode === 'search';
+        if (dom.layerCropItem) dom.layerCropItem.classList.toggle('is-editing', state.activeMode === 'crop');
+        if (dom.layerSearchItem) dom.layerSearchItem.classList.toggle('is-editing', state.activeMode === 'search');
+    }
+
     // 交互模式切换 (同时仅有一种处于可编辑状态，设为可编辑时自动保证其显示)
     function setEditMode(mode) {
         state.activeMode = mode;
 
         if (mode === 'crop') {
             state.showCrop = true;
-            if (dom.chkShowCrop) dom.chkShowCrop.checked = true;
-            if (dom.radioEditCrop) dom.radioEditCrop.checked = true;
-            if (dom.layerCropItem) dom.layerCropItem.classList.add('is-editing');
-            if (dom.layerSearchItem) dom.layerSearchItem.classList.remove('is-editing');
-            if (dom.cardCrop) dom.cardCrop.classList.add('active-mode');
-            if (dom.cardSearch) dom.cardSearch.classList.remove('active-mode');
         } else if (mode === 'search') {
             state.showSearch = true;
-            if (dom.chkShowSearch) dom.chkShowSearch.checked = true;
-            if (dom.radioEditSearch) dom.radioEditSearch.checked = true;
-            if (dom.layerSearchItem) dom.layerSearchItem.classList.add('is-editing');
-            if (dom.layerCropItem) dom.layerCropItem.classList.remove('is-editing');
-            if (dom.cardSearch) dom.cardSearch.classList.add('active-mode');
-            if (dom.cardCrop) dom.cardCrop.classList.remove('active-mode');
         }
+
+        updateControlButtonsUI();
+        renderCanvas();
+    }
+
+    // 切换截图选区显示状态 (仅切换画面可见性，不影响当前编辑目标)
+    function toggleCropVisibility() {
+        state.showCrop = !state.showCrop;
+        updateControlButtonsUI();
+        renderCanvas();
+    }
+
+    // 切换匹配范围显示状态 (仅切换画面可见性，不影响当前编辑目标)
+    function toggleSearchVisibility() {
+        state.showSearch = !state.showSearch;
+        updateControlButtonsUI();
         renderCanvas();
     }
 
@@ -263,6 +387,7 @@
             const isTap = t.category === 'tap';
             const item = document.createElement('div');
             item.className = 'cal-target-item' + (t.key === state.selectedKey ? ' selected' : '');
+            item.dataset.key = t.key;
             item.onclick = () => selectTarget(t.key);
 
             const dot = document.createElement('div');
@@ -315,17 +440,53 @@
             dom.targetsList.children[curIdx].classList.add('selected');
         }
 
-        // 更新右侧面板属性
+        // 更新顶部宽幅目标属性
         if (dom.targetName) dom.targetName.textContent = target.name;
         if (dom.targetKey) dom.targetKey.textContent = target.key;
+        if (dom.targetFile) {
+            if (target.category === 'tap') {
+                dom.targetFile.textContent = '纯点击坐标 (无图片)';
+                if (dom.targetFileWrap) {
+                    dom.targetFileWrap.classList.add('cal-readonly');
+                    dom.targetFileWrap.title = '纯点击坐标无需图片文件';
+                }
+                if (dom.targetFileEditIcon) dom.targetFileEditIcon.style.display = 'none';
+            } else {
+                dom.targetFile.textContent = target.file || `${target.key}.png`;
+                if (dom.targetFileWrap) {
+                    dom.targetFileWrap.classList.remove('cal-readonly');
+                    dom.targetFileWrap.title = '点击编辑图片文件名';
+                }
+                if (dom.targetFileEditIcon) dom.targetFileEditIcon.style.display = 'inline-flex';
+            }
+        }
         if (dom.targetAnchor) dom.targetAnchor.value = target.anchor || 'center';
-        if (dom.targetDesc) dom.targetDesc.textContent = target.description || '暂无描述';
+        
+        // 恢复名称、文件名、描述为展示态并渲染文本
+        if (dom.targetNameEditor && dom.targetNameWrap) {
+            dom.targetNameEditor.style.display = 'none';
+            dom.targetNameWrap.style.display = 'inline-flex';
+        }
+        if (dom.targetFileEditor && dom.targetFileWrap) {
+            dom.targetFileEditor.style.display = 'none';
+            dom.targetFileWrap.style.display = 'inline-flex';
+        }
+        if (dom.descEditor && dom.descDisplay) {
+            dom.descEditor.style.display = 'none';
+            dom.descDisplay.style.display = 'inline-flex';
+        }
+        if (dom.targetDesc) {
+            const hasDesc = Boolean(target.description && target.description.trim());
+            dom.targetDesc.textContent = hasDesc ? target.description : '暂无描述 (点击添加)';
+            dom.targetDesc.classList.toggle('empty-desc', !hasDesc);
+        }
 
         const isTap = target.category === 'tap';
 
         // 载入双套坐标范围
         if (isTap) {
-            state.searchArea = target.search_area ? [...target.search_area] : null;
+            state.initialSearchArea = target.search_area ? [...target.search_area] : null;
+            state.searchArea = state.initialSearchArea ? [...state.initialSearchArea] : null;
             state.cropArea = target.crop_area ? [...target.crop_area] : null;
             state.tapCoord = target.tap_coord ? [...target.tap_coord] : null;
 
@@ -335,7 +496,8 @@
             }
             if (dom.btnTestMatch) dom.btnTestMatch.style.display = 'none';
         } else {
-            state.searchArea = target.search_area ? [...target.search_area] : (target.area ? [...target.area] : [0, 0, 1440, 810]);
+            state.initialSearchArea = target.search_area ? [...target.search_area] : (target.area ? [...target.area] : [0, 0, 1440, 810]);
+            state.searchArea = [...state.initialSearchArea];
             state.cropArea = target.crop_area ? [...target.crop_area] : null;
             state.tapCoord = target.tap_coord ? [...target.tap_coord] : null;
 
@@ -352,6 +514,234 @@
         updateInputsFromState();
         updatePreview();
         renderCanvas();
+    }
+
+    // 检查当前匹配范围相对既有配置是否发生变更
+    function isSearchAreaModified() {
+        if (!state.initialSearchArea && !state.searchArea) return false;
+        if (!state.initialSearchArea || !state.searchArea) return true;
+        if (state.initialSearchArea.length !== state.searchArea.length) return true;
+        return state.initialSearchArea.some((v, i) => v !== state.searchArea[i]);
+    }
+
+    // 更新还原匹配范围按钮状态
+    function updateResetSearchButtonUI() {
+        if (!dom.btnResetSearchArea) return;
+        const modified = isSearchAreaModified();
+        dom.btnResetSearchArea.disabled = !modified;
+        if (modified && state.initialSearchArea) {
+            dom.btnResetSearchArea.title = `点击还原为初始配置坐标: (${state.initialSearchArea.join(', ')})`;
+        } else {
+            dom.btnResetSearchArea.title = '当前坐标与配置一致，无需还原';
+        }
+    }
+
+    // 执行还原初始匹配范围
+    function resetSearchArea() {
+        if (!state.initialSearchArea) return;
+        state.searchArea = [...state.initialSearchArea];
+        updateInputsFromState();
+        renderCanvas();
+        updateResetSearchButtonUI();
+    }
+
+    // 通用异步持久化更新目标元数据至后端 profile
+    async function saveTargetMetadata(curTarget, tipText = '✔ 保存成功') {
+        try {
+            const res = await fetch('/api/calibrate/save_target', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    target_key: curTarget.key,
+                    file: curTarget.file,
+                    name: curTarget.name,
+                    category: curTarget.category,
+                    anchor: dom.targetAnchor ? dom.targetAnchor.value : (curTarget.anchor || 'center'),
+                    search_area: curTarget.search_area || null,
+                    tap_coord: curTarget.tap_coord || null,
+                    description: curTarget.description || '',
+                    rect: null
+                })
+            });
+            const data = await res.json();
+            if (data.success) {
+                setSaveStatusTip('success', tipText, 2500);
+            } else {
+                setSaveStatusTip('error', data.error ? `✖ 保存失败: ${data.error}` : '✖ 保存失败', 3500);
+            }
+        } catch (e) {
+            console.warn('[Calibration] 保存目标元数据异常:', e);
+            setSaveStatusTip('error', '✖ 网络或服务异常', 3500);
+        }
+    }
+
+    // 局部更新左侧清单列表中对应项目的名称与子标题
+    function updateTargetListItemUI(key) {
+        if (!dom.targetsList) return;
+        const curTarget = state.targets.find(t => t.key === key);
+        if (!curTarget) return;
+        const item = dom.targetsList.querySelector(`.cal-target-item[data-key="${key}"]`);
+        if (item) {
+            const titleEl = item.querySelector('.cal-target-title');
+            if (titleEl) titleEl.textContent = curTarget.name;
+            const subEl = item.querySelector('.cal-target-sub');
+            if (subEl) {
+                const isTap = curTarget.category === 'tap';
+                const tapSub = curTarget.tap_coord ? `Tap (${curTarget.tap_coord[0]}, ${curTarget.tap_coord[1]})` : '未设坐标';
+                subEl.textContent = isTap ? tapSub : (curTarget.file || '待截图');
+            }
+        }
+    }
+
+    // 1. 资产名称内联编辑
+    function startEditTargetName() {
+        if (!state.selectedKey) return;
+        const curTarget = state.targets.find(t => t.key === state.selectedKey);
+        if (!curTarget) return;
+
+        if (dom.targetNameInput) {
+            dom.targetNameInput.value = curTarget.name || '';
+        }
+        if (dom.targetNameWrap) dom.targetNameWrap.style.display = 'none';
+        if (dom.targetNameEditor) {
+            dom.targetNameEditor.style.display = 'inline-flex';
+            if (dom.targetNameInput) {
+                dom.targetNameInput.focus();
+                dom.targetNameInput.select();
+            }
+        }
+    }
+
+    function cancelTargetName() {
+        if (dom.targetNameEditor) dom.targetNameEditor.style.display = 'none';
+        if (dom.targetNameWrap) dom.targetNameWrap.style.display = 'inline-flex';
+    }
+
+    async function commitTargetName() {
+        if (!state.selectedKey) return;
+        const curTarget = state.targets.find(t => t.key === state.selectedKey);
+        if (!curTarget) return;
+
+        const newName = dom.targetNameInput ? dom.targetNameInput.value.trim() : '';
+        const oldName = curTarget.name || '';
+
+        if (!newName) {
+            cancelTargetName();
+            return;
+        }
+
+        curTarget.name = newName;
+        if (dom.targetName) dom.targetName.textContent = newName;
+        cancelTargetName();
+        updateTargetListItemUI(curTarget.key);
+
+        if (newName !== oldName) {
+            saveTargetMetadata(curTarget, '✔ 资产名称已更新');
+        }
+    }
+
+    // 2. 图片文件名内联编辑 (仅编辑 .png 前面的内容)
+    function startEditTargetFile() {
+        if (!state.selectedKey) return;
+        const curTarget = state.targets.find(t => t.key === state.selectedKey);
+        if (!curTarget || curTarget.category === 'tap') return;
+
+        const currentFile = curTarget.file || `${curTarget.key}.png`;
+        const baseName = currentFile.replace(/\.png$/i, '');
+
+        if (dom.targetFileInput) {
+            dom.targetFileInput.value = baseName;
+        }
+        if (dom.targetFileWrap) dom.targetFileWrap.style.display = 'none';
+        if (dom.targetFileEditor) {
+            dom.targetFileEditor.style.display = 'inline-flex';
+            if (dom.targetFileInput) {
+                dom.targetFileInput.focus();
+                dom.targetFileInput.select();
+            }
+        }
+    }
+
+    function cancelTargetFile() {
+        if (dom.targetFileEditor) dom.targetFileEditor.style.display = 'none';
+        if (dom.targetFileWrap) dom.targetFileWrap.style.display = 'inline-flex';
+    }
+
+    async function commitTargetFile() {
+        if (!state.selectedKey) return;
+        const curTarget = state.targets.find(t => t.key === state.selectedKey);
+        if (!curTarget || curTarget.category === 'tap') return;
+
+        let rawBase = dom.targetFileInput ? dom.targetFileInput.value.trim() : '';
+        rawBase = rawBase.replace(/\.png$/i, '').trim();
+        rawBase = rawBase.replace(/[\/\\:*?"<>|]/g, '_');
+
+        if (!rawBase) {
+            cancelTargetFile();
+            return;
+        }
+
+        const newFile = `${rawBase}.png`;
+        const oldFile = curTarget.file || `${curTarget.key}.png`;
+
+        curTarget.file = newFile;
+        if (dom.targetFile) dom.targetFile.textContent = newFile;
+        cancelTargetFile();
+        updateTargetListItemUI(curTarget.key);
+
+        if (newFile !== oldFile) {
+            curTarget.image_url = `/api/calibrate/image/${encodeURIComponent(newFile)}?t=${Date.now()}`;
+            if (dom.previewImg && dom.previewImg.style.display !== 'none') {
+                dom.previewImg.src = curTarget.image_url;
+            }
+            saveTargetMetadata(curTarget, '✔ 图片文件名已更新');
+        }
+    }
+
+    // 3. 目标描述内联编辑
+    function startEditTargetDescription() {
+        if (!state.selectedKey) return;
+        const curTarget = state.targets.find(t => t.key === state.selectedKey);
+        if (!curTarget) return;
+
+        if (dom.targetDescInput) {
+            dom.targetDescInput.value = curTarget.description || '';
+        }
+        if (dom.descDisplay) dom.descDisplay.style.display = 'none';
+        if (dom.descEditor) {
+            dom.descEditor.style.display = 'flex';
+            if (dom.targetDescInput) {
+                dom.targetDescInput.focus();
+                dom.targetDescInput.select();
+            }
+        }
+    }
+
+    function cancelTargetDescription() {
+        if (dom.descEditor) dom.descEditor.style.display = 'none';
+        if (dom.descDisplay) dom.descDisplay.style.display = 'inline-flex';
+    }
+
+    async function commitTargetDescription() {
+        if (!state.selectedKey) return;
+        const curTarget = state.targets.find(t => t.key === state.selectedKey);
+        if (!curTarget) return;
+
+        const newDesc = dom.targetDescInput ? dom.targetDescInput.value.trim() : '';
+        const oldDesc = curTarget.description || '';
+        curTarget.description = newDesc;
+
+        if (dom.targetDesc) {
+            const hasDesc = Boolean(newDesc);
+            dom.targetDesc.textContent = hasDesc ? newDesc : '暂无描述 (点击添加)';
+            dom.targetDesc.classList.toggle('empty-desc', !hasDesc);
+        }
+
+        cancelTargetDescription();
+
+        if (newDesc !== oldDesc) {
+            saveTargetMetadata(curTarget, '✔ 描述已保存');
+        }
     }
 
     function updateInputsFromState() {
@@ -403,6 +793,9 @@
             }
         }
 
+        // 同步检查并刷新“还原”按钮状态
+        updateResetSearchButtonUI();
+
         // 3. 点击锚点
         if (state.tapCoord) {
             if (dom.inTapX) dom.inTapX.value = state.tapCoord[0];
@@ -447,7 +840,19 @@
         renderCanvas();
     }
 
-    // 抓取模拟器当前屏幕
+    // 获取当前全局选中的目标模拟器 (同步使用顶部导航栏的模拟器)
+    function getActiveDevice() {
+        if (state.selectedDevice) return state.selectedDevice;
+        const topAdbSelect = document.getElementById('adbDeviceSelect');
+        if (topAdbSelect && topAdbSelect.value) return topAdbSelect.value;
+        if (typeof window.getSelectedAdbDevice === 'function') {
+            const dev = window.getSelectedAdbDevice();
+            if (dev) return dev;
+        }
+        return undefined;
+    }
+
+    // 抓取模拟器当前屏幕 (同步使用顶部导航栏选中的模拟器)
     async function captureScreen(options = {}) {
         const silent = Boolean(options && options.silent === true);
         if (dom.btnCapture) {
@@ -455,7 +860,7 @@
             dom.btnCapture.textContent = '📸 正在抓屏...';
         }
         try {
-            const dev = (dom.deviceSelect ? dom.deviceSelect.value : '') || state.selectedDevice || '';
+            const dev = getActiveDevice() || '';
             const url = dev ? `/api/calibrate/screen?device=${encodeURIComponent(dev)}` : '/api/calibrate/screen';
             const res = await fetch(url);
             const data = await res.json();
@@ -469,9 +874,6 @@
 
             if (data.device) {
                 state.selectedDevice = data.device;
-                if (dom.deviceSelect && dom.deviceSelect.value !== data.device) {
-                    dom.deviceSelect.value = data.device;
-                }
             }
 
             state.screenWidth = data.width;
@@ -505,39 +907,6 @@
         }
     }
 
-    // 获取矩形的 8 个控制手柄坐标
-    function getRectHandles(rect) {
-        if (!rect || rect.length !== 4) return null;
-        const x1 = Math.min(rect[0], rect[2]);
-        const y1 = Math.min(rect[1], rect[3]);
-        const x2 = Math.max(rect[0], rect[2]);
-        const y2 = Math.max(rect[1], rect[3]);
-        const midX = Math.round((x1 + x2) / 2);
-        const midY = Math.round((y1 + y2) / 2);
-        return {
-            nw: [x1, y1],
-            n:  [midX, y1],
-            ne: [x2, y1],
-            e:  [x2, midY],
-            se: [x2, y2],
-            s:  [midX, y2],
-            sw: [x1, y2],
-            w:  [x1, midY]
-        };
-    }
-
-    // 命中手柄检测 (像素容差 radius)
-    function hitTestHandle(cx, cy, rect, radius = 9) {
-        const handles = getRectHandles(rect);
-        if (!handles) return null;
-        for (const [key, [hx, hy]] of Object.entries(handles)) {
-            if (Math.hypot(cx - hx, cy - hy) <= radius) {
-                return key;
-            }
-        }
-        return null;
-    }
-
     // 辅助测试点击点是否命中矩形内部
     function isInsideRect(cx, cy, rect) {
         if (!rect || rect.length !== 4) return false;
@@ -546,20 +915,6 @@
         const x2 = Math.max(rect[0], rect[2]);
         const y2 = Math.max(rect[1], rect[3]);
         return cx >= x1 && cx <= x2 && cy >= y1 && cy <= y2;
-    }
-
-    // 绘制 8 个控制手柄
-    function drawHandles(rect, strokeColor, fillColor) {
-        const handles = getRectHandles(rect);
-        if (!handles) return;
-        const handleSize = 7;
-        dom.ctx.fillStyle = fillColor;
-        dom.ctx.strokeStyle = strokeColor;
-        dom.ctx.lineWidth = 1.5;
-        for (const [key, [px, py]] of Object.entries(handles)) {
-            dom.ctx.fillRect(px - handleSize / 2, py - handleSize / 2, handleSize, handleSize);
-            dom.ctx.strokeRect(px - handleSize / 2, py - handleSize / 2, handleSize, handleSize);
-        }
     }
 
     // 绘制 Canvas：同时渲染匹配范围 (蓝) 与截图选区 (绿)，且均呈现清晰标识
@@ -628,10 +983,6 @@
             dom.ctx.setLineDash([]);
             dom.ctx.shadowBlur = 0;
 
-            if (isAct) {
-                drawHandles([sx1, sy1, sx2, sy2], '#3182ce', '#ffffff');
-            }
-
             // 匹配范围标签徽标
             const tagText = `🔍 匹配范围: ${sw}×${sh}`;
             dom.ctx.font = 'bold 11px monospace';
@@ -669,10 +1020,6 @@
             }
             dom.ctx.strokeRect(cx1, cy1, cw, ch);
             dom.ctx.shadowBlur = 0;
-
-            if (isAct) {
-                drawHandles([cx1, cy1, cx2, cy2], '#48bb78', '#ffffff');
-            }
 
             // 截图选区标签徽标 (智能防重叠避让)
             const tagText = `✂️ 截图选区: ${cw}×${ch}`;
@@ -738,7 +1085,6 @@
     // 更新右侧特征小图预览 (严格基于截图选区 cropArea，纯点击目标展示放大十字准星，绝不混用 searchArea)
     function updatePreview() {
         const target = state.targets.find(t => t.key === state.selectedKey);
-        const badge = dom.previewSourceBadge;
         const placeholder = dom.previewPlaceholder;
         const isTap = target && target.category === 'tap';
 
@@ -776,10 +1122,6 @@
                     dom.previewImg.style.display = 'block';
                 }
                 if (placeholder) placeholder.style.display = 'none';
-                if (badge) {
-                    badge.textContent = `点击锚点局部 (${tx}, ${ty})`;
-                    badge.style.color = '#fc8181';
-                }
                 return;
             } else {
                 if (dom.previewImg) {
@@ -789,10 +1131,6 @@
                 if (placeholder) {
                     placeholder.style.display = 'block';
                     placeholder.innerHTML = `🎯 纯点击锚点<br><span style="font-size:10px; color:#fc8181;">坐标: (${state.tapCoord ? state.tapCoord.join(', ') : '未设置'})</span><br><span style="font-size:10px; color:#a0aec0;">在画面中左键点击可直接移动锚点</span>`;
-                }
-                if (badge) {
-                    badge.textContent = '纯点击锚点';
-                    badge.style.color = '#fc8181';
                 }
                 return;
             }
@@ -819,10 +1157,6 @@
                     dom.previewImg.style.display = 'block';
                 }
                 if (placeholder) placeholder.style.display = 'none';
-                if (badge) {
-                    badge.textContent = `实时截图选区 (${w}×${h})`;
-                    badge.style.color = '#68d391';
-                }
                 return;
             }
         }
@@ -834,10 +1168,6 @@
                 dom.previewImg.style.display = 'block';
             }
             if (placeholder) placeholder.style.display = 'none';
-            if (badge) {
-                badge.textContent = '库内存档特征图 (待框选重截)';
-                badge.style.color = '#ecc94b';
-            }
         } else {
             // 3. 既无截图选区，也无库内图片
             if (dom.previewImg) {
@@ -845,34 +1175,15 @@
                 dom.previewImg.style.display = 'none';
             }
             if (placeholder) placeholder.style.display = 'block';
-            if (badge) {
-                badge.textContent = '未预设选区';
-                badge.style.color = '#a0aec0';
-            }
         }
     }
 
-    // 光标映射表
-    const CURSOR_MAP = {
-        nw: 'nwse-resize',
-        se: 'nwse-resize',
-        ne: 'nesw-resize',
-        sw: 'nesw-resize',
-        n:  'ns-resize',
-        s:  'ns-resize',
-        e:  'ew-resize',
-        w:  'ew-resize',
-        move: 'move',
-        pointer: 'pointer',
-        crosshair: 'crosshair'
-    };
-
-    // 分析光标所在位置的命中行为 (仅可编辑且可见的图层响应手柄拖拽)
+    // 分析光标所在位置的命中行为 (框内平移拖动，空白处重新框选)
     function getHoverAction(cx, cy) {
         const curTarget = state.targets.find(t => t.key === state.selectedKey);
         const isTap = curTarget && curTarget.category === 'tap';
 
-        // 纯点击锚点类型：优先判定准星手柄
+        // 纯点击锚点类型：优先判定准星移动
         if (isTap) {
             if (state.tapCoord && Math.hypot(cx - state.tapCoord[0], cy - state.tapCoord[1]) <= 16) {
                 return { action: 'move_tap', target: 'tap', cursor: 'move' };
@@ -887,31 +1198,21 @@
         const otherVisible = otherMode === 'crop' ? state.showCrop : state.showSearch;
         const otherRect = otherVisible ? (otherMode === 'crop' ? state.cropArea : state.searchArea) : null;
 
-        // 1. 优先检查当前处于可编辑状态且可见框的手柄 (缩放)
-        if (activeRect) {
-            const h = hitTestHandle(cx, cy, activeRect, 9);
-            if (h) return { action: h, target: state.activeMode, cursor: CURSOR_MAP[h] };
-        }
-
-        // 2. 检查当前处于可编辑状态且可见框的内部 (平移拖动)
+        // 1. 检查当前处于可编辑状态且可见框的内部 (平移拖动)
         if (activeRect && isInsideRect(cx, cy, activeRect)) {
             return { action: 'move', target: state.activeMode, cursor: 'move' };
         }
 
-        // 3. 检查另一可见模式框 (点击可自动切换为唯一可编辑目标)
-        if (otherRect) {
-            const h = hitTestHandle(cx, cy, otherRect, 9);
-            if (h) return { action: 'switch_handle', handle: h, target: otherMode, cursor: CURSOR_MAP[h] };
-            if (isInsideRect(cx, cy, otherRect)) {
-                return { action: 'switch_move', target: otherMode, cursor: 'pointer' };
-            }
+        // 2. 检查另一可见模式框 (点击可自动切换为唯一可编辑目标并可平移)
+        if (otherRect && isInsideRect(cx, cy, otherRect)) {
+            return { action: 'switch_move', target: otherMode, cursor: 'pointer' };
         }
 
-        // 4. 空白区域 (重新框选绘制当前可编辑模式)
+        // 3. 空白区域 (重新框选绘制当前可编辑模式)
         return { action: 'draw', target: state.activeMode, cursor: 'crosshair' };
     }
 
-    // Canvas 鼠标交互 (双范围绘制、手柄拉伸缩放、整体拖拽平移)
+    // Canvas 鼠标交互 (双范围绘制与框内平移拖拽，无控制手柄)
     function setupCanvasEvents() {
         if (!dom.canvas) return;
 
@@ -934,7 +1235,7 @@
             dom.canvas.style.cursor = hover.cursor || 'crosshair';
         });
 
-        // 鼠标按下：判定手柄缩放、移动、切换或新建绘制
+        // 鼠标按下：判定平移、切换或新建框选
         dom.canvas.addEventListener('mousedown', function (e) {
             if (!state.screenImage) return;
             const [cx, cy] = getCanvasPos(e);
@@ -942,9 +1243,9 @@
             const curTarget = state.targets.find(t => t.key === state.selectedKey);
             const isTap = curTarget && curTarget.category === 'tap';
 
-            // 纯点击锚点：左键或右键直接设定并允许即时拖动微调
+            // 纯点击锚点：仅左键直接设定并允许即时拖动微调
             if (isTap) {
-                if (e.button === 0 || e.button === 2) {
+                if (e.button === 0) {
                     e.preventDefault();
                     state.tapCoord = [cx, cy];
                     state.dragState = {
@@ -955,34 +1256,16 @@
                     updateInputsFromState();
                     updatePreview();
                     renderCanvas();
-                    return;
                 }
-            }
-
-            // Alt + 点击 或 右键：通用设置 Tap 点击锚点
-            if (e.altKey || e.button === 2) {
-                e.preventDefault();
-                state.tapCoord = [cx, cy];
-                updateInputsFromState();
-                updatePreview();
-                renderCanvas();
                 return;
             }
 
-            if (e.button !== 0) return;
+            // 彻底移除 Alt 与右键操作：仅响应普通左键 (e.button === 0 且无 altKey)
+            if (e.button !== 0 || e.altKey) return;
 
             const hover = getHoverAction(cx, cy);
 
-            if (hover.action === 'switch_handle') {
-                setEditMode(hover.target);
-                const rect = hover.target === 'crop' ? state.cropArea : state.searchArea;
-                state.dragState = {
-                    action: hover.handle,
-                    target: hover.target,
-                    startPos: [cx, cy],
-                    initialRect: [...rect]
-                };
-            } else if (hover.action === 'switch_move') {
+            if (hover.action === 'switch_move') {
                 setEditMode(hover.target);
                 const rect = hover.target === 'crop' ? state.cropArea : state.searchArea;
                 state.dragState = {
@@ -995,14 +1278,6 @@
                 const rect = hover.target === 'crop' ? state.cropArea : state.searchArea;
                 state.dragState = {
                     action: 'move',
-                    target: hover.target,
-                    startPos: [cx, cy],
-                    initialRect: [...rect]
-                };
-            } else if (CURSOR_MAP[hover.action]) {
-                const rect = hover.target === 'crop' ? state.cropArea : state.searchArea;
-                state.dragState = {
-                    action: hover.action,
                     target: hover.target,
                     startPos: [cx, cy],
                     initialRect: [...rect]
@@ -1062,30 +1337,9 @@
                 nx1 = Math.max(0, Math.min(maxW - w, nx1));
                 ny1 = Math.max(0, Math.min(maxH - h, ny1));
                 updatedRect = [Math.round(nx1), Math.round(ny1), Math.round(nx1 + w), Math.round(ny1 + h)];
-            } else {
-                // 缩放手柄调整对应边界
-                const dx = cx - startPos[0];
-                const dy = cy - startPos[1];
-                let [x1, y1, x2, y2] = initialRect;
-
-                if (action.includes('w')) x1 += dx;
-                if (action.includes('e')) x2 += dx;
-                if (action.includes('n')) y1 += dy;
-                if (action.includes('s')) y2 += dy;
-
-                // 限制在画布安全视口边界内
-                x1 = Math.max(0, Math.min(maxW, x1));
-                x2 = Math.max(0, Math.min(maxW, x2));
-                y1 = Math.max(0, Math.min(maxH, y1));
-                y2 = Math.max(0, Math.min(maxH, y2));
-
-                updatedRect = [
-                    Math.round(Math.min(x1, x2)),
-                    Math.round(Math.min(y1, y2)),
-                    Math.round(Math.max(x1, x2)),
-                    Math.round(Math.max(y1, y2))
-                ];
             }
+
+            if (!updatedRect) return;
 
             if (target === 'crop') {
                 state.cropArea = updatedRect;
@@ -1143,7 +1397,7 @@
                 dom.btnSaveTarget.textContent = '💾 正在保存点击锚点...';
             }
 
-            const curDev = (dom.deviceSelect ? dom.deviceSelect.value : '') || state.selectedDevice || undefined;
+            const curDev = getActiveDevice();
             try {
                 const res = await fetch('/api/calibrate/save_target', {
                     method: 'POST',
@@ -1154,6 +1408,7 @@
                         category: curTarget ? curTarget.category : undefined,
                         tap_coord: state.tapCoord,
                         anchor: dom.targetAnchor ? dom.targetAnchor.value : 'center',
+                        description: curTarget ? curTarget.description : undefined,
                         device: curDev
                     })
                 });
@@ -1198,7 +1453,7 @@
         }
 
         try {
-            const curDev = (dom.deviceSelect ? dom.deviceSelect.value : '') || state.selectedDevice || undefined;
+            const curDev = getActiveDevice();
             const res = await fetch('/api/calibrate/save_target', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -1211,6 +1466,7 @@
                     search_area: state.searchArea, // 运行时匹配搜图范围
                     tap_coord: state.tapCoord,
                     anchor: dom.targetAnchor ? dom.targetAnchor.value : 'center',
+                    description: curTarget ? curTarget.description : undefined,
                     device: curDev,
                     image_base64: state.screenImage ? state.screenImage.src : undefined
                 })
@@ -1251,7 +1507,7 @@
         }
 
         try {
-            const curDev = (dom.deviceSelect ? dom.deviceSelect.value : '') || state.selectedDevice || undefined;
+            const curDev = getActiveDevice();
             const res = await fetch('/api/calibrate/test_match', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -1296,80 +1552,72 @@
         if (dom.btnSaveTarget) dom.btnSaveTarget.onclick = saveTarget;
         if (dom.btnTestMatch) dom.btnTestMatch.onclick = testMatch;
 
-        // 模拟器设备切换
-        if (dom.deviceSelect) {
-            dom.deviceSelect.addEventListener('change', () => {
-                if (window.selectAdbDevice) {
-                    window.selectAdbDevice(dom.deviceSelect.value);
-                }
-            });
-        }
-
-        // 刷新检测在线模拟器
-        if (dom.btnRefreshDevices) {
-            dom.btnRefreshDevices.onclick = async () => {
-                dom.btnRefreshDevices.style.transform = 'rotate(360deg)';
-                if (window.checkAdbStatus) {
-                    await window.checkAdbStatus();
-                }
-                setTimeout(() => {
-                    if (dom.btnRefreshDevices) dom.btnRefreshDevices.style.transform = '';
-                }, 400);
-            };
-        }
-
-        // 监听全局设备变更
+        // 监听全局顶部模拟器变更，自动同步当前标定所使用的模拟器
         window.addEventListener('adb-device-changed', (e) => {
             if (e.detail && e.detail.device) {
                 state.selectedDevice = e.detail.device;
-                if (dom.deviceSelect && dom.deviceSelect.value !== e.detail.device) {
-                    dom.deviceSelect.value = e.detail.device;
-                }
             }
         });
 
-        // 勾选显示/隐藏 截图选区 (默认显示)
+        // 1. 显示/隐藏 独立操作按钮
+        if (dom.btnToggleCropVis) {
+            dom.btnToggleCropVis.addEventListener('click', (e) => {
+                e.stopPropagation();
+                toggleCropVisibility();
+            });
+        }
+
+        if (dom.btnToggleSearchVis) {
+            dom.btnToggleSearchVis.addEventListener('click', (e) => {
+                e.stopPropagation();
+                toggleSearchVisibility();
+            });
+        }
+
+        // 2. 可编辑 独立操作按钮
+        if (dom.btnEditCrop) {
+            dom.btnEditCrop.addEventListener('click', (e) => {
+                e.stopPropagation();
+                setEditMode('crop');
+            });
+        }
+
+        if (dom.btnEditSearch) {
+            dom.btnEditSearch.addEventListener('click', (e) => {
+                e.stopPropagation();
+                setEditMode('search');
+            });
+        }
+
+        // 兼容支持旧版复选框与单选框
         if (dom.chkShowCrop) {
             dom.chkShowCrop.addEventListener('change', () => {
                 state.showCrop = dom.chkShowCrop.checked;
-                // 若隐藏了当前处于编辑状态的目标且另一方可见，则自动把编辑权切换至另一方
-                if (!state.showCrop && state.activeMode === 'crop' && state.showSearch) {
-                    setEditMode('search');
-                }
+                updateControlButtonsUI();
                 renderCanvas();
             });
         }
 
-        // 勾选显示/隐藏 匹配范围 (默认显示)
         if (dom.chkShowSearch) {
             dom.chkShowSearch.addEventListener('change', () => {
                 state.showSearch = dom.chkShowSearch.checked;
-                // 若隐藏了当前处于编辑状态的目标且另一方可见，则自动把编辑权切换至另一方
-                if (!state.showSearch && state.activeMode === 'search' && state.showCrop) {
-                    setEditMode('crop');
-                }
+                updateControlButtonsUI();
                 renderCanvas();
             });
         }
 
-        // 单选可编辑状态 (同时仅限一种可编辑)
         if (dom.radioEditCrop) {
             dom.radioEditCrop.addEventListener('change', () => {
-                if (dom.radioEditCrop.checked) {
-                    setEditMode('crop');
-                }
+                if (dom.radioEditCrop.checked) setEditMode('crop');
             });
         }
 
         if (dom.radioEditSearch) {
             dom.radioEditSearch.addEventListener('change', () => {
-                if (dom.radioEditSearch.checked) {
-                    setEditMode('search');
-                }
+                if (dom.radioEditSearch.checked) setEditMode('search');
             });
         }
 
-        // 点击图层控制区或卡片标题直接激活对应编辑模式
         if (dom.layerCropItem) {
             dom.layerCropItem.addEventListener('click', (e) => {
                 if (e.target.closest('.cal-layer-check')) return;
@@ -1384,6 +1632,7 @@
             });
         }
 
+        // 点击卡片标题左侧直接激活对应编辑目标
         if (dom.cardCrop) {
             const header = dom.cardCrop.querySelector('.cal-card-title-left');
             if (header) {
@@ -1417,7 +1666,7 @@
                 dom.btnAutoDetectCrop.textContent = '🔍 正在智能识图中...';
 
                 try {
-                    const curDev = (dom.deviceSelect ? dom.deviceSelect.value : '') || state.selectedDevice || undefined;
+                    const curDev = getActiveDevice();
                     const curTarget = state.targets.find(t => t.key === state.selectedKey);
                     const res = await fetch('/api/calibrate/test_match', {
                         method: 'POST',
@@ -1493,6 +1742,13 @@
             };
         }
 
+        // 还原匹配范围按钮
+        if (dom.btnResetSearchArea) {
+            dom.btnResetSearchArea.onclick = () => {
+                resetSearchArea();
+            };
+        }
+
         // 分类标签过滤
         dom.categoryTabs.forEach(btn => {
             btn.onclick = () => {
@@ -1530,6 +1786,142 @@
             if (inp) inp.addEventListener('input', updateStateFromInputs);
         });
 
+        // 资产名称点击编辑交互
+        if (dom.targetNameWrap) {
+            dom.targetNameWrap.addEventListener('click', () => {
+                startEditTargetName();
+            });
+        }
+
+        if (dom.btnSaveTargetName) {
+            dom.btnSaveTargetName.addEventListener('click', (e) => {
+                e.stopPropagation();
+                commitTargetName();
+            });
+        }
+
+        if (dom.btnCancelTargetName) {
+            dom.btnCancelTargetName.addEventListener('click', (e) => {
+                e.stopPropagation();
+                cancelTargetName();
+            });
+        }
+
+        if (dom.targetNameInput) {
+            dom.targetNameInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    commitTargetName();
+                } else if (e.key === 'Escape') {
+                    e.preventDefault();
+                    cancelTargetName();
+                }
+            });
+
+            dom.targetNameInput.addEventListener('blur', (e) => {
+                const rel = e.relatedTarget;
+                if (rel === dom.btnSaveTargetName || rel === dom.btnCancelTargetName) {
+                    return;
+                }
+                commitTargetName();
+            });
+        }
+
+        // 图片文件名点击编辑交互 (纯点击类型禁止编辑)
+        if (dom.targetFileWrap) {
+            dom.targetFileWrap.addEventListener('click', () => {
+                if (!dom.targetFileWrap.classList.contains('cal-readonly')) {
+                    startEditTargetFile();
+                }
+            });
+        }
+
+        if (dom.btnSaveTargetFile) {
+            dom.btnSaveTargetFile.addEventListener('click', (e) => {
+                e.stopPropagation();
+                commitTargetFile();
+            });
+        }
+
+        if (dom.btnCancelTargetFile) {
+            dom.btnCancelTargetFile.addEventListener('click', (e) => {
+                e.stopPropagation();
+                cancelTargetFile();
+            });
+        }
+
+        if (dom.targetFileInput) {
+            dom.targetFileInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    commitTargetFile();
+                } else if (e.key === 'Escape') {
+                    e.preventDefault();
+                    cancelTargetFile();
+                }
+            });
+
+            dom.targetFileInput.addEventListener('blur', (e) => {
+                const rel = e.relatedTarget;
+                if (rel === dom.btnSaveTargetFile || rel === dom.btnCancelTargetFile) {
+                    return;
+                }
+                commitTargetFile();
+            });
+        }
+
+        // 目标描述点击编辑交互
+        if (dom.descDisplay) {
+            dom.descDisplay.addEventListener('click', () => {
+                startEditTargetDescription();
+            });
+        }
+
+        if (dom.btnSaveTargetDesc) {
+            dom.btnSaveTargetDesc.addEventListener('click', (e) => {
+                e.stopPropagation();
+                commitTargetDescription();
+            });
+        }
+
+        if (dom.btnCancelTargetDesc) {
+            dom.btnCancelTargetDesc.addEventListener('click', (e) => {
+                e.stopPropagation();
+                cancelTargetDescription();
+            });
+        }
+
+        if (dom.targetDescInput) {
+            dom.targetDescInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    commitTargetDescription();
+                } else if (e.key === 'Escape') {
+                    e.preventDefault();
+                    cancelTargetDescription();
+                }
+            });
+
+            dom.targetDescInput.addEventListener('blur', (e) => {
+                const rel = e.relatedTarget;
+                if (rel === dom.btnSaveTargetDesc || rel === dom.btnCancelTargetDesc) {
+                    return;
+                }
+                commitTargetDescription();
+            });
+        }
+
+        // 目标吸附对齐方式变更联动
+        if (dom.targetAnchor) {
+            dom.targetAnchor.addEventListener('change', () => {
+                if (!state.selectedKey) return;
+                const curTarget = state.targets.find(t => t.key === state.selectedKey);
+                if (curTarget) {
+                    curTarget.anchor = dom.targetAnchor.value;
+                }
+            });
+        }
+
         setupCanvasEvents();
     }
 
@@ -1544,8 +1936,22 @@
         getState: () => state
     };
 
+    // 暴露供助战面板等快速定位目标的辅助方法
+    window.selectCalibrationTargetByKey = function (targetKey) {
+        if (!targetKey) return;
+        state.activeCategory = 'friend';
+        if (dom.categoryTabs) {
+            dom.categoryTabs.forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.cat === 'friend');
+            });
+        }
+        renderTargetsList();
+        selectTarget(targetKey);
+    };
+
     document.addEventListener('DOMContentLoaded', function () {
         initDom();
+        updateControlButtonsUI();
         bindEvents();
         loadTargets();
     });

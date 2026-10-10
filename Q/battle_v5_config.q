@@ -11,7 +11,7 @@ ShowMessage "【提示】这是配置文件！请启动【fgo_battle_v5_runner�
 ' 优先级：FRIEND_Gx_y > FRIEND_Gx > friend（全局字段，目前未在此文件配置）。
 
 ' ==================== 全局运行配置 (RUNNER CONFIG) ====================
-Dim RUN_MODE = 1  ' 当前运行主模式: 0=战术战斗(Battle), 1=Extra辅助(Extra)
+Dim RUN_MODE = 0  ' 当前运行主模式: 0=战术战斗(Battle), 1=Extra辅助(Extra)
 Dim ACTION_GROUP_INDEX = 1  ' 当前生效大组: 0=test, 1=campaign, 2=caber, 3=grand, 4=ordeal
 Dim BATTLE_COUNT = 30  ' 连续战斗次数
 Dim APPLE_ENABLE = 0  ' 是否吃苹果补充体力 (0=关, 1=开)
@@ -20,10 +20,9 @@ Dim FORCE_COLOR_CARD = 0  ' 是否强制选择对应色卡 (0=关, 1=开)
 
 ' --- Extra 辅助运行配置 ---
 Dim EXTRA_ACTION_COUNT = 30  ' Extra 连续执行次数上限
-Dim EXTRA_SKILL_MAX_LEVEL = 9  ' 技能强化目标等级 (1~10)
+Dim EXTRA_SKILL_MAX_LEVEL = 10  ' 技能强化目标等级 (1~10)
 Dim EXTRA_SKILL_AUTO_THREE = 1  ' 技能强化是否强化全部技能 (0=关, 1=开)
 Dim EXTRA_HERO_AUTO_ASCEND = 1  ' 从者强化是否自动灵基再临 (0=关, 1=开)
-Dim EXTRA_HERO_AUTO_GRAIL = 0  ' 强化是否自动圣杯转临 (0=关, 1=开，默认关避免消耗珍贵圣杯)
 Dim EXTRA_HERO_AUTO_GRAIL = 0  ' 从者强化是否自动圣杯转临 (0=关, 1=开)
 
 ' ==================== 兼容与兜底字段 ====================
@@ -31,7 +30,7 @@ Dim CFG_ACTION_GROUP_INDEX = 1
 Dim MANUAL_BATTLE_COUNT = 30
 Dim MANUAL_APPLE_ENABLE = 0
 Dim MANUAL_FORCE_COLOR_CARD = 0
-Dim EXTRA_ENABLE = 1
+Dim EXTRA_ENABLE = 0
 Dim ACTIVITY_REWARD = 0
 
 ' -----------------------------
@@ -63,12 +62,12 @@ Dim DSL_G0_5 = "t1 | t2 | t3 | t4 | t5 | t6 | t1 | t2 | t3 | t4 | t5 | t6 | a7, 
 ' -----------------------------
 ' 大组 1: campaign（活动关卡）
 Dim ACTIVITY_REWARD_G1 = 0
-Dim ACTION_ROUND_INDEX_G1 = 1
+Dim ACTION_ROUND_INDEX_G1 = 2
 ' 方案 1: 90+
 Dim ACTIVITY_REWARD_G1_1 = 0
 Dim FRIEND_G1_1 = "shahu"
 Dim DSL_G1_1 = "s92, 10, 50 | a7, 4, 5;s20, 32, 40, 72, 82, 60 | aB, Q, A;m32 | s40, 50 | a7, B, B"
-' 方案 2: shahu
+' 方案 2: 90++
 Dim ACTIVITY_REWARD_G1_2 = 0
 Dim FRIEND_G1_2 = "shahu"
 Dim DSL_G1_2 = "s82, 92, 50 | a7, 4, 5;s40, 72, 12, 30, 60 | m32 | s50 | a7, B, A;s20, 40 | a7, B, B"
@@ -76,7 +75,7 @@ Dim DSL_G1_2 = "s82, 92, 50 | a7, 4, 5;s40, 72, 12, 30, 60 | m32 | s50 | a7, B, 
 ' -----------------------------
 ' 大组 2: caber（术呆通用）
 Dim ACTIVITY_REWARD_G2 = 0
-Dim ACTION_ROUND_INDEX_G2 = 1
+Dim ACTION_ROUND_INDEX_G2 = 3
 Dim FRIEND_G2 = "cdai"
 ' 方案 1: 水伊吹
 Dim ACTIVITY_REWARD_G2_1 = 0
@@ -153,6 +152,25 @@ Dim DSL_G4_4 = "s10, 20, 40, 50, 62, 70, 92 | m22 | a7, 4, 5"
 ' grand    = 戴冠战关卡配置
 ' ordeal   = 白纸化地球 Ordeal Call 配置
 ' custom   = 手工逐项修改上面字段
+
+
+' ==================== 助战特征匹配图模板 (FRIEND TEMPLATES) ====================
+Dim ATT_Aobao = "Attachment:friendAobao1.png|Attachment:friendAobao2.png|Attachment:friendAobao3.png|Attachment:friendAobao5.png"
+Dim ATT_Aobaoshan = "Attachment:friendAobao3Shan.png"
+Dim ATT_Cdai = "Attachment:friendCDai.png|Attachment:friendCDai2.png|Attachment:friendCDai3.png"
+Dim ATT_Daoman = "Attachment:friendDaoMan3.png"
+Dim ATT_Cba = "Attachment:friendCba.png"
+Dim ATT_Rba = "Attachment:friendRba1.png|Attachment:friendRba2.png|Attachment:friendRba3.png|Attachment:friendRba4.png"
+Dim ATT_Rbashan = "Attachment:friendRba3Shan.png"
+Dim ATT_Shahu = "Attachment:friendShaHu1.png|Attachment:friendShaHu2.png|Attachment:friendShaHu3.png"
+Dim ATT_Shahushan = "Attachment:friendShaHuShan1.png|Attachment:friendShaHuShan2.png|Attachment:friendShaHuShan3.png"
+Dim ATT_Princess = "Attachment:friendPrincess.png|Attachment:friendPrincess2.png|Attachment:friendPrincess3.png"
+Dim ATT_Princess120 = "Attachment:friendPrincess120.png|Attachment:friendPrincess1202.png|Attachment:friendPrincess1203.png"
+Dim ATT_Taigong = "Attachment:friendtaigong.png"
+Dim ATT_Sparrow = "Attachment:friendSparrow.png"
+Dim ATT_Mary = "Attachment:friendMary1.png|Attachment:friendMary2.png"
+Dim ATT_Keli = "Attachment:friendKeli1.png|Attachment:friendKeli2.png|Attachment:friendKeli3.png"
+' [待标定] 助战 bdai (狂呆) 暂无已标定图片，跳过 ATT 声明
 
 ' ==============================================================================
 ' 🎯 屏幕标定与视觉目标配置 (TARGETS & COORDINATES CONFIG)

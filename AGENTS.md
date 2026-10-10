@@ -11,3 +11,8 @@
   - **严禁关闭用户打开的 Editor 进程**：**严禁擅自杀掉或关闭用户主动启动的 Editor 进程**（如用户通过快捷方式/脚本打开的 `launcher.py`、`server.py` 或后台 `pythonw` 守护进程），除非发生明确的端口严重冲突或用户明确要求。
   - **自身测试任务完结即停**：Agent 自身为执行测试/验证所拉起的任何临时后台任务（如 `run_command` 的 `IsDaemon=true` 任务）、临时子进程或测试脚本，在测试完成后必须立即主动全部停止并清理，不得在后台无意义常驻。
 
+## UI 与视觉规范遵循准则 (UI Guidelines)
+
+- **UI 改动前强制查阅规范文档**：
+  凡涉及 `editor_v5/`（包括页面结构、样式、JS 动态生成的 DOM、弹窗、卡片及控件等）的任何新增或修改，**Agent 在编码前必须强制先查阅设计规范文件 [docs/editor_ui_design_spec.md](file:///f:/2nd%20Accra/Git/Github/FGO_Q/docs/editor_ui_design_spec.md)**，并严格按照其设计系统及 [editor_v5/css/base.css](file:///f:/2nd%20Accra/Git/Github/FGO_Q/editor_v5/css/base.css) 中声明的 Design Tokens 进行开发，严禁脱离文档擅自发明色彩体系或引入外来调色板。
+

@@ -55,7 +55,7 @@ Function ResolveTargetImg(rawAttachedImg)
 
 1. **第一优先级（动态热更轨 · 免打包）**：
    - 路径：`/sdcard/FGO_Q/images/<fileName>.png`
-   - **特点**：日常在 Editor V5 中标定、重新裁切、添加助战好友（如 `friendShaHu2Shan.png`）时，**仅需 ADB 推送到此目录即可立即生效**，脚本无需重编译，也不需要重新打包 `.atc`。
+   - **特点**：日常在 Editor V5 中标定、重新裁切、添加助战好友（如 `friendShaHuShan2.png`）时，**仅需 ADB 推送到此目录即可立即生效**，脚本无需重编译，也不需要重新打包 `.atc`。
 2. **第二优先级（离线保底轨 · ATC 封装）**：
    - 路径：`Attachment:<fileName>.png`（从关联的 `.atc` 解压提取）
    - **特点**：用于将整个脚本打包为完全独立的安装包离线分发。在 `/sdcard/FGO_Q/images/` 缺失或全新安装的模拟器上提供静态保底能力。
@@ -89,7 +89,7 @@ python .agents/skills/fgo-atc-packager/scripts/manage_atc.py build --source "ima
 ```bash
 python .agents/skills/fgo-atc-packager/scripts/manage_atc.py add <atc_path> <image_path> [--name <optional_name>]
 # 示例：将新助战头像直接打入已有包
-python .agents/skills/fgo-atc-packager/scripts/manage_atc.py add scratch/runner_v5.atc "images/attached images/friendShaHu2Shan.png"
+python .agents/skills/fgo-atc-packager/scripts/manage_atc.py add scratch/runner_v5.atc "images/attached images/friendShaHuShan2.png"
 ```
 
 ### 5) 一键双端同步部署（PC 手机助手 + 模拟器）

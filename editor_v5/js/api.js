@@ -743,11 +743,13 @@ export function updateRunnerUI(data) {
         if (newState === 'RUNNING') {
             isStartingBattle = false;
         } else {
-            if (readyEnvBtn) readyEnvBtn.style.display = 'none';
-            indicator.style.display = 'inline-flex';
-            indicator.className = 'runner-badge running';
-            indicator.textContent = '⏳ 正在启动...';
-            indicator.title = '启动指令已下发，正在等待按键脚本响应...';
+            if (indicator) indicator.style.display = 'none';
+            if (readyEnvBtn) {
+                readyEnvBtn.style.display = 'inline-flex';
+                if (!isReadyEnvExecuting && !isCancellingReadyEnv) {
+                    updateReadyEnvBtn('✅', '已就绪', 'ready');
+                }
+            }
             if (twinGroup) twinGroup.style.display = 'none';
             if (stopBtn) {
                 stopBtn.style.display = 'inline-flex';
@@ -767,11 +769,13 @@ export function updateRunnerUI(data) {
         if (newState === 'IDLE' || newState === 'OFFLINE') {
             isStoppingBattle = false;
         } else {
-            if (readyEnvBtn) readyEnvBtn.style.display = 'none';
-            indicator.style.display = 'inline-flex';
-            indicator.className = 'runner-badge stopping';
-            indicator.textContent = '⏳ 正在停止...';
-            indicator.title = '停止指令已下发，正在等待按键脚本执行到安全节点并退出...';
+            if (indicator) indicator.style.display = 'none';
+            if (readyEnvBtn) {
+                readyEnvBtn.style.display = 'inline-flex';
+                if (!isReadyEnvExecuting && !isCancellingReadyEnv) {
+                    updateReadyEnvBtn('✅', '已就绪', 'ready');
+                }
+            }
             if (twinGroup) twinGroup.style.display = 'none';
             if (stopBtn) {
                 stopBtn.style.display = 'inline-flex';
@@ -787,24 +791,27 @@ export function updateRunnerUI(data) {
         }
     }
 
-    // 3. 根据新状态渲染顶部界面与分体/合体按钮
+    // 3. 根据新状态渲染顶部界面与分体/合体按钮 (indicator 隐藏，就绪环境专钮专用)
+    if (indicator) indicator.style.display = 'none';
+
     if (!data || !data.connected) {
-        if (readyEnvBtn) readyEnvBtn.style.display = 'none';
-        indicator.style.display = 'inline-flex';
-        indicator.className = 'runner-badge offline';
-        indicator.textContent = '⚪ 模拟器离线';
-        indicator.title = '模拟器离线或未连接\n启动模拟器开启 ADB 后重试';
-        restoreReadyButtons(false, '模拟器未连接，点击查看引导');
-    } else if (newState === 'OFFLINE') {
-        // 脚本未启动：与「就绪环境」按钮整合，隐藏状态胶囊，直接展示可点击的「⚡ 就绪环境」按钮
-        indicator.style.display = 'none';
         if (readyEnvBtn) {
             readyEnvBtn.style.display = 'inline-flex';
-            if (!isReadyEnvExecuting) {
+            isEnvironmentReady = false;
+            if (!isReadyEnvExecuting && !isCancellingReadyEnv) {
+                updateReadyEnvBtn('⚡', '就绪环境', 'default');
+                readyEnvBtn.title = '【模拟器未连接】点击检查并就绪环境（请确保模拟器已启动并开启 ADB）';
+            }
+        }
+        restoreReadyButtons(false, '模拟器未连接，点击查看引导');
+    } else if (newState === 'OFFLINE') {
+        if (readyEnvBtn) {
+            readyEnvBtn.style.display = 'inline-flex';
+            if (!isReadyEnvExecuting && !isCancellingReadyEnv) {
                 isEnvironmentReady = false;
                 updateReadyEnvBtn('⚡', '就绪环境', 'default');
                 const offlineDuration = data.heartbeat_age_s ? formatDuration(data.heartbeat_age_s) : '';
-                let tipMsg = '【按键脚本未启动】点击智能就绪环境（自动拉起脚本待命并推进至 FGO 游戏主页）';
+                let tipMsg = '【按键脚本未启动】点击智能就绪环境（自动拉起脚本待命并推进至 FGO 游戏主页，执行中可再次点击取消）';
                 if (offlineDuration) tipMsg += ` (已离线 ${offlineDuration})`;
                 tipMsg += '\n• 右键可展开/收起脚本监控日志面板';
                 readyEnvBtn.title = tipMsg;
@@ -812,9 +819,14 @@ export function updateRunnerUI(data) {
         }
         restoreReadyButtons(false, '按键脚本未启动，建议先点击「就绪环境」就绪后再运行');
     } else if (newState === 'RUNNING') {
-        if (readyEnvBtn) readyEnvBtn.style.display = 'none';
-        indicator.style.display = 'inline-flex';
-        indicator.className = 'runner-badge running';
+        if (readyEnvBtn) {
+            readyEnvBtn.style.display = 'inline-flex';
+            isEnvironmentReady = true;
+            if (!isReadyEnvExecuting && !isCancellingReadyEnv) {
+                updateReadyEnvBtn('✅', '已就绪', 'ready');
+                readyEnvBtn.title = '【环境已就绪】按键脚本执行中\n• 点击展开/收起脚本监控日志\n• 战斗状态请查看右侧控制按钮';
+            }
+        }
         const isExtra = data && (
             (data.mode && data.mode.toUpperCase() === 'EXTRA') ||
             (data.action && (data.action.includes('Extra') || data.action.includes('强化') || data.action.includes('再临') || data.action.includes('灵基') || data.action.includes('突破') || data.action.includes('整备') || data.action.includes('抽卡') || data.action.includes('召唤') || data.action.includes('友情') || data.action.includes('池') || data.action.includes('圣杯') || data.action.includes('转临'))) ||
@@ -827,9 +839,6 @@ export function updateRunnerUI(data) {
 
         if (isExtra) {
             const countText = totalRounds > 0 ? `第 ${round}/${totalRounds} 次` : `第 ${round} 次`;
-            indicator.textContent = '🛠️ 整备中';
-            indicator.title = `【按键脚本整备执行中】\n• 进度：${countText}\n• 任务：${data.action || '整备任务执行中'}\n• 时间：${data.time || ''}\n点击展开/收起监控日志，右侧按钮可停止任务`;
-
             if (stopBtn) {
                 stopBtn.style.display = 'inline-flex';
                 updateStopButtonState({
@@ -849,9 +858,6 @@ export function updateRunnerUI(data) {
         } else {
             const roundText = totalRounds > 0 ? `第 ${round}/${totalRounds} 轮` : `第 ${round} 轮`;
             const subRoundText = subRound > 0 ? `${subRound}/3 面` : '';
-
-            indicator.textContent = '⚔️ 战斗中';
-            indicator.title = `【按键脚本战斗中】\n• 战斗进度：${roundText}${subRoundText ? ` (${subRoundText})` : ''}\n• 当前动作：${data.action || '战斗执行中'}\n• 时间：${data.time || ''}\n点击展开/收起监控日志，右侧按钮可停止战斗`;
 
             if (stopBtn) {
                 stopBtn.style.display = 'inline-flex';
@@ -873,11 +879,14 @@ export function updateRunnerUI(data) {
 
         if (twinGroup) twinGroup.style.display = 'none';
     } else if (newState === 'STOPPING') {
-        if (readyEnvBtn) readyEnvBtn.style.display = 'none';
-        indicator.style.display = 'inline-flex';
-        indicator.className = 'runner-badge stopping';
-        indicator.textContent = '⏳ 正在停止...';
-        indicator.title = '正在等待任务执行到安全节点并退出...';
+        if (readyEnvBtn) {
+            readyEnvBtn.style.display = 'inline-flex';
+            isEnvironmentReady = true;
+            if (!isReadyEnvExecuting && !isCancellingReadyEnv) {
+                updateReadyEnvBtn('✅', '已就绪', 'ready');
+                readyEnvBtn.title = '【环境已就绪】任务正在停止中\n• 点击展开/收起脚本监控日志';
+            }
+        }
         if (twinGroup) twinGroup.style.display = 'none';
         if (stopBtn) {
             stopBtn.style.display = 'inline-flex';
@@ -894,21 +903,21 @@ export function updateRunnerUI(data) {
         }
     } else {
         // newState === 'IDLE'
-        if (isReadyEnvExecuting) {
-            indicator.style.display = 'none';
-            if (readyEnvBtn) readyEnvBtn.style.display = 'inline-flex';
-        } else {
-            isEnvironmentReady = Boolean(data && data.environment_ready);
-            if (readyEnvBtn) readyEnvBtn.style.display = 'none';
-            indicator.style.display = 'inline-flex';
-            indicator.className = 'runner-badge idle';
-            indicator.textContent = '🟢 脚本待命';
-            let idleTip = `【按键脚本已在后台待命】\n• 状态：随时可点击「运行战斗」或「运行整备」即时启动\n• 最近心跳：${data.time || '刚刚'}\n• 提示消息：${data.message || '就绪'}`;
-            if (data && data.action) {
-                idleTip += `\n• 上次动作：${data.action}`;
+        if (readyEnvBtn) {
+            readyEnvBtn.style.display = 'inline-flex';
+            if (!isReadyEnvExecuting && !isCancellingReadyEnv) {
+                const isReady = Boolean(data && data.environment_ready) || isEnvironmentReady;
+                isEnvironmentReady = isReady;
+                if (isReady) {
+                    updateReadyEnvBtn('✅', '已就绪', 'ready');
+                    let readyTip = '【环境已就绪】按键脚本已在后台待命且已处于游戏主页\n• 点击展开/收起脚本监控日志\n• 右键可重新检查就绪环境';
+                    if (data && data.time) readyTip += `\n• 最近心跳: ${data.time}`;
+                    readyEnvBtn.title = readyTip;
+                } else {
+                    updateReadyEnvBtn('⚡', '就绪环境', 'default');
+                    readyEnvBtn.title = '【按键脚本已在后台待命】建议点击智能就绪环境确保游戏处于主页待命\n• 右键可展开/收起脚本监控日志面板';
+                }
             }
-            idleTip += '\n• 点击展开/收起脚本监控日志\n• 右键可智能就绪环境 (推进至 FGO 主页)';
-            indicator.title = idleTip;
         }
         restoreReadyButtons(false, '启动自动化任务（未保存改动将自动保存并直推至模拟器）');
     }
@@ -1113,62 +1122,135 @@ export function startRunnerStatusWatcher() {
 
 let isReadyEnvExecuting = false;
 let isEnvironmentReady = false;
+let isCancellingReadyEnv = false;
+let readyEnvAbortController = null;
 
 // 设置就绪环境按钮的实时状态显示：
-// mode: 'default' (橙色⚡就绪环境) | 'working' (不可点击 + 流动条纹动画) | 'ready' (不可点击 + 绿色沉静基调 + ✅已就绪)
+// mode: 'default' (橙色⚡就绪环境) | 'working' (可点击取消 + 流动条纹动画) | 'cancelling' (不可点击 + 红色取消过渡) | 'ready' (不可点击 + 绿色沉静基调 + ✅已就绪)
 export function updateReadyEnvBtn(icon, text, mode = 'default') {
     const btn = $('readyEnvBtn');
+    const monitorBtn = $('monitorReadyEnvBtn');
     if (!btn) return;
     const cleanText = (text || '就绪环境').trim();
     const isLong = cleanText.length > 4;
 
     btn.classList.toggle('multiline-status', isLong);
     btn.classList.toggle('working', mode === 'working');
+    btn.classList.toggle('cancelling', mode === 'cancelling');
     btn.classList.toggle('ready', mode === 'ready');
 
     btn.innerHTML = `<span class="ready-btn-icon">${icon || '⚡'}</span><span class="ready-btn-text">${cleanText}</span>`;
 
     if (mode === 'working') {
+        btn.disabled = false;
+        btn.title = `正在就绪: ${cleanText} (再次点击取消当前执行)`;
+        if (monitorBtn) {
+            monitorBtn.textContent = '⏳';
+            monitorBtn.title = `正在就绪: ${cleanText} (点击取消当前执行)`;
+        }
+    } else if (mode === 'cancelling') {
         btn.disabled = true;
-        btn.title = `正在就绪环境: ${cleanText} (执行中不可重复点击)`;
+        btn.title = '正在取消就绪环境，请稍候...';
+        if (monitorBtn) {
+            monitorBtn.textContent = '🛑';
+            monitorBtn.title = '正在取消就绪环境...';
+        }
     } else if (mode === 'ready') {
-        btn.disabled = true;
-        btn.title = '环境已完全就绪（按键脚本已在后台待命且已处于游戏主页）';
+        btn.disabled = false;
+        btn.title = '【环境已就绪】点击展开/收起脚本监控日志\n• 右键可重新就绪环境';
+        if (monitorBtn) {
+            monitorBtn.textContent = '✅';
+            monitorBtn.title = '环境已完全就绪 (点击重新检查就绪)';
+        }
     } else {
         btn.disabled = false;
         btn.title = '智能就绪环境：哪个未完成就操作哪个。都没完成则先拉起脚本再推进至 FGO 游戏主页';
+        if (monitorBtn) {
+            monitorBtn.textContent = '⚡';
+            monitorBtn.title = '智能就绪环境 (按需唤醒并推进至 FGO 游戏主页)';
+        }
     }
 }
 
-// 智能就绪环境：合并「拉起脚本」与「进入主页」，按需自动执行
-export async function readyEnvironment(forceRestart = false) {
-    if (isReadyEnvExecuting || isEnvironmentReady) return;
-    const btn = $('readyEnvBtn');
-    if (btn && (btn.disabled || btn.classList.contains('ready') || btn.classList.contains('working'))) return;
-    isReadyEnvExecuting = true;
+// 取消当前正在执行的就绪环境任务
+export async function cancelReadyEnvironment() {
+    if (!isReadyEnvExecuting || isCancellingReadyEnv) return;
+    isCancellingReadyEnv = true;
+    updateReadyEnvBtn('🛑', '正在取消', 'cancelling');
+    toast('🛑 正在取消就绪环境...', 3000);
 
-    // 工作时立即变成不可点状态，并开启进行中的流动条纹动画效果
+    // 1. 中止前端挂起的 fetch 请求
+    if (readyEnvAbortController) {
+        try {
+            readyEnvAbortController.abort();
+        } catch (_) {}
+    }
+
+    // 2. 向后端下发取消指令
+    try {
+        await fetch('/api/runner/ready_env/cancel', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json; charset=utf-8' },
+            body: JSON.stringify({})
+        });
+    } catch (e) {
+        console.warn('[就绪环境] 取消指令请求异常:', e);
+    }
+
+    // 3. 界面状态平滑反馈
+    updateReadyEnvBtn('🛑', '已取消', 'cancelling');
+    toast('🛑 已取消就绪环境', 3000);
+    await new Promise(r => setTimeout(r, 1000));
+
+    // 4. 重置状态与按钮
+    isReadyEnvExecuting = false;
+    isCancellingReadyEnv = false;
+    isEnvironmentReady = false;
+    readyEnvAbortController = null;
+    updateReadyEnvBtn('⚡', '就绪环境', 'default');
+    await checkRunnerStatus();
+}
+
+// 智能就绪环境：合并「拉起脚本」与「进入主页」，按需自动执行；就绪过程中再次点击取消当前执行
+export async function readyEnvironment(forceRestart = false) {
+    if (isReadyEnvExecuting) {
+        // 就绪过程中再次点击：取消当前执行
+        return await cancelReadyEnvironment();
+    }
+    if (isCancellingReadyEnv) return;
+    if (isEnvironmentReady && !forceRestart) {
+        toggleRunnerMonitorPanel();
+        return;
+    }
+    const btn = $('readyEnvBtn');
+    if (btn && btn.classList.contains('cancelling')) return;
+
+    isReadyEnvExecuting = true;
+    isCancellingReadyEnv = false;
+    readyEnvAbortController = new AbortController();
+
+    // 工作时开启进行中的流动条纹动画效果，保持可点击以支持再次点击取消
     updateReadyEnvBtn('🔍', '检查环境', 'working');
-    toast('⚡ 正在检查并自动就绪环境（按需拉起按键脚本并推进至 FGO 游戏主页）...', 8000);
+    toast('⚡ 正在检查并自动就绪环境（按需拉起按键脚本并推进至 FGO 游戏主页，可再次点击取消）...', 8000);
 
     let pollTimer = null;
 
-    // 毫秒级轮询后台实时就绪进度并实时反映到按钮上（维持 working 动画与不可点击状态）
+    // 毫秒级轮询后台实时就绪进度并实时反映到按钮上
     const pollProgress = async () => {
-        if (!isReadyEnvExecuting) return;
+        if (!isReadyEnvExecuting || isCancellingReadyEnv) return;
         try {
             const resp = await fetch('/api/runner/ready_status', { cache: 'no-cache' });
             if (resp.ok) {
                 const prog = await resp.json();
-                if (isReadyEnvExecuting && prog && prog.active && prog.status) {
+                if (isReadyEnvExecuting && !isCancellingReadyEnv && prog && prog.active && prog.status) {
                     updateReadyEnvBtn(prog.icon, prog.status, 'working');
                     if (prog.detail && btn) {
-                        btn.title = `就绪状态: ${prog.status} (${prog.detail})`;
+                        btn.title = `就绪状态: ${prog.status} (${prog.detail}) (再次点击取消当前执行)`;
                     }
                 }
             }
         } catch (_) {}
-        if (isReadyEnvExecuting) {
+        if (isReadyEnvExecuting && !isCancellingReadyEnv) {
             pollTimer = setTimeout(pollProgress, 350);
         }
     };
@@ -1178,11 +1260,18 @@ export async function readyEnvironment(forceRestart = false) {
         const res = await fetch('/api/runner/ready_env', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json; charset=utf-8' },
-            body: JSON.stringify({ force_restart: forceRestart })
+            body: JSON.stringify({ force_restart: forceRestart }),
+            signal: readyEnvAbortController.signal
         });
         const data = await res.json();
-        isReadyEnvExecuting = false;
         if (pollTimer) clearTimeout(pollTimer);
+
+        if (isCancellingReadyEnv || (data && data.cancelled)) {
+            return data;
+        }
+
+        isReadyEnvExecuting = false;
+        readyEnvAbortController = null;
 
         if (data.success) {
             isEnvironmentReady = true;
@@ -1199,9 +1288,14 @@ export async function readyEnvironment(forceRestart = false) {
         await checkRunnerStatus();
         return data;
     } catch (err) {
+        if (pollTimer) clearTimeout(pollTimer);
+        if (err.name === 'AbortError' || isCancellingReadyEnv) {
+            console.log('[就绪环境] 执行已取消 (AbortError)');
+            return { success: false, cancelled: true };
+        }
         isReadyEnvExecuting = false;
         isEnvironmentReady = false;
-        if (pollTimer) clearTimeout(pollTimer);
+        readyEnvAbortController = null;
         updateReadyEnvBtn('❌', '就绪失败', 'default');
         toast(`❌ 就绪环境请求失败: ${err.message}`, 5000);
         await new Promise(r => setTimeout(r, 2200));
@@ -1209,14 +1303,17 @@ export async function readyEnvironment(forceRestart = false) {
         await checkRunnerStatus();
         return { success: false, message: err.message };
     } finally {
-        isReadyEnvExecuting = false;
         if (pollTimer) clearTimeout(pollTimer);
-        if (btn) {
-            // 如果全部就绪，保持已就绪状态（绿色基调、✅ 已就绪）；若未完成，恢复默认状态
-            if (isEnvironmentReady) {
-                updateReadyEnvBtn('✅', '已就绪', 'ready');
-            } else {
-                updateReadyEnvBtn('⚡', '就绪环境', 'default');
+        if (!isCancellingReadyEnv) {
+            isReadyEnvExecuting = false;
+            readyEnvAbortController = null;
+            if (btn) {
+                // 如果全部就绪，保持已就绪状态（绿色基调、✅ 已就绪）；若未完成，恢复默认状态
+                if (isEnvironmentReady) {
+                    updateReadyEnvBtn('✅', '已就绪', 'ready');
+                } else if (!btn.classList.contains('cancelling')) {
+                    updateReadyEnvBtn('⚡', '就绪环境', 'default');
+                }
             }
         }
     }
@@ -1546,5 +1643,197 @@ export async function triggerStopBattle() {
 window.toast = toast;
 window.checkAdbStatus = checkAdbStatus;
 window.selectAdbDevice = selectAdbDevice;
+window.getSelectedAdbDevice = () => currentSelectedDevice;
+
+// ==========================================================================
+// 项目标准确认对话框 (遵循 Mooncell 模态规范)
+// ==========================================================================
+let activeConfirmResolver = null;
+
+export function showConfirmModal({ title = '确认操作', message = '确定执行此操作吗？', okText = '确定', isDanger = true } = {}) {
+    if (activeConfirmResolver) {
+        activeConfirmResolver(false);
+        activeConfirmResolver = null;
+    }
+    return new Promise((resolve) => {
+        activeConfirmResolver = resolve;
+        const modal = $('confirmModal');
+        const titleEl = $('confirmModalTitle');
+        const msgEl = $('confirmModalMessage');
+        const okBtn = $('confirmModalOkBtn');
+        const cancelBtn = $('confirmModalCancelBtn');
+        if (!modal || !titleEl || !msgEl || !okBtn) {
+            resolve(false);
+            activeConfirmResolver = null;
+            return;
+        }
+
+        titleEl.textContent = title;
+        titleEl.style.borderLeftColor = isDanger ? 'var(--buster, #e7615c)' : 'var(--darkblue, #4487df)';
+        msgEl.textContent = message;
+        okBtn.textContent = okText;
+        okBtn.className = isDanger ? 'button danger' : 'button primary';
+
+        const finish = (result) => {
+            modal.classList.remove('show');
+            okBtn.onclick = null;
+            if (cancelBtn) cancelBtn.onclick = null;
+            if (activeConfirmResolver) {
+                const r = activeConfirmResolver;
+                activeConfirmResolver = null;
+                r(result);
+            }
+        };
+
+        okBtn.onclick = () => finish(true);
+        if (cancelBtn) cancelBtn.onclick = () => finish(false);
+
+        modal.classList.add('show');
+    });
+}
+
+export function closeConfirmModal() {
+    const modal = $('confirmModal');
+    if (modal) modal.classList.remove('show');
+    if (activeConfirmResolver) {
+        const r = activeConfirmResolver;
+        activeConfirmResolver = null;
+        r(false);
+    }
+}
+
+window.showConfirmModal = showConfirmModal;
+window.closeConfirmModal = closeConfirmModal;
+
+// ==========================================
+// 职阶星图自动解放 (Editor 原生极速 ADB 引擎)
+// ==========================================
+let _starMapPollTimer = null;
+
+export async function startStarMapUnlock() {
+    const btnStart = $('btnStartStarMap');
+    const btnStop = $('btnStopStarMap');
+    const statusIcon = $('starMapStatusIcon');
+    const statusText = $('starMapStatusText');
+    const countBadge = $('starMapCountBadge');
+    const banner = $('starMapStatusBanner');
+    const autoSwipeCheck = $('cfgStarMapAutoSwipe');
+    const autoSwipe = autoSwipeCheck ? autoSwipeCheck.checked : true;
+
+    if (btnStart) btnStart.disabled = true;
+    if (btnStop) btnStop.disabled = false;
+    if (banner) banner.className = 'star-map-status-banner is-running';
+    if (statusIcon) statusIcon.textContent = '⏳';
+    if (statusText) statusText.textContent = '正在启动星图自动解放引擎...';
+
+    try {
+        const resp = await fetch('/api/star_map/start', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ auto_swipe: autoSwipe })
+        });
+        const res = await resp.json();
+        if (!res.success) {
+            toast(`❌ 启动失败: ${res.message || '未知错误'}`);
+            if (btnStart) btnStart.disabled = false;
+            if (btnStop) btnStop.disabled = true;
+            if (banner) banner.className = 'star-map-status-banner is-error';
+            if (statusIcon) statusIcon.textContent = '❌';
+            if (statusText) statusText.textContent = res.message || '启动失败';
+            return;
+        }
+        toast('🚀 星图自动解放已启动');
+        pollStarMapProgress();
+    } catch (e) {
+        toast(`❌ 网络请求失败: ${e.message}`);
+        if (btnStart) btnStart.disabled = false;
+        if (btnStop) btnStop.disabled = true;
+        if (banner) banner.className = 'star-map-status-banner is-error';
+        if (statusIcon) statusIcon.textContent = '❌';
+        if (statusText) statusText.textContent = '连接后端异常';
+    }
+}
+
+export async function stopStarMapUnlock() {
+    const btnStop = $('btnStopStarMap');
+    if (btnStop) btnStop.disabled = true;
+    try {
+        await fetch('/api/star_map/stop', { method: 'POST' });
+        toast('⏹ 已请求停止星图解放');
+    } catch (e) {
+        console.error('Stop error:', e);
+    }
+}
+
+export function pollStarMapProgress() {
+    if (_starMapPollTimer) clearInterval(_starMapPollTimer);
+
+    const tick = async () => {
+        const btnStart = $('btnStartStarMap');
+        const btnStop = $('btnStopStarMap');
+        const statusIcon = $('starMapStatusIcon');
+        const statusText = $('starMapStatusText');
+        const countBadge = $('starMapCountBadge');
+        const banner = $('starMapStatusBanner');
+
+        try {
+            const resp = await fetch('/api/star_map/status', { cache: 'no-cache' });
+            const data = await resp.json();
+
+            if (countBadge) {
+                if (data.liberated_count > 0) {
+                    countBadge.style.display = 'inline-block';
+                    countBadge.textContent = `已解放: ${data.liberated_count}`;
+                } else {
+                    countBadge.style.display = 'none';
+                }
+            }
+
+            if (data.running) {
+                if (btnStart) btnStart.disabled = true;
+                if (btnStop) btnStop.disabled = false;
+                if (banner) banner.className = 'star-map-status-banner is-running';
+                if (statusIcon) statusIcon.textContent = '⚡';
+                if (statusText) statusText.textContent = data.message || '正在解放中...';
+            } else {
+                clearInterval(_starMapPollTimer);
+                _starMapPollTimer = null;
+                if (btnStart) btnStart.disabled = false;
+                if (btnStop) btnStop.disabled = true;
+
+                if (data.status === 'FINISHED') {
+                    if (banner) banner.className = 'star-map-status-banner is-finished';
+                    if (statusIcon) statusIcon.textContent = '✅';
+                    if (statusText) statusText.textContent = data.message || '解放完毕！';
+                    toast(`🎉 ${data.message || '星图解放完成！'}`);
+                } else if (data.status === 'CANCELLED') {
+                    if (banner) banner.className = 'star-map-status-banner is-stopped';
+                    if (statusIcon) statusIcon.textContent = '🛑';
+                    if (statusText) statusText.textContent = '已手动停止';
+                    toast('🛑 星图解放已停止');
+                } else if (data.status === 'ERROR') {
+                    if (banner) banner.className = 'star-map-status-banner is-error';
+                    if (statusIcon) statusIcon.textContent = '❌';
+                    if (statusText) statusText.textContent = data.message || '发生异常';
+                } else {
+                    if (banner) banner.className = 'star-map-status-banner';
+                    if (statusIcon) statusIcon.textContent = '⚪';
+                    if (statusText) statusText.textContent = '待命中（进入星图界面后点击开始）';
+                }
+            }
+        } catch (e) {
+            console.error('Poll star map error:', e);
+        }
+    };
+
+    _starMapPollTimer = setInterval(tick, 900);
+    tick();
+}
+
+window.startStarMapUnlock = startStarMapUnlock;
+window.stopStarMapUnlock = stopStarMapUnlock;
+window.pollStarMapProgress = pollStarMapProgress;
+
+
 
 

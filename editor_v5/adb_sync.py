@@ -22,6 +22,13 @@ if sys.stderr is not None and hasattr(sys.stderr, 'reconfigure'):
 
 logger = logging.getLogger("editor")
 
+_CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
+_ROOT_DIR = os.path.dirname(_CURRENT_DIR)
+if _ROOT_DIR not in sys.path:
+    sys.path.insert(0, _ROOT_DIR)
+if _CURRENT_DIR not in sys.path:
+    sys.path.insert(0, _CURRENT_DIR)
+
 # 默认隔离 ADB 端口（避免与 MuMu/MFA 等占用 5037 默认端口的其他项目发生 kill-server 冲突）
 DEFAULT_ADB_PORT = 5038
 ADB_PORT = int(os.environ.get("ANDROID_ADB_SERVER_PORT", DEFAULT_ADB_PORT))
@@ -94,6 +101,7 @@ _ready_env_progress = {
 }
 
 _is_environment_ready = False
+_ready_env_cancel_requested = False
 
 
 def is_environment_ready():
@@ -123,14 +131,50 @@ def set_ready_env_progress(icon, status, detail=""):
     logger.info(f"[就绪进度] {icon} {status} ({detail})")
 
 
-def finish_ready_env_progress(success=True, message="已完全就绪"):
+def finish_ready_env_progress(success=True, message="已完全就绪", cancelled=False):
     global _ready_env_progress, _is_environment_ready
-    _is_environment_ready = bool(success)
+    _is_environment_ready = bool(success and not cancelled)
     _ready_env_progress["active"] = False
-    _ready_env_progress["icon"] = "✅" if success else "❌"
-    _ready_env_progress["status"] = "已就绪" if success else "就绪未完"
+    if cancelled:
+        _ready_env_progress["icon"] = "🛑"
+        _ready_env_progress["status"] = "已取消"
+    else:
+        _ready_env_progress["icon"] = "✅" if success else "❌"
+        _ready_env_progress["status"] = "已就绪" if success else "就绪未完"
     _ready_env_progress["detail"] = message
     _ready_env_progress["updated_at"] = time.time()
+
+
+def request_cancel_ready_env():
+    """下发取消就绪环境指令，毫秒级响应并更新进度状态"""
+    global _ready_env_cancel_requested, _ready_env_progress
+    _ready_env_cancel_requested = True
+    _ready_env_progress["active"] = False
+    _ready_env_progress["icon"] = "🛑"
+    _ready_env_progress["status"] = "已取消"
+    _ready_env_progress["detail"] = "用户已取消就绪环境"
+    _ready_env_progress["updated_at"] = time.time()
+    logger.info("[就绪环境] 收到取消就绪环境请求")
+    return {"success": True, "message": "就绪环境取消指令已下发"}
+
+
+def is_ready_env_cancelled():
+    global _ready_env_cancel_requested
+    return bool(_ready_env_cancel_requested)
+
+
+def reset_ready_env_cancel():
+    global _ready_env_cancel_requested
+    _ready_env_cancel_requested = False
+
+
+def sleep_check_cancel(seconds, step=0.1):
+    """支持毫秒级响应取消的 sleep 包装器"""
+    t_end = time.time() + max(0, float(seconds or 0))
+    while time.time() < t_end:
+        if is_ready_env_cancelled():
+            break
+        time.sleep(min(step, max(0.01, t_end - time.time())))
 
 
 
@@ -1522,6 +1566,8 @@ def navigate_fgo_to_home(device=None, max_wait_sec=115, progress_cb=None):
 
     tpl_menu = load_tpl("FGO_HOME_MENU.png")
     tpl_close_modal = load_tpl("FGO_MODAL_CLOSE.png")
+    tpl_close_modal_wide = load_tpl("FGO_MODAL_CLOSE_WIDE.png")
+    tpl_login_bonus_title = load_tpl("FGO_LOGIN_BONUS_TITLE.png")
     tpl_calendar_title = load_tpl("FGO_CALENDAR_TITLE.png")
     tpl_modal_cancel = load_tpl("FGO_MODAL_CANCEL.png")
     tpl_notice_x = load_tpl("FGO_NOTICE_X.png")
@@ -1535,6 +1581,9 @@ def navigate_fgo_to_home(device=None, max_wait_sec=115, progress_cb=None):
     tpl_touch_screen = load_tpl("FGO_TOUCH_SCREEN.png")
     tpl_tap_game = load_tpl("FGO_TAP_GAME.png")
     tpl_battle_detail_x = load_tpl("BATTLE_DETAIL_CLOSE_X.png")
+    tpl_update_title = load_tpl("FGO_UPDATE_TITLE.png")
+    tpl_btn_start_update = load_tpl("FGO_BTN_START_UPDATE.png")
+    tpl_downloading = load_tpl("FGO_DOWNLOADING.png")
 
     if tpl_menu is None:
         logger.warning("[FGO导航] 缺失核心特征图 FGO_HOME_MENU.png")
@@ -1550,6 +1599,18 @@ def navigate_fgo_to_home(device=None, max_wait_sec=115, progress_cb=None):
     logger.info(f"[FGO导航] 开始推进 FGO 状态至游戏主页 (最大等待 {max_wait_sec}s)...")
 
     while time.time() - t0 < max_wait_sec:
+        if is_ready_env_cancelled():
+            elapsed = int(time.time() - t0)
+            logger.info(f"[FGO导航] 检测到用户取消就绪环境，提前退出 (耗时 {elapsed}s)")
+            return {
+                "success": False,
+                "cancelled": True,
+                "reached_home": False,
+                "device": target_dev,
+                "elapsed_s": elapsed,
+                "message": "用户已取消就绪环境"
+            }
+
         # 1. 检查 FGO 是否在前台
         chk = run_adb([adb, "-s", target_dev, "shell", "dumpsys window | grep mCurrentFocus"])
         focus_str = chk.stdout.decode("utf-8", errors="ignore")
@@ -1557,23 +1618,23 @@ def navigate_fgo_to_home(device=None, max_wait_sec=115, progress_cb=None):
             set_ready_env_progress("📱", "唤醒游戏", "FGO 处于后台，重新唤起至前台")
             logger.info("[FGO导航] FGO 处于后台，重新唤起至前台...")
             run_adb([adb, "-s", target_dev, "shell", "monkey -p com.bilibili.fatego -c android.intent.category.LAUNCHER 1"])
-            time.sleep(2.0)
+            sleep_check_cancel(2.0)
             continue
 
         # 2. 抓取屏幕截图
         res = run_adb([adb, "-s", target_dev, "exec-out", "screencap", "-p"], timeout=5)
         if res.returncode != 0 or not res.stdout:
-            time.sleep(1.0)
+            sleep_check_cancel(1.0)
             continue
 
         try:
             img_raw = cv2.imdecode(np.frombuffer(res.stdout, np.uint8), cv2.IMREAD_COLOR)
         except Exception:
-            time.sleep(1.0)
+            sleep_check_cancel(1.0)
             continue
 
         if img_raw is None:
-            time.sleep(1.0)
+            sleep_check_cancel(1.0)
             continue
 
         orig_h, orig_w = img_raw.shape[:2]
@@ -1609,7 +1670,7 @@ def navigate_fgo_to_home(device=None, max_wait_sec=115, progress_cb=None):
             if cv2.matchTemplate(roi_bx, tpl_battle_detail_x, cv2.TM_CCOEFF_NORMED).max() >= 0.78:
                 logger.info("[FGO导航] 检测到战斗/从者详情弹窗遮挡，点击右上角叉号关闭: (1226, 73)")
                 tap_screen(1226, 73)
-                time.sleep(1.0)
+                sleep_check_cancel(1.0)
                 continue
 
         # 3. 游玩指引弹窗处理 (左侧「游玩指引」Tab 或 左下角「本月不再提示」)
@@ -1636,7 +1697,7 @@ def navigate_fgo_to_home(device=None, max_wait_sec=115, progress_cb=None):
                 set_ready_env_progress("☑️", "游玩指引", "勾选左下角「本月不再提示」")
                 logger.info(f"[FGO导航] 「本月不再提示」未勾选 (check_pixels={check_pixels})，点击勾选: (50, 752)")
                 tap_screen(50, 752)
-                time.sleep(0.6)
+                sleep_check_cancel(0.6)
             else:
                 logger.info(f"[FGO导航] 「本月不再提示」已处于勾选状态 (check_pixels={check_pixels})，无需重复点击")
 
@@ -1659,39 +1720,171 @@ def navigate_fgo_to_home(device=None, max_wait_sec=115, progress_cb=None):
             popups_closed_since_title += 1
             home_menu_first_seen_time = None
             consecutive_home_menu_count = 0
-            time.sleep(1.5)
+            sleep_check_cancel(1.5)
             continue
 
-        # 4. 模态弹窗「关闭」胶囊按钮 (如友情点数/连续签到/说明，全面搜索底部区域)
-        if tpl_close_modal is not None:
-            roi_modal = img[520:760, 80:1360]
-            res_m = cv2.matchTemplate(roi_modal, tpl_close_modal, cv2.TM_CCOEFF_NORMED)
-            _, max_m, _, loc_m = cv2.minMaxLoc(res_m)
-            if max_m >= 0.80:
-                cx = 80 + loc_m[0] + tpl_close_modal.shape[1] // 2
-                cy = 520 + loc_m[1] + tpl_close_modal.shape[0] // 2
-                set_ready_env_progress("📋", "关闭弹窗", f"点击弹窗关闭按钮: ({cx}, {cy})")
-                logger.info(f"[FGO导航] 识别到模态弹窗「关闭」按钮 (匹配度 {max_m:.3f})，点击: ({cx}, {cy})")
-                tap_screen(cx, cy)
-                idle_count = 0
-                popups_closed_since_title += 1
-                home_menu_first_seen_time = None
-                consecutive_home_menu_count = 0
-                time.sleep(1.5)
-                continue
+        # 4. 模态弹窗「关闭」胶囊按钮 (如每日连续登录奖励/友情点数/连续签到/说明，全面搜索底部区域，兼容标准与宽版胶囊按钮)
+        close_modal_found = False
+        close_cx, close_cy = 720, 628
+        best_close_score = 0.0
+        modal_name = "模态弹窗"
+
+        roi_modal = img[520:760, 80:1360]
+        for t_cm in [tpl_close_modal, tpl_close_modal_wide]:
+            if t_cm is not None:
+                res_m = cv2.matchTemplate(roi_modal, t_cm, cv2.TM_CCOEFF_NORMED)
+                _, max_m, _, loc_m = cv2.minMaxLoc(res_m)
+                if max_m > best_close_score and max_m >= 0.80:
+                    best_close_score = max_m
+                    close_cx = 80 + loc_m[0] + t_cm.shape[1] // 2
+                    close_cy = 520 + loc_m[1] + t_cm.shape[0] // 2
+                    close_modal_found = True
+
+        if not close_modal_found and tpl_login_bonus_title is not None:
+            # 容错兜底：若标题匹配到「连续登录奖励」，直接定位底部关闭按钮
+            roi_lb = img[100:300, 400:1040]
+            res_lb = cv2.matchTemplate(roi_lb, tpl_login_bonus_title, cv2.TM_CCOEFF_NORMED)
+            _, max_lb, _, _ = cv2.minMaxLoc(res_lb)
+            if max_lb >= 0.75:
+                close_modal_found = True
+                close_cx, close_cy = 720, 628
+                best_close_score = max_lb
+                modal_name = "连续登录奖励"
+
+        if close_modal_found:
+            set_ready_env_progress("📋", "关闭弹窗", f"点击弹窗关闭按钮: ({close_cx}, {close_cy})")
+            logger.info(f"[FGO导航] 识别到{modal_name}「关闭」按钮 (匹配度 {best_close_score:.3f})，点击: ({close_cx}, {close_cy})")
+            tap_screen(close_cx, close_cy)
+            idle_count = 0
+            popups_closed_since_title += 1
+            home_menu_first_seen_time = None
+            consecutive_home_menu_count = 0
+            sleep_check_cancel(1.5)
+            continue
+
+        # 4.4. 资料更新 / 游戏资源更新弹窗处理 (优先于取消/日历弹窗检测，点击「开始更新资料」并等待更新完毕继续登录)
+        is_update_popup = False
+        upd_cx, upd_cy = 941, 629
+
+        if tpl_update_title is not None:
+            roi_ut = img[100:300, 400:1040]
+            res_ut = cv2.matchTemplate(roi_ut, tpl_update_title, cv2.TM_CCOEFF_NORMED)
+            _, max_ut, _, loc_ut = cv2.minMaxLoc(res_ut)
+            if max_ut >= 0.75:
+                is_update_popup = True
+
+        if tpl_btn_start_update is not None:
+            roi_ub = img[520:760, 600:1360]
+            res_ub = cv2.matchTemplate(roi_ub, tpl_btn_start_update, cv2.TM_CCOEFF_NORMED)
+            _, max_ub, _, loc_ub = cv2.minMaxLoc(res_ub)
+            if max_ub >= 0.75:
+                is_update_popup = True
+                upd_cx = 600 + loc_ub[0] + tpl_btn_start_update.shape[1] // 2
+                upd_cy = 520 + loc_ub[1] + tpl_btn_start_update.shape[0] // 2
+
+        if is_update_popup:
+            set_ready_env_progress("📥", "资料更新", f"识别到资料更新弹窗，点击开始更新: ({upd_cx}, {upd_cy})")
+            logger.info(f"[FGO导航] 识别到「资料更新」弹窗，点击「开始更新资料」按钮: ({upd_cx}, {upd_cy})")
+            tap_screen(upd_cx, upd_cy)
+            idle_count = 0
+            popups_closed_since_title += 1
+            home_menu_first_seen_time = None
+            consecutive_home_menu_count = 0
+            sleep_check_cancel(2.0)
+
+            # 等待资源更新完成
+            update_wait_t0 = time.time()
+            max_update_wait = 360  # 给予最长 6 分钟下载与解压更新时间
+            logger.info("[FGO导航] 已点击开始更新资料，进入资源下载与更新等待流程...")
+            set_ready_env_progress("⏳", "正在更新", "正在下载并更新游戏资源，请稍候...")
+
+            update_finished = False
+            while time.time() - update_wait_t0 < max_update_wait:
+                if is_ready_env_cancelled():
+                    break
+                sleep_check_cancel(2.0)
+                elapsed_upd = int(time.time() - update_wait_t0)
+
+                # 抓取更新过程截图
+                res_upd = run_adb([adb, "-s", target_dev, "exec-out", "screencap", "-p"], timeout=5)
+                if res_upd.returncode != 0 or not res_upd.stdout:
+                    continue
+                try:
+                    raw_upd = cv2.imdecode(np.frombuffer(res_upd.stdout, np.uint8), cv2.IMREAD_COLOR)
+                except Exception:
+                    continue
+                if raw_upd is None:
+                    continue
+
+                cur_h, cur_w = raw_upd.shape[:2]
+                if (cur_w, cur_h) != (1440, 810):
+                    cur_img = cv2.resize(raw_upd, (1440, 810))
+                else:
+                    cur_img = raw_upd
+
+                # 检查更新结束标识
+                # A. 「请点击游戏界面」提示
+                if tpl_tap_game is not None:
+                    r_tg = cv2.matchTemplate(cur_img[680:790, 500:950], tpl_tap_game, cv2.TM_CCOEFF_NORMED)
+                    if r_tg.max() >= 0.78:
+                        logger.info(f"[FGO导航] 更新完成，检测到「请点击游戏界面」提示 (耗时 {elapsed_upd}s)")
+                        update_finished = True
+                        break
+
+                # B. 标题画面判定 (TOUCH SCREEN / 服务器选择)
+                if tpl_touch_screen is not None:
+                    r_ts = cv2.matchTemplate(cur_img[500:750, 400:1040], tpl_touch_screen, cv2.TM_CCOEFF_NORMED)
+                    if r_ts.max() >= 0.72:
+                        logger.info(f"[FGO导航] 更新完成，检测到登录标题画面 (耗时 {elapsed_upd}s)")
+                        update_finished = True
+                        break
+                if tpl_title_server is not None:
+                    r_tsv = cv2.matchTemplate(cur_img[580:720, 1150:1440], tpl_title_server, cv2.TM_CCOEFF_NORMED)
+                    if r_tsv.max() >= 0.78:
+                        logger.info(f"[FGO导航] 更新完成，检测到服务器区服画面 (耗时 {elapsed_upd}s)")
+                        update_finished = True
+                        break
+
+                # C. 主页菜单按钮
+                if tpl_menu is not None:
+                    r_m = cv2.matchTemplate(cur_img[680:790, 1240:1440], tpl_menu, cv2.TM_CCOEFF_NORMED)
+                    if r_m.max() >= 0.82:
+                        logger.info(f"[FGO导航] 更新完成，直接检测到主界面菜单 (耗时 {elapsed_upd}s)")
+                        update_finished = True
+                        break
+
+                # D. 模态关闭弹窗 (如更新完成提示框)
+                if tpl_close_modal is not None:
+                    r_cm = cv2.matchTemplate(cur_img[520:760, 80:1360], tpl_close_modal, cv2.TM_CCOEFF_NORMED)
+                    if r_cm.max() >= 0.80:
+                        logger.info(f"[FGO导航] 更新完成，检测到模态确认弹窗 (耗时 {elapsed_upd}s)")
+                        update_finished = True
+                        break
+
+                # 仍在更新中：展示下载或解压进度
+                set_ready_env_progress("⏳", "正在更新", f"下载并更新游戏资源中 ({elapsed_upd}s)...")
+
+            # 更新流程结束，重置主导航计时器 t0，避免下载时间挤占后续登录推进超时
+            t0 = time.time()
+            if update_finished:
+                set_ready_env_progress("🔑", "更新完成", "资源更新完成，继续登录推进")
+                logger.info("[FGO导航] 资源更新完成，重置主页推进计时器，继续推进登录...")
+            else:
+                logger.warning("[FGO导航] 资源更新等待阶段达到上限或未显式识别结束状态，继续后续流程检查")
+            continue
 
         # 4.5. 日历提醒订阅弹窗处理 (出现时点击「取消」胶囊按钮)
         is_calendar_popup = False
         cal_cx, cal_cy = 467, 628
 
-        if tpl_calendar_title is not None:
+        if not is_update_popup and tpl_calendar_title is not None:
             roi_cal = img[100:300, 400:1040]
             res_cal = cv2.matchTemplate(roi_cal, tpl_calendar_title, cv2.TM_CCOEFF_NORMED)
             _, max_cal, _, _ = cv2.minMaxLoc(res_cal)
             if max_cal >= 0.75:
                 is_calendar_popup = True
 
-        if not is_calendar_popup and tpl_modal_cancel is not None:
+        if not is_update_popup and not is_calendar_popup and tpl_modal_cancel is not None:
             # 即使未直接匹配到标题，若底部存在「取消」胶囊按钮且处于弹窗层
             roi_c = img[520:760, 80:1360]
             res_c = cv2.matchTemplate(roi_c, tpl_modal_cancel, cv2.TM_CCOEFF_NORMED)
@@ -1716,7 +1909,7 @@ def navigate_fgo_to_home(device=None, max_wait_sec=115, progress_cb=None):
             popups_closed_since_title += 1
             home_menu_first_seen_time = None
             consecutive_home_menu_count = 0
-            time.sleep(1.5)
+            sleep_check_cancel(1.5)
             continue
 
         # 5. 右上角关闭叉号 [X] (全屏公告、活动说明或模态通知，全面覆盖右上区域)
@@ -1741,7 +1934,7 @@ def navigate_fgo_to_home(device=None, max_wait_sec=115, progress_cb=None):
             popups_closed_since_title += 1
             home_menu_first_seen_time = None
             consecutive_home_menu_count = 0
-            time.sleep(1.5)
+            sleep_check_cancel(1.5)
             continue
 
         # 6. 「请点击游戏界面」启动加载提示（出现在标题画面之前）
@@ -1754,7 +1947,7 @@ def navigate_fgo_to_home(device=None, max_wait_sec=115, progress_cb=None):
                 logger.info(f"[FGO导航] 识别到「请点击游戏界面」提示 (匹配度 {max_tg:.3f})，点击推进")
                 tap_screen(720, 500)
                 idle_count = 0
-                time.sleep(2.0)
+                sleep_check_cancel(2.0)
                 continue
 
         # 7. 标题画面判定 (TOUCH SCREEN / 区服选择 / 选择服务器 / 清除缓存)
@@ -1801,7 +1994,7 @@ def navigate_fgo_to_home(device=None, max_wait_sec=115, progress_cb=None):
             logger.info(f"[FGO导航] 识别到登录标题画面 (第 {title_tapped_count} 次)，点击进入: ({title_tap_x}, {title_tap_y})")
             tap_screen(title_tap_x, title_tap_y)
             idle_count = 0
-            time.sleep(2.5) # 给网络连接与数据读取留出缓冲时间
+            sleep_check_cancel(2.5) # 给网络连接与数据读取留出缓冲时间
             continue
 
         # 8. 核心判定：终端/主页金色「菜单」按钮 (HOME_MENU)
@@ -1811,12 +2004,22 @@ def navigate_fgo_to_home(device=None, max_wait_sec=115, progress_cb=None):
         if max_menu >= 0.82:
             # 必须严密核查：是否存在仍未关闭的公告 [X]、游玩指引或模态弹窗遮挡
             has_blocking_popup = False
-            if tpl_close_modal is not None:
-                if cv2.matchTemplate(img[520:760, 80:1360], tpl_close_modal, cv2.TM_CCOEFF_NORMED).max() >= 0.80:
+            roi_cm_chk = img[520:760, 80:1360]
+            for t_cm in [tpl_close_modal, tpl_close_modal_wide]:
+                if t_cm is not None and cv2.matchTemplate(roi_cm_chk, t_cm, cv2.TM_CCOEFF_NORMED).max() >= 0.80:
+                    has_blocking_popup = True
+                    break
+
+            if not has_blocking_popup and tpl_login_bonus_title is not None:
+                if cv2.matchTemplate(img[100:300, 400:1040], tpl_login_bonus_title, cv2.TM_CCOEFF_NORMED).max() >= 0.75:
                     has_blocking_popup = True
 
             if not has_blocking_popup:
-                if tpl_calendar_title is not None and cv2.matchTemplate(img[100:300, 400:1040], tpl_calendar_title, cv2.TM_CCOEFF_NORMED).max() >= 0.75:
+                if tpl_update_title is not None and cv2.matchTemplate(img[100:300, 400:1040], tpl_update_title, cv2.TM_CCOEFF_NORMED).max() >= 0.75:
+                    has_blocking_popup = True
+                elif tpl_btn_start_update is not None and cv2.matchTemplate(img[520:760, 600:1360], tpl_btn_start_update, cv2.TM_CCOEFF_NORMED).max() >= 0.75:
+                    has_blocking_popup = True
+                elif tpl_calendar_title is not None and cv2.matchTemplate(img[100:300, 400:1040], tpl_calendar_title, cv2.TM_CCOEFF_NORMED).max() >= 0.75:
                     has_blocking_popup = True
                 elif tpl_modal_cancel is not None and cv2.matchTemplate(img[520:760, 80:1360], tpl_modal_cancel, cv2.TM_CCOEFF_NORMED).max() >= 0.80:
                     has_blocking_popup = True
@@ -1839,7 +2042,7 @@ def navigate_fgo_to_home(device=None, max_wait_sec=115, progress_cb=None):
                 logger.info(f"[FGO导航] 检测到底层主页菜单 (匹配度 {max_menu:.3f})，但仍有公告/弹窗遮挡，继续优先关闭弹窗...")
                 home_menu_first_seen_time = None
                 consecutive_home_menu_count = 0
-                time.sleep(1.0)
+                sleep_check_cancel(1.0)
                 continue
 
             # 关键保障：若从标题登录且尚未关闭过任何登录公告/弹窗
@@ -1851,7 +2054,7 @@ def navigate_fgo_to_home(device=None, max_wait_sec=115, progress_cb=None):
                 if elapsed_waiting_notice < 4.0:
                     set_ready_env_progress("⏳", "正在登录", f"已进入主界面，等待登录公告加载 ({int(elapsed_waiting_notice)}s)...")
                     logger.info(f"[FGO导航] 登录后首次检测到主界面菜单，持续监测公告弹出 ({elapsed_waiting_notice:.1f}s/4.0s)...")
-                    time.sleep(1.0)
+                    sleep_check_cancel(1.0)
                     continue
                 else:
                     logger.info("[FGO导航] 登录后持续 4 秒未检测到登录公告弹出，确认无弹窗阻挡")
@@ -1859,7 +2062,7 @@ def navigate_fgo_to_home(device=None, max_wait_sec=115, progress_cb=None):
             # 二次稳态确认：确保连续 2 轮无弹窗阻挡且稳定处于主界面
             consecutive_home_menu_count += 1
             if consecutive_home_menu_count < 2:
-                time.sleep(1.0)
+                sleep_check_cancel(1.0)
                 continue
 
             elapsed = int(time.time() - t0)
@@ -1882,12 +2085,12 @@ def navigate_fgo_to_home(device=None, max_wait_sec=115, progress_cb=None):
         mean_b = img.mean()
         if mean_b < 15 or mean_b > 240:
             set_ready_env_progress("⏳", "正在加载", "等待游戏画面加载...")
-            time.sleep(1.0)
+            sleep_check_cancel(1.0)
             continue
 
         # 11. 兜底与加载状态追踪
         if title_tapped_count > 0 and time_since_title < 15:
-            time.sleep(1.2)
+            sleep_check_cancel(1.2)
             continue
 
         if title_tapped_count > 0:
@@ -1897,12 +2100,12 @@ def navigate_fgo_to_home(device=None, max_wait_sec=115, progress_cb=None):
                 logger.info(f"[FGO导航] 登录后连续未识别特定标识，尝试兜底轻触跳过过渡画面 (第 {idle_fallback_taps}/5 次)")
                 tap_screen(720, 750)
                 idle_count = 0
-                time.sleep(1.2)
+                sleep_check_cancel(1.2)
             else:
-                time.sleep(1.0)
+                sleep_check_cancel(1.0)
         else:
             set_ready_env_progress("⏳", "正在加载", "等待游戏启动与画面呈现...")
-            time.sleep(1.0)
+            sleep_check_cancel(1.0)
 
     elapsed = int(time.time() - t0)
     logger.warning(f"[FGO导航] 等待进入游戏主页超时 ({elapsed}s)")
@@ -1969,11 +2172,27 @@ def check_fgo_at_home(device=None):
     if res_menu.max() < 0.82:
         return False
 
-    # 检查是否有阻断性弹窗「关闭」按钮
+    # 检查是否有阻断性弹窗「关闭」按钮 (标准/宽版)
     tpl_modal = load_tpl("FGO_MODAL_CLOSE.png")
-    if tpl_modal is not None:
-        res_m = cv2.matchTemplate(img[520:760, 80:1360], tpl_modal, cv2.TM_CCOEFF_NORMED)
-        if res_m.max() >= 0.80:
+    tpl_modal_wide = load_tpl("FGO_MODAL_CLOSE_WIDE.png")
+    roi_m_chk = img[520:760, 80:1360]
+    for tm in [tpl_modal, tpl_modal_wide]:
+        if tm is not None and cv2.matchTemplate(roi_m_chk, tm, cv2.TM_CCOEFF_NORMED).max() >= 0.80:
+            return False
+
+    # 检查是否有阻断性登录奖励弹窗
+    tpl_lb_title = load_tpl("FGO_LOGIN_BONUS_TITLE.png")
+    if tpl_lb_title is not None and cv2.matchTemplate(img[100:300, 400:1040], tpl_lb_title, cv2.TM_CCOEFF_NORMED).max() >= 0.75:
+        return False
+
+    # 检查是否有阻断性资料更新弹窗
+    tpl_upd_t = load_tpl("FGO_UPDATE_TITLE.png")
+    if tpl_upd_t is not None:
+        if cv2.matchTemplate(img[100:300, 400:1040], tpl_upd_t, cv2.TM_CCOEFF_NORMED).max() >= 0.75:
+            return False
+    tpl_upd_b = load_tpl("FGO_BTN_START_UPDATE.png")
+    if tpl_upd_b is not None:
+        if cv2.matchTemplate(img[520:760, 600:1360], tpl_upd_b, cv2.TM_CCOEFF_NORMED).max() >= 0.75:
             return False
 
     # 检查是否有阻断性日历提醒弹窗 / 取消按钮
@@ -2007,7 +2226,167 @@ def check_fgo_at_home(device=None):
     return True
 
 
-def launch_runner(device=None, wait_ready=True, target_script="fgo_battle_v5_runner", force_restart=False):
+def is_fgo_process_running(device=None):
+    """
+    检查 FGO (com.bilibili.fatego) 进程是否正在运行（无论处于前台还是后台）。
+    优先使用 pidof 毫秒级探测，若不支持则降级使用 ps 扫描。
+    """
+    adb = find_adb()
+    if not adb:
+        return False
+    target_dev = device or get_selected_device(adb)
+    if not target_dev:
+        return False
+    try:
+        res = run_adb([adb, "-s", target_dev, "shell", "pidof com.bilibili.fatego 2>/dev/null || echo 0"], timeout=3)
+        out = res.stdout.decode("utf-8", errors="ignore").strip()
+        pids = [int(p) for p in re.findall(r'\b\d+\b', out) if int(p) > 0]
+        if pids:
+            return True
+        res_ps = run_adb([adb, "-s", target_dev, "shell", "ps | grep com.bilibili.fatego 2>/dev/null || ps -A | grep com.bilibili.fatego 2>/dev/null"], timeout=3)
+        return "com.bilibili.fatego" in res_ps.stdout.decode("utf-8", errors="ignore")
+    except Exception:
+        return False
+
+
+def is_fgo_foreground(device=None):
+    """检查 FGO 当前是否聚焦在最前台"""
+    adb = find_adb()
+    if not adb:
+        return False
+    target_dev = device or get_selected_device(adb)
+    if not target_dev:
+        return False
+    try:
+        chk = run_adb([adb, "-s", target_dev, "shell", "dumpsys window | grep mCurrentFocus"], timeout=2)
+        focus_str = chk.stdout.decode("utf-8", errors="ignore")
+        return "com.bilibili.fatego" in focus_str
+    except Exception:
+        return False
+
+
+def bring_fgo_to_foreground(device=None):
+    """将 FGO 唤起/拉至最前台"""
+    adb = find_adb()
+    if not adb:
+        return False
+    target_dev = device or get_selected_device(adb)
+    if not target_dev:
+        return False
+    try:
+        run_adb([adb, "-s", target_dev, "shell", "monkey -p com.bilibili.fatego -c android.intent.category.LAUNCHER 1"], timeout=5)
+        time.sleep(1.2)
+        return is_fgo_foreground(target_dev)
+    except Exception:
+        return False
+
+
+def ensure_fgo_ready(device=None, max_wait_sec=115):
+    """
+    统一就绪 FGO 运行现场（单节点唯一逻辑）：
+    根据进程存活与前后台状态进行原子判断：
+    1. 若 FGO 进程已在运行：
+       - 若已在前台：直接视为成功，零触碰秒级返回
+       - 若在后台：拉到前台，视为成功，零触碰秒级返回
+    2. 若 FGO 进程未运行：
+       - 唤起并执行冷启动登录主页全流程 (navigate_fgo_to_home)
+    """
+    t0 = time.time()
+    adb = find_adb()
+    if not adb:
+        return {"success": False, "connected": False, "message": "未找到 adb.exe"}
+    target_dev = device or get_selected_device(adb)
+    if not target_dev:
+        return {"success": False, "connected": False, "message": "未检测到在线安卓模拟器"}
+
+    if is_ready_env_cancelled():
+        return {"success": False, "cancelled": True, "connected": True, "device": target_dev, "message": "用户已取消就绪环境"}
+
+    if is_fgo_process_running(target_dev):
+        if is_fgo_foreground(target_dev):
+            elapsed = int(time.time() - t0)
+            logger.info(f"[就绪 FGO] FGO 进程已在前台运行，零触碰秒级完成现场就绪")
+            return {
+                "success": True,
+                "connected": True,
+                "device": target_dev,
+                "already_ready": True,
+                "fgo_state": "foreground",
+                "elapsed_s": elapsed,
+                "message": "FGO 已在前台正常运行，现场保留就绪"
+            }
+        else:
+            if is_ready_env_cancelled():
+                return {"success": False, "cancelled": True, "connected": True, "device": target_dev, "message": "用户已取消就绪环境"}
+            set_ready_env_progress("📱", "唤醒游戏", "拉起 FGO 至前台")
+            logger.info("[就绪 FGO] FGO 在后台运行，拉回前台...")
+            bring_fgo_to_foreground(target_dev)
+            elapsed = int(time.time() - t0)
+            logger.info(f"[就绪 FGO] FGO 已切回前台，零触碰完成现场就绪 (耗时 {elapsed}s)")
+            return {
+                "success": True,
+                "connected": True,
+                "device": target_dev,
+                "already_ready": True,
+                "fgo_state": "switched_to_foreground",
+                "elapsed_s": elapsed,
+                "message": "FGO 已切至前台，现场保留就绪"
+            }
+
+    # FGO 进程未运行（冷启动）
+    if is_ready_env_cancelled():
+        return {"success": False, "cancelled": True, "connected": True, "device": target_dev, "message": "用户已取消就绪环境"}
+
+    set_ready_env_progress("🚀", "启动游戏", "FGO 未运行，启动游戏...")
+    logger.info("[就绪 FGO] FGO 进程未运行，唤起 FGO 并执行冷启动登录流程...")
+    bring_fgo_to_foreground(target_dev)
+    sleep_check_cancel(1.0)
+
+    if is_ready_env_cancelled():
+        return {"success": False, "cancelled": True, "connected": True, "device": target_dev, "message": "用户已取消就绪环境"}
+
+    set_ready_env_progress("📱", "推进主页", "智能推进 FGO 进入游戏主页...")
+    logger.info("[就绪 FGO] 推进 FGO 进入游戏主页...")
+    nav_res = navigate_fgo_to_home(device=target_dev, max_wait_sec=max_wait_sec)
+    elapsed = int(time.time() - t0)
+
+    if nav_res.get("cancelled") or is_ready_env_cancelled():
+        return {
+            "success": False,
+            "cancelled": True,
+            "connected": True,
+            "device": target_dev,
+            "fgo_navigation": nav_res,
+            "fgo_state": "cancelled",
+            "elapsed_s": elapsed,
+            "message": "用户已取消就绪环境"
+        }
+
+    reached = nav_res.get("reached_home", False) or nav_res.get("in_battle", False)
+
+    if reached:
+        return {
+            "success": True,
+            "connected": True,
+            "device": target_dev,
+            "fgo_navigation": nav_res,
+            "fgo_state": "cold_start_success",
+            "elapsed_s": elapsed,
+            "message": f"FGO 冷启动登录完成，环境完全就绪！(耗时 {elapsed}s)"
+        }
+    else:
+        return {
+            "success": False,
+            "connected": True,
+            "device": target_dev,
+            "fgo_navigation": nav_res,
+            "fgo_state": "cold_start_failed",
+            "elapsed_s": elapsed,
+            "message": f"推进 FGO 进入游戏未完成: {nav_res.get('message')}"
+        }
+
+
+def launch_runner(device=None, wait_ready=True, target_script="fgo_battle_v5_runner", force_restart=False, sync_fgo=True):
     """
     通过 ADB 全自动模拟按键精灵动态加载、
     在脚本列表中动态定位指定 Runner 脚本 (默认 fgo_battle_v5_runner)、
@@ -2023,6 +2402,10 @@ def launch_runner(device=None, wait_ready=True, target_script="fgo_battle_v5_run
         return {"success": False, "connected": False, "message": "未检测到在线安卓模拟器"}
 
     target_dev = device or get_selected_device(adb) or devices[0]
+    fgo_was_running = is_fgo_process_running(target_dev)
+
+    if is_ready_env_cancelled():
+        return {"success": False, "cancelled": True, "connected": True, "device": target_dev, "message": "用户已取消就绪环境"}
 
     # 1. 检查 Runner 是否已经在运行
     if not force_restart:
@@ -2038,7 +2421,10 @@ def launch_runner(device=None, wait_ready=True, target_script="fgo_battle_v5_run
             }
     else:
         run_adb([adb, "-s", target_dev, "shell", "am", "force-stop", "com.cyjh.mobileanjian"])
-        time.sleep(1.0)
+        sleep_check_cancel(1.0)
+
+    if is_ready_env_cancelled():
+        return {"success": False, "cancelled": True, "connected": True, "device": target_dev, "message": "用户已取消就绪环境"}
 
     # 2. 确保目标脚本文件已正确部署至模拟器
     ensure_v5_runner_deployed(adb, target_dev)
@@ -2052,35 +2438,46 @@ def launch_runner(device=None, wait_ready=True, target_script="fgo_battle_v5_run
             logger.info("[Runner拉起] 当前模拟器已处于脚本列表页 (UserAppScriptActivity)，直接定位目标脚本")
 
     if not already_at_script_list:
+        if is_ready_env_cancelled():
+            return {"success": False, "cancelled": True, "connected": True, "device": target_dev, "message": "用户已取消就绪环境"}
+
         # 3. 唤醒按键精灵应用并动态等待 MainActivity（使用 -S 强制重置残留页面与弹窗状态）
         set_ready_env_progress("🚀", "唤醒按键", "唤醒按键精灵应用")
         run_adb([adb, "-s", target_dev, "shell", "am", "start", "-S", "-n", "com.cyjh.mobileanjian/.vip.activity.GuiActivity"])
 
         # 动态轮询等待 MainActivity（避开开屏广告）
         for _ in range(16):
-            time.sleep(1)
+            if is_ready_env_cancelled():
+                return {"success": False, "cancelled": True, "connected": True, "device": target_dev, "message": "用户已取消就绪环境"}
+            sleep_check_cancel(1)
             chk = run_adb([adb, "-s", target_dev, "shell", "dumpsys window | grep mCurrentFocus"])
             focus_str = chk.stdout.decode("utf-8", errors="ignore")
             if "com.cyjh.mobileanjian" in focus_str and "MainActivity" in focus_str:
                 break
 
-        time.sleep(1.5)
+        sleep_check_cancel(1.5)
+        if is_ready_env_cancelled():
+            return {"success": False, "cancelled": True, "connected": True, "device": target_dev, "message": "用户已取消就绪环境"}
 
         # 4. 点击【编写】标签页 (701, 1109)
         set_ready_env_progress("📝", "编写界面", "进入脚本编写分类")
         run_adb([adb, "-s", target_dev, "shell", "input", "tap", "701", "1109"])
         for _ in range(10):
-            time.sleep(0.5)
+            if is_ready_env_cancelled():
+                return {"success": False, "cancelled": True, "connected": True, "device": target_dev, "message": "用户已取消就绪环境"}
+            sleep_check_cancel(0.5)
             chk = run_adb([adb, "-s", target_dev, "shell", "dumpsys window | grep mCurrentFocus"])
             if "UserActivity" in chk.stdout.decode("utf-8", errors="ignore"):
                 break
 
-        time.sleep(1.0)
+        sleep_check_cancel(1.0)
+        if is_ready_env_cancelled():
+            return {"success": False, "cancelled": True, "connected": True, "device": target_dev, "message": "用户已取消就绪环境"}
 
         # 5. 点击【未分类】分类 (400, 767)
         set_ready_env_progress("📁", "查找脚本", "定位目标 Runner 脚本")
         run_adb([adb, "-s", target_dev, "shell", "input", "tap", "400", "767"])
-        time.sleep(1.5)
+        sleep_check_cancel(1.5)
 
     # 6. 动态解析 UI 树，精准查找指定目标脚本 (target_script) 及其左侧蓝色播放按钮坐标（绝不盲点任何随机坐标！）
     set_ready_env_progress("📁", "查找脚本", f"定位脚本 [{target_script}]")
@@ -2144,9 +2541,11 @@ def launch_runner(device=None, wait_ready=True, target_script="fgo_battle_v5_run
         if target_cx and target_cy:
             break
         # 若第一页未找到，向上滑动列表重试
+        if is_ready_env_cancelled():
+            return {"success": False, "cancelled": True, "connected": True, "device": target_dev, "message": "用户已取消就绪环境"}
         if is_anjian_foreground():
             run_adb([adb, "-s", target_dev, "shell", "input", "swipe", "400", "900", "400", "300"])
-            time.sleep(1.5)
+            sleep_check_cancel(1.5)
 
     # 严禁盲点：如果未找到脚本，立即安全退出，绝不点击未知屏幕位置
     if not target_cx or not target_cy:
@@ -2156,6 +2555,9 @@ def launch_runner(device=None, wait_ready=True, target_script="fgo_battle_v5_run
             "device": target_dev,
             "message": f"未在按键精灵列表中找到脚本 [{target_script}]，已安全退出（未触发任何盲点）"
         }
+
+    if is_ready_env_cancelled():
+        return {"success": False, "cancelled": True, "connected": True, "device": target_dev, "message": "用户已取消就绪环境"}
 
     # 确认仍在前台后再点击
     if not is_anjian_foreground():
@@ -2168,7 +2570,10 @@ def launch_runner(device=None, wait_ready=True, target_script="fgo_battle_v5_run
     logger.info(f"[Runner拉起] 点击目标脚本 [{target_script}] {action_desc}: ({click_x}, {click_y})")
     set_ready_env_progress("▶", "启动脚本", f"点击播放按钮 ({click_x}, {click_y})")
     run_adb([adb, "-s", target_dev, "shell", "input", "tap", str(click_x), str(click_y)])
-    time.sleep(1.2)
+    sleep_check_cancel(1.2)
+
+    if is_ready_env_cancelled():
+        return {"success": False, "cancelled": True, "connected": True, "device": target_dev, "message": "用户已取消就绪环境"}
 
     # 7. 容错分支：若异常进入了脚本详情页 (MyScriptDetailInfoActivity)，点击【加载】(405, 1376)
     chk = run_adb([adb, "-s", target_dev, "shell", "dumpsys window | grep mCurrentFocus"])
@@ -2176,65 +2581,72 @@ def launch_runner(device=None, wait_ready=True, target_script="fgo_battle_v5_run
     if "MyScriptDetailInfoActivity" in focus_str:
         set_ready_env_progress("⚙️", "加载脚本", "加载配置与执行引擎")
         run_adb([adb, "-s", target_dev, "shell", "input", "tap", "405", "1376"])
-        time.sleep(1.5)
+        sleep_check_cancel(1.5)
+
+    if is_ready_env_cancelled():
+        return {"success": False, "cancelled": True, "connected": True, "device": target_dev, "message": "用户已取消就绪环境"}
 
     # 8. 在悬浮配置窗核验后点击【启动】(759, 691)
     if is_anjian_foreground():
         set_ready_env_progress("▶", "启动待命", "悬浮窗启动后台待命")
         run_adb([adb, "-s", target_dev, "shell", "input", "tap", "759", "691"])
-        time.sleep(1.5)
+        sleep_check_cancel(1.5)
 
-    # 9. 启动成功后，切回 FGO 游戏前台并智能点击推进至游戏主页
-    set_ready_env_progress("📱", "唤醒游戏", "切回 FGO 前台")
-    logger.info(f"[Runner拉起] 脚本已加载启动，切回 FGO 前台并推进至游戏主页...")
-    run_adb([adb, "-s", target_dev, "shell", "monkey -p com.bilibili.fatego -c android.intent.category.LAUNCHER 1"])
+    if is_ready_env_cancelled():
+        return {"success": False, "cancelled": True, "connected": True, "device": target_dev, "message": "用户已取消就绪环境"}
 
-    # 自动识别标题画面、公告 [X]、签到弹窗「关闭」，直至进入主界面 (给予 115 秒充足容限)
-    nav_res = navigate_fgo_to_home(device=target_dev, max_wait_sec=115)
+    # 9. 启动成功后，根据 sync_fgo 决定是否联动就绪 FGO 现场
+    nav_res = {}
+    if sync_fgo:
+        set_ready_env_progress("📱", "唤醒游戏", "切回 FGO 前台并就绪现场")
+        logger.info(f"[Runner拉起] 脚本已加载启动，统一就绪 FGO 现场...")
+        nav_res = ensure_fgo_ready(target_dev)
+        if nav_res.get("cancelled") or is_ready_env_cancelled():
+            return {"success": False, "cancelled": True, "connected": True, "device": target_dev, "message": "用户已取消就绪环境"}
+    else:
+        nav_res = {"success": True, "skipped": True, "message": "跳过 FGO 联动检查"}
 
     # 10. 验证是否成功进入 IDLE 待命
     runner_state = "UNKNOWN"
     if wait_ready:
         for _ in range(8):
-            time.sleep(1)
+            if is_ready_env_cancelled():
+                return {"success": False, "cancelled": True, "connected": True, "device": target_dev, "message": "用户已取消就绪环境"}
+            sleep_check_cancel(1)
             st = get_runner_status(device=target_dev)
             if st.get("alive") and st.get("state") in ["IDLE", "RUNNING"]:
                 runner_state = st.get("state")
                 break
 
     elapsed = int(time.time() - t0)
-    reached_home = nav_res.get("reached_home", False)
-    in_battle = nav_res.get("in_battle", False)
-    if in_battle:
-        home_desc = "已就绪于战斗画面"
-    elif reached_home:
-        home_desc = "已就绪于游戏主页"
-    else:
-        home_desc = "游戏唤醒中(未完全进入主页)"
-    is_success = bool(runner_state in ["IDLE", "RUNNING"] and (reached_home or in_battle))
-    logger.info(f"[Runner拉起] 完成: success={is_success}, state={runner_state}, reached_home={reached_home}, in_battle={in_battle} (耗时 {elapsed}s)")
+    runner_ok = runner_state in ["IDLE", "RUNNING"]
+    fgo_ok = nav_res.get("success", False) if sync_fgo else True
+    is_success = bool(runner_ok and fgo_ok)
+    logger.info(f"[Runner拉起] 完成: success={is_success}, state={runner_state}, fgo_ok={fgo_ok} (耗时 {elapsed}s)")
     return {
         "success": is_success,
         "connected": True,
         "device": target_dev,
         "state": runner_state,
         "script": target_script,
-        "fgo_navigation": nav_res,
+        "fgo_navigation": nav_res.get("fgo_navigation", nav_res),
+        "fgo_state": nav_res.get("fgo_state"),
         "elapsed_s": elapsed,
-        "message": f"按键精灵 {target_script} ({runner_state})，{home_desc}！(总耗时 {elapsed}s)"
+        "message": f"按键精灵 {target_script} ({runner_state})，{nav_res.get('message', '就绪完成')}！(总耗时 {elapsed}s)"
     }
 
 
 def ready_environment(device=None, force_restart=False):
     """
-    智能一键就绪环境：
-    合并「拉起脚本」与「进入主页」为一个原子操作，按需执行：
-    1. 哪个没完成就操作哪个：
-       - 若脚本未拉起：优先执行拉起脚本（拉起完成后会自动将 FGO 唤起至前台并推进至游戏主页）
-       - 若 FGO 未在主页：执行自动点击推进至主页（点击标题、关闭公告与弹窗）
-    2. 若都没完成：先拉起脚本，再自动推进 FGO 进入游戏主页（严禁先启游戏再起脚本，避免游戏被前台打断导致二次重启）
-    3. 若两者均已就绪：即时返回成功状态，提示可随时运行战斗
+    智能一键就绪环境（统一串联流水线 Pipeline）：
+    【阶段一】确保按键 Runner 脚本待命（已在运行则跳过，未运行则全自动拉起）
+    【阶段二】统一就绪 FGO 运行现场（单节点唯一逻辑：ensure_fgo_ready）：
+             - 无论阶段一中按键脚本是刚刚拉起还是已在待命，均汇流至同一个 FGO 就绪节点处理
+             - 运行中且在前台 -> 直接判定成功（零触碰、秒级返回）
+             - 运行中但处于后台 -> 唤回前台（零点击、秒级返回）
+             - 进程未运行 -> 唤起并走冷启动登录主页全流程 (navigate_fgo_to_home)
     """
+    reset_ready_env_cancel()
     t0 = time.time()
     adb = find_adb()
     if not adb:
@@ -2249,145 +2661,78 @@ def ready_environment(device=None, force_restart=False):
     set_ready_env_progress("🔍", "检查状态", "检查按键与游戏环境")
     logger.info(f"[就绪环境] 收到就绪环境检查请求 (device={target_dev}, force_restart={force_restart})")
 
-    # 1. 检查 Runner 脚本状态
+    if is_ready_env_cancelled():
+        finish_ready_env_progress(False, "就绪已被取消", cancelled=True)
+        return {"success": False, "cancelled": True, "connected": True, "device": target_dev, "message": "就绪环境已被用户手动取消"}
+
+    # 1. 阶段一：确保按键脚本 Runner 处于待命状态
+    # 【核心避坑设计】：若脚本未待命，严禁在脚本启动前提前唤起 FGO，避免焦点被抢打断冷启动
     st = get_runner_status(device=target_dev)
     runner_alive = bool(st.get("alive") and st.get("state") in ["IDLE", "RUNNING"])
 
-    # 2. 场景：按键脚本未拉起（或明确要求强制重启）
-    # 【核心避坑设计】：
-    # 严禁在脚本尚未拉起前提前唤醒/启动 FGO！
-    # 如果此时启动 FGO，紧接着拉起按键精灵会强行夺取前台焦点打断 FGO 的冷启动初始化，
-    # 导致脚本拉起完成后 FGO 又被迫重新冷启动，造成游戏重复启动两次。
-    # 必须严格遵循：先拉起按键脚本 -> 脚本待命后再唤起 FGO -> 推进至游戏主页。
+    runner_res = {}
     if force_restart or not runner_alive:
         set_ready_env_progress("🚀", "拉起脚本", "准备启动按键精灵与脚本")
         logger.info(f"[就绪环境] 脚本未处于待命状态 (alive={runner_alive}, force_restart={force_restart})，优先拉起脚本...")
-        launch_res = launch_runner(device=target_dev, wait_ready=True, force_restart=force_restart)
-        elapsed = int(time.time() - t0)
+        # 传入 sync_fgo=False，让 FGO 的就绪统一交给接下来的阶段二，形成严格的串联流水线
+        runner_res = launch_runner(device=target_dev, wait_ready=True, force_restart=force_restart, sync_fgo=False)
+        if runner_res.get("cancelled") or is_ready_env_cancelled():
+            finish_ready_env_progress(False, "就绪已被取消", cancelled=True)
+            return {"success": False, "cancelled": True, "connected": True, "device": target_dev, "environment_ready": False, "message": "就绪环境已被用户手动取消"}
+        if not runner_res.get("success"):
+            finish_ready_env_progress(False, runner_res.get("message", "按键脚本拉起失败"))
+            return runner_res
+    else:
+        logger.info(f"[就绪环境] 按键脚本已在后台待命 ({st.get('state')})，无需重复拉起")
+        runner_res = {"success": True, "state": st.get("state")}
 
-        fgo_nav = launch_res.get("fgo_navigation", {})
-        reached = fgo_nav.get("reached_home", False) or fgo_nav.get("in_battle", False)
-        runner_ok = launch_res.get("state") in ["IDLE", "RUNNING"]
+    if is_ready_env_cancelled():
+        finish_ready_env_progress(False, "就绪已被取消", cancelled=True)
+        return {"success": False, "cancelled": True, "connected": True, "device": target_dev, "environment_ready": False, "message": "就绪环境已被用户手动取消"}
 
-        # launch_runner 内部已在脚本启动后切回 FGO 并调用 navigate_fgo_to_home 推进至主页
-        if runner_ok and reached:
-            finish_ready_env_progress(True, "按键脚本与游戏环境均已就绪")
-            logger.info(f"[就绪环境] 按键脚本与 FGO 均已完全就绪 (总耗时 {elapsed}s)")
-            launch_res["environment_ready"] = True
-            launch_res["elapsed_s"] = elapsed
-            return launch_res
-
-        # 如果 Runner 已就绪，但 launch_runner 未尝试推进 FGO（例如命中缓存未做 navigation）
-        if runner_ok and "reached_home" not in fgo_nav:
-            set_ready_env_progress("📱", "推进主页", "智能推进 FGO 进入游戏主页...")
-            logger.info("[就绪环境] Runner 已待命，补充推进 FGO 进入游戏主页...")
-            nav_res = navigate_fgo_to_home(device=target_dev, max_wait_sec=115)
-            elapsed = int(time.time() - t0)
-            reached = nav_res.get("reached_home", False) or nav_res.get("in_battle", False)
-            if reached:
-                finish_ready_env_progress(True, "按键脚本与游戏环境均已就绪")
-                logger.info(f"[就绪环境] 补充推进完成，成功就绪 (总耗时 {elapsed}s)")
-                return {
-                    "success": True,
-                    "connected": True,
-                    "device": target_dev,
-                    "environment_ready": True,
-                    "runner_state": launch_res.get("state"),
-                    "fgo_navigation": nav_res,
-                    "elapsed_s": elapsed,
-                    "message": f"按键脚本 ({launch_res.get('state')}) 与 FGO 游戏均已完全就绪 (总耗时 {elapsed}s)！"
-                }
-            else:
-                finish_ready_env_progress(False, "推进 FGO 进入游戏未完成")
-                logger.warning(f"[就绪环境] 补充推进未能完全就绪: {nav_res.get('message')}")
-                return {
-                    "success": False,
-                    "connected": True,
-                    "device": target_dev,
-                    "environment_ready": False,
-                    "runner_state": launch_res.get("state"),
-                    "fgo_navigation": nav_res,
-                    "elapsed_s": elapsed,
-                    "message": f"按键脚本已待命，但 FGO 未能完全就绪: {nav_res.get('message')}"
-                }
-
-        # 若未成功完成
-        if launch_res.get("success"):
-            finish_ready_env_progress(True, "按键脚本与游戏环境均已就绪")
-        else:
-            finish_ready_env_progress(False, launch_res.get("message", "就绪未完成"))
-        launch_res["environment_ready"] = is_environment_ready()
-        launch_res["elapsed_s"] = elapsed
-        return launch_res
-
-    # 3. 场景：按键脚本已经在后台正常待命 (runner_alive=True 且无需 force_restart)
-    # 此时无需打开按键精灵，只需检查并就绪 FGO
-    chk = run_adb([adb, "-s", target_dev, "shell", "dumpsys window | grep mCurrentFocus"], timeout=2)
-    focus_str = chk.stdout.decode("utf-8", errors="ignore")
-    fgo_in_focus = "com.bilibili.fatego" in focus_str
-
-    if fgo_in_focus:
-        # FGO 已在前台，快速检查是否已经在主页或战斗中
-        at_home = check_fgo_at_home(device=target_dev)
-        battle_info = check_fgo_in_battle(device=target_dev)
-        in_battle = bool(battle_info.get("in_battle") or battle_info.get("in_team"))
-
-        if at_home or in_battle:
-            finish_ready_env_progress(True, "按键脚本与游戏环境均已就绪")
-            ready_desc = "游戏主页" if at_home else "战斗/队伍中"
-            elapsed = int(time.time() - t0)
-            logger.info(f"[就绪环境] 按键脚本 ({st.get('state')}) 与游戏运行状态均已就绪（已处于{ready_desc}），零触碰秒级返回")
-            return {
-                "success": True,
-                "connected": True,
-                "device": target_dev,
-                "already_ready": True,
-                "environment_ready": True,
-                "runner_state": st.get("state"),
-                "at_home": at_home,
-                "in_battle": in_battle,
-                "elapsed_s": elapsed,
-                "message": f"按键脚本 ({st.get('state')}) 与游戏均已正常运行（{ready_desc}），环境已完全就绪！"
-            }
-
-    # FGO 不在前台，或者虽在前台但尚未处于主页/战斗画面 -> 唤醒并推进进入主页
-    if not fgo_in_focus:
-        set_ready_env_progress("📱", "唤醒游戏", "唤起 FGO 至前台")
-        logger.info("[就绪环境] 脚本已待命，FGO 处于后台或未启动，唤起至前台...")
-        run_adb([adb, "-s", target_dev, "shell", "monkey -p com.bilibili.fatego -c android.intent.category.LAUNCHER 1"])
-        time.sleep(1.2)
-
-    set_ready_env_progress("📱", "推进主页", "智能推进 FGO 进入游戏主页...")
-    logger.info(f"[就绪环境] 脚本已待命 ({st.get('state')})，推进 FGO 进入游戏主页...")
-    nav_res = navigate_fgo_to_home(device=target_dev, max_wait_sec=115)
+    # 2. 阶段二：统一就绪 FGO 运行现场（两路汇流至同一个 ensure_fgo_ready 节点）
+    fgo_res = ensure_fgo_ready(target_dev)
     elapsed = int(time.time() - t0)
-    reached = nav_res.get("reached_home", False) or nav_res.get("in_battle", False)
 
-    if reached:
+    if fgo_res.get("cancelled") or is_ready_env_cancelled():
+        finish_ready_env_progress(False, "就绪已被取消", cancelled=True)
+        return {
+            "success": False,
+            "cancelled": True,
+            "connected": True,
+            "device": target_dev,
+            "environment_ready": False,
+            "runner_state": runner_res.get("state") or st.get("state"),
+            "fgo_navigation": fgo_res.get("fgo_navigation"),
+            "elapsed_s": elapsed,
+            "message": "就绪环境已被用户手动取消"
+        }
+
+    if fgo_res.get("success"):
         finish_ready_env_progress(True, "按键脚本与游戏环境均已就绪")
-        logger.info(f"[就绪环境] 推进完成，FGO 环境已就绪 (耗时 {elapsed}s)")
         return {
             "success": True,
             "connected": True,
             "device": target_dev,
+            "already_ready": bool(fgo_res.get("already_ready") and runner_alive and not force_restart),
             "environment_ready": True,
-            "runner_state": st.get("state"),
-            "fgo_navigation": nav_res,
+            "runner_state": runner_res.get("state") or st.get("state"),
+            "fgo_state": fgo_res.get("fgo_state"),
+            "fgo_navigation": fgo_res.get("fgo_navigation"),
             "elapsed_s": elapsed,
-            "message": f"按键脚本已在待命，FGO 环境已完全就绪！(耗时 {elapsed}s)"
+            "message": f"按键脚本 ({runner_res.get('state') or st.get('state')}) 与 FGO 游戏现场均已就绪！(总耗时 {elapsed}s)"
         }
     else:
-        finish_ready_env_progress(False, "推进 FGO 进入游戏未完成")
-        logger.warning(f"[就绪环境] 推进 FGO 进入游戏未完成: {nav_res.get('message')}")
+        finish_ready_env_progress(False, fgo_res.get("message", "FGO 就绪未完成"))
         return {
             "success": False,
             "connected": True,
             "device": target_dev,
             "environment_ready": False,
-            "runner_state": st.get("state"),
-            "fgo_navigation": nav_res,
+            "runner_state": runner_res.get("state") or st.get("state"),
+            "fgo_navigation": fgo_res.get("fgo_navigation"),
             "elapsed_s": elapsed,
-            "message": f"按键脚本已待命，但推进 FGO 进入游戏未完成: {nav_res.get('message')}"
+            "message": f"按键脚本已待命，但 FGO 就绪未完成: {fgo_res.get('message')}"
         }
 
 
@@ -2562,6 +2907,188 @@ def get_runner_status(device=None):
             "message": f"读取状态异常: {str(e)}",
             "logs": []
         }
+
+# 动态热补丁：若当前常驻进程中的 ConfigEditorHandler 尚未注入 /api/friends，自动动态代理路由
+try:
+    for _m_name, _m in list(sys.modules.items()):
+        if _m and hasattr(_m, 'ConfigEditorHandler'):
+            _handler = getattr(_m, 'ConfigEditorHandler')
+            if not getattr(_handler, '_friends_api_patched', False):
+                _orig_get = _handler.do_GET
+                _orig_post = _handler.do_POST
+
+                def _patched_do_GET(self):
+                    if self.path.startswith('/api/friends'):
+                        f_file = os.path.join(os.path.dirname(__file__), "profiles", "friends.json")
+                        d = {"version": "1.0", "friends": []}
+                        if os.path.isfile(f_file):
+                            try:
+                                with open(f_file, "r", encoding="utf-8") as fp:
+                                    d = json.load(fp)
+                            except Exception:
+                                pass
+                        i_status = {}
+                        img_dir = os.path.join(os.path.dirname(__file__), "images")
+                        for fr in d.get("friends", []):
+                            for img_n in fr.get("images", []):
+                                ip = os.path.join(img_dir, img_n)
+                                i_status[img_n] = bool(os.path.isfile(ip) and os.path.getsize(ip) > 0)
+                        self.send_response(200)
+                        self.send_header('Content-Type', 'application/json; charset=utf-8')
+                        self.send_header('Cache-Control', 'no-cache')
+                        self.end_headers()
+                        self.wfile.write(json.dumps({
+                            "status": "ok",
+                            "friends": d.get("friends", []),
+                            "image_status": i_status
+                        }, ensure_ascii=False).encode('utf-8'))
+                        return
+                    if self.path.startswith('/api/star_map/status') or self.path.startswith('/api/star_map/progress'):
+                        try:
+                            try:
+                                import star_map_unlocker
+                            except ImportError:
+                                import editor_v5.star_map_unlocker as star_map_unlocker
+                            res = star_map_unlocker.get_star_map_progress()
+                        except Exception as e:
+                            res = {"running": False, "status": "ERROR", "message": str(e)}
+                        self.send_response(200)
+                        self.send_header('Content-Type', 'application/json; charset=utf-8')
+                        self.send_header('Cache-Control', 'no-cache')
+                        self.end_headers()
+                        self.wfile.write(json.dumps(res, ensure_ascii=False).encode('utf-8'))
+                        return
+                    return _orig_get(self)
+
+                def _patched_do_POST(self):
+                    if self.path.startswith('/api/friends'):
+                        length = int(self.headers.get('Content-Length', 0))
+                        body = self.rfile.read(length).decode('utf-8') if length > 0 else "{}"
+                        req_data = {}
+                        if body:
+                            try:
+                                req_data = json.loads(body)
+                            except Exception:
+                                pass
+                        fr_list = req_data.get('friends', [])
+                        f_file = os.path.join(os.path.dirname(__file__), "profiles", "friends.json")
+                        with open(f_file, "w", encoding="utf-8") as fp:
+                            json.dump({"version": "1.0", "friends": fr_list}, fp, ensure_ascii=False, indent=2)
+
+                        prof_file = os.path.join(os.path.dirname(__file__), "profiles", "default_1440x810.json")
+                        if os.path.isfile(prof_file):
+                            try:
+                                with open(prof_file, "r", encoding="utf-8") as pf:
+                                    p_d = json.load(pf)
+                                tgts = p_d.get("targets", {})
+                                up = False
+                                for fr in fr_list:
+                                    fr_n = fr.get("name", fr.get("key"))
+                                    for idx, img_n in enumerate(fr.get("images", []), 1):
+                                        tk = os.path.splitext(img_n)[0]
+                                        if tk not in tgts:
+                                            tgts[tk] = {
+                                                "key": tk,
+                                                "name": f"助战: {fr_n} {idx}",
+                                                "category": "friend",
+                                                "file": img_n,
+                                                "anchor": "top_left",
+                                                "search_area": [40, 180, 920, 800],
+                                                "crop_area": None,
+                                                "area": [40, 180, 920, 800],
+                                                "tap_coord": None,
+                                                "description": f"助战特征图: {fr_n}"
+                                            }
+                                            up = True
+                                if up:
+                                    p_d["targets"] = tgts
+                                    with open(prof_file, "w", encoding="utf-8") as pf:
+                                        json.dump(p_d, pf, ensure_ascii=False, indent=2)
+                            except Exception:
+                                pass
+
+                        self.send_response(200)
+                        self.send_header('Content-Type', 'application/json; charset=utf-8')
+                        self.send_header('Cache-Control', 'no-cache')
+                        self.end_headers()
+                        self.wfile.write(json.dumps({"success": True, "message": "助战配置已保存", "count": len(fr_list)}, ensure_ascii=False).encode('utf-8'))
+                        return
+                    if self.path.startswith('/api/star_map/start'):
+                        length = int(self.headers.get('Content-Length', 0))
+                        body = self.rfile.read(length).decode('utf-8') if length > 0 else ""
+                        target_dev = None
+                        auto_swipe = True
+                        if body:
+                            try:
+                                d = json.loads(body)
+                                target_dev = d.get('device')
+                                auto_swipe = bool(d.get('auto_swipe', True))
+                            except Exception:
+                                pass
+                        try:
+                            try:
+                                import star_map_unlocker
+                            except ImportError:
+                                import editor_v5.star_map_unlocker as star_map_unlocker
+                            res = star_map_unlocker.start_star_map_unlock(device=target_dev, auto_swipe=auto_swipe)
+                        except Exception as e:
+                            res = {"success": False, "message": str(e)}
+                        self.send_response(200)
+                        self.send_header('Content-Type', 'application/json; charset=utf-8')
+                        self.send_header('Cache-Control', 'no-cache')
+                        self.end_headers()
+                        self.wfile.write(json.dumps(res, ensure_ascii=False).encode('utf-8'))
+                        return
+                    if self.path.startswith('/api/star_map/stop'):
+                        try:
+                            try:
+                                import star_map_unlocker
+                            except ImportError:
+                                import editor_v5.star_map_unlocker as star_map_unlocker
+                            res = star_map_unlocker.request_stop_star_map()
+                        except Exception as e:
+                            res = {"success": False, "message": str(e)}
+                        self.send_response(200)
+                        self.send_header('Content-Type', 'application/json; charset=utf-8')
+                        self.send_header('Cache-Control', 'no-cache')
+                        self.end_headers()
+                        self.wfile.write(json.dumps(res, ensure_ascii=False).encode('utf-8'))
+                        return
+                    return _orig_post(self)
+
+                _handler.do_GET = _patched_do_GET
+                _handler.do_POST = _patched_do_POST
+                _handler._star_map_api_patched = True
+                logger.info("[HotPatch] 已为当前运行的 CustomHandler 成功注入 /api/friends 与 /api/star_map 路由")
+except Exception as _e:
+    pass
+
+
+def start_star_map_unlock(device=None, auto_swipe=True):
+    try:
+        import star_map_unlocker
+    except ImportError:
+        import editor_v5.star_map_unlocker as star_map_unlocker
+    return star_map_unlocker.start_star_map_unlock(device=device, auto_swipe=auto_swipe)
+
+
+def stop_star_map_unlock():
+    try:
+        import star_map_unlocker
+    except ImportError:
+        import editor_v5.star_map_unlocker as star_map_unlocker
+    return star_map_unlocker.request_stop_star_map()
+
+
+def get_star_map_progress():
+    try:
+        import star_map_unlocker
+    except ImportError:
+        import editor_v5.star_map_unlocker as star_map_unlocker
+    return star_map_unlocker.get_star_map_progress()
+
+
+
 
 
 
