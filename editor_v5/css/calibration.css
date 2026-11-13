@@ -657,6 +657,18 @@
     box-shadow: 0 3px 10px rgba(78, 168, 36, 0.45);
 }
 
+.cal-btn.cal-btn-icon {
+    padding: 0;
+    width: 32px;
+    min-width: 32px;
+    height: 30px;
+    font-size: 15px;
+    line-height: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
 /* 标签徽章 (对齐 Mooncell 三级色阶) */
 .cal-badge {
     padding: 3px 8px;
@@ -805,18 +817,150 @@
     justify-content: center;
     user-select: none;
     box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.04);
+    transition: border-color 0.18s ease, box-shadow 0.18s ease;
+}
+
+.cal-canvas-wrapper.cal-dragover {
+    border-color: var(--darkblue, #4487df) !important;
+    box-shadow: inset 0 0 0 2px var(--darkblue, #4487df), 0 2px 10px rgba(68, 135, 223, 0.25) !important;
+}
+
+/* 标定画面外框：作为画面的固定视口容器
+   当整个 editor 放大时，自适应扩大但物理像素最大仅允许达到原图 100% 原始尺寸，绝不物理超过原图；
+   放大操作在外框内部发生，超出部分由 overflow: hidden 裁剪，支持空格+拖拽平移 */
+.cal-viewport-frame {
+    position: relative;
+    overflow: hidden;
+    background: #000000;
+    border: 2px solid var(--line, #cbd5e1);
+    border-radius: 6px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.18), 0 1px 4px rgba(0, 0, 0, 0.08);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: content-box;
+    max-width: calc(100% - 4px);
+    max-height: calc(100% - 4px);
+    user-select: none;
+    transition: box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.cal-viewport-frame:hover {
+    border-color: #94a3b8;
+}
+
+/* 按住空格键时的平移就绪态与拖拽中态 */
+.cal-viewport-frame.cal-space-ready,
+.cal-viewport-frame.cal-space-ready canvas {
+    cursor: grab !important;
+}
+
+.cal-viewport-frame.cal-is-panning,
+.cal-viewport-frame.cal-is-panning canvas {
+    cursor: grabbing !important;
 }
 
 #calScreenCanvas {
-    max-width: 100%;
-    max-height: 100%;
-    object-fit: contain;
-    cursor: crosshair;
+    width: 100%;
+    height: 100%;
     display: block;
-    background: #000000;
+    cursor: crosshair;
+    transform-origin: center center;
+    transition: transform 0.05s ease-out;
+    will-change: transform;
+    pointer-events: auto;
+}
+
+.cal-viewport-frame.cal-is-panning #calScreenCanvas {
+    transition: none !important;
+}
+
+/* 标定画面缩放与平移控制条 (Mooncell Wiki 浅色胶囊浮动栏) */
+.cal-zoom-toolbar {
+    position: absolute;
+    bottom: 12px;
+    right: 14px;
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    background: rgba(255, 255, 255, 0.94);
+    backdrop-filter: blur(6px);
     border: 1px solid var(--line, #cbd5e1);
+    border-radius: 6px;
+    padding: 3px 6px;
+    box-shadow: 0 2px 10px rgba(15, 23, 42, 0.08), 0 1px 3px rgba(0, 0, 0, 0.04);
+    z-index: 10;
+    user-select: none;
+    transition: all 0.2s ease;
+}
+
+.cal-zoom-toolbar:hover {
+    background: #ffffff;
+    box-shadow: 0 4px 14px rgba(15, 23, 42, 0.12);
+    border-color: #94a3b8;
+}
+
+.cal-zoom-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 24px;
+    min-width: 24px;
+    padding: 0 6px;
+    background: #ffffff;
+    color: var(--text-main, #1f2937);
+    border: 1px solid var(--line-light, #e2e8f0);
     border-radius: 4px;
-    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.15), 0 1px 3px rgba(0, 0, 0, 0.08);
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    line-height: 1;
+    transition: all 0.15s ease;
+}
+
+.cal-zoom-btn:hover {
+    background: var(--bg-card-hover, #f0f6ff);
+    color: var(--darkblue, #4487df);
+    border-color: var(--darkblue, #4487df);
+}
+
+.cal-zoom-btn:active {
+    transform: scale(0.96);
+}
+
+.cal-zoom-btn.cal-zoom-val {
+    min-width: 48px;
+    font-variant-numeric: tabular-nums;
+    font-weight: 700;
+    color: var(--darkblue, #4487df);
+    background: #f8fafc;
+}
+
+.cal-zoom-btn.cal-zoom-fit {
+    padding: 0 7px;
+    font-size: 11px;
+}
+
+.cal-zoom-divider {
+    width: 1px;
+    height: 14px;
+    background: var(--line, #cbd5e1);
+    margin: 0 3px;
+}
+
+.cal-zoom-hint {
+    font-size: 11px;
+    color: var(--text-muted, #4b5563);
+    padding: 2px 6px;
+    border-radius: 4px;
+    white-space: nowrap;
+    transition: all 0.18s ease;
+}
+
+.cal-zoom-hint.is-active {
+    background: var(--lightblue, #ebf7fe);
+    color: var(--darkblue, #4487df);
+    font-weight: 700;
 }
 
 /* Canvas 悬浮遮罩提示 (Mooncell 空状态卡片引导) */
@@ -1286,20 +1430,26 @@
 
 .cal-card-crop {
     border-left: 3px solid var(--quick, #4ea824) !important;
+    transition: all 0.15s ease;
+    cursor: default;
 }
 
 .cal-card-crop.active-mode {
     border-color: var(--quick, #4ea824) !important;
     background: rgba(78, 168, 36, 0.03) !important;
+    box-shadow: 0 0 0 1px var(--quick, #4ea824), 0 2px 8px rgba(78, 168, 36, 0.12) !important;
 }
 
 .cal-card-search {
     border-left: 3px solid var(--darkblue, #4487df) !important;
+    transition: all 0.15s ease;
+    cursor: default;
 }
 
 .cal-card-search.active-mode {
     border-color: var(--darkblue, #4487df) !important;
     background: rgba(68, 135, 223, 0.03) !important;
+    box-shadow: 0 0 0 1px var(--darkblue, #4487df), 0 2px 8px rgba(68, 135, 223, 0.12) !important;
 }
 
 .cal-advanced-details {

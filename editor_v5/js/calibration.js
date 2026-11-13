@@ -20,10 +20,22 @@
         showCrop: true,    // 是否在画面中呈现截图选区 (默认显示)
         showSearch: true,  // 是否在画面中呈现匹配范围 (默认显示)
         activeMode: 'crop',// 当前可编辑目标: 'crop' | 'search' (同时仅能有一种)
+        lastInteractedArea: 'crop', // 最近一次交互的选区模式 ('crop' | 'search')
         
         tapCoord: null,    // 点击锚点 [x, y]
         matchedRect: null, // [x, y, w, h] 测试匹配结果
         selectedDevice: null, // 当前选中的模拟器标识
+
+        // 视口外框与缩放平移状态
+        zoom: 1.0,
+        panX: 0,
+        panY: 0,
+        isSpacePressed: false,
+        isPanning: false,
+        panStartX: 0,
+        panStartY: 0,
+        frameWidth: 0,
+        frameHeight: 0,
         
         // 鼠标拖拽与手柄调整状态
         dragState: {
@@ -54,6 +66,15 @@
         dom.canvas = document.getElementById('calScreenCanvas');
         dom.ctx = dom.canvas ? dom.canvas.getContext('2d') : null;
         dom.emptyState = document.getElementById('calEmptyState');
+        dom.canvasWrapper = document.getElementById('calCanvasWrapper');
+        dom.viewportFrame = document.getElementById('calViewportFrame');
+        dom.zoomToolbar = document.getElementById('calZoomToolbar');
+        dom.btnZoomIn = document.getElementById('calBtnZoomIn');
+        dom.btnZoomOut = document.getElementById('calBtnZoomOut');
+        dom.btnZoomReset = document.getElementById('calBtnZoomReset');
+        dom.btnZoomFit = document.getElementById('calBtnZoomFit');
+        dom.zoomHint = document.getElementById('calZoomHint');
+        dom.arrowHint = document.getElementById('calArrowHint');
 
         // 同步顶部导航栏当前选中的模拟器
         const topAdbSelect = document.getElementById('adbDeviceSelect');
@@ -64,6 +85,8 @@
         }
 
         dom.btnCapture = document.getElementById('calBtnCapture');
+        dom.btnLoadImage = document.getElementById('calBtnLoadImage');
+        dom.fileInput = document.getElementById('calFileInput');
         dom.btnTestMatch = document.getElementById('calBtnTestMatch');
         dom.btnSaveTarget = document.getElementById('calBtnSaveTarget');
         dom.screenBadge = document.getElementById('calScreenBadge');
@@ -207,6 +230,7 @@
             if (window.checkAdbStatus) {
                 window.checkAdbStatus();
             }
+            updateViewportFrameDimensions();
             if (!state.screenImage) {
                 captureScreen({ silent: true });
             }
@@ -285,7 +309,7 @@
         if (dom.btnEditCrop) {
             const isEditing = state.activeMode === 'crop';
             dom.btnEditCrop.classList.toggle('is-active', isEditing);
-            dom.btnEditCrop.title = isEditing ? '当前已勾选为编辑目标（可在画面中拖拽调整）' : '点击勾选为当前编辑目标';
+            dom.btnEditCrop.title = isEditing ? '当前已勾选为编辑目标（可在画面中拖拽调整），点击取消编辑' : '点击勾选为编辑目标（勾选后可在画面中拖拽调整）';
             const text = dom.btnEditCrop.querySelector('.cal-opt-text');
             if (text) text.textContent = '编辑';
         }
@@ -305,7 +329,7 @@
         if (dom.btnEditSearch) {
             const isEditing = state.activeMode === 'search';
             dom.btnEditSearch.classList.toggle('is-active', isEditing);
-            dom.btnEditSearch.title = isEditing ? '当前已勾选为编辑目标（可在画面中拖拽调整）' : '点击勾选为当前编辑目标';
+            dom.btnEditSearch.title = isEditing ? '当前已勾选为编辑目标（可在画面中拖拽调整），点击取消编辑' : '点击勾选为编辑目标（勾选后可在画面中拖拽调整）';
             const text = dom.btnEditSearch.querySelector('.cal-opt-text');
             if (text) text.textContent = '编辑';
         }
@@ -323,9 +347,12 @@
         if (dom.layerSearchItem) dom.layerSearchItem.classList.toggle('is-editing', state.activeMode === 'search');
     }
 
-    // 交互模式切换 (同时仅有一种处于可编辑状态，设为可编辑时自动保证其显示)
+    // 交互模式切换 (同时仅能有一种处于可编辑状态，设为可编辑时自动保证其显示)
     function setEditMode(mode) {
         state.activeMode = mode;
+        if (mode) {
+            state.lastInteractedArea = mode;
+        }
 
         if (mode === 'crop') {
             state.showCrop = true;
@@ -335,6 +362,15 @@
 
         updateControlButtonsUI();
         renderCanvas();
+    }
+
+    // 切换编辑模式勾选状态 (支持点击已激活目标取消编辑，实现画面完全只读保护)
+    function toggleEditMode(mode) {
+        if (state.activeMode === mode) {
+            setEditMode(null);
+        } else {
+            setEditMode(mode);
+        }
     }
 
     // 切换截图选区显示状态 (仅切换画面可见性，不影响当前编辑目标)
@@ -852,12 +888,261 @@
         return undefined;
     }
 
+    // 计算屏幕有效游戏视口与黑边偏移 (与 calibration.py 保持完全一致)
+    function computeViewport(w, h) {
+        const BASE_WIDTH = 1440;
+        const BASE_HEIGHT = 810;
+        const BASE_RATIO = BASE_WIDTH / BASE_HEIGHT;
+        const safeH = h || 1;
+        const screen_ratio = w / safeH;
+        let viewport_w, viewport_h, offset_x = 0, offset_y = 0, scale;
+
+        if (screen_ratio >= BASE_RATIO) {
+            viewport_h = h;
+            offset_y = 0;
+            viewport_w = Math.round(h * BASE_RATIO);
+            offset_x = Math.round((w - viewport_w) / 2.0);
+            scale = h / BASE_HEIGHT;
+        } else {
+            viewport_w = w;
+            offset_x = 0;
+            viewport_h = Math.round(w / BASE_RATIO);
+            offset_y = Math.round((h - viewport_h) / 2.0);
+            scale = w / BASE_WIDTH;
+        }
+
+        return {
+            screen_w: w,
+            screen_h: h,
+            offset_x: offset_x,
+            offset_y: offset_y,
+            viewport_w: viewport_w,
+            viewport_h: viewport_h,
+            scale: Math.round(scale * 10000) / 10000,
+            screen_ratio: Math.round(screen_ratio * 10000) / 10000
+        };
+    }
+
+    // 从本地文件 (图片文件) 载入标定画面
+    function loadLocalImageFile(file) {
+        if (!file) return;
+        if (!file.type.startsWith('image/') && !file.name.match(/\.(png|jpe?g|webp|bmp)$/i)) {
+            showToast('请选择有效的图片文件 (PNG/JPG/WebP/BMP)');
+            return;
+        }
+        const reader = new FileReader();
+        reader.onload = function (e) {
+            const dataUrl = e.target.result;
+            const img = new Image();
+            img.onload = function () {
+                const w = img.naturalWidth || img.width;
+                const h = img.naturalHeight || img.height;
+                const vp = computeViewport(w, h);
+
+                state.screenWidth = w;
+                state.screenHeight = h;
+                state.viewport = vp;
+                state.screenImage = img;
+
+                if (dom.screenBadge) {
+                    dom.screenBadge.textContent = `${w}×${h} (${file.name})`;
+                    dom.screenBadge.title = `本地图片: ${file.name}\n尺寸: ${w}×${h}\n比例: ${vp.screen_ratio.toFixed(2)}:1`;
+                }
+
+                if (dom.emptyState) dom.emptyState.style.display = 'none';
+                if (dom.canvas) {
+                    dom.canvas.width = w;
+                    dom.canvas.height = h;
+                }
+                updateViewportFrameDimensions();
+                state.zoom = 1.0;
+                state.panX = 0;
+                state.panY = 0;
+                updateCanvasTransform();
+                renderCanvas();
+                updatePreview();
+                showToast(`✔ 已载入本地图片: ${file.name} (${w}×${h})`);
+            };
+            img.onerror = function () {
+                showToast('本地图片载入失败，请确认文件格式无误');
+            };
+            img.src = dataUrl;
+        };
+        reader.onerror = function () {
+            showToast('读取本地图片文件出错');
+        };
+        reader.readAsDataURL(file);
+    }
+
+    // IndexedDB 目录与文件 Handle 本地持久化 (用于文件夹按钮记忆上次打开的目录位置)
+    const IDB_NAME = 'fgo_calibration_db';
+    const IDB_STORE = 'handles';
+
+    function openCalibrationDB() {
+        return new Promise((resolve) => {
+            if (!window.indexedDB) return resolve(null);
+            try {
+                const req = indexedDB.open(IDB_NAME, 1);
+                req.onupgradeneeded = () => {
+                    const db = req.result;
+                    if (!db.objectStoreNames.contains(IDB_STORE)) {
+                        db.createObjectStore(IDB_STORE);
+                    }
+                };
+                req.onsuccess = () => resolve(req.result);
+                req.onerror = () => resolve(null);
+            } catch (e) {
+                resolve(null);
+            }
+        });
+    }
+
+    async function saveLastImageHandle(handle) {
+        if (!handle) return;
+        try {
+            const db = await openCalibrationDB();
+            if (!db) return;
+            const tx = db.transaction(IDB_STORE, 'readwrite');
+            tx.objectStore(IDB_STORE).put(handle, 'last_image_handle');
+        } catch (e) {
+            console.warn('[Calibration] saveLastImageHandle error:', e);
+        }
+    }
+
+    async function getLastImageHandle() {
+        try {
+            const db = await openCalibrationDB();
+            if (!db) return null;
+            return new Promise((resolve) => {
+                const tx = db.transaction(IDB_STORE, 'readonly');
+                const req = tx.objectStore(IDB_STORE).get('last_image_handle');
+                req.onsuccess = () => resolve(req.result || null);
+                req.onerror = () => resolve(null);
+            });
+        } catch (e) {
+            return null;
+        }
+    }
+
+    // 从服务端返回的数据包直接载入图片
+    function loadImageFromData(data) {
+        if (!data || !data.image_base64) return;
+        const w = data.width;
+        const h = data.height;
+        const vp = data.viewport || computeViewport(w, h);
+
+        state.screenWidth = w;
+        state.screenHeight = h;
+        state.viewport = vp;
+
+        if (dom.screenBadge) {
+            dom.screenBadge.textContent = `${w}×${h} (${data.file_name})`;
+            dom.screenBadge.title = `本地路径: ${data.file_path || data.file_name}\n尺寸: ${w}×${h}\n比例: ${vp.screen_ratio.toFixed(2)}:1`;
+        }
+
+        const img = new Image();
+        img.onload = function () {
+            state.screenImage = img;
+            if (dom.emptyState) dom.emptyState.style.display = 'none';
+            if (dom.canvas) {
+                dom.canvas.width = w;
+                dom.canvas.height = h;
+            }
+            updateViewportFrameDimensions();
+            state.zoom = 1.0;
+            state.panX = 0;
+            state.panY = 0;
+            updateCanvasTransform();
+            renderCanvas();
+            updatePreview();
+            showToast(`✔ 已载入本地图片: ${data.file_name} (${w}×${h})`);
+        };
+        img.src = data.image_base64;
+    }
+
+    // 打开文件选择框：记忆并定位上次打开的文件夹位置
+    async function openImageFileDialog() {
+        // 方案 1: 优先使用现代浏览器标准 File System Access API
+        // 传入 id 和 startIn (通过 IndexedDB 记录上次选中的 FileSystemFileHandle)
+        // 规范确保相同 id 及 startIn 可以在重新打开时精确定位到上次的文件目录！
+        if (window.showOpenFilePicker) {
+            try {
+                const pickerOptions = {
+                    id: 'fgo_calibration_image_picker',
+                    types: [{
+                        description: '图片文件 (*.png, *.jpg, *.jpeg, *.webp, *.bmp)',
+                        accept: {
+                            'image/*': ['.png', '.jpg', '.jpeg', '.webp', '.bmp']
+                        }
+                    }],
+                    excludeAcceptAllOption: false,
+                    multiple: false
+                };
+
+                const lastHandle = await getLastImageHandle();
+                if (lastHandle) {
+                    pickerOptions.startIn = lastHandle;
+                }
+
+                const [handle] = await window.showOpenFilePicker(pickerOptions);
+                if (handle) {
+                    await saveLastImageHandle(handle);
+                    const file = await handle.getFile();
+                    loadLocalImageFile(file);
+                    return;
+                }
+            } catch (err) {
+                if (err && err.name === 'AbortError') {
+                    return; // 用户主动取消
+                }
+                console.warn('[Calibration] showOpenFilePicker fallback:', err);
+            }
+        }
+
+        // 方案 2: 若浏览器不支持 showOpenFilePicker，调用后端原生文件选择对话框
+        // 后端通过 calibration_settings.json 持久化记录 last_open_dir 并在打开时自动定位
+        if (dom.btnLoadImage) dom.btnLoadImage.disabled = true;
+        try {
+            const hintDir = localStorage.getItem('cal_last_open_dir') || '';
+            const res = await fetch('/api/calibrate/pick_image', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ last_dir: hintDir })
+            });
+            if (res.ok) {
+                const data = await res.json();
+                if (data.cancelled) return;
+                if (data.success && data.image_base64) {
+                    if (data.last_dir) {
+                        localStorage.setItem('cal_last_open_dir', data.last_dir);
+                    }
+                    loadImageFromData(data);
+                    return;
+                } else if (data.error) {
+                    showToast('选择图片失败: ' + data.error);
+                    return;
+                }
+            }
+        } catch (e) {
+            console.warn('[Calibration] Backend pick_image failed, fallback to input:', e);
+        } finally {
+            if (dom.btnLoadImage) dom.btnLoadImage.disabled = false;
+        }
+
+        // 方案 3: 保底兼容使用隐藏的 input[type=file]
+        if (dom.fileInput) {
+            dom.fileInput.value = '';
+            dom.fileInput.click();
+        }
+    }
+
     // 抓取模拟器当前屏幕 (同步使用顶部导航栏选中的模拟器)
     async function captureScreen(options = {}) {
         const silent = Boolean(options && options.silent === true);
         if (dom.btnCapture) {
             dom.btnCapture.disabled = true;
-            dom.btnCapture.textContent = '📸 正在抓屏...';
+            dom.btnCapture.textContent = '⏳';
+            dom.btnCapture.title = '正在抓取屏幕...';
         }
         try {
             const dev = getActiveDevice() || '';
@@ -882,6 +1167,7 @@
 
             if (dom.screenBadge) {
                 dom.screenBadge.textContent = `${data.width}×${data.height} (${data.viewport.screen_ratio.toFixed(2)}:1)`;
+                dom.screenBadge.title = `模拟器屏幕\n尺寸: ${data.width}×${data.height}\n比例: ${data.viewport.screen_ratio.toFixed(2)}:1`;
             }
 
             const img = new Image();
@@ -890,6 +1176,11 @@
                 if (dom.emptyState) dom.emptyState.style.display = 'none';
                 dom.canvas.width = data.width;
                 dom.canvas.height = data.height;
+                updateViewportFrameDimensions();
+                state.zoom = 1.0;
+                state.panX = 0;
+                state.panY = 0;
+                updateCanvasTransform();
                 renderCanvas();
                 updatePreview();
             };
@@ -902,7 +1193,8 @@
         } finally {
             if (dom.btnCapture) {
                 dom.btnCapture.disabled = false;
-                dom.btnCapture.textContent = '📸 截取当前画面';
+                dom.btnCapture.textContent = '📸';
+                dom.btnCapture.title = '截取当前画面 (快捷键: F8 / 空格)';
             }
         }
     }
@@ -1178,7 +1470,7 @@
         }
     }
 
-    // 分析光标所在位置的命中行为 (框内平移拖动，空白处重新框选)
+    // 分析光标所在位置的命中行为 (仅允许编辑已勾选“编辑”的范围，未勾选编辑严禁在画面中交互)
     function getHoverAction(cx, cy) {
         const curTarget = state.targets.find(t => t.key === state.selectedKey);
         const isTap = curTarget && curTarget.category === 'tap';
@@ -1191,6 +1483,18 @@
             return { action: 'set_tap', target: 'tap', cursor: 'crosshair' };
         }
 
+        // 若当前未开启任何编辑模式（截图选区和匹配范围均未勾选“编辑”）
+        // 若画面中存在选区，点击对应选区可智能切换并激活对应编辑模式
+        if (!state.activeMode) {
+            if (state.showCrop && state.cropArea && isInsideRect(cx, cy, state.cropArea)) {
+                return { action: 'select_mode', target: 'crop', cursor: 'pointer' };
+            }
+            if (state.showSearch && state.searchArea && isInsideRect(cx, cy, state.searchArea)) {
+                return { action: 'select_mode', target: 'search', cursor: 'pointer' };
+            }
+            return { action: null, target: null, cursor: 'default' };
+        }
+
         const activeVisible = state.activeMode === 'crop' ? state.showCrop : state.showSearch;
         const activeRect = activeVisible ? (state.activeMode === 'crop' ? state.cropArea : state.searchArea) : null;
 
@@ -1198,23 +1502,333 @@
         const otherVisible = otherMode === 'crop' ? state.showCrop : state.showSearch;
         const otherRect = otherVisible ? (otherMode === 'crop' ? state.cropArea : state.searchArea) : null;
 
-        // 1. 检查当前处于可编辑状态且可见框的内部 (平移拖动)
+        // 1. 检查当前处于可编辑状态且可见框的内部 (平移拖动当前已勾选“编辑”的目标)
         if (activeRect && isInsideRect(cx, cy, activeRect)) {
             return { action: 'move', target: state.activeMode, cursor: 'move' };
         }
 
-        // 2. 检查另一可见模式框 (点击可自动切换为唯一可编辑目标并可平移)
+        // 2. 检查未勾选编辑的另一范围框：
+        // 若当前处于 search 模式，但用户点击了画面中可见的截图选区 (cropArea)，智能选中并切换到 crop 编辑模式
+        if (otherMode === 'crop' && otherRect && isInsideRect(cx, cy, otherRect)) {
+            return { action: 'select_mode', target: 'crop', cursor: 'pointer' };
+        }
         if (otherRect && isInsideRect(cx, cy, otherRect)) {
-            return { action: 'switch_move', target: otherMode, cursor: 'pointer' };
+            return { action: null, target: null, cursor: 'default' };
         }
 
-        // 3. 空白区域 (重新框选绘制当前可编辑模式)
+        // 3. 空白区域 (重新框选绘制当前处于编辑状态的目标)
         return { action: 'draw', target: state.activeMode, cursor: 'crosshair' };
+    }
+
+    // ===== 视口外框自适应、缩放与空格平移机制 =====
+
+    // 计算并同步视口外框尺寸：
+    // 关键规范：在整个 editor 放大的时候，外框自适应扩大，但物理像素最大只能放大到原图 100% 原始尺寸 (严格避免物理尺寸超过原图)
+    function updateViewportFrameDimensions() {
+        if (!dom.viewportFrame || !dom.canvasWrapper) return;
+        const pad = 24; // 12px 留白边距
+        const availW = Math.max(100, dom.canvasWrapper.clientWidth - pad);
+        const availH = Math.max(100, dom.canvasWrapper.clientHeight - pad);
+
+        const imgW = (state.screenWidth && state.screenWidth > 0) ? state.screenWidth : 1440;
+        const imgH = (state.screenHeight && state.screenHeight > 0) ? state.screenHeight : 810;
+        const ratio = imgW / imgH;
+
+        // 【关键修复】：考虑高分屏/Windows缩放比例 (devicePixelRatio)，
+        // 确保画框在整个 editor 放大或全屏时，物理像素最大只能放大到原图 100% 原始尺寸，绝不物理放大超过原图！
+        const dpr = window.devicePixelRatio || 1;
+        const nativeCSSW = Math.round(imgW / dpr);
+        const nativeCSSH = Math.round(imgH / dpr);
+
+        const targetMaxW = Math.min(availW, nativeCSSW);
+        const targetMaxH = Math.min(availH, nativeCSSH);
+
+        let frameW = targetMaxW;
+        let frameH = frameW / ratio;
+
+        if (frameH > targetMaxH) {
+            frameH = targetMaxH;
+            frameW = frameH * ratio;
+        }
+
+        frameW = Math.round(frameW);
+        frameH = Math.round(frameH);
+
+        dom.viewportFrame.style.width = frameW + 'px';
+        dom.viewportFrame.style.height = frameH + 'px';
+
+        state.frameWidth = frameW;
+        state.frameHeight = frameH;
+
+        updateCanvasTransform();
+    }
+
+    // 更新 Canvas 视口变换 (平移与缩放)
+    function updateCanvasTransform() {
+        if (!dom.canvas) return;
+        const zoom = state.zoom || 1.0;
+        let panX = state.panX || 0;
+        let panY = state.panY || 0;
+
+        const frameW = state.frameWidth || (dom.viewportFrame ? dom.viewportFrame.clientWidth : 1440);
+        const frameH = state.frameHeight || (dom.viewportFrame ? dom.viewportFrame.clientHeight : 810);
+
+        if (zoom <= 1.001) {
+            panX = 0;
+            panY = 0;
+            state.panX = 0;
+            state.panY = 0;
+        } else {
+            const scaledW = frameW * zoom;
+            const scaledH = frameH * zoom;
+            const maxPanX = Math.max(0, (scaledW - frameW) / 2);
+            const maxPanY = Math.max(0, (scaledH - frameH) / 2);
+            const buffer = 40;
+            panX = Math.max(-(maxPanX + buffer), Math.min(maxPanX + buffer, panX));
+            panY = Math.max(-(maxPanY + buffer), Math.min(maxPanY + buffer, panY));
+            state.panX = panX;
+            state.panY = panY;
+        }
+
+        dom.canvas.style.transform = `translate(${Math.round(panX)}px, ${Math.round(panY)}px) scale(${zoom.toFixed(4)})`;
+
+        // 更新缩放指示数字 (精确反映物理显示像素相对原图 1:1 像素的真实比例)
+        if (dom.btnZoomReset) {
+            const imgW = (state.screenWidth && state.screenWidth > 0) ? state.screenWidth : 1440;
+            const dpr = window.devicePixelRatio || 1;
+            const effectiveZoomPercent = Math.round(zoom * ((frameW * dpr) / imgW) * 100);
+            dom.btnZoomReset.textContent = `${effectiveZoomPercent}%`;
+            dom.btnZoomReset.title = `当前缩放: ${effectiveZoomPercent}% (点击在 100% 原始尺寸 与 适应外框 间切换)`;
+        }
+    }
+
+    // 应用缩放 (支持指定聚焦锚点坐标 clientX, clientY，实现滚轮聚焦缩放)
+    function applyZoom(newZoom, clientX, clientY) {
+        const minZoom = 0.35;
+        const maxZoom = 6.0;
+        const targetZoom = Math.max(minZoom, Math.min(maxZoom, newZoom));
+        const oldZoom = state.zoom || 1.0;
+
+        if (Math.abs(targetZoom - oldZoom) < 0.001) return;
+
+        if (clientX !== undefined && clientY !== undefined && dom.viewportFrame) {
+            const rect = dom.viewportFrame.getBoundingClientRect();
+            const mx = clientX - (rect.left + rect.width / 2);
+            const my = clientY - (rect.top + rect.height / 2);
+            const ratio = targetZoom / oldZoom;
+            state.panX = (state.panX || 0) * ratio + mx * (1 - ratio);
+            state.panY = (state.panY || 0) * ratio + my * (1 - ratio);
+        }
+
+        state.zoom = targetZoom;
+        updateCanvasTransform();
+    }
+
+    // 方向键微调当前激活选区 (1px 精细微调，Shift + 方向键 10px 快速移动)
+    function handleArrowKeyNudge(e) {
+        if (!dom.container || !dom.container.classList.contains('active')) return;
+        if (!state.screenImage) return;
+
+        const tag = (e.target && e.target.tagName) ? e.target.tagName.toLowerCase() : '';
+        if (tag === 'input' || tag === 'textarea' || (e.target && e.target.isContentEditable)) {
+            return;
+        }
+
+        const isArrow = e.key === 'ArrowUp' || e.key === 'ArrowDown' || e.key === 'ArrowLeft' || e.key === 'ArrowRight';
+        if (!isArrow) return;
+
+        e.preventDefault();
+
+        const step = e.shiftKey ? 10 : 1;
+        let dx = 0;
+        let dy = 0;
+        if (e.key === 'ArrowUp') dy = -step;
+        else if (e.key === 'ArrowDown') dy = step;
+        else if (e.key === 'ArrowLeft') dx = -step;
+        else if (e.key === 'ArrowRight') dx = step;
+
+        const maxW = (dom.canvas && dom.canvas.width) || state.screenWidth || 1440;
+        const maxH = (dom.canvas && dom.canvas.height) || state.screenHeight || 810;
+
+        const curTarget = state.targets.find(t => t.key === state.selectedKey);
+        const isTap = curTarget && curTarget.category === 'tap';
+
+        // 1. 纯点击坐标微调
+        if (isTap) {
+            if (!state.tapCoord || state.tapCoord.length < 2) return;
+            const nx = Math.max(0, Math.min(maxW, state.tapCoord[0] + dx));
+            const ny = Math.max(0, Math.min(maxH, state.tapCoord[1] + dy));
+            state.tapCoord = [Math.round(nx), Math.round(ny)];
+            updateInputsFromState();
+            updatePreview();
+            renderCanvas();
+            triggerNudgeFeedback();
+            return;
+        }
+
+        // 2. 确定当前微调目标选区
+        let targetMode = state.activeMode;
+        if (!targetMode) {
+            targetMode = state.lastInteractedArea || (state.showCrop && state.cropArea ? 'crop' : 'search');
+            if (targetMode) {
+                setEditMode(targetMode);
+            }
+        }
+
+        if (targetMode === 'crop') {
+            if (!state.cropArea || state.cropArea.length !== 4) return;
+            const minX = Math.min(state.cropArea[0], state.cropArea[2]);
+            const minY = Math.min(state.cropArea[1], state.cropArea[3]);
+            const maxX = Math.max(state.cropArea[0], state.cropArea[2]);
+            const maxY = Math.max(state.cropArea[1], state.cropArea[3]);
+            const w = maxX - minX;
+            const h = maxY - minY;
+            let nx1 = minX + dx;
+            let ny1 = minY + dy;
+            nx1 = Math.max(0, Math.min(maxW - w, nx1));
+            ny1 = Math.max(0, Math.min(maxH - h, ny1));
+            state.cropArea = [Math.round(nx1), Math.round(ny1), Math.round(nx1 + w), Math.round(ny1 + h)];
+            state.lastInteractedArea = 'crop';
+            updateInputsFromState();
+            updatePreview();
+            renderCanvas();
+            triggerNudgeFeedback();
+        } else if (targetMode === 'search') {
+            if (!state.searchArea || state.searchArea.length !== 4) return;
+            const minX = Math.min(state.searchArea[0], state.searchArea[2]);
+            const minY = Math.min(state.searchArea[1], state.searchArea[3]);
+            const maxX = Math.max(state.searchArea[0], state.searchArea[2]);
+            const maxY = Math.max(state.searchArea[1], state.searchArea[3]);
+            const w = maxX - minX;
+            const h = maxY - minY;
+            let nx1 = minX + dx;
+            let ny1 = minY + dy;
+            nx1 = Math.max(0, Math.min(maxW - w, nx1));
+            ny1 = Math.max(0, Math.min(maxH - h, ny1));
+            state.searchArea = [Math.round(nx1), Math.round(ny1), Math.round(nx1 + w), Math.round(ny1 + h)];
+            state.lastInteractedArea = 'search';
+            updateInputsFromState();
+            updateResetSearchButtonUI();
+            renderCanvas();
+            triggerNudgeFeedback();
+        }
+    }
+
+    // 微调反馈动画
+    function triggerNudgeFeedback() {
+        if (dom.arrowHint) {
+            dom.arrowHint.classList.add('is-active');
+            clearTimeout(dom.arrowHint._timer);
+            dom.arrowHint._timer = setTimeout(() => {
+                if (dom.arrowHint) dom.arrowHint.classList.remove('is-active');
+            }, 250);
+        }
+    }
+
+    // 监听键盘空格键、方向键与平移拖拽事件
+    function setupSpacePanEvents() {
+        window.addEventListener('keydown', (e) => {
+            const tag = (e.target && e.target.tagName) ? e.target.tagName.toLowerCase() : '';
+            if (tag === 'input' || tag === 'textarea' || (e.target && e.target.isContentEditable)) {
+                if (e.key === 'Escape') {
+                    e.target.blur();
+                }
+                return;
+            }
+
+            // 方向键微调选区
+            if (e.key === 'ArrowUp' || e.key === 'ArrowDown' || e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
+                handleArrowKeyNudge(e);
+                return;
+            }
+
+            if (e.code === 'Space' || e.key === ' ') {
+                if (!dom.container || !dom.container.classList.contains('active')) return;
+
+                e.preventDefault();
+                if (!state.isSpacePressed) {
+                    state.isSpacePressed = true;
+                    if (dom.viewportFrame) dom.viewportFrame.classList.add('cal-space-ready');
+                    if (dom.zoomHint) dom.zoomHint.classList.add('is-active');
+                }
+            }
+        });
+
+        window.addEventListener('keyup', (e) => {
+            if (e.code === 'Space' || e.key === ' ') {
+                state.isSpacePressed = false;
+                if (!state.isPanning) {
+                    if (dom.viewportFrame) dom.viewportFrame.classList.remove('cal-space-ready');
+                    if (dom.zoomHint) dom.zoomHint.classList.remove('is-active');
+                }
+            }
+        });
+
+        window.addEventListener('blur', () => {
+            state.isSpacePressed = false;
+            state.isPanning = false;
+            if (dom.viewportFrame) {
+                dom.viewportFrame.classList.remove('cal-space-ready', 'cal-is-panning');
+            }
+            if (dom.zoomHint) dom.zoomHint.classList.remove('is-active');
+        });
+
+        // 视口容器滚轮缩放
+        if (dom.viewportFrame) {
+            dom.viewportFrame.addEventListener('wheel', (e) => {
+                e.preventDefault();
+                const factor = e.deltaY < 0 ? 1.15 : (1 / 1.15);
+                applyZoom((state.zoom || 1.0) * factor, e.clientX, e.clientY);
+            }, { passive: false });
+        }
+
+        // 外框空白处按住空格也能平移
+        if (dom.viewportFrame) {
+            dom.viewportFrame.addEventListener('mousedown', (e) => {
+                if (state.isSpacePressed || e.button === 1) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    state.isPanning = true;
+                    state.panStartX = e.clientX - (state.panX || 0);
+                    state.panStartY = e.clientY - (state.panY || 0);
+                    dom.viewportFrame.classList.add('cal-is-panning');
+                }
+            });
+
+            // 双击视口外框快速在 100% 原始尺寸 与 适应外框 间切换
+            dom.viewportFrame.addEventListener('dblclick', (e) => {
+                if (state.dragState && state.dragState.action) return;
+                if (dom.btnZoomReset) dom.btnZoomReset.click();
+            });
+        }
+
+        // 响应窗口与外层容器尺寸变化
+        window.addEventListener('resize', updateViewportFrameDimensions);
+        if (window.ResizeObserver && dom.canvasWrapper) {
+            const ro = new ResizeObserver(() => {
+                updateViewportFrameDimensions();
+            });
+            ro.observe(dom.canvasWrapper);
+        }
+
+        // 响应高分屏/DPI/跨显示器切换导致的 devicePixelRatio 变化
+        try {
+            const dprMediaQuery = window.matchMedia(`(resolution: ${window.devicePixelRatio || 1}dpr)`);
+            if (dprMediaQuery && dprMediaQuery.addEventListener) {
+                dprMediaQuery.addEventListener('change', () => {
+                    updateViewportFrameDimensions();
+                });
+            }
+        } catch (e) {
+            // 忽略某些老旧引擎不支持
+        }
     }
 
     // Canvas 鼠标交互 (双范围绘制与框内平移拖拽，无控制手柄)
     function setupCanvasEvents() {
         if (!dom.canvas) return;
+
+        setupSpacePanEvents();
 
         function getCanvasPos(e) {
             const rect = dom.canvas.getBoundingClientRect();
@@ -1228,16 +1842,37 @@
 
         // 鼠标悬停动态切换光标指示
         dom.canvas.addEventListener('mousemove', function (e) {
+            if (state.isPanning) return;
+            if (state.isSpacePressed) {
+                dom.canvas.style.cursor = 'grab';
+                return;
+            }
             if (state.dragState && state.dragState.action) return;
             if (!state.screenImage) return;
             const [cx, cy] = getCanvasPos(e);
             const hover = getHoverAction(cx, cy);
-            dom.canvas.style.cursor = hover.cursor || 'crosshair';
+            dom.canvas.style.cursor = hover.cursor || 'default';
         });
 
-        // 鼠标按下：判定平移、切换或新建框选
+        dom.canvas.addEventListener('mouseleave', function () {
+            if (dom.canvas && !state.isSpacePressed) dom.canvas.style.cursor = 'default';
+        });
+
+        // 鼠标按下：判定平移或新建框选
         dom.canvas.addEventListener('mousedown', function (e) {
             if (!state.screenImage) return;
+
+            // 1. 若按住空格键或使用中键：启动平移！
+            if (state.isSpacePressed || e.button === 1) {
+                e.preventDefault();
+                e.stopPropagation();
+                state.isPanning = true;
+                state.panStartX = e.clientX - (state.panX || 0);
+                state.panStartY = e.clientY - (state.panY || 0);
+                if (dom.viewportFrame) dom.viewportFrame.classList.add('cal-is-panning');
+                return;
+            }
+
             const [cx, cy] = getCanvasPos(e);
 
             const curTarget = state.targets.find(t => t.key === state.selectedKey);
@@ -1260,30 +1895,35 @@
                 return;
             }
 
-            // 彻底移除 Alt 与右键操作：仅响应普通左键 (e.button === 0 且无 altKey)
+            // 确保点击画布时退出输入框焦点，以便方向键直接控制选区
+            if (document.activeElement && ['input', 'textarea'].includes((document.activeElement.tagName || '').toLowerCase())) {
+                document.activeElement.blur();
+            }
+
+            // 仅响应普通左键 (e.button === 0 且无 altKey)
             if (e.button !== 0 || e.altKey) return;
 
             const hover = getHoverAction(cx, cy);
+            if (!hover || !hover.action) {
+                return;
+            }
 
-            if (hover.action === 'switch_move') {
+            if (hover.action === 'select_mode') {
                 setEditMode(hover.target);
+                return;
+            }
+
+            if (hover.action === 'move') {
                 const rect = hover.target === 'crop' ? state.cropArea : state.searchArea;
+                if (!rect) return;
                 state.dragState = {
                     action: 'move',
                     target: hover.target,
                     startPos: [cx, cy],
                     initialRect: [...rect]
                 };
-            } else if (hover.action === 'move') {
-                const rect = hover.target === 'crop' ? state.cropArea : state.searchArea;
-                state.dragState = {
-                    action: 'move',
-                    target: hover.target,
-                    startPos: [cx, cy],
-                    initialRect: [...rect]
-                };
-            } else {
-                // 空白区域绘制新建矩形
+            } else if (hover.action === 'draw') {
+                if (!state.activeMode) return;
                 state.dragState = {
                     action: 'draw',
                     target: state.activeMode,
@@ -1292,7 +1932,7 @@
                 };
                 if (state.activeMode === 'crop') {
                     state.cropArea = [cx, cy, cx, cy];
-                } else {
+                } else if (state.activeMode === 'search') {
                     state.searchArea = [cx, cy, cx, cy];
                 }
             }
@@ -1303,6 +1943,14 @@
 
         // 全局拖动更新
         window.addEventListener('mousemove', function (e) {
+            // 平移中直接更新视口位置
+            if (state.isPanning) {
+                state.panX = e.clientX - state.panStartX;
+                state.panY = e.clientY - state.panStartY;
+                updateCanvasTransform();
+                return;
+            }
+
             if (!state.dragState || !state.dragState.action || !state.screenImage) return;
             const [cx, cy] = getCanvasPos(e);
             const { action, target, startPos, initialRect } = state.dragState;
@@ -1343,17 +1991,33 @@
 
             if (target === 'crop') {
                 state.cropArea = updatedRect;
+                state.lastInteractedArea = 'crop';
                 updatePreview();
             } else {
                 state.searchArea = updatedRect;
+                state.lastInteractedArea = 'search';
             }
 
             updateInputsFromState();
             renderCanvas();
         });
 
-        // 鼠标抬起结束拖动
+        // 鼠标抬起结束拖动或平移
         window.addEventListener('mouseup', function () {
+            if (state.isPanning) {
+                state.isPanning = false;
+                if (dom.viewportFrame) {
+                    dom.viewportFrame.classList.remove('cal-is-panning');
+                    if (!state.isSpacePressed) {
+                        dom.viewportFrame.classList.remove('cal-space-ready');
+                    }
+                }
+                if (dom.zoomHint && !state.isSpacePressed) {
+                    dom.zoomHint.classList.remove('is-active');
+                }
+                return;
+            }
+
             if (!state.dragState || !state.dragState.action) return;
             const { action, target, initialRect } = state.dragState;
             state.dragState.action = null;
@@ -1417,6 +2081,7 @@
                     const targetTitle = (curTarget && curTarget.name) ? curTarget.name : state.selectedKey;
                     showToast(`✔ 点击锚点「${targetTitle}」已保存并推送到模拟器`);
                     setSaveStatusTip('success', `✔ 已保存锚点并推送 (${state.tapCoord.join(', ')})`, 4500);
+                    window.dispatchEvent(new CustomEvent('calibration-targets-updated', { detail: { target_key: state.selectedKey } }));
                     await loadTargets();
                     selectTarget(state.selectedKey);
                     return true;
@@ -1476,6 +2141,7 @@
                 const targetTitle = (curTarget && curTarget.name) ? curTarget.name : state.selectedKey;
                 showToast(`✔ 目标「${targetTitle}」截图选区与配置已保存并推送到模拟器！`);
                 setSaveStatusTip('success', '✔ 已保存选区并推送到模拟器', 4500);
+                window.dispatchEvent(new CustomEvent('calibration-targets-updated', { detail: { target_key: state.selectedKey } }));
                 await loadTargets();
                 selectTarget(state.selectedKey);
                 return true;
@@ -1549,6 +2215,79 @@
     // 绑定事件
     function bindEvents() {
         if (dom.btnCapture) dom.btnCapture.onclick = () => captureScreen({ silent: false });
+        if (dom.btnLoadImage) {
+            dom.btnLoadImage.onclick = openImageFileDialog;
+        }
+
+        // 绑定缩放与平移操作控件
+        if (dom.btnZoomIn) {
+            dom.btnZoomIn.onclick = () => applyZoom((state.zoom || 1.0) * 1.25);
+        }
+        if (dom.btnZoomOut) {
+            dom.btnZoomOut.onclick = () => applyZoom((state.zoom || 1.0) / 1.25);
+        }
+        if (dom.btnZoomFit) {
+            dom.btnZoomFit.onclick = () => {
+                state.zoom = 1.0;
+                state.panX = 0;
+                state.panY = 0;
+                updateCanvasTransform();
+            };
+        }
+        if (dom.btnZoomReset) {
+            dom.btnZoomReset.onclick = () => {
+                const imgW = (state.screenWidth && state.screenWidth > 0) ? state.screenWidth : 1440;
+                const frameW = state.frameWidth || (dom.viewportFrame ? dom.viewportFrame.clientWidth : 1440);
+                const dpr = window.devicePixelRatio || 1;
+                // 计算使物理显示像素严格等于原图物理像素 (100% 原始尺寸) 所需的 zoom 缩放值
+                const native100Zoom = imgW / (frameW * dpr);
+
+                // 如果当前缩放已经处于 100% 原图尺寸 (误差在 3% 内)，则一键切换回 1.0 适应外框
+                if (Math.abs((state.zoom || 1.0) - native100Zoom) < 0.03) {
+                    state.zoom = 1.0;
+                } else {
+                    state.zoom = native100Zoom;
+                }
+                state.panX = 0;
+                state.panY = 0;
+                updateCanvasTransform();
+            };
+        }
+
+        if (dom.fileInput) {
+            dom.fileInput.onchange = (e) => {
+                const file = e.target.files && e.target.files[0];
+                if (file) {
+                    loadLocalImageFile(file);
+                }
+            };
+        }
+
+        // 支持拖拽本地图片文件到 Canvas 工作区直接载入
+        const canvasWrapper = document.querySelector('.cal-canvas-wrapper');
+        if (canvasWrapper) {
+            canvasWrapper.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                if (e.dataTransfer) e.dataTransfer.dropEffect = 'copy';
+                canvasWrapper.classList.add('cal-dragover');
+            });
+            canvasWrapper.addEventListener('dragleave', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                canvasWrapper.classList.remove('cal-dragover');
+            });
+            canvasWrapper.addEventListener('drop', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                canvasWrapper.classList.remove('cal-dragover');
+                const file = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
+                if (file) {
+                    loadLocalImageFile(file);
+                }
+            });
+        }
+
         if (dom.btnSaveTarget) dom.btnSaveTarget.onclick = saveTarget;
         if (dom.btnTestMatch) dom.btnTestMatch.onclick = testMatch;
 
@@ -1574,18 +2313,18 @@
             });
         }
 
-        // 2. 可编辑 独立操作按钮
+        // 2. 可编辑 独立操作按钮 (支持切换勾选与取消勾选)
         if (dom.btnEditCrop) {
             dom.btnEditCrop.addEventListener('click', (e) => {
                 e.stopPropagation();
-                setEditMode('crop');
+                toggleEditMode('crop');
             });
         }
 
         if (dom.btnEditSearch) {
             dom.btnEditSearch.addEventListener('click', (e) => {
                 e.stopPropagation();
-                setEditMode('search');
+                toggleEditMode('search');
             });
         }
 
@@ -1621,29 +2360,43 @@
         if (dom.layerCropItem) {
             dom.layerCropItem.addEventListener('click', (e) => {
                 if (e.target.closest('.cal-layer-check')) return;
-                setEditMode('crop');
+                toggleEditMode('crop');
             });
         }
 
         if (dom.layerSearchItem) {
             dom.layerSearchItem.addEventListener('click', (e) => {
                 if (e.target.closest('.cal-layer-check')) return;
-                setEditMode('search');
+                toggleEditMode('search');
             });
         }
 
-        // 点击卡片标题左侧直接激活对应编辑目标
+        // 点击卡片或标题直接切换对应编辑目标
         if (dom.cardCrop) {
+            dom.cardCrop.addEventListener('click', (e) => {
+                if (e.target.closest('button') || e.target.closest('input')) return;
+                setEditMode('crop');
+            });
             const header = dom.cardCrop.querySelector('.cal-card-title-left');
             if (header) {
-                header.addEventListener('click', () => setEditMode('crop'));
+                header.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    toggleEditMode('crop');
+                });
             }
         }
 
         if (dom.cardSearch) {
+            dom.cardSearch.addEventListener('click', (e) => {
+                if (e.target.closest('button') || e.target.closest('input')) return;
+                setEditMode('search');
+            });
             const header = dom.cardSearch.querySelector('.cal-card-title-left');
             if (header) {
-                header.addEventListener('click', () => setEditMode('search'));
+                header.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    toggleEditMode('search');
+                });
             }
         }
 
@@ -1932,6 +2685,10 @@
         hasCropArea: () => Boolean(state.cropArea && state.cropArea.length === 4),
         getCurrentTarget: () => state.targets.find(t => t.key === state.selectedKey),
         captureScreen: captureScreen,
+        openImageFileDialog: openImageFileDialog,
+        loadLocalImageFile: loadLocalImageFile,
+        applyZoom: applyZoom,
+        updateViewportFrameDimensions: updateViewportFrameDimensions,
         loadTargets: loadTargets,
         getState: () => state
     };
@@ -1954,5 +2711,6 @@
         updateControlButtonsUI();
         bindEvents();
         loadTargets();
+        updateViewportFrameDimensions();
     });
 })();

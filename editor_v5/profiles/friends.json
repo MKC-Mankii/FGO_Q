@@ -184,6 +184,18 @@
         "friendBdai3.png"
       ],
       "description": "狂阶单体打手"
+    },
+    {
+      "key": "heshang",
+      "name": "河上",
+      "builtin": false,
+      "images": [
+        "friendHeshang1.png",
+        "friendHeshang2.png",
+        "friendHeshang3.png"
+      ],
+      "description": "河上彦斋",
+      "shortLabel": "河上"
     }
   ]
 }

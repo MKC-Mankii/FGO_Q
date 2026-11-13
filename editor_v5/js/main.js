@@ -1,6 +1,6 @@
 import { appState, getCurGroup, getCurScheme, resetStateToInitial } from './state.js';
 import { CARD_INFO } from './constants.js';
-import { getCurSchemeRounds, commitChanges, generateConfigText, resetCurSchemeRoundsToInitial, createDefaultRound, compileSchemeDsl, extractDslFromText } from './dsl.js';
+import { getCurSchemeRounds, commitChanges, generateConfigText, resetCurSchemeRoundsToInitial, createDefaultRound, compileSchemeDsl, extractDslFromText, getBaseCardCode } from './dsl.js';
 import { $, toast, loadConfigFromBackend, saveConfigToBackend, shutdownServer, checkAdbStatus, startAdbAutoWatcher, setPendingSimulatorSync, updateSyncStatus, triggerRunBattle, triggerRunExtra, triggerStopBattle, detectExtraScene, startRunnerStatusWatcher, checkRunnerStatus, toggleRunnerMonitorPanel, openRunnerMonitorPanel, closeRunnerMonitorPanel, updateRunnerMonitorPanel, launchRunner, navigateFgoToHome, readyEnvironment, cancelReadyEnvironment, refreshAdbDevices, startStarMapUnlock, stopStarMapUnlock, pollStarMapProgress } from './api.js';
 import { TEXT_CONFIG, formatText } from './text_config.js';
 
@@ -26,6 +26,14 @@ window.onFriendsUpdated = () => {
 import {
     closeModal,
     editRoundAttack,
+    openAttackPriorityModal,
+    setAttackSlotPref,
+    saveAttackPriorityModal,
+    openCardPrefPopover,
+    closeCardPrefPopover,
+    setPopoverSlotPref,
+    setColorSlotTierPref,
+    setColorModalSlotTierPref,
     openEditStepModal,
     saveEditingStep,
     deleteCurrentEditingStep,
@@ -38,15 +46,20 @@ import {
     setEditStepSwapFront,
     setEditStepSwapBack,
     doImportDsl,
-    formatAttackCards
+    formatAttackCards,
+    CREST_SVG_DEFAULT,
+    CREST_SVG_ACTIVE,
+    getCardPrefSummaryTooltip
 } from './modals.js';
 import {
+    escapeHtml,
     render,
+    renderRunnerSettings,
     renderGroupTabs,
     renderSchemeList,
     renderSchemeDetails,
     renderWavesBoard,
-    renderConfigPreview,
+    renderConfigPreview, updateRunnerDebugSummary,
     setActiveWave,
     addWave,
     deleteWave,
@@ -101,6 +114,101 @@ export function selectScheme(idx) {
     render();
 }
 
+// 收尾出牌槽位模型：精确对应 FGO 原生 3-Slot 槽位 [Slot0, Slot1, Slot2]
+// 每个槽位存储选中的卡牌字符（如 '6', 'B', '1'），空槽位为 null
+let pendingAttackSlots = [null, null, null];
+
+export function syncPendingAttackCards(cards) {
+    if (Array.isArray(cards)) {
+        pendingAttackSlots = [
+            cards[0] ? String(cards[0]).trim() : null,
+            cards[1] ? String(cards[1]).trim() : null,
+            cards[2] ? String(cards[2]).trim() : null
+        ];
+    } else {
+        pendingAttackSlots = [null, null, null];
+    }
+}
+
+// 取消指定槽位的出牌（slotIdx: 0, 1, 2），保留其他槽位的卡牌与顺序完全不变！
+export function clearAttackSlot(slotIdx) {
+    if (slotIdx >= 0 && slotIdx < 3 && pendingAttackSlots[slotIdx] !== null) {
+        const removed = pendingAttackSlots[slotIdx];
+        pendingAttackSlots[slotIdx] = null;
+        closeCardPrefPopover();
+        renderPendingAttackBadges();
+
+        // 同步当前 Wave：如果全空则清除出牌动作，否则更新有效槽位
+        const activeCards = pendingAttackSlots.filter(Boolean);
+        if (activeCards.length > 0) {
+            setRoundAttackDOM(appState.curRoundIdx, activeCards);
+        } else {
+            removeAttack(appState.curRoundIdx);
+        }
+        const baseCode = getBaseCardCode(removed);
+        const info = typeof CARD_INFO !== 'undefined' ? (CARD_INFO[removed] || CARD_INFO[baseCode]) : null;
+        toast(formatText(TEXT_CONFIG.palette.cancelCardToast, { seq: slotIdx + 1, cardName: info?.label || removed }));
+    }
+}
+
+export function renderPendingAttackBadges() {
+    // 清理所有按钮上的暂存高亮与序号角标以及右下角齿轮触发按钮
+    document.querySelectorAll('[data-attack-card]').forEach(btn => {
+        btn.classList.remove('selected-attack-card');
+        const container = btn.querySelector('.card-seq-badges');
+        if (container) container.innerHTML = '';
+        const oldTrigger = btn.querySelector('.card-pref-trigger');
+        if (oldTrigger) oldTrigger.remove();
+    });
+
+    // 收集各个卡牌命中的 slot 列表（如 'B' 命中 Slot0 和 Slot2 -> 显示标签 1 和 3；支持 H1BAQ 映射到 H1）
+    const cardSeqMap = {};
+    pendingAttackSlots.forEach((cardCode, slotIdx) => {
+        if (!cardCode) return;
+        const seq = slotIdx + 1;
+        const baseCode = getBaseCardCode(cardCode);
+        if (!cardSeqMap[baseCode]) cardSeqMap[baseCode] = [];
+        cardSeqMap[baseCode].push({ seq, slotIdx, fullCode: cardCode });
+    });
+
+    // 渲染各个按钮上的角标 (带 data-remove-slot，精确指定取消哪个槽位)
+    Object.entries(cardSeqMap).forEach(([baseCode, list]) => {
+        const btn = document.querySelector(`[data-attack-card="${baseCode}"]`);
+        if (btn) {
+            btn.classList.add('selected-attack-card');
+            const container = btn.querySelector('.card-seq-badges');
+            if (container) {
+                const seqLabels = {
+                    1: TEXT_CONFIG.palette?.seqLabel1 || '一',
+                    2: TEXT_CONFIG.palette?.seqLabel2 || '二',
+                    3: TEXT_CONFIG.palette?.seqLabel3 || '三'
+                };
+                container.innerHTML = list.map(item => {
+                    const seqText = seqLabels[item.seq] || String(item.seq);
+                    const tagTitle = formatText(TEXT_CONFIG.palette?.cancelCardTagTitle || '点击取消顺位【{seq}】({card})', { seq: seqText, card: item.fullCode || baseCode });
+                    return `<span class="seq-tag seq-${item.seq}" data-remove-slot="${item.slotIdx}" title="${escapeHtml(tagTitle)}">${seqText}</span>`;
+                }).join('');
+            }
+
+            // 仅限色卡与从者卡，在选中时于按钮右下角显现 FGO 指令纹章偏好配置微标
+            const isPrefConfigurable = ['B', 'A', 'Q', 'H1', 'H2', 'H3'].includes(baseCode);
+            if (isPrefConfigurable) {
+                const hasCustomPref = list.some(item => item.fullCode && item.fullCode !== baseCode);
+                const prefTrigger = document.createElement('span');
+                prefTrigger.className = `card-pref-trigger ${hasCustomPref ? 'has-pref' : ''}`;
+                prefTrigger.setAttribute('title', getCardPrefSummaryTooltip(baseCode, list));
+                prefTrigger.innerHTML = hasCustomPref ? CREST_SVG_ACTIVE : CREST_SVG_DEFAULT;
+                prefTrigger.onclick = (e) => {
+                    e.stopPropagation();
+                    e.preventDefault();
+                    openCardPrefPopover(baseCode, btn);
+                };
+                btn.appendChild(prefTrigger);
+            }
+        }
+    });
+}
+
 // 挂载全局方法供 HTML 内联事件调用 (保持 100% 向后兼容)
 window.selectGroup = selectGroup;
 window.selectScheme = selectScheme;
@@ -113,6 +221,20 @@ window.resetDeleteConfirm = resetDeleteConfirm;
 window.closeModal = closeModal;
 window.setRoundAttackDOM = setRoundAttackDOM;
 window.editRoundAttack = editRoundAttack;
+window.openAttackPriorityModal = openAttackPriorityModal;
+window.setAttackSlotPref = setAttackSlotPref;
+window.saveAttackPriorityModal = saveAttackPriorityModal;
+window.openCardPrefPopover = openCardPrefPopover;
+window.closeCardPrefPopover = closeCardPrefPopover;
+window.setPopoverSlotPref = setPopoverSlotPref;
+window.setColorSlotTierPref = setColorSlotTierPref;
+window.setColorModalSlotTierPref = setColorModalSlotTierPref;
+window.getBaseCardCode = getBaseCardCode;
+window.syncPendingAttackCards = syncPendingAttackCards;
+window.clearAttackSlot = clearAttackSlot;
+window.getPendingAttackSlots = () => pendingAttackSlots;
+window.setPendingAttackSlot = (slotIdx, token) => { pendingAttackSlots[slotIdx] = token; };
+window.renderPendingAttackBadges = renderPendingAttackBadges;
 window.onStepChipClick = onStepChipClick;
 window.removeStep = removeStep;
 window.removeAttack = removeAttack;
@@ -274,43 +396,6 @@ function initEventBindings() {
         };
     });
 
-    // 收尾出牌槽位模型：精确对应 FGO 原生 3-Slot 槽位 [Slot0, Slot1, Slot2]
-    // 每个槽位存储选中的卡牌字符（如 '6', 'B', '1'），空槽位为 null
-    let pendingAttackSlots = [null, null, null];
-
-    window.syncPendingAttackCards = function (cards) {
-        if (Array.isArray(cards)) {
-            pendingAttackSlots = [
-                cards[0] ? String(cards[0]).trim() : null,
-                cards[1] ? String(cards[1]).trim() : null,
-                cards[2] ? String(cards[2]).trim() : null
-            ];
-        } else {
-            pendingAttackSlots = [null, null, null];
-        }
-    };
-
-    // 取消指定槽位的出牌（slotIdx: 0, 1, 2），保留其他槽位的卡牌与顺序完全不变！
-    function clearAttackSlot(slotIdx) {
-        if (slotIdx >= 0 && slotIdx < 3 && pendingAttackSlots[slotIdx] !== null) {
-            const removed = pendingAttackSlots[slotIdx];
-            pendingAttackSlots[slotIdx] = null;
-            renderPendingAttackBadges();
-
-            // 同步当前 Wave：如果全空则清除出牌动作，否则更新有效槽位
-            const activeCards = pendingAttackSlots.filter(Boolean);
-            if (activeCards.length > 0) {
-                setRoundAttackDOM(appState.curRoundIdx, activeCards);
-            } else {
-                removeAttack(appState.curRoundIdx);
-            }
-            const info = typeof CARD_INFO !== 'undefined' ? CARD_INFO[removed] : null;
-            toast(formatText(TEXT_CONFIG.palette.cancelCardToast, { seq: slotIdx + 1, cardName: info?.label || removed }));
-        }
-    }
-    window.clearAttackSlot = clearAttackSlot;
-
-
     // 全局捕获阶段拦截顺序标签点击：色卡上点击顺序标签直接取消对应的槽位，不触发父级按钮添加
     document.addEventListener('click', (e) => {
         const seqTag = e.target.closest('.seq-tag');
@@ -324,58 +409,19 @@ function initEventBindings() {
         }
     }, true);
 
-    function renderPendingAttackBadges() {
-        // 清理所有按钮上的暂存高亮与序号角标
-        document.querySelectorAll('[data-attack-card]').forEach(btn => {
-            btn.classList.remove('selected-attack-card');
-            const container = btn.querySelector('.card-seq-badges');
-            if (container) container.innerHTML = '';
-        });
-
-        // 收集各个卡牌命中的 slot 列表（如 'B' 命中 Slot0 和 Slot2 -> 显示标签 1 和 3）
-        const cardSeqMap = {};
-        pendingAttackSlots.forEach((cardCode, slotIdx) => {
-            if (!cardCode) return;
-            const seq = slotIdx + 1;
-            const norm = String(cardCode).trim().toUpperCase();
-            if (!cardSeqMap[norm]) cardSeqMap[norm] = [];
-            cardSeqMap[norm].push({ seq, slotIdx });
-        });
-
-        // 渲染各个按钮上的角标 (带 data-remove-slot，精确指定取消哪个槽位)
-        Object.entries(cardSeqMap).forEach(([cardCode, list]) => {
-            const btn = document.querySelector(`[data-attack-card="${cardCode}"]`);
-            if (btn) {
-                btn.classList.add('selected-attack-card');
-                const container = btn.querySelector('.card-seq-badges');
-                if (container) {
-                    const seqLabels = {
-                        1: TEXT_CONFIG.palette?.seqLabel1 || '一',
-                        2: TEXT_CONFIG.palette?.seqLabel2 || '二',
-                        3: TEXT_CONFIG.palette?.seqLabel3 || '三'
-                    };
-                    container.innerHTML = list.map(item => {
-                        const seqText = seqLabels[item.seq] || String(item.seq);
-                        const tagTitle = formatText(TEXT_CONFIG.palette?.cancelCardTagTitle || '点击取消顺位【{seq}】({card})', { seq: seqText, card: cardCode });
-                        return `<span class="seq-tag seq-${item.seq}" data-remove-slot="${item.slotIdx}" title="${tagTitle}">${seqText}</span>`;
-                    }).join('');
-                }
-            }
-        });
-
-    }
-
 
     // 点击出牌卡片：遵循游戏原生 3-Slot 槽位机制
     document.querySelectorAll('[data-attack-card]').forEach(btn => {
         btn.onclick = (e) => {
             e.stopPropagation();
+            // 修改出牌序列时，关闭之前的浮层
+            closeCardPrefPopover();
             const cardVal = btn.dataset.attackCard;
-            const isColorCard = ['B', 'A', 'Q'].includes(cardVal);
+            const isRepeatable = ['B', 'A', 'Q', 'H1', 'H2', 'H3'].includes(cardVal);
 
-            // 规则 1：已选中的非色卡再次点击 -> 取消选中对应的槽位，保留其他已选牌及其顺序位置不变！
-            if (!isColorCard) {
-                const existSlotIdx = pendingAttackSlots.indexOf(cardVal);
+            // 规则 1：已选中的不可重复卡再次点击 -> 取消选中对应的槽位
+            if (!isRepeatable) {
+                const existSlotIdx = pendingAttackSlots.findIndex(c => c && getBaseCardCode(c) === cardVal);
                 if (existSlotIdx !== -1) {
                     clearAttackSlot(existSlotIdx);
                     return;
@@ -401,6 +447,25 @@ function initEventBindings() {
                 toast(formatText(TEXT_CONFIG.palette.attackUpdatedToast, { wave: appState.curRoundIdx + 1, cards: finalCards.join(' + ') }));
             }
         };
+    });
+
+    // 监听全局点击与按键，点击空白处或按下 Escape 自动关闭偏好气泡浮层
+    document.addEventListener('click', (e) => {
+        const pop = $('attackPrefPopover');
+        if (pop && pop.classList.contains('show')) {
+            const path = e.composedPath ? e.composedPath() : [];
+            const isInside = path.includes(pop) || pop.contains(e.target);
+            const isTrigger = path.some(el => el.classList && el.classList.contains('card-pref-trigger'));
+            if (!isInside && !isTrigger) {
+                closeCardPrefPopover();
+            }
+        }
+    });
+
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            closeCardPrefPopover();
+        }
     });
 
     // 从者技能点击：修改选中动作或追加到当前 Wave
@@ -544,6 +609,7 @@ function initEventBindings() {
             const defaultRound = createDefaultRound();
             group.schemes.push({
                 friend: "",
+                pageTurns: 0,
                 dsl: compileSchemeDsl([defaultRound]),
                 _parsedRounds: [defaultRound],
                 activityReward: 0
@@ -642,6 +708,45 @@ function initEventBindings() {
         };
     }
 
+    // 全局数字输入框鼠标滚轮快速调节（通用交互规范：悬停即可调节，向上递增向下递减，按住 Shift 加速步进 10）
+    const setupGlobalWheelNumberControls = () => {
+        document.addEventListener('wheel', (e) => {
+            // 允许用户按住 Ctrl 正常缩放页面
+            if (e.ctrlKey) return;
+
+            // 查找事件目标是否为 number 输入框，或位于包裹该输入框的父级容器上
+            let input = null;
+            if (e.target.tagName === 'INPUT' && e.target.type === 'number') {
+                input = e.target;
+            } else {
+                const wrapper = e.target.closest('.runner-setting-control, .extra-setting-item, .scheme-meta .item, .cal-coord-inputs');
+                if (wrapper) {
+                    input = wrapper.querySelector('input[type="number"]');
+                }
+            }
+
+            if (!input || input.disabled || input.readOnly) return;
+
+            e.preventDefault();
+            const rawVal = parseInt(input.value, 10);
+            const defaultVal = !isNaN(rawVal) ? rawVal : (input.min !== '' ? parseInt(input.min, 10) : 0);
+            const step = e.shiftKey ? 10 : 1;
+            const delta = e.deltaY < 0 ? step : (e.deltaY > 0 ? -step : 0);
+            if (!delta) return;
+
+            const min = input.min !== '' ? parseInt(input.min, 10) : -99999;
+            const max = input.max !== '' ? parseInt(input.max, 10) : 99999;
+            const nextVal = Math.min(max, Math.max(min, defaultVal + delta));
+
+            if (nextVal !== rawVal || String(input.value) !== String(nextVal)) {
+                input.value = nextVal;
+                input.dispatchEvent(new Event('input', { bubbles: true }));
+                input.dispatchEvent(new Event('change', { bubbles: true }));
+            }
+        }, { passive: false });
+    };
+    setupGlobalWheelNumberControls();
+
     const cfgBattleCount = $('cfgBattleCount');
     if (cfgBattleCount) {
         const onBattleCountUpdate = e => {
@@ -652,15 +757,46 @@ function initEventBindings() {
         };
         cfgBattleCount.onchange = onBattleCountUpdate;
         cfgBattleCount.oninput = onBattleCountUpdate;
+        // enableWheelNumberControl 由全局委托统一接管
+    }
+
+    const cfgAppleSwitcher = $('cfgAppleSwitcher');
+    if (cfgAppleSwitcher) {
+        cfgAppleSwitcher.querySelectorAll('.runner-apple-opt').forEach(btn => {
+            btn.onclick = (e) => {
+                e.stopPropagation();
+                const val = Number(btn.getAttribute('data-val')) || 0;
+                if (!appState.data.runnerSettings) appState.data.runnerSettings = {};
+                appState.data.runnerSettings.appleEnable = val;
+
+                // 原地即时同步切换器按钮高亮
+                cfgAppleSwitcher.querySelectorAll('.runner-apple-opt').forEach(b => {
+                    b.classList.toggle('active', Number(b.getAttribute('data-val')) === val);
+                });
+                const chkHidden = $('cfgAppleEnable');
+                if (chkHidden) {
+                    chkHidden.value = val;
+                }
+
+                renderRunnerSettings();
+                renderConfigPreview();
+                let msg = 'ℹ️ 已设置为不吃苹果';
+                if (val === 1) msg = '🥈 已设置为自动吃白银果实补充体力';
+                else if (val === 2) msg = '🥇 已设置为自动吃黄金果实补充体力';
+                toast(msg);
+            };
+        });
     }
 
     const cfgAppleEnable = $('cfgAppleEnable');
     if (cfgAppleEnable) {
         cfgAppleEnable.onchange = e => {
             if (!appState.data.runnerSettings) appState.data.runnerSettings = {};
-            appState.data.runnerSettings.appleEnable = e.target.checked ? 1 : 0;
+            const val = e.target.type === 'checkbox' ? (e.target.checked ? 2 : 0) : (Number(e.target.value) || 0);
+            appState.data.runnerSettings.appleEnable = val;
+            renderRunnerSettings();
             renderConfigPreview();
-            toast(e.target.checked ? '🍎 已开启自动吃苹果补充体力' : 'ℹ️ 已关闭自动吃苹果');
+            toast(val > 0 ? '🍎 已开启自动吃苹果补充体力' : 'ℹ️ 已关闭自动吃苹果');
         };
     }
 
@@ -682,6 +818,52 @@ function initEventBindings() {
             renderConfigPreview();
             toast(e.target.checked ? '🎨 已开启强制对应色卡' : 'ℹ️ 已关闭强制对应色卡');
         };
+    }
+
+    const cfgDebugScreenshot = $('cfgDebugScreenshot');
+    if (cfgDebugScreenshot) {
+        cfgDebugScreenshot.onchange = e => {
+            if (!appState.data.runnerSettings) appState.data.runnerSettings = {};
+            appState.data.runnerSettings.debugScreenshotEnable = e.target.checked ? 1 : 0;
+            updateRunnerDebugSummary();
+            renderConfigPreview();
+            toast(e.target.checked ? '📸 已开启关键场景调试截图' : 'ℹ️ 已关闭调试截图');
+        };
+    }
+
+    const cfgDebugFriend = $('cfgDebugFriendOnly');
+    if (cfgDebugFriend) {
+        cfgDebugFriend.onchange = e => {
+            if (!appState.data.runnerSettings) appState.data.runnerSettings = {};
+            appState.data.runnerSettings.debugFriendOnly = e.target.checked ? 1 : 0;
+            updateRunnerDebugSummary();
+            renderConfigPreview();
+            toast(e.target.checked ? '👥 已开启助战调试 (仅选助战不进战斗)' : 'ℹ️ 已关闭助战调试');
+        };
+    }
+
+    // 调试功能下拉菜单交互
+    const runnerDebugWrap = $('runnerDebugDropdownWrap');
+    const runnerDebugBtn = $('runnerDebugDropdownBtn');
+    const runnerDebugMenu = $('runnerDebugMenu');
+    if (runnerDebugBtn && runnerDebugMenu) {
+        runnerDebugBtn.onclick = e => {
+            e.stopPropagation();
+            const isOpen = runnerDebugMenu.style.display !== 'none';
+            runnerDebugMenu.style.display = isOpen ? 'none' : 'flex';
+            if (runnerDebugWrap) {
+                runnerDebugWrap.classList.toggle('is-open', !isOpen);
+            }
+        };
+        runnerDebugMenu.onclick = e => {
+            e.stopPropagation();
+        };
+        document.addEventListener('click', () => {
+            runnerDebugMenu.style.display = 'none';
+            if (runnerDebugWrap) {
+                runnerDebugWrap.classList.remove('is-open');
+            }
+        });
     }
 
     // 复制配置文本
@@ -770,6 +952,7 @@ function initEventBindings() {
         };
         cfgExtraActionCount.onchange = onExtraCountUpdate;
         cfgExtraActionCount.oninput = onExtraCountUpdate;
+        // enableWheelNumberControl 由全局委托统一接管
     }
 
     // 技能目标上限直接点击分段按钮 (Lv 9 省结晶 / Lv 10 拉满)
@@ -779,6 +962,8 @@ function initEventBindings() {
             if (!appState.data.extraSettings) appState.data.extraSettings = {};
             appState.data.extraSettings.skillAutoThree = e.target.checked ? 1 : 0;
             renderConfigPreview();
+        };
+    }
 
     const cfgExtraHeroAutoAscend = $('cfgExtraHeroAutoAscend');
     if (cfgExtraHeroAutoAscend) {
@@ -795,8 +980,6 @@ function initEventBindings() {
             if (!appState.data.extraSettings) appState.data.extraSettings = {};
             appState.data.extraSettings.heroAutoGrail = e.target.checked ? 1 : 0;
             renderConfigPreview();
-        };
-    }
         };
     }
 

@@ -16,3 +16,20 @@
 - **UI 改动前强制查阅规范文档**：
   凡涉及 `editor_v5/`（包括页面结构、样式、JS 动态生成的 DOM、弹窗、卡片及控件等）的任何新增或修改，**Agent 在编码前必须强制先查阅设计规范文件 [docs/editor_ui_design_spec.md](file:///f:/2nd%20Accra/Git/Github/FGO_Q/docs/editor_ui_design_spec.md)**，并严格按照其设计系统及 [editor_v5/css/base.css](file:///f:/2nd%20Accra/Git/Github/FGO_Q/editor_v5/css/base.css) 中声明的 Design Tokens 进行开发，严禁脱离文档擅自发明色彩体系或引入外来调色板。
 
+## 战斗与选卡策略规范 (Battle & Card Strategy Guidelines)
+
+- **严格遵循出卡配置，严禁建议随意兜底**：
+  若用户的出牌配置（DSL）中未设置兜底条件（如未加 `*` 或宽泛色卡兜底），说明该关卡必须严格按照配置出牌，出牌偏差极易导致战败。未命中时安全停机属于符合预期的保护行为。**严禁向用户提供“加兜底/随便出一张”等妥协性方案**，排查与解决重心必须放在从根本上解决识别率问题（如优化立绘特征采样、解决 Buff/文字遮挡干扰、校准时序延迟与识别阈值等），确保配置条件能够被准确识别并命中。
+
+## 游戏机制信息维护规范 (Game Mechanics Maintenance Guidelines)
+
+- **游戏机制即时归档与维护**：
+  每当用户提供、补充或澄清任何 FGO 游戏机制、视觉渲染特性、动画规律或客户端行为（例如满 100 NP 显隐宝具卡、卡牌上下缓动微浮动、宝具卡表面动态光效蒙层、Buff 堆叠遮挡规律、暴击星分配机制、选卡必须满 3 张等），**Agent 必须立即同步记录并更新至独立文档 [docs/fgo_game_mechanics.md](file:///f:/2nd%20Accra/Git/Github/FGO_Q/docs/fgo_game_mechanics.md)**，作为图像识别、找色找图及自动化时序设计的统一知识库与底层工程依据。
+
+## 脚本代码部署与同步规范 (Script Deployment & Simulator Sync Guidelines)
+
+- **修改脚本代码强制即时推送模拟器与 PC 助手**：
+  凡修改了 `Q/battle_v5_config.q`、`Q/battle_v5_runner.q` 或相关脚本逻辑与资源后，**必须立即调用 `editor_v5.adb_sync` 将最新代码与配置推送至在线模拟器**（覆盖 `/sdcard/FGO_Q/` 与 `/sdcard/MobileAnJian/Script/`）及本地 PC 手机助手目录，并清理 `/sdcard/MobileAnJian/MQTemp/*.lc` 编译缓存，确保模拟器端按键精灵执行时立即可用最新逻辑，严禁修改后遗漏推送。
+
+
+

@@ -130,7 +130,8 @@ def sync_atc(atc_path, device=None):
     for pc_dir in PC_ASSISTANT_DIRS:
         if os.path.isdir(pc_dir):
             target = os.path.join(pc_dir, f"{V5_RUNNER_NAME}.atc")
-            shutil.copy2(atc_path, target)
+            if os.path.abspath(atc_path).lower() != os.path.abspath(target).lower():
+                shutil.copy2(atc_path, target)
             print(f"[Deploy] 已同步至 PC 助手: {target}")
 
     # 2. 部署至模拟器

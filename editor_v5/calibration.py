@@ -9,8 +9,10 @@ FGO_Q Editor V5 - 标定与视觉资产核心引擎 (Calibration Engine)
 
 import os
 import sys
+import re
 import json
 import logging
+import subprocess
 import cv2
 import numpy as np
 
@@ -31,6 +33,7 @@ class CalibrationEngine:
         self.repo_images_dir = os.path.join(self.repo_dir, "images", "attached images")
         self.backup_dir = os.path.join(editor_dir, "backup_images")
         self.profiles_dir = os.path.join(editor_dir, "profiles")
+        self.settings_file = os.path.join(self.profiles_dir, "calibration_settings.json")
         os.makedirs(self.images_dir, exist_ok=True)
         os.makedirs(self.editor_images_dir, exist_ok=True)
         os.makedirs(self.repo_images_dir, exist_ok=True)
@@ -496,11 +499,28 @@ class CalibrationEngine:
             "AGAIN_BATTLE_OUT_MENU": "AGAIN_BATTLE_OUT_MENU_TAR",
             "APPLE_DISPLAY": "APPLE_DISPLAY_TAR",
             "APPLE_CONFIRM": "APPLE_CONFIRM_TAR",
+            "PREPARE_FRIEND_TITLE": "PREPARE_FRIEND_TITLE_TAR",
+            "PREPARE_FRIEND_REFRESH": "PREPARE_FRIEND_REFRESH_TAR",
             "friend_equip_goodness": "PREPARE_FRIEND_EQUIP_TAR",
             "TAP_AWARD_SKIP": "TAP_AWARD_SKIP",
             "TAP_APPLE_GOLDEN": "TAP_APPLE_GOLDEN",
             "TAP_APPLE_SILVER": "TAP_APPLE_SILVER",
             "TAP_APPLE_CLOSE": "TAP_APPLE_CLOSE",
+            "BATTLE_HERO_NP_FACE_1": "BATTLE_HERO_NP_FACE_1_TAR",
+            "BATTLE_HERO_NP_FACE_2": "BATTLE_HERO_NP_FACE_2_TAR",
+            "BATTLE_HERO_NP_FACE_3": "BATTLE_HERO_NP_FACE_3_TAR",
+            "BATTLE_HERO_CARD_AREA_1": "BATTLE_HERO_CARD_AREA_1_TAR",
+            "BATTLE_HERO_CARD_AREA_2": "BATTLE_HERO_CARD_AREA_2_TAR",
+            "BATTLE_HERO_CARD_AREA_3": "BATTLE_HERO_CARD_AREA_3_TAR",
+            "BATTLE_HERO_CARD_AREA_4": "BATTLE_HERO_CARD_AREA_4_TAR",
+            "BATTLE_HERO_CARD_AREA_5": "BATTLE_HERO_CARD_AREA_5_TAR",
+            "BATTLE_CRIT_100_AREA_1": "BATTLE_CRIT_100_AREA_1_TAR",
+            "BATTLE_CRIT_100_AREA_2": "BATTLE_CRIT_100_AREA_2_TAR",
+            "BATTLE_CRIT_100_AREA_3": "BATTLE_CRIT_100_AREA_3_TAR",
+            "BATTLE_CRIT_100_AREA_4": "BATTLE_CRIT_100_AREA_4_TAR",
+            "BATTLE_CRIT_100_AREA_5": "BATTLE_CRIT_100_AREA_5_TAR",
+            "BATTLE_ATTACK_CARD_100": "BATTLE_ATTACK_CARD_100_TAR",
+            "BATTLE_ATTACK_CARD_100_2": "BATTLE_ATTACK_CARD_100_TAR",
         }
         
         with open(config_file_path, "r", encoding="utf-8") as f:
@@ -520,27 +540,254 @@ class CalibrationEngine:
         fname = target.get("file") or f"{target_key}.png"
         
         if search_area and len(search_area) == 4:
-            new_val = f'Array({int(search_area[0])}, {int(search_area[1])}, {int(search_area[2])}, {int(search_area[3])}, "Attachment:{fname}")'
+            if target_key in ("BATTLE_ATTACK_CARD_100", "BATTLE_ATTACK_CARD_100_2"):
+                new_val = f'Array({int(search_area[0])}, {int(search_area[1])}, {int(search_area[2])}, {int(search_area[3])}, "Attachment:BATTLE_ATTACK_CARD_100.png|Attachment:BATTLE_ATTACK_CARD_100_2.png")'
+            else:
+                new_val = f'Array({int(search_area[0])}, {int(search_area[1])}, {int(search_area[2])}, {int(search_area[3])}, "Attachment:{fname}")'
         elif tap_coord and len(tap_coord) == 2:
             new_val = f'Array({int(tap_coord[0])}, {int(tap_coord[1])})'
         else:
             return None
             
+        # 处理助战类别 (category == "friend") 的多图聚合同步
+        is_friend_target = (target_key != "friend_equip_goodness") and (
+            target.get("category") == "friend" or
+            target_key.lower().startswith("friend") or
+            fname.lower().startswith("friend")
+        )
+        if is_friend_target:
+            friends_file = os.path.join(self.profiles_dir, "friends.json")
+            friend_obj = None
+            friend_key = None
+            if os.path.isfile(friends_file):
+                try:
+                    with open(friends_file, "r", encoding="utf-8") as ff:
+                        f_data = json.load(ff)
+                        for fr in f_data.get("friends", []):
+                            imgs = fr.get("images", [])
+                            keys = [os.path.splitext(x)[0].lower() for x in imgs]
+                            if fname in imgs or target_key.lower() in keys or fr.get("key", "").lower() == target_key.lower():
+                                friend_obj = fr
+                                friend_key = fr.get("key")
+                                break
+                except Exception as fe:
+                    logger.warning(f"Failed to load friends.json in sync: {fe}")
+
+            if not friend_key:
+                # 兜底：从 friendXxx 命名中解析 key
+                m_key = re.match(r"^friend([a-zA-Z]+?)(?:\d+.*)?$", target_key, re.IGNORECASE) or re.match(r"^friend([a-zA-Z]+?)(?:\d+.*)?\.png$", fname, re.IGNORECASE)
+                if m_key:
+                    friend_key = m_key.group(1).lower()
+                else:
+                    friend_key = target_key.lower()
+
+            # 聚合该助战所有有效图片
+            all_candidate_imgs = list(friend_obj.get("images", [])) if friend_obj else []
+            if fname not in all_candidate_imgs:
+                all_candidate_imgs.append(fname)
+
+            valid_images = []
+            for c_img in all_candidate_imgs:
+                p_editor = os.path.join(self.images_dir, c_img)
+                p_attached = os.path.join(self.repo_root, "images", "attached images", c_img)
+                if (os.path.isfile(p_editor) and os.path.getsize(p_editor) > 0) or (os.path.isfile(p_attached) and os.path.getsize(p_attached) > 0):
+                    if c_img not in valid_images:
+                        valid_images.append(c_img)
+
+            if not valid_images:
+                valid_images = [fname]
+
+            att_val = "|".join([f"Attachment:{im}" for im in valid_images])
+            pascal_key = friend_key[0].upper() + friend_key[1:]
+            var_name = f"ATT_{pascal_key}"
+            new_line = f'Dim {var_name} = "{att_val}"'
+
+            friend_pattern = re.compile(rf'^\s*(?:Dim\s+)?ATT_{re.escape(friend_key)}\s*=.*$', re.IGNORECASE | re.MULTILINE)
+            if friend_pattern.search(cfg_text):
+                updated_text = friend_pattern.sub(new_line, cfg_text)
+            else:
+                section_header = "' ==================== 助战特征匹配图模板 (FRIEND TEMPLATES) ===================="
+                if section_header in cfg_text:
+                    parts = cfg_text.split(section_header, 1)
+                    updated_text = parts[0] + section_header + f"\n{new_line}" + parts[1]
+                else:
+                    updated_text = cfg_text.rstrip() + f"\n{new_line}\n"
+
+            with open(config_file_path, "w", encoding="utf-8") as f:
+                f.write(updated_text)
+
+            # 同步更新 friends.json 确保记录完整
+            if friend_obj and fname not in friend_obj.get("images", []) and os.path.isfile(friends_file):
+                try:
+                    with open(friends_file, "r", encoding="utf-8") as ff:
+                        fresh_f_data = json.load(ff)
+                    for fr in fresh_f_data.get("friends", []):
+                        if fr.get("key") == friend_key:
+                            if fname not in fr.get("images", []):
+                                fr["images"] = fr.get("images", []) + [fname]
+                                with open(friends_file, "w", encoding="utf-8") as out_ff:
+                                    json.dump(fresh_f_data, out_ff, ensure_ascii=False, indent=2)
+                            break
+                except Exception:
+                    pass
+
+            return updated_text
+
         pattern = re.compile(rf'^\s*(?:Dim\s+)?{re.escape(var_name)}\s*=.*$', re.IGNORECASE | re.MULTILINE)
         new_line = f"Dim {var_name} = {new_val}"
         
         if pattern.search(cfg_text):
             updated_text = pattern.sub(new_line, cfg_text)
         else:
-            # 如果既不在标准映射表中，也不在已有变量列表中，且属于好友图库特征，则无需在 config.q 中新增冗余 Dim
-            if target_key not in TARGET_TO_CONFIG_VAR and (target.get("category") == "friend" or target_key.lower().startswith("friend")):
-                return cfg_text
             updated_text = cfg_text.rstrip() + f"\n{new_line}\n"
             
         with open(config_file_path, "w", encoding="utf-8") as f:
             f.write(updated_text)
             
         return updated_text
+
+    def get_last_open_dir(self, hint_dir=None):
+        """获取上次图片选择的文件夹路径，具备多层级记忆与默认优先级机制"""
+        if hint_dir and os.path.isdir(hint_dir):
+            return hint_dir
+        if os.path.isfile(self.settings_file):
+            try:
+                with open(self.settings_file, "r", encoding="utf-8") as f:
+                    cfg = json.load(f)
+                    saved = cfg.get("last_open_dir")
+                    if saved and os.path.isdir(saved):
+                        return saved
+            except Exception as e:
+                logger.warning(f"Failed to read calibration_settings.json: {e}")
+        # 默认回退目录顺序：images/shootscreen_1440 -> images -> repo_root
+        shootscreen_dir = os.path.join(self.repo_dir, "images", "shootscreen_1440")
+        if os.path.isdir(shootscreen_dir):
+            return shootscreen_dir
+        images_dir = os.path.join(self.repo_dir, "images")
+        if os.path.isdir(images_dir):
+            return images_dir
+        return self.repo_dir
+
+    def set_last_open_dir(self, dir_path):
+        """持久化保存上次成功打开的文件夹路径"""
+        if not dir_path or not os.path.isdir(dir_path):
+            return
+        cfg = {}
+        if os.path.isfile(self.settings_file):
+            try:
+                with open(self.settings_file, "r", encoding="utf-8") as f:
+                    cfg = json.load(f)
+            except Exception:
+                cfg = {}
+        cfg["last_open_dir"] = os.path.abspath(dir_path)
+        try:
+            with open(self.settings_file, "w", encoding="utf-8") as f:
+                json.dump(cfg, f, ensure_ascii=False, indent=2)
+        except Exception as e:
+            logger.warning(f"Failed to save calibration_settings.json: {e}")
+
+    def pick_local_image_file(self, hint_dir=None):
+        """
+        弹出原生文件选择对话框，自动定位至上次打开的目录，
+        读取选中图片并返回 base64 及标定视口信息
+        """
+        initial_dir = self.get_last_open_dir(hint_dir)
+        file_path = ""
+        # 1. 优先尝试 Tkinter 标准文件对话框
+        try:
+            import tkinter
+            from tkinter import filedialog
+            root = tkinter.Tk()
+            root.withdraw()
+            root.attributes('-topmost', True)
+            root.focus_force()
+            file_path = filedialog.askopenfilename(
+                title="选择标定图片",
+                initialdir=initial_dir,
+                filetypes=[
+                    ("图片文件 (*.png;*.jpg;*.jpeg;*.webp;*.bmp)", "*.png;*.jpg;*.jpeg;*.webp;*.bmp"),
+                    ("PNG 图像 (*.png)", "*.png"),
+                    ("JPEG 图像 (*.jpg;*.jpeg)", "*.jpg;*.jpeg"),
+                    ("所有文件 (*.*)", "*.*")
+                ]
+            )
+            root.destroy()
+        except Exception as tk_err:
+            logger.warning(f"Tkinter filedialog error: {tk_err}, trying PowerShell fallback")
+            file_path = self._pick_file_powershell(initial_dir)
+
+        if not file_path:
+            return {"success": False, "cancelled": True}
+
+        file_path = os.path.abspath(file_path)
+        new_dir = os.path.dirname(file_path)
+        self.set_last_open_dir(new_dir)
+
+        try:
+            # 解决 Windows 下路径含中文或空格时 cv2.imread 乱码问题
+            with open(file_path, "rb") as f:
+                raw_bytes = f.read()
+            nparr = np.frombuffer(raw_bytes, np.uint8)
+            img = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
+            if img is None:
+                raise ValueError("图片解码失败，请确认是否为有效图像文件")
+
+            vp = self.detect_viewport(img)
+            import base64
+            b64_data = base64.b64encode(raw_bytes).decode('ascii')
+
+            ext = os.path.splitext(file_path)[1].lower()
+            mime = "image/png"
+            if ext in [".jpg", ".jpeg"]:
+                mime = "image/jpeg"
+            elif ext == ".webp":
+                mime = "image/webp"
+            elif ext == ".bmp":
+                mime = "image/bmp"
+
+            return {
+                "success": True,
+                "file_name": os.path.basename(file_path),
+                "file_path": file_path,
+                "last_dir": new_dir,
+                "width": img.shape[1],
+                "height": img.shape[0],
+                "viewport": vp,
+                "image_base64": f"data:{mime};base64,{b64_data}"
+            }
+        except Exception as e:
+            logger.error(f"Failed to read image file {file_path}: {e}")
+            return {"success": False, "error": str(e), "file_path": file_path}
+
+    def _pick_file_powershell(self, initial_dir):
+        """PowerShell STA 独立进程 OpenFileDialog 兜底方案"""
+        try:
+            init_code = ""
+            if initial_dir and os.path.isdir(initial_dir):
+                safe_dir = initial_dir.replace("'", "''")
+                init_code = f"$dialog.InitialDirectory = '{safe_dir}';"
+            script = f"""
+[System.Reflection.Assembly]::LoadWithPartialName('System.Windows.Forms') | Out-Null
+$dialog = New-Object System.Windows.Forms.OpenFileDialog
+$dialog.Title = '选择标定图片'
+$dialog.Filter = '图片文件 (*.png;*.jpg;*.jpeg;*.webp;*.bmp)|*.png;*.jpg;*.jpeg;*.webp;*.bmp|所有文件 (*.*)|*.*'
+{init_code}
+if ($dialog.ShowDialog() -eq [System.Windows.Forms.DialogResult]::OK) {{
+    Write-Output $dialog.FileName
+}}
+"""
+            res = subprocess.run(
+                ['powershell', '-NoProfile', '-STA', '-Command', script],
+                capture_output=True,
+                text=True,
+                encoding='gbk',
+                errors='ignore',
+                creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0x08000000)
+            )
+            return res.stdout.strip()
+        except Exception as ps_err:
+            logger.warning(f"PowerShell OpenFileDialog failed: {ps_err}")
+            return ""
 
 
 

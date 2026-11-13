@@ -6,9 +6,11 @@ export const initialData = {
     runnerSettings: {
         activeGroup: 2,         // 当前生效大组: 0=test, 1=campaign, 2=caber, 3=grand, 4=ordeal
         battleCount: 30,        // 连续战斗次数
-        appleEnable: 0,         // 是否吃苹果补充体力 (0=关, 1=开)
+        appleEnable: 0,         // 是否吃苹果补充体力 (0=不吃, 1=银苹果, 2=金苹果)
         manualChooseFriend: 0,  // 是否人工选助战 (0=自动找图, 1=人工选择)
-        forceColorCard: 0       // 是否强制选择对应色卡 (0=关, 1=开)
+        forceColorCard: 0,      // 是否强制选择对应色卡 (0=关, 1=开)
+        debugScreenshotEnable: 0, // 是否保存调试截屏 (0=关, 1=开)
+        debugFriendOnly: 0        // 助战调试模式: 仅选助战不进战斗 (0=关, 1=开)
     },
     // Extra 辅助运行配置 (强化与抽卡模式)
     extraSettings: {
@@ -27,11 +29,11 @@ export const initialData = {
             defaultFriend: "aobao",
             hint: TEXT_CONFIG.groups.defaultHints.test,
             schemes: [
-                { name: "普攻", friend: "cdai", dsl: "s40, 70 | a3, 4, 5; a3, 4, 5" },
-                { name: "cdai", friend: "cdai", dsl: "m22 | t1 | a7, B, B" },
-                { name: "rba", friend: "rba", dsl: "aB, B, B" },
-                { name: "target测试", friend: "aobao", dsl: "s10 | a6, B, B; s20 | a6, B, B; s30 | a6, B, B" },
-                { name: "aobao", friend: "aobao", dsl: "t1 | t2 | t3 | t4 | t5 | t6 | t1 | t2 | t3 | t4 | t5 | t6 | a7, 4, 5" }
+                { name: "示例 1", friend: "cdai", dsl: "s40, 70 | a3, 4, 5; a3, 4, 5" },
+                { name: "示例 2", friend: "cdai", dsl: "m22 | t1 | a7, B, B" },
+                { name: "示例 3", friend: "rba", dsl: "aB, B, B" },
+                { name: "示例 4", friend: "aobao", dsl: "s10 | a6, B, B; s20 | a6, B, B; s30 | a6, B, B" },
+                { name: "示例 5", friend: "aobao", dsl: "t1 | t2 | t3 | t4 | t5 | t6 | t1 | t2 | t3 | t4 | t5 | t6 | a7, 4, 5" }
             ]
         },
         {
@@ -41,9 +43,9 @@ export const initialData = {
             defaultFriend: "",
             hint: TEXT_CONFIG.groups.defaultHints.campaign,
             schemes: [
-                { name: "mary", friend: "mary", dsl: "s50 | a7, 4, 5; s40 | m32 | s32, 50, 60 | t1 | aB, Q, A; s70, 92, 40 | a7, B, B" },
-                { name: "rba", friend: "rba", dsl: "s72, 80, 91, 10, 20, 30, 40, 50, 60 | m22 | a6, 7, 5" },
-                { name: "aobao", friend: "aobao", dsl: "s20, 30, 40, 52, 70, 83 | a7, 8, 5; s10 | a6, 4, 5; s92, 50 | m22 | a7, 4, 5" }
+                { name: "示例 1", friend: "mary", dsl: "s50 | a7, 4, 5; s40 | m32 | s32, 50, 60 | t1 | aB, Q, A; s70, 92, 40 | a7, B, B" },
+                { name: "示例 2", friend: "rba", dsl: "s72, 80, 91, 10, 20, 30, 40, 50, 60 | m22 | a6, 7, 5" },
+                { name: "示例 3", friend: "aobao", dsl: "s20, 30, 40, 52, 70, 83 | a7, 8, 5; s10 | a6, 4, 5; s92, 50 | m22 | a7, 4, 5" }
             ]
         },
         {
@@ -53,9 +55,9 @@ export const initialData = {
             defaultFriend: "cdai",
             hint: TEXT_CONFIG.groups.defaultHints.caber,
             schemes: [
-                { name: "水伊吹", friend: "cdai", dsl: "s10, 20, 53, 63, 70, 90, 83 | m30 | a8, 4, 5; s40 | a8, 4, 5; s33 | m10 | a8, 4, 5" },
-                { name: "兰丸50", friend: "cdai", dsl: "s10, 20, 53, 63, 90 | a8, 4, 5; s40 | a8, 4, 5; s33, 80 | m10, 30 | a8, 4, 5" },
-                { name: "壹与50", friend: "cdai", dsl: "s10, 20, 53, 63, 70, 80, 90 | m10 | a8, 4, 5; s40 | a8, 4, 5; m30 | s33 | a8, 4, 5" }
+                { name: "示例 1", friend: "cdai", dsl: "s10, 20, 53, 63, 70, 90, 83 | m30 | a8, 4, 5; s40 | a8, 4, 5; s33 | m10 | a8, 4, 5" },
+                { name: "示例 2", friend: "cdai", dsl: "s10, 20, 53, 63, 90 | a8, 4, 5; s40 | a8, 4, 5; s33, 80 | m10, 30 | a8, 4, 5" },
+                { name: "示例 3", friend: "cdai", dsl: "s10, 20, 53, 63, 70, 80, 90 | m10 | a8, 4, 5; s40 | a8, 4, 5; m30 | s33 | a8, 4, 5" }
             ]
         },
         {
@@ -65,13 +67,13 @@ export const initialData = {
             defaultFriend: "",
             hint: TEXT_CONFIG.groups.defaultHints.grand,
             schemes: [
-                { name: "剑", friend: "sparrow", dsl: "s40, 53, 60 | m30024, 10 | s40, 10, 20, 30, 70, 80, 90 | a8, 6, B" },
-                { name: "枪", friend: "Cba", dsl: "s10, 30 | m30014, 10 | s10, 20, 40, 50, 60, 70, 83, 90 | a7, 8, A" },
-                { name: "骑", friend: "keli", dsl: "s90, 70 | m30034, 10 | s80, 70, 60, 50, 40, 32, 22, 10 | a6, 7, Q" },
-                { name: "骑2", friend: "keli", dsl: "s80, 70, 60, 50, 40, 22, 10 | m12 | a6, 7, Q" },
-                { name: "狂", friend: "Bdai", dsl: "s10, 40, 52, 60, 70, 83, 90 | m22 | a7, 8, A" },
-                { name: "EX1", friend: "princess", dsl: "s12, 20, 32, 40, 50, 60, 70, 80 | m30014, 10 | s30 | a8, 7, B" },
-                { name: "EX2", friend: "aobao", dsl: "s70, 82, 92, 60, 50, 40, 20 | m22 | a7, B, B" }
+                { name: "示例 1", friend: "sparrow", dsl: "s40, 53, 60 | m30024, 10 | s40, 10, 20, 30, 70, 80, 90 | a8, 6, B" },
+                { name: "示例 2", friend: "Cba", dsl: "s10, 30 | m30014, 10 | s10, 20, 40, 50, 60, 70, 83, 90 | a7, 8, A" },
+                { name: "示例 3", friend: "keli", dsl: "s90, 70 | m30034, 10 | s80, 70, 60, 50, 40, 32, 22, 10 | a6, 7, Q" },
+                { name: "示例 4", friend: "keli", dsl: "s80, 70, 60, 50, 40, 22, 10 | m12 | a6, 7, Q" },
+                { name: "示例 5", friend: "Bdai", dsl: "s10, 40, 52, 60, 70, 83, 90 | m22 | a7, 8, A" },
+                { name: "示例 6", friend: "princess", dsl: "s12, 20, 32, 40, 50, 60, 70, 80 | m30014, 10 | s30 | a8, 7, B" },
+                { name: "示例 7", friend: "aobao", dsl: "s70, 82, 92, 60, 50, 40, 20 | m22 | a7, B, B" }
             ]
         },
         {
@@ -81,10 +83,10 @@ export const initialData = {
             defaultFriend: "shahushan",
             hint: TEXT_CONFIG.groups.defaultHints.ordeal,
             schemes: [
-                { name: "shahushan", friend: "shahushan", dsl: "s10, 20, 30, 51, 61, 71, 80, 91 | m31 | aB, 6, B; s41, 10, 20, 30 | a6, B, B" },
-                { name: "shahushan", friend: "shahushan", dsl: "s92, 40, 50, 60, 30 | a7, B, B; s72 | m32 | s50 | aB, 7, B; s82, 60 | a7, B, B" },
-                { name: "shahushan", friend: "shahushan", dsl: "s10, 20, 30, 41, 51, 61, 71, 91 | m31 | aB, 6, B; s10, 20, 30 | a6, B, B" },
-                { name: "shahushan", friend: "shahushan", dsl: "s10, 20, 40, 50, 62, 70, 92 | m22 | a7, 4, 5" }
+                { name: "示例 1", friend: "shahushan", dsl: "s10, 20, 30, 51, 61, 71, 80, 91 | m31 | aB, 6, B; s41, 10, 20, 30 | a6, B, B" },
+                { name: "示例 2", friend: "shahushan", dsl: "s92, 40, 50, 60, 30 | a7, B, B; s72 | m32 | s50 | aB, 7, B; s82, 60 | a7, B, B" },
+                { name: "示例 3", friend: "shahushan", dsl: "s10, 20, 30, 41, 51, 61, 71, 91 | m31 | aB, 6, B; s10, 20, 30 | a6, B, B" },
+                { name: "示例 4", friend: "shahushan", dsl: "s10, 20, 40, 50, 62, 70, 92 | m22 | a7, 4, 5" }
             ]
         }
     ]

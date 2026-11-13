@@ -164,10 +164,10 @@
       "file": "BATTLE_ATTACK_BACK.png",
       "anchor": "bottom_right",
       "area": [
-        1300,
-        750,
-        1390,
-        785
+        1280,
+        740,
+        1410,
+        795
       ],
       "tap_coord": [
         1345,
@@ -261,21 +261,21 @@
       "file": "APPLE_CONFIRM.png",
       "anchor": "center",
       "area": [
-        895,
-        608,
-        992,
-        660
+        800,
+        580,
+        1050,
+        720
       ],
       "tap_coord": [
-        943,
-        634
-      ],
-      "description": "选中金/银苹果后右下角的确定恢复按钮",
-      "search_area": [
-        895,
-        608,
-        992,
+        944,
         660
+      ],
+      "description": "选中金/银苹果后右下角的决定按钮(兼容银苹果数量选择弹窗)",
+      "search_area": [
+        800,
+        580,
+        1050,
+        720
       ],
       "crop_area": null
     },
@@ -1032,6 +1032,36 @@
       ],
       "tap_coord": null,
       "description": "源自原生工程识别定义: ENHANCE_HERO_ENHANCE_CONFIRM"
+    },
+    "ENHANCE_HERO_TEMP_CONFIRM": {
+      "key": "ENHANCE_HERO_TEMP_CONFIRM",
+      "name": "从者强化: 临时从者提示决定按钮",
+      "category": "enhance",
+      "file": "ENHANCE_HERO_ENHANCE_CONFIRM.png",
+      "anchor": "bottom_right",
+      "search_area": [
+        877,
+        590,
+        1006,
+        660
+      ],
+      "crop_area": [
+        900,
+        614,
+        987,
+        652
+      ],
+      "area": [
+        877,
+        590,
+        1006,
+        660
+      ],
+      "tap_coord": [
+        943,
+        633
+      ],
+      "description": "限时加入（临时）从者强化/再临/转临提示弹窗的「决定」按钮"
     },
     "ENHANCE_HERO_RECOMMAND": {
       "key": "ENHANCE_HERO_RECOMMAND",
@@ -2160,7 +2190,12 @@
         920,
         800
       ],
-      "crop_area": null,
+      "crop_area": [
+        92,
+        360,
+        116,
+        373
+      ],
       "area": [
         40,
         180,
@@ -3136,7 +3171,7 @@
       "key": "ENHANCE_GRAIL_CONFIRM",
       "name": "从者强化: 圣杯转临决定按钮",
       "category": "enhance",
-      "file": "ENHANCE_HERO_ENHANCE_CONFIRM.png",
+      "file": "ENHANCE_GRAIL_CONFIRM.png",
       "anchor": "bottom_right",
       "search_area": [
         877,
@@ -3144,7 +3179,12 @@
         1006,
         698
       ],
-      "crop_area": null,
+      "crop_area": [
+        900,
+        637,
+        987,
+        675
+      ],
       "area": [
         877,
         632,
@@ -3420,6 +3460,534 @@
       ],
       "tap_coord": null,
       "description": "助战特征图: tt"
+    },
+    "friendHeshang1": {
+      "key": "friendHeshang1",
+      "name": "助战: 河上 1",
+      "category": "friend",
+      "file": "friendHeshang1.png",
+      "anchor": "top_left",
+      "search_area": [
+        40,
+        180,
+        920,
+        800
+      ],
+      "crop_area": null,
+      "area": [
+        40,
+        180,
+        920,
+        800
+      ],
+      "tap_coord": null,
+      "description": "助战特征图: 河上"
+    },
+    "friendHeshang2": {
+      "key": "friendHeshang2",
+      "name": "助战: 河上 2",
+      "category": "friend",
+      "file": "friendHeshang2.png",
+      "anchor": "top_left",
+      "search_area": [
+        40,
+        180,
+        920,
+        800
+      ],
+      "crop_area": null,
+      "area": [
+        40,
+        180,
+        920,
+        800
+      ],
+      "tap_coord": null,
+      "description": "助战特征图: 河上"
+    },
+    "friendHeshang3": {
+      "key": "friendHeshang3",
+      "name": "助战: 河上 3",
+      "category": "friend",
+      "file": "friendHeshang3.png",
+      "anchor": "top_left",
+      "search_area": [
+        40,
+        180,
+        920,
+        800
+      ],
+      "crop_area": [
+        124,
+        288,
+        146,
+        312
+      ],
+      "area": [
+        40,
+        180,
+        920,
+        800
+      ],
+      "tap_coord": null,
+      "description": "助战特征图: 河上"
+    },
+    "BATTLE_HERO_NP_FACE_1": {
+      "key": "BATTLE_HERO_NP_FACE_1",
+      "name": "从者1 宝具头像采样区",
+      "category": "battle",
+      "file": "BATTLE_HERO_NP_FACE_1.png",
+      "anchor": "center",
+      "area": [
+        443,
+        181,
+        483,
+        201
+      ],
+      "search_area": [
+        443,
+        181,
+        483,
+        201
+      ],
+      "crop_area": [
+        443,
+        181,
+        483,
+        201
+      ],
+      "tap_coord": null,
+      "description": "从者1满NP宝具卡立绘采样切片区域 (40x20，宽大于高矩形，用于识别手牌从者)"
+    },
+    "BATTLE_HERO_NP_FACE_2": {
+      "key": "BATTLE_HERO_NP_FACE_2",
+      "name": "从者2 宝具头像采样区",
+      "category": "battle",
+      "file": "BATTLE_HERO_NP_FACE_2.png",
+      "anchor": "center",
+      "area": [
+        719,
+        181,
+        759,
+        201
+      ],
+      "search_area": [
+        719,
+        181,
+        759,
+        201
+      ],
+      "crop_area": [
+        719,
+        181,
+        759,
+        201
+      ],
+      "tap_coord": null,
+      "description": "从者2满NP宝具卡立绘采样切片区域 (40x20，宽大于高矩形，用于识别手牌从者)"
+    },
+    "BATTLE_HERO_NP_FACE_3": {
+      "key": "BATTLE_HERO_NP_FACE_3",
+      "name": "从者3 宝具头像采样区",
+      "category": "battle",
+      "file": "BATTLE_HERO_NP_FACE_3.png",
+      "anchor": "center",
+      "area": [
+        995,
+        181,
+        1035,
+        201
+      ],
+      "search_area": [
+        995,
+        181,
+        1035,
+        201
+      ],
+      "crop_area": [
+        995,
+        181,
+        1035,
+        201
+      ],
+      "tap_coord": null,
+      "description": "从者3满NP宝具卡立绘采样切片区域 (40x20，宽大于高矩形，用于识别手牌从者)"
+    },
+    "BATTLE_HERO_CARD_AREA_1": {
+      "key": "BATTLE_HERO_CARD_AREA_1",
+      "name": "普攻卡1 从者立绘匹配区",
+      "category": "battle",
+      "file": "BATTLE_HERO_CARD_AREA_1.png",
+      "anchor": "center",
+      "area": [
+        33,
+        480,
+        203,
+        580
+      ],
+      "search_area": [
+        33,
+        480,
+        203,
+        580
+      ],
+      "crop_area": [
+        33,
+        480,
+        203,
+        580
+      ],
+      "tap_coord": null,
+      "description": "手牌第1张普攻指令卡面部立绘匹配范围 (避开顶部饰条与暴击率数字)"
+    },
+    "BATTLE_HERO_CARD_AREA_2": {
+      "key": "BATTLE_HERO_CARD_AREA_2",
+      "name": "普攻卡2 从者立绘匹配区",
+      "category": "battle",
+      "file": "BATTLE_HERO_CARD_AREA_2.png",
+      "anchor": "center",
+      "area": [
+        323,
+        480,
+        493,
+        580
+      ],
+      "search_area": [
+        323,
+        480,
+        493,
+        580
+      ],
+      "crop_area": [
+        323,
+        480,
+        493,
+        580
+      ],
+      "tap_coord": null,
+      "description": "手牌第2张普攻指令卡面部立绘匹配范围 (避开顶部饰条与暴击率数字)"
+    },
+    "BATTLE_HERO_CARD_AREA_3": {
+      "key": "BATTLE_HERO_CARD_AREA_3",
+      "name": "普攻卡3 从者立绘匹配区",
+      "category": "battle",
+      "file": "BATTLE_HERO_CARD_AREA_3.png",
+      "anchor": "center",
+      "area": [
+        613,
+        480,
+        783,
+        580
+      ],
+      "search_area": [
+        613,
+        480,
+        783,
+        580
+      ],
+      "crop_area": [
+        613,
+        480,
+        783,
+        580
+      ],
+      "tap_coord": null,
+      "description": "手牌第3张普攻指令卡面部立绘匹配范围 (避开顶部饰条与暴击率数字)"
+    },
+    "BATTLE_HERO_CARD_AREA_4": {
+      "key": "BATTLE_HERO_CARD_AREA_4",
+      "name": "普攻卡4 从者立绘匹配区",
+      "category": "battle",
+      "file": "BATTLE_HERO_CARD_AREA_4.png",
+      "anchor": "center",
+      "area": [
+        906,
+        480,
+        1076,
+        580
+      ],
+      "search_area": [
+        906,
+        480,
+        1076,
+        580
+      ],
+      "crop_area": [
+        906,
+        480,
+        1076,
+        580
+      ],
+      "tap_coord": null,
+      "description": "手牌第4张普攻指令卡面部立绘匹配范围 (避开顶部饰条与暴击率数字)"
+    },
+    "BATTLE_HERO_CARD_AREA_5": {
+      "key": "BATTLE_HERO_CARD_AREA_5",
+      "name": "普攻卡5 从者立绘匹配区",
+      "category": "battle",
+      "file": "BATTLE_HERO_CARD_AREA_5.png",
+      "anchor": "center",
+      "area": [
+        1193,
+        480,
+        1363,
+        580
+      ],
+      "search_area": [
+        1193,
+        480,
+        1363,
+        580
+      ],
+      "crop_area": [
+        1193,
+        480,
+        1363,
+        580
+      ],
+      "tap_coord": null,
+      "description": "手牌第5张普攻指令卡面部立绘匹配范围 (避开顶部饰条与暴击率数字)"
+    },
+    "BATTLE_CRIT_100_AREA_1": {
+      "key": "BATTLE_CRIT_100_AREA_1",
+      "name": "普攻卡1 100%暴击检测区",
+      "category": "battle",
+      "file": "BATTLE_ATTACK_CARD_100.png",
+      "anchor": "center",
+      "area": [
+        63,
+        400,
+        83,
+        445
+      ],
+      "search_area": [
+        63,
+        400,
+        83,
+        445
+      ],
+      "crop_area": [
+        75,
+        420,
+        81,
+        439
+      ],
+      "tap_coord": null,
+      "description": "手牌第1张指令卡100%暴击标志百位1搜寻区域"
+    },
+    "BATTLE_CRIT_100_AREA_2": {
+      "key": "BATTLE_CRIT_100_AREA_2",
+      "name": "普攻卡2 100%暴击检测区",
+      "category": "battle",
+      "file": "BATTLE_ATTACK_CARD_100.png",
+      "anchor": "center",
+      "area": [
+        353,
+        400,
+        373,
+        445
+      ],
+      "search_area": [
+        353,
+        400,
+        373,
+        445
+      ],
+      "crop_area": [
+        363,
+        420,
+        369,
+        439
+      ],
+      "tap_coord": null,
+      "description": "手牌第2张指令卡100%暴击标志百位1搜寻区域"
+    },
+    "BATTLE_CRIT_100_AREA_3": {
+      "key": "BATTLE_CRIT_100_AREA_3",
+      "name": "普攻卡3 100%暴击检测区",
+      "category": "battle",
+      "file": "BATTLE_ATTACK_CARD_100.png",
+      "anchor": "center",
+      "area": [
+        643,
+        400,
+        663,
+        445
+      ],
+      "search_area": [
+        643,
+        400,
+        663,
+        445
+      ],
+      "crop_area": [
+        650,
+        420,
+        656,
+        439
+      ],
+      "tap_coord": null,
+      "description": "手牌第3张指令卡100%暴击标志百位1搜寻区域"
+    },
+    "BATTLE_CRIT_100_AREA_4": {
+      "key": "BATTLE_CRIT_100_AREA_4",
+      "name": "普攻卡4 100%暴击检测区",
+      "category": "battle",
+      "file": "BATTLE_ATTACK_CARD_100.png",
+      "anchor": "center",
+      "area": [
+        936,
+        400,
+        956,
+        445
+      ],
+      "search_area": [
+        936,
+        400,
+        956,
+        445
+      ],
+      "crop_area": [
+        940,
+        420,
+        946,
+        439
+      ],
+      "tap_coord": null,
+      "description": "手牌第4张指令卡100%暴击标志百位1搜寻区域"
+    },
+    "BATTLE_CRIT_100_AREA_5": {
+      "key": "BATTLE_CRIT_100_AREA_5",
+      "name": "普攻卡5 100%暴击检测区",
+      "category": "battle",
+      "file": "BATTLE_ATTACK_CARD_100.png",
+      "anchor": "center",
+      "area": [
+        1223,
+        400,
+        1243,
+        445
+      ],
+      "search_area": [
+        1223,
+        400,
+        1243,
+        445
+      ],
+      "crop_area": [
+        1232,
+        421,
+        1238,
+        440
+      ],
+      "tap_coord": null,
+      "description": "手牌第5张指令卡100%暴击标志百位1搜寻区域"
+    },
+    "BATTLE_ATTACK_CARD_100": {
+      "key": "BATTLE_ATTACK_CARD_100",
+      "name": "100% 暴击标志模板",
+      "category": "battle",
+      "file": "BATTLE_ATTACK_CARD_100.png",
+      "anchor": "center",
+      "area": [
+        55,
+        350,
+        1390,
+        445
+      ],
+      "search_area": [
+        55,
+        350,
+        1390,
+        445
+      ],
+      "crop_area": null,
+      "tap_coord": null,
+      "description": "100% 暴击标识百位数1的参考模板特征图"
+    },
+    "BATTLE_ATTACK_CARD_100_2": {
+      "key": "BATTLE_ATTACK_CARD_100_2",
+      "name": "100% 暴击标志模板 2",
+      "category": "battle",
+      "file": "BATTLE_ATTACK_CARD_100_2.png",
+      "anchor": "center",
+      "area": [
+        55,
+        350,
+        1390,
+        445
+      ],
+      "search_area": [
+        55,
+        350,
+        1390,
+        445
+      ],
+      "crop_area": null,
+      "tap_coord": null,
+      "description": "100% 暴击标识百位数1的双模板直笔核心特征图"
+    },
+    "PREPARE_FRIEND_TITLE": {
+      "key": "PREPARE_FRIEND_TITLE",
+      "name": "助战选择界面标题",
+      "category": "friend",
+      "file": "PREPARE_FRIEND_TITLE.png",
+      "anchor": "center",
+      "area": [
+        1150,
+        0,
+        1435,
+        80
+      ],
+      "search_area": [
+        1150,
+        0,
+        1435,
+        80
+      ],
+      "crop_area": null,
+      "tap_coord": null,
+      "description": "助战选择界面右上角「助战选择」标题特征图"
+    },
+    "PREPARE_FRIEND_REFRESH": {
+      "key": "PREPARE_FRIEND_REFRESH",
+      "name": "助战列表更新按钮",
+      "category": "friend",
+      "file": "PREPARE_FRIEND_REFRESH.png",
+      "anchor": "center",
+      "area": [
+        980,
+        85,
+        1110,
+        175
+      ],
+      "search_area": [
+        980,
+        85,
+        1110,
+        175
+      ],
+      "crop_area": null,
+      "tap_coord": null,
+      "description": "助战选择界面右上角「列表更新」按钮特征图"
+    },
+    "PREPARE_FRIEND_SCROLLBAR": {
+      "key": "PREPARE_FRIEND_SCROLLBAR",
+      "name": "助战右侧滚动条",
+      "category": "friend",
+      "file": "",
+      "anchor": "center",
+      "area": [
+        1400,
+        190,
+        1424,
+        750
+      ],
+      "tap_coord": [
+        1412,
+        265
+      ],
+      "description": "助战选择列表右侧滚动条：X=1412，初始滑块中心Y=265，每翻一页(2个完整卡片)向下位移33像素"
     }
   }
 }

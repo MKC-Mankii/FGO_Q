@@ -1,7 +1,7 @@
 import { appState, getCurGroup, getCurScheme } from './state.js';
 import { SUPPORTED_FRIENDS, CARD_INFO } from './constants.js';
-import { getCurSchemeRounds, commitChanges, generateConfigText, createDefaultRound } from './dsl.js';
-import { openEditStepModal, formatAttackCards, formatAttackCardsBadgesHtml, registerUpdateCallback } from './modals.js';
+import { getCurSchemeRounds, commitChanges, generateConfigText, createDefaultRound, getBaseCardCode } from './dsl.js';
+import { openEditStepModal, formatAttackCards, formatAttackCardsBadgesHtml, registerUpdateCallback, CREST_SVG_DEFAULT, CREST_SVG_ACTIVE, getCardPrefSummaryTooltip } from './modals.js';
 import { $, toast, updateSaveButtonState } from './api.js';
 import { TEXT_CONFIG, formatText } from './text_config.js';
 
@@ -76,9 +76,23 @@ export function renderRunnerSettings() {
         inputCount.value = rs.battleCount ?? 30;
     }
 
+    const appleSwitcher = $('cfgAppleSwitcher');
+    const appleVal = (typeof rs.appleEnable === 'number' && !isNaN(rs.appleEnable)) ? rs.appleEnable : (rs.appleEnable ? 1 : 0);
+    if (appleSwitcher) {
+        appleSwitcher.querySelectorAll('.runner-apple-opt').forEach(btn => {
+            const btnVal = Number(btn.getAttribute('data-val'));
+            if (btnVal === appleVal) {
+                btn.classList.add('active');
+            } else {
+                btn.classList.remove('active');
+            }
+        });
+    }
+
     const chkApple = $('cfgAppleEnable');
     if (chkApple) {
-        chkApple.checked = Boolean(rs.appleEnable);
+        chkApple.value = appleVal;
+        chkApple.checked = Boolean(appleVal);
     }
 
     const chkFriend = $('cfgManualFriend');
@@ -89,6 +103,37 @@ export function renderRunnerSettings() {
     const chkColor = $('cfgForceColorCard');
     if (chkColor) {
         chkColor.checked = Boolean(rs.forceColorCard);
+    }
+
+    const chkDebug = $('cfgDebugScreenshot');
+    if (chkDebug) {
+        chkDebug.checked = Boolean(rs.debugScreenshotEnable);
+    }
+
+    const chkDebugFriend = $('cfgDebugFriendOnly');
+    if (chkDebugFriend) {
+        chkDebugFriend.checked = Boolean(rs.debugFriendOnly);
+    }
+
+    updateRunnerDebugSummary();
+}
+
+// 更新调试功能按钮的高亮与徽标
+export function updateRunnerDebugSummary() {
+    const rs = appState.data.runnerSettings || {};
+    const count = (rs.debugScreenshotEnable ? 1 : 0) + (rs.debugFriendOnly ? 1 : 0);
+    const badge = $('runnerDebugBadge');
+    const btn = $('runnerDebugDropdownBtn');
+    if (badge) {
+        badge.textContent = count;
+        badge.style.display = count > 0 ? 'inline-flex' : 'none';
+    }
+    if (btn) {
+        if (count > 0) {
+            btn.classList.add('is-active');
+        } else {
+            btn.classList.remove('is-active');
+        }
     }
 }
 
@@ -406,6 +451,21 @@ export function renderSchemeDetails() {
         renderConfigPreview();
     };
 
+    // 方案独立助战翻页数
+    const pageTurnsInput = $('schemePageTurnsInput');
+    if (pageTurnsInput) {
+        pageTurnsInput.value = curScheme.pageTurns ?? 0;
+        const onPageTurnsUpdate = e => {
+            const val = Math.max(0, parseInt(e.target.value, 10) || 0);
+            curScheme.pageTurns = val;
+            pageTurnsInput.value = val;
+            renderSchemeList();
+            renderConfigPreview();
+        };
+        pageTurnsInput.onchange = onPageTurnsUpdate;
+        pageTurnsInput.oninput = onPageTurnsUpdate;
+    }
+
     // 方案独立点数奖励开关（位于助战右侧）
     const rewardCheckbox = $('schemeRewardCheckbox');
     const rewardCheckboxItem = $('schemeRewardItem');
@@ -669,6 +729,9 @@ export function setupChipsDragAndDrop() {
 
 // 切换活动回合
 export function setActiveWave(waveIdx) {
+    if (typeof window.closeCardPrefPopover === 'function') {
+        window.closeCardPrefPopover();
+    }
     appState.curRoundIdx = waveIdx;
     appState.selectedStepState = null;
     renderWavesBoard();
@@ -890,6 +953,9 @@ export function setRoundAttackDOM(waveIdx, attackCards) {
 // 清除指定回合收尾出牌
 export function removeAttack(waveIdx, event) {
     if (event) event.stopPropagation();
+    if (typeof window.closeCardPrefPopover === 'function') {
+        window.closeCardPrefPopover();
+    }
     const rounds = getCurSchemeRounds();
     if (rounds[waveIdx]) {
         rounds[waveIdx].attack = [];
@@ -1101,26 +1167,33 @@ export function updateAttackPaletteHighlight(attackCards) {
             window.syncPendingAttackCards(slots);
         }
 
+        if (typeof window.renderPendingAttackBadges === 'function') {
+            window.renderPendingAttackBadges();
+            return;
+        }
+
         // 1. 清除所有出牌按钮的高亮与多序号徽标
         document.querySelectorAll('[data-attack-card]').forEach(btn => {
             btn.classList.remove('selected-attack-card');
             const container = btn.querySelector('.card-seq-badges');
             if (container) container.innerHTML = '';
+            const oldTrigger = btn.querySelector('.card-pref-trigger');
+            if (oldTrigger) oldTrigger.remove();
         });
 
-        // 2. 统计每个卡牌值命中的 slot 列表
+        // 2. 统计每个卡牌值命中的 slot 列表（支持复合 token 如 H1BAQ 映射到 H1，B123 映射到 B）
         const cardSeqMap = {};
         slots.forEach((cardCode, slotIdx) => {
             if (!cardCode) return;
             const seq = slotIdx + 1;
-            const norm = String(cardCode).trim().toUpperCase();
-            if (!cardSeqMap[norm]) cardSeqMap[norm] = [];
-            cardSeqMap[norm].push({ seq, slotIdx });
+            const baseCode = getBaseCardCode(cardCode);
+            if (!cardSeqMap[baseCode]) cardSeqMap[baseCode] = [];
+            cardSeqMap[baseCode].push({ seq, slotIdx, fullCode: cardCode });
         });
 
         // 3. 渲染各个按钮上的徽标与高亮态
-        Object.entries(cardSeqMap).forEach(([cardCode, list]) => {
-            const btn = document.querySelector(`[data-attack-card="${cardCode}"]`);
+        Object.entries(cardSeqMap).forEach(([baseCode, list]) => {
+            const btn = document.querySelector(`[data-attack-card="${baseCode}"]`);
             if (btn) {
                 btn.classList.add('selected-attack-card');
                 const container = btn.querySelector('.card-seq-badges');
@@ -1132,9 +1205,26 @@ export function updateAttackPaletteHighlight(attackCards) {
                     };
                     container.innerHTML = list.map(item => {
                         const seqText = seqLabels[item.seq] || String(item.seq);
-                        const tagTitle = formatText(TEXT_CONFIG.palette.cancelCardTagTitle, { seq: seqText, card: cardCode });
+                        const tagTitle = formatText(TEXT_CONFIG.palette.cancelCardTagTitle, { seq: seqText, card: item.fullCode || baseCode });
                         return `<span class="seq-tag seq-${item.seq}" data-remove-slot="${item.slotIdx}" title="${escapeHtml(tagTitle)}">${seqText}</span>`;
                     }).join('');
+                }
+
+                const isPrefConfigurable = ['B', 'A', 'Q', 'H1', 'H2', 'H3'].includes(baseCode);
+                if (isPrefConfigurable) {
+                    const hasCustomPref = list.some(item => item.fullCode && item.fullCode !== baseCode);
+                    const prefTrigger = document.createElement('span');
+                    prefTrigger.className = `card-pref-trigger ${hasCustomPref ? 'has-pref' : ''}`;
+                    prefTrigger.setAttribute('title', getCardPrefSummaryTooltip(baseCode, list));
+                    prefTrigger.innerHTML = hasCustomPref ? CREST_SVG_ACTIVE : CREST_SVG_DEFAULT;
+                    prefTrigger.onclick = (e) => {
+                        e.stopPropagation();
+                        e.preventDefault();
+                        if (typeof window.openCardPrefPopover === 'function') {
+                            window.openCardPrefPopover(baseCode, btn);
+                        }
+                    };
+                    btn.appendChild(prefTrigger);
                 }
             }
         });
@@ -1339,7 +1429,15 @@ export function applyStaticTexts() {
     const rowLabels = document.querySelectorAll('.picker-row-label');
     if (rowLabels[0]) rowLabels[0].textContent = TEXT_CONFIG.palette.categoryNp;
     if (rowLabels[1]) rowLabels[1].textContent = TEXT_CONFIG.palette.categoryColor;
-    if (rowLabels[2]) rowLabels[2].textContent = TEXT_CONFIG.palette.categoryNormal;
+    if (rowLabels[2]) rowLabels[2].textContent = TEXT_CONFIG.palette.categoryHero;
+    if (rowLabels[3]) rowLabels[3].textContent = TEXT_CONFIG.palette.categoryNormal;
+
+    [1, 2, 3, 4, 5].forEach(num => {
+        const btn = document.querySelector(`.card-pick-btn[data-attack-card="${num}"]`);
+        if (btn) {
+            btn.title = formatText(TEXT_CONFIG.palette.normalCardBtnTitle, { num });
+        }
+    });
 
     // 弹窗部分静态元素
     const targetModalTitle = $('targetModalTitle');

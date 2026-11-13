@@ -8,10 +8,10 @@
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
     <!-- 原生模块化样式层 (Mooncell 官方规范统一版本) -->
     <link rel="stylesheet" href="css/base.css?v=20261006_mooncell">
-    <link rel="stylesheet" href="css/layout.css?v=20261009_cancel_ready">
+    <link rel="stylesheet" href="css/layout.css?v=20261019_apple_v2">
     <link rel="stylesheet" href="css/timeline.css?v=20261006_mooncell">
     <link rel="stylesheet" href="css/modals.css?v=20261006_mooncell">
-    <link rel="stylesheet" href="css/calibration.css?v=20261006_mooncell">
+    <link rel="stylesheet" href="css/calibration.css?v=20261023_fix100">
     <link rel="stylesheet" href="css/friends.css?v=20261009_v3">
     <!-- 拖拽支持 -->
     <script src="sortable.min.js"></script>
@@ -307,16 +307,19 @@
                     <span class="runner-setting-label">🎯 选择战场:</span>
                     <select id="cfgActiveGroup" class="runner-select"></select>
                 </div>
-                <div class="runner-setting-control" title="连续自动战斗的最大轮数">
+                <div class="runner-setting-control" title="连续自动战斗的最大轮数（鼠标悬停时可滚动滚轮增减轮数，按住 Shift 步进 10）">
                     <span class="runner-setting-label">⚔️ 战斗轮数:</span>
-                    <input type="number" id="cfgBattleCount" class="runner-input-number" min="1" max="999" value="30">
+                    <input type="number" id="cfgBattleCount" class="runner-input-number" min="1" max="999" value="30" title="鼠标悬停时可滚动滚轮增减轮数（按住 Shift 步进 10）">
                     <span class="runner-setting-unit">轮</span>
                 </div>
-                <div class="runner-setting-control">
-                    <label class="runner-toggle-label" title="体力不足时是否自动吃苹果补充（默认关）">
-                        <input type="checkbox" id="cfgAppleEnable" class="runner-checkbox">
-                        <span class="runner-toggle-text">🍎 自动吃苹果</span>
-                    </label>
+                <div class="runner-setting-control runner-apple-control" title="体力不足时是否自动吃苹果补充：默认不吃，中间银苹果，右边金苹果">
+                    <span class="runner-setting-label">🍎 吃苹果:</span>
+                    <div class="runner-apple-switcher" id="cfgAppleSwitcher" role="radiogroup" aria-label="自动吃苹果设置">
+                        <button type="button" class="runner-apple-opt active" data-val="0" title="不吃苹果（AP不足时停机并保留弹窗）">不吃</button>
+                        <button type="button" class="runner-apple-opt" data-val="1" title="补充体力：优先吃第3个白银果实（回复50%体力）">银苹果</button>
+                        <button type="button" class="runner-apple-opt" data-val="2" title="补充体力：吃第2个黄金果实（回复100%体力）">金苹果</button>
+                    </div>
+                    <input type="hidden" id="cfgAppleEnable" value="0">
                 </div>
                 <div class="runner-setting-control">
                     <label class="runner-toggle-label" title="开启后跳过助战特征识别，等待玩家人工选择（默认关）">
@@ -329,6 +332,24 @@
                         <input type="checkbox" id="cfgForceColorCard" class="runner-checkbox">
                         <span class="runner-toggle-text">🎨 强制对应色卡</span>
                     </label>
+                </div>
+                <div class="runner-setting-control runner-debug-dropdown-wrap" id="runnerDebugDropdownWrap">
+                    <button type="button" class="runner-debug-btn" id="runnerDebugDropdownBtn" title="点击展开/收起调试选项（调试截图、助战调试）">
+                        <span class="runner-debug-icon">🐞</span>
+                        <span class="runner-debug-title" id="runnerDebugSummary">调试功能</span>
+                        <span class="runner-debug-badge" id="runnerDebugBadge" style="display:none;">0</span>
+                        <span class="runner-debug-arrow">▾</span>
+                    </button>
+                    <div class="runner-debug-menu" id="runnerDebugMenu" style="display:none;">
+                        <label class="runner-debug-item" title="是否在关键场景（如从者宝具提取特征）自动保存全屏调试截图（默认关）">
+                            <input type="checkbox" id="cfgDebugScreenshot" class="runner-checkbox">
+                            <span class="runner-debug-item-text">📸 调试截图</span>
+                        </label>
+                        <label class="runner-debug-item" title="开启后仅执行助战选择与翻页测试，选定助战后不进入战斗直接结束（若开启人工选助战则不生效）">
+                            <input type="checkbox" id="cfgDebugFriendOnly" class="runner-checkbox">
+                            <span class="runner-debug-item-text">👥 助战调试 (仅选助战)</span>
+                        </label>
+                    </div>
                 </div>
             </div>
         </div>
@@ -382,6 +403,10 @@
                         <div class="item">
                             <span>助战:</span>
                             <select id="schemeFriendSelect" style="width:150px; cursor:pointer;"></select>
+                        </div>
+                        <div class="item" title="当前页面未找到指定助战时，通过右侧滚动条向下翻页查找的最大次数（默认0不翻页，每次翻动正好2个完整助战卡片；悬停时可使用滚轮快速增减）">
+                            <span>翻页数:</span>
+                            <input type="number" id="schemePageTurnsInput" min="0" max="10" step="1" value="0" title="悬停时滚轮快速增减（按住 Shift 步进 10）" style="width:52px; height:24px; text-align:center; padding:2px 4px; border:1px solid var(--line); border-radius:4px; font-size:12px; background:var(--bg-card); color:var(--text-main);">
                         </div>
                         <label class="checkbox-item" id="schemeRewardItem" title="当前方案结算时是否自动执行活动点数领取（默认关）">
                             <input type="checkbox" id="schemeRewardCheckbox">
@@ -641,7 +666,17 @@
                                     </div>
                                 </div>
 
-                                <!-- 手牌固定位置卡 -->
+                                <!-- 智能优先从者卡 (可多次点击/连续选择) -->
+                                <div class="picker-row">
+                                    <span class="picker-row-label">⚔️ 从者</span>
+                                    <div class="picker-row-btns hero-grid">
+                                        <button class="card-pick-btn hero" data-attack-card="H1" title="优先从者 1 (打手手卡 · 可多次连选)"><span class="card-seq-badges"></span>⚔️ 从者 1</button>
+                                        <button class="card-pick-btn hero" data-attack-card="H2" title="优先从者 2 (副C手卡 · 可多次连选)"><span class="card-seq-badges"></span>⚔️ 从者 2</button>
+                                        <button class="card-pick-btn hero" data-attack-card="H3" title="优先从者 3 (辅助手卡 · 可多次连选)"><span class="card-seq-badges"></span>⚔️ 从者 3</button>
+                                    </div>
+                                </div>
+
+                                <!-- 固定顺位普攻卡 (1-5号位手卡) -->
                                 <div class="picker-row">
                                     <span class="picker-row-label">🃏 普攻</span>
                                     <div class="picker-row-btns normal-grid">
@@ -672,9 +707,9 @@
 
             <!-- 运行参数栏 -->
             <div class="extra-settings-bar">
-                <div class="extra-setting-item">
+                <div class="extra-setting-item" title="当前后勤方案执行的循环次数（鼠标悬停时可滚动滚轮增减次数，按住 Shift 步进 10）">
                     <span class="extra-setting-label">🔢 执行次数:</span>
-                    <input type="number" id="cfgExtraActionCount" class="extra-input-number" min="1" max="999" value="30">
+                    <input type="number" id="cfgExtraActionCount" class="extra-input-number" min="1" max="999" value="30" title="鼠标悬停时可滚动滚轮增减次数（按住 Shift 步进 10）">
                     <div class="quick-count-chips">
                         <button class="quick-chip" id="chipCount10">10次</button>
                         <button class="quick-chip" id="chipCount30">30次</button>
@@ -998,7 +1033,9 @@
                     <!-- 第二部分：截屏 与 核心动作 (紧贴画面上方) -->
                     <div class="cal-toolbar-row cal-toolbar-primary">
                         <div class="cal-toolbar-group cal-group-left">
-                            <button class="cal-btn primary" id="calBtnCapture" title="从当前选中的模拟器抓取画面 (快捷键: F8 / 空格)">📸 截取当前画面</button>
+                            <button class="cal-btn primary cal-btn-icon" id="calBtnCapture" title="截取当前画面 (快捷键: F8 / 空格)">📸</button>
+                            <button class="cal-btn cal-btn-icon" id="calBtnLoadImage" title="从文件夹读取图片 (记忆上次打开位置)">📁</button>
+                            <input type="file" id="calFileInput" accept="image/png,image/jpeg,image/webp,image/bmp" style="display: none;">
                             <span class="cal-badge" id="calScreenBadge">尚未抓屏</span>
                         </div>
                         <div class="cal-toolbar-group cal-group-right">
@@ -1008,15 +1045,27 @@
                         </div>
                     </div>
                 </div>
-                <div class="cal-canvas-wrapper">
-                    <canvas id="calScreenCanvas"></canvas>
+                <div class="cal-canvas-wrapper" id="calCanvasWrapper">
+                    <div class="cal-viewport-frame" id="calViewportFrame">
+                        <canvas id="calScreenCanvas"></canvas>
+                    </div>
+                    <div class="cal-zoom-toolbar" id="calZoomToolbar">
+                        <button type="button" class="cal-zoom-btn" id="calBtnZoomOut" title="缩小画面 (快捷键: 滚轮向下)">−</button>
+                        <button type="button" class="cal-zoom-btn cal-zoom-val" id="calBtnZoomReset" title="点击在 100% 原始尺寸 与 适应外框 间切换">100%</button>
+                        <button type="button" class="cal-zoom-btn" id="calBtnZoomIn" title="放大画面 (快捷键: 滚轮向上)">+</button>
+                        <button type="button" class="cal-zoom-btn cal-zoom-fit" id="calBtnZoomFit" title="自适应外框大小">⛶ 适应</button>
+                        <div class="cal-zoom-divider"></div>
+                        <span class="cal-zoom-hint" id="calZoomHint" title="按住空格键并点击鼠标左键拖动画布，可在放大时平移浏览画面">⌨ 空格+拖拽</span>
+                        <span class="cal-zoom-hint" id="calArrowHint" title="选中选区时按方向键 ↑ ↓ ← → 微调 1px，按住 Shift 微调 10px">⌨ 方向键微调</span>
+                    </div>
                     <div class="cal-canvas-empty-state" id="calEmptyState">
                         <span class="cal-empty-icon">📱</span>
-                        <span class="cal-empty-title">请先点击上方「📸 截取当前画面」加载模拟器屏幕</span>
+                        <span class="cal-empty-title">请点击上方「📸 截屏」或「📁 打开图片」加载屏幕</span>
                         <div class="cal-empty-sub">
                             <span class="cal-hint-badge">🟩 截图选区</span>
                             <span class="cal-hint-badge">🟦 匹配范围</span>
                             <span class="cal-hint-badge">🖱️ 拖拽/框选: 调整范围</span>
+                            <span class="cal-hint-badge">⌨️ 方向键: 微调选区(Shift+10px)</span>
                         </div>
                     </div>
                 </div>
@@ -1041,7 +1090,7 @@
                 <!-- 截图裁切范围卡片 (绿色) -->
                 <div class="cal-card cal-card-crop active-mode">
                     <div class="cal-card-title cal-card-header-flex">
-                        <div class="cal-card-title-left" title="点击设为当前编辑目标">
+                        <div class="cal-card-title-left" title="点击切换当前编辑目标">
                             <span class="cal-card-title-text" style="color:var(--quick, #4ea824);">✂️ 截图选区</span>
                             <span id="calCropSizeBadge" class="cal-badge" style="color:var(--quick, #4ea824); border-color:var(--green, #b9e66b); background:var(--lightgreen, #f9ffea);">未预设</span>
                         </div>
@@ -1050,7 +1099,7 @@
                                 <span class="cal-opt-dot green"></span>
                                 <span class="cal-opt-text">显示</span>
                             </button>
-                            <button type="button" class="cal-opt-btn btn-edit is-active" id="btnEditCrop" title="当前已选为编辑目标（可在画面中拖拽调整）">
+                            <button type="button" class="cal-opt-btn btn-edit is-active" id="btnEditCrop" title="当前已勾选为编辑目标（可在画面中拖拽调整），点击取消编辑">
                                 <svg class="cal-opt-check" viewBox="0 0 16 16" width="12" height="12">
                                     <rect class="cal-check-bg" x="1.5" y="1.5" width="13" height="13" rx="3"/>
                                     <path class="cal-check-tick" d="M4.5 8.2L7 10.7L12 4.8" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -1083,7 +1132,7 @@
                 <!-- 运行时匹配范围卡片 (蓝色) -->
                 <div class="cal-card cal-card-search">
                     <div class="cal-card-title cal-card-header-flex">
-                        <div class="cal-card-title-left" title="点击设为当前编辑目标">
+                        <div class="cal-card-title-left" title="点击切换当前编辑目标">
                             <span class="cal-card-title-text" style="color:var(--darkblue, #4487df);">🔍 匹配范围</span>
                             <span id="calSearchSizeBadge" class="cal-badge" style="color:var(--darkblue, #4487df); border-color:var(--blue, #85c1f7); background:var(--lightblue, #ebf7fe);">-</span>
                         </div>
@@ -1092,7 +1141,7 @@
                                 <span class="cal-opt-dot blue"></span>
                                 <span class="cal-opt-text">显示</span>
                             </button>
-                            <button type="button" class="cal-opt-btn btn-edit" id="btnEditSearch" title="点击设为当前编辑目标">
+                            <button type="button" class="cal-opt-btn btn-edit" id="btnEditSearch" title="点击勾选为编辑目标（勾选后可在画面中拖拽调整）">
                                 <svg class="cal-opt-check" viewBox="0 0 16 16" width="12" height="12">
                                     <rect class="cal-check-bg" x="1.5" y="1.5" width="13" height="13" rx="3"/>
                                     <path class="cal-check-tick" d="M4.5 8.2L7 10.7L12 4.8" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -1158,9 +1207,9 @@
             <h4 id="targetModalTitle">选择技能作用目标</h4>
             <div class="modal-options">
                 <button class="modal-opt-btn" data-target-val="0">⚡ 无目标 / 自身</button>
-                <button class="modal-opt-btn" data-target-val="1">👤 从者 1</button>
-                <button class="modal-opt-btn" data-target-val="2">👤 从者 2</button>
-                <button class="modal-opt-btn" data-target-val="3">👤 从者 3</button>
+                <button class="modal-opt-btn" data-target-val="1">⚔️ 从者 1</button>
+                <button class="modal-opt-btn" data-target-val="2">⚔️ 从者 2</button>
+                <button class="modal-opt-btn" data-target-val="3">⚔️ 从者 3</button>
             </div>
             <button class="button quiet" style="align-self:center; margin-top:4px;" onclick="window.closeModal()">取消</button>
         </div>
@@ -1182,6 +1231,29 @@
                     <button class="button quiet" onclick="window.closeModal()">取消</button>
                     <button class="button primary" id="editStepSaveBtn" onclick="window.saveEditingStep()">保存修改</button>
                 </div>
+            </div>
+        </div>
+    </div>
+    <!-- 卡牌偏好微型气泡浮层 (Attack Preference Popover) -->
+    <div id="attackPrefPopover" class="attack-pref-popover"></div>
+
+    <!-- 回合出牌倾向配置弹窗 (Attack Priority Modal) -->
+    <div class="modal-overlay" id="attackPriorityModal">
+        <div class="modal-card attack-priority-card">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+                <h4 id="attackPriorityModalTitle" style="margin:0;">⚙️ 回合出牌高级倾向</h4>
+                <button class="button quiet" onclick="window.closeModal()" style="padding:2px 8px; font-size:12px;">✕</button>
+            </div>
+            <p style="font-size:12px; color:var(--text-muted); margin:0;">仅针对已选的<b>色卡</b>（可配置从者优先）与<b>从者卡</b>（可配置色卡优先）提供定向修饰：</p>
+            <div id="attackPriorityModalBody" style="display:flex; flex-direction:column; gap:10px; margin-top:4px;">
+                <!-- 动态填充 3 个出卡槽位的偏好配置 -->
+            </div>
+            <div style="margin-top:6px; padding:8px 12px; background:var(--bg-base); border:1px solid var(--line-light); border-radius:6px; font-size:12px; color:var(--text-muted); display:flex; justify-content:space-between; align-items:center;">
+                <span>预览 DSL: <code id="attackPriorityPreviewDsl" style="color:var(--darkblue); font-weight:700;">a6, B, B</code></span>
+            </div>
+            <div style="display:flex; justify-content:flex-end; gap:8px; margin-top:6px;">
+                <button class="button quiet" onclick="window.closeModal()">取消</button>
+                <button class="button primary" id="attackPrioritySaveBtn" onclick="window.saveAttackPriorityModal()">保存偏好</button>
             </div>
         </div>
     </div>
@@ -1292,9 +1364,9 @@
     <div class="toast" id="toast"></div>
 
     <!-- 原生 ES 模块主入口 -->
-    <script src="js/calibration.js?v=20261009_v4"></script>
+    <script src="js/calibration.js?v=20261023_arrownudge"></script>
     <script type="module" src="js/friends.js?v=20261009_v8"></script>
-    <script type="module" src="js/main.js?v=20261009_v8"></script>
+    <script type="module" src="js/main.js?v=20261019_apple_v2"></script>
 </body>
 
 </html>

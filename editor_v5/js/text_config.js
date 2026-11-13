@@ -49,11 +49,13 @@ export const TEXT_CONFIG = {
         battleCountLabel: "⚔️ 战斗轮数",
         battleCountTitle: "连续自动战斗的最大轮数",
         appleEnableLabel: "🍎 吃苹果补体力",
-        appleEnableTitle: "体力不足时是否自动吃苹果补充（默认关）",
+        appleEnableTitle: "体力不足时是否自动吃苹果补充：默认不吃，中间银苹果，右边金苹果",
         manualFriendLabel: "🤝 人工选助战",
         manualFriendTitle: "开启后跳过助战特征识别，等待玩家人工选择（默认关）",
         forceColorLabel: "🎨 强制选色卡",
-        forceColorTitle: "是否强制选择指令指定的色卡（红/蓝/绿）（默认关）"
+        forceColorTitle: "是否强制选择指令指定的色卡（红/蓝/绿）（默认关）",
+        debugScreenshotLabel: "📸 调试截图",
+        debugScreenshotTitle: "是否在关键场景（如从者宝具提取特征）自动保存全屏调试截图（默认关）"
     },
 
     // 2. 战场选项卡与设置 (Group Tabs & Info)
@@ -205,6 +207,7 @@ export const TEXT_CONFIG = {
         resetAttackToast: "已清空当前选卡",
         categoryNp: "👑 宝具",
         categoryColor: "🎨 色卡",
+        categoryHero: "⚔️ 从者",
         categoryNormal: "🃏 普攻",
 
         np1Btn: "👑 宝具 1",
@@ -220,6 +223,16 @@ export const TEXT_CONFIG = {
         colorArtsBtnTitle: "智能优先选择蓝卡 (Arts · 可多次连选)",
         colorQuickBtn: "🟢 绿卡 (Q)",
         colorQuickBtnTitle: "智能优先选择绿卡 (Quick · 可多次连选)",
+
+        hero1Btn: "⚔️ 从者 1",
+        hero1BtnTitle: "优先从者 1 (打手手卡 · 可多次连选)",
+        hero2Btn: "⚔️ 从者 2",
+        hero2BtnTitle: "优先从者 2 (副C手卡 · 可多次连选)",
+        hero3Btn: "⚔️ 从者 3",
+        hero3BtnTitle: "优先从者 3 (辅助手卡 · 可多次连选)",
+
+        btnOpenAttackAdv: "⚙️ 偏好",
+        btnOpenAttackAdvTitle: "为当前出卡配置从者或色卡次级偏好",
 
         normalCardBtn: "第 {num} 张",
         normalCardBtnTitle: "发牌第 {num} 张",
@@ -247,9 +260,9 @@ export const TEXT_CONFIG = {
         targetModal: {
             title: "选择技能作用目标",
             optSelf: "⚡ 无目标 / 自身",
-            optServant1: "👤 从者 1",
-            optServant2: "👤 从者 2",
-            optServant3: "👤 从者 3",
+            optServant1: "⚔️ 从者 1",
+            optServant2: "⚔️ 从者 2",
+            optServant3: "⚔️ 从者 3",
             addSkillToast: "⚔️ Wave {wave} 已添加从者技能",
             addMasterToast: "👔 Wave {wave} 已添加御主技能"
         },
@@ -267,7 +280,7 @@ export const TEXT_CONFIG = {
             labelTarget: "选择作用目标：",
             targetSelf: "⚡ 无/自身",
             targetNone: "⚡ 无目标",
-            targetServant: "👤 从者 {target}",
+            targetServant: "⚔️ 从者 {target}",
             labelMasterSkill: "选择御主技能：",
             masterSkillBtn: "👔 技能 {id}",
             labelSwapMasterSkill: "触发换人的御主技能：",
@@ -313,6 +326,14 @@ export const TEXT_CONFIG = {
             clipboardEmptyOrInvalid: "⚠️ 剪贴板中未检测到有效的 DSL 动作脚本",
             importNewSuccessToast: "✅ 已将 DSL 导入为新方案 {count}（共 {rounds} 个回合）",
             overwriteSuccessToast: "✅ 已成功覆盖方案 {index}（共 {rounds} 个回合）"
+        },
+
+        // 回合出牌倾向配置弹窗 (#attackPriorityModal)
+        attackPriorityModal: {
+            title: "⚙️ Wave {wave} 出牌高级倾向",
+            desc: "仅针对已选的色卡与从者卡提供定向修饰：",
+            npFixedHint: "👑 宝具卡固定释放对应从者宝具，无需额外倾向配置。",
+            normalFixedHint: "🃏 固定位置普攻卡按固定位置出牌，无需倾向配置。"
         }
     },
 
@@ -341,6 +362,12 @@ export const TEXT_CONFIG = {
         busterPlain: "红卡",
         artsPlain: "蓝卡",
         quickPlain: "绿卡",
+        hero1Badge: "⚔️ 从1",
+        hero2Badge: "⚔️ 从2",
+        hero3Badge: "⚔️ 从3",
+        hero1Plain: "从者1",
+        hero2Plain: "从者2",
+        hero3Plain: "从者3",
         normalBadge: "🃏 普{num}",
         normalPlain: "普{num}",
         cardInfoLabels: {
@@ -350,6 +377,9 @@ export const TEXT_CONFIG = {
             'B': { label: '🔴 红卡 (B)', color: '#f87171' },
             'A': { label: '🔵 蓝卡 (A)', color: '#60a5fa' },
             'Q': { label: '🟢 绿卡 (Q)', color: 'var(--quick)' },
+            'H1': { label: '⚔️ 从者 1', color: 'var(--darkpurple)' },
+            'H2': { label: '⚔️ 从者 2', color: 'var(--darkpurple)' },
+            'H3': { label: '⚔️ 从者 3', color: 'var(--darkpurple)' },
             '1': { label: '🃏 普 1 (1)', color: 'var(--text-main)' },
             '2': { label: '🃏 普 2 (2)', color: 'var(--text-main)' },
             '3': { label: '🃏 普 3 (3)', color: 'var(--text-main)' },

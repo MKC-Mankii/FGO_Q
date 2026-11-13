@@ -31,8 +31,9 @@ FGO_Q/
 │   └── index.html          # 编辑器前端主界面 (时序看板 + 标定工坊)
 ├── docs/                   # 详细架构设计与权威指南
 │   ├── editor_ui_design_spec.md        # V5 前端视觉与交互设计规范 (Mooncell 规范)
-│   ├── battle_v5_runner_config.md      # V5 架构权威指南与全解耦标定体系
-│   ├── fgo_v5_execution_proposals.md   # V5 架构演进全量技术提案
+│   ├── editor_sync_mechanism.md        # Editor V5 全链路同步机制与架构设计规范
+│   ├── battle_v5_runner_config.md      # V5 架构权威指南 (含全解耦标定、长链出牌与动态宝具识别)
+│   ├── fgo_game_mechanics.md           # FGO 游戏底层机制与图像识别工程规范
 │   └── tools_and_runtime_architecture.md # 底层工具体系与运行机制解析
 ├── archive/                # 历史版本与过往脚本资源归档
 │   ├── Q/                  # V2/V3/V4 及历史关卡脚本归档 (60+ 份历史脚本)
@@ -65,8 +66,9 @@ FGO_Q/
 想要深入了解系统设计细节、通信总线或排查故障，请参阅：
 
 - [🎨 V5 前端视觉与交互设计规范 (Mooncell Design System)](file:///f:/2nd%20Accra/Git/Github/FGO_Q/docs/editor_ui_design_spec.md)：深入拆解 Mooncell (fgo.wiki) 官方设计基因、Design Tokens 色彩系统、各主视图与组件设计规范以及后续开发避坑红线。
-- [🚀 V5 权威指南与全解耦标定体系](file:///f:/2nd%20Accra/Git/Github/FGO_Q/docs/battle_v5_runner_config.md)：涵盖 V5 视觉目标与点击坐标全解耦、标定工坊（Calibration Studio）使用说明、图片外部热替换、模拟器直推同步与完整键位表。
-- [📖 V5 架构演进全量技术提案](file:///f:/2nd%20Accra/Git/Github/FGO_Q/docs/fgo_v5_execution_proposals.md)：包含坐标解耦、视口黑边探测算法与双通道同步流水线的技术推演与实现全貌。
+- [🔄 Editor V5 全链路同步机制与架构设计规范](file:///f:/2nd%20Accra/Git/Github/FGO_Q/docs/editor_sync_mechanism.md)：详述 PC 本地端、Python 后端、PC 助手与模拟器运行时之间的直推、心跳自动补推、冷启动全量部署与格式保护设计。
+- [🚀 V5 权威指南与全解耦标定体系](file:///f:/2nd%20Accra/Git/Github/FGO_Q/docs/battle_v5_runner_config.md)：涵盖 V5 视觉目标与点击坐标全解耦、长链出牌偏好定制与动态宝具卡头像零资产识别（[第 6 章](file:///f:/2nd%20Accra/Git/Github/FGO_Q/docs/battle_v5_runner_config.md#6-出牌偏好定制长链优先级与动态宝具识别机制)）、标定工坊（Calibration Studio）使用说明、图片外部热替换、模拟器直推同步与完整键位表。
+- [⚔️ FGO 游戏底层机制与图像识别工程规范](file:///f:/2nd%20Accra/Git/Github/FGO_Q/docs/fgo_game_mechanics.md)：系统归档 NP 满充显隐、宝具流光蒙层、手牌呼吸微浮动、暴击星分配与出牌硬性规则的底层特性及工程应对。
 - [🛠️ 运行工具体系与底层架构说明](file:///F:/2nd%20Accra/Git/Github/FGO_Q/docs/tools_and_runtime_architecture.md)：深入解析 PC 助手、ADB 桥接、安卓模拟器与移动端按键精灵的底层机制与避坑规范。
 - [📦 V4 权威指南与 DSL 语法规范 (历史归档)](file:///F:/2nd%20Accra/Git/Github/FGO_Q/archive/doc/battle_v4_runner_config.md)：涵盖解耦哲学、多端直推、双向总线协议、内存热重载、DSL 完整语法及常见问题排查。
 - [📦 历史归档资产](file:///F:/2nd%20Accra/Git/Github/FGO_Q/archive)：查阅过往 V2/V3/V4 文档、早期编辑器与往期活动关卡脚本留存。

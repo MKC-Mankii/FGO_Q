@@ -29,3 +29,7 @@ scratch/
 # Device runtime cache
 .selected_device.json
 **/.selected_device.json
+
+# Local temporary reference screenshots
+images/shootscreen_1440/
+shootscreen_1440/

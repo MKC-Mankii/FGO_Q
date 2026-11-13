@@ -43,6 +43,21 @@ export function extractDslFromText(text) {
     return hasDslSignature ? str : '';
 }
 
+// 获取卡牌基础代码（用于映射调色板按钮与序号高亮：如 H1BAQ -> H1, H1B!>H1>H3 -> H1, B!>B -> B, 6 -> 6）
+export function getBaseCardCode(token) {
+    if (!token) return '';
+    let str = String(token).trim().toUpperCase();
+    if (str.startsWith('!')) str = str.slice(1);
+    const firstAtom = str.split('>')[0].trim();
+    if (/^H[123]/.test(firstAtom)) {
+        return firstAtom.slice(0, 2);
+    }
+    if (/^[BAQ]/.test(firstAtom)) {
+        return firstAtom[0];
+    }
+    return firstAtom;
+}
+
 // 将单回合 DSL 字符串 (如 "s20, 30 | m22 | a7, 8, 5") 解析为结构化对象:
 // { steps: [ {type:'skill', code:20}, ...], attack: ['7','4','5'] }
 export function parseRoundDsl(roundDslStr) {
@@ -58,8 +73,8 @@ export function parseRoundDsl(roundDslStr) {
         const prefix = first[0]?.toLowerCase();
 
         if (prefix === 'a') {
-            // 出牌阶段 (例如 a1,2,3 或 a 1, 2, 3 或 a, 1, 2, 3)
-            const normCard = c => (['b', 'a', 'q'].includes(c.toLowerCase()) ? c.toUpperCase() : c);
+            // 出牌阶段 (例如 a1,2,3 或 a 1, 2, 3 或 a, 1, 2, 3 或 a6, H1BAQ, B12)
+            const normCard = c => String(c).trim().toUpperCase();
             let cards = [];
             const firstVal = first.slice(1).trim();
             if (firstVal) {
@@ -191,9 +206,11 @@ export function generateConfigText(stateData) {
     const runMode = (typeof es.runMode === 'number') ? es.runMode : 0;
     const activeGroup = (typeof rs.activeGroup === 'number' && !isNaN(rs.activeGroup)) ? rs.activeGroup : 3;
     const battleCount = (typeof rs.battleCount === 'number' && !isNaN(rs.battleCount) && rs.battleCount > 0) ? rs.battleCount : 30;
-    const appleEnable = rs.appleEnable ? 1 : 0;
+    const appleEnable = (typeof rs.appleEnable === 'number' && !isNaN(rs.appleEnable)) ? rs.appleEnable : (rs.appleEnable ? 1 : 0);
     const manualChooseFriend = rs.manualChooseFriend ? 1 : 0;
     const forceColorCard = rs.forceColorCard ? 1 : 0;
+    const debugScreenshotEnable = rs.debugScreenshotEnable ? 1 : 0;
+    const debugFriendOnly = rs.debugFriendOnly ? 1 : 0;
     const extraActionCount = (typeof es.actionCount === 'number' && es.actionCount > 0) ? es.actionCount : 30;
     const extraSkillMaxLevel = (typeof es.skillMaxLevel === 'number') ? es.skillMaxLevel : 9;
     const extraSkillAutoThree = (typeof es.skillAutoThree === 'number') ? es.skillAutoThree : 1;
@@ -217,9 +234,11 @@ export function generateConfigText(stateData) {
         `Dim RUN_MODE = ${runMode}  ' 当前运行主模式: 0=战术战斗(Battle), 1=Extra辅助(Extra)`,
         `Dim ACTION_GROUP_INDEX = ${activeGroup}  ' 当前生效大组: 0=test, 1=campaign, 2=caber, 3=grand, 4=ordeal`,
         `Dim BATTLE_COUNT = ${battleCount}  ' 连续战斗次数`,
-        `Dim APPLE_ENABLE = ${appleEnable}  ' 是否吃苹果补充体力 (0=关, 1=开)`,
+        `Dim APPLE_ENABLE = ${appleEnable}  ' 是否吃苹果补充体力 (0=关/不吃, 1=银苹果, 2=金苹果)`,
         `Dim MANUAL_CHOOSE_FRIEND = ${manualChooseFriend}  ' 是否人工选助战 (0=自动找图, 1=人工选择)`,
         `Dim FORCE_COLOR_CARD = ${forceColorCard}  ' 是否强制选择对应色卡 (0=关, 1=开)`,
+        `Dim DEBUG_SCREENSHOT_ENABLE = ${debugScreenshotEnable}  ' 是否保存调试截屏 (0=关, 1=开)`,
+        `Dim DEBUG_FRIEND_ONLY = ${debugFriendOnly}  ' 助战调试模式: 仅选助战不进战斗 (0=关, 1=开)`, 
         "",
         "' --- Extra 辅助运行配置 ---",
         `Dim EXTRA_ACTION_COUNT = ${extraActionCount}  ' Extra 连续执行次数上限`,
@@ -233,6 +252,8 @@ export function generateConfigText(stateData) {
         `Dim MANUAL_BATTLE_COUNT = ${battleCount}`,
         `Dim MANUAL_APPLE_ENABLE = ${appleEnable}`,
         `Dim MANUAL_FORCE_COLOR_CARD = ${forceColorCard}`,
+        `Dim MANUAL_DEBUG_SCREENSHOT_ENABLE = ${debugScreenshotEnable}`,
+        `Dim MANUAL_DEBUG_FRIEND_ONLY = ${debugFriendOnly}`, 
         `Dim EXTRA_ENABLE = ${runMode}`,
         "Dim ACTIVITY_REWARD = 0"
     ];
@@ -258,6 +279,7 @@ export function generateConfigText(stateData) {
             }
             out.push(`Dim ACTIVITY_REWARD_G${gNum}_${sNum} = ${s.activityReward ? 1 : 0}`);
             out.push(`Dim FRIEND_G${gNum}_${sNum} = "${s.friend || ''}"`);
+            out.push(`Dim PAGE_TURNS_G${gNum}_${sNum} = ${s.pageTurns ?? 0}`);
             out.push(`Dim DSL_G${gNum}_${sNum} = "${dsl}"`);
         });
     });
@@ -299,7 +321,9 @@ export function generateConfigText(stateData) {
     }
 
     if (stateData.targetsConfigBlock && stateData.targetsConfigBlock.trim().length > 0) {
-        out.push(stateData.targetsConfigBlock.trim());
+        let blockText = stateData.targetsConfigBlock.trim();
+        blockText = blockText.replace(/Dim\s+PREPARE_FRIEND_SCROLLBAR_BASE_Y\s*=\s*\d+/i, 'Dim PREPARE_FRIEND_SCROLLBAR_BASE_Y = 265');
+        out.push(blockText);
         out.push("");
     }
 
@@ -389,6 +413,16 @@ export function parseConfigFileText(text, stateData) {
         stateData.runnerSettings.forceColorCard = Number(forceColorVal);
     }
 
+    const debugScreenshotVal = getVal('DEBUG_SCREENSHOT_ENABLE') || getVal('MANUAL_DEBUG_SCREENSHOT_ENABLE') || getVal('DEBUG_ENABLE');
+    if (debugScreenshotVal !== '' && !isNaN(Number(debugScreenshotVal))) {
+        stateData.runnerSettings.debugScreenshotEnable = Number(debugScreenshotVal);
+    }
+
+    const debugFriendVal = getVal('DEBUG_FRIEND_ONLY') || getVal('MANUAL_DEBUG_FRIEND_ONLY');
+    if (debugFriendVal !== '' && !isNaN(Number(debugFriendVal))) {
+        stateData.runnerSettings.debugFriendOnly = Number(debugFriendVal);
+    }
+
     stateData.groups.forEach(g => {
         const gNum = g.groupId;
         const def = getVal(`ACTION_ROUND_INDEX_G${gNum}`);
@@ -410,7 +444,9 @@ export function parseConfigFileText(text, stateData) {
             const dsl = getVal(`DSL_G${gNum}_${sNum}`) || getVal(`TEST_DSL_G${gNum}_${sNum}`) || (gNum === 0 ? getVal(`TEST_DSL_${sNum}`) : '');
             const schemeRew = getVal(`ACTIVITY_REWARD_G${gNum}_${sNum}`);
             const actReward = (schemeRew !== '') ? Number(schemeRew) : (g.activityReward ?? 0);
-            const nameMatch = text.match(new RegExp(`'\\s*(?:方案|Scheme)\\s*${sNum}\\s*[:：]\\s*([^\\r\\n]+)[\\r\\n]+(?:Dim\\s+ACTIVITY_REWARD_G${gNum}_${sNum}|Dim\\s+FRIEND_G${gNum}_${sNum}|Dim\\s+DSL_G${gNum}_${sNum})`, 'i'));
+            const pageTurnsRaw = getVal(`PAGE_TURNS_G${gNum}_${sNum}`);
+            const pageTurns = (pageTurnsRaw !== '' && !isNaN(Number(pageTurnsRaw))) ? Math.max(0, parseInt(pageTurnsRaw, 10)) : 0;
+            const nameMatch = text.match(new RegExp(`'\\s*(?:方案|Scheme)\\s*${sNum}\\s*[:：]\\s*([^\\r\\n]+)[\\r\\n]+(?:Dim\\s+ACTIVITY_REWARD_G${gNum}_${sNum}|Dim\\s+FRIEND_G${gNum}_${sNum}|Dim\\s+PAGE_TURNS_G${gNum}_${sNum}|Dim\\s+DSL_G${gNum}_${sNum})`, 'i'));
             const schemeName = nameMatch ? nameMatch[1].trim() : '';
             if (dsl || (gNum === 0 && sNum <= 3) || sNum <= g.schemes.length) {
                 if (dsl) {
@@ -428,6 +464,7 @@ export function parseConfigFileText(text, stateData) {
                     parsedSchemes.push({
                         name: schemeName || fr || '',
                         friend: fr,
+                        pageTurns: pageTurns,
                         dsl: normalizedDsl,
                         _parsedRounds: parsedRounds,
                         activityReward: actReward
@@ -460,6 +497,9 @@ export function parseConfigFileText(text, stateData) {
         if (markerIdx !== -1) {
             stateData.targetsConfigBlock = text.substring(markerIdx).trim();
         }
+    }
+    if (stateData.targetsConfigBlock) {
+        stateData.targetsConfigBlock = stateData.targetsConfigBlock.replace(/Dim\s+PREPARE_FRIEND_SCROLLBAR_BASE_Y\s*=\s*\d+/i, 'Dim PREPARE_FRIEND_SCROLLBAR_BASE_Y = 265');
     }
 }
 

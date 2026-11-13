@@ -754,4 +754,10 @@ window.friendsModule = {
     updateDeleteButtonState
 };
 
+// 监听标定工坊保存事件，自动无感同步最新图片与助战状态
+window.addEventListener('calibration-targets-updated', () => {
+    loadFriends().catch(e => console.warn('Failed to auto-reload friends after calibration:', e));
+});
+
+
 

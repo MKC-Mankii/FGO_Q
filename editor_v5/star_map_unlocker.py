@@ -80,6 +80,12 @@ _star_map_progress = {
 
 
 def get_star_map_progress():
+    try:
+        for _m in list(sys.modules.values()):
+            if _m and hasattr(_m, 'check_and_reload_adb_sync'):
+                _m.check_and_reload_adb_sync()
+    except Exception:
+        pass
     with _star_map_lock:
         return dict(_star_map_progress)
 

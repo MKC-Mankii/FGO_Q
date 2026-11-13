@@ -35,6 +35,148 @@ APP_URL = f"http://127.0.0.1:{PORT}"
 # 全局原生窗口引用
 CURRENT_WINDOW = None
 
+# 单例互斥锁句柄引用（防止被 Python GC 释放）
+_SINGLE_INSTANCE_MUTEX = None
+
+class RECT(ctypes.Structure):
+    _fields_ = [
+        ('left', ctypes.c_long),
+        ('top', ctypes.c_long),
+        ('right', ctypes.c_long),
+        ('bottom', ctypes.c_long)
+    ]
+
+class POINT(ctypes.Structure):
+    _fields_ = [
+        ('x', ctypes.c_long),
+        ('y', ctypes.c_long)
+    ]
+
+def ensure_window_within_active_monitors(hwnd):
+    """
+    多屏越界自愈机制：
+    检测指定窗口是否落在当前任意一个活动的物理/虚拟监视器可视范围内。
+    当用户拔掉副屏或关闭副显示器电源时，Windows 常将窗口遗留在已断开的旧坐标区间。
+    若检测到完全脱离活动显示器或标题栏不可触达，自动将窗口安全拉回主显示器工作区并居中。
+    """
+    try:
+        user32 = ctypes.windll.user32
+        if not user32.IsWindow(hwnd):
+            return False
+
+        rect = RECT()
+        if not user32.GetWindowRect(hwnd, ctypes.byref(rect)):
+            return False
+
+        # 0 = MONITOR_DEFAULTTONULL (若不与任何活动监视器相交则返回 0)
+        h_monitor_rect = user32.MonitorFromRect(ctypes.byref(rect), 0)
+        # 探测窗口标题栏抓取区 (顶部向下 20px, 左侧向右 50px) 是否在有效屏幕内
+        title_pt = POINT(rect.left + 50, rect.top + 20)
+        h_monitor_title = user32.MonitorFromPoint(title_pt, 0)
+
+        # 窗口完全脱离所有活动显示器，或者标题栏位于虚无空间无法被用户鼠标拖动
+        if h_monitor_rect == 0 or h_monitor_title == 0:
+            # 若窗口此前在副屏上处于最大化状态，先恢复为常规状态再平移
+            if user32.IsZoomed(hwnd):
+                user32.ShowWindow(hwnd, 9)  # SW_RESTORE
+
+            SPI_GETWORKAREA = 0x0030
+            work_area = RECT()
+            user32.SystemParametersInfoW(SPI_GETWORKAREA, 0, ctypes.byref(work_area), 0)
+
+            work_w = max(800, work_area.right - work_area.left)
+            work_h = max(600, work_area.bottom - work_area.top)
+
+            win_w = rect.right - rect.left
+            win_h = rect.bottom - rect.top
+
+            # 防止窗口尺寸异常或超出当前主显示器工作区
+            if win_w <= 0 or win_w > work_w:
+                win_w = min(1600, work_w)
+            if win_h <= 0 or win_h > work_h:
+                win_h = min(1020, work_h)
+
+            new_x = work_area.left + max(0, (work_w - win_w) // 2)
+            new_y = work_area.top + max(0, (work_h - win_h) // 2)
+
+            SWP_NOZORDER = 0x0004
+            SWP_SHOWWINDOW = 0x0040
+            user32.SetWindowPos(hwnd, 0, new_x, new_y, win_w, win_h, SWP_NOZORDER | SWP_SHOWWINDOW)
+            print(f"[Launcher] 检测到 Editor 窗口脱离活动显示器，已自动拉回主屏幕: pos=({new_x}, {new_y}), size=({win_w}x{win_h})", flush=True)
+            return True
+    except Exception as e:
+        print(f"[Launcher] 窗口多屏边界自愈检查失败: {e}", file=sys.stderr)
+    return False
+
+def find_editor_windows(target_pid=None):
+    """
+    智能查找 Editor 窗口句柄列表：
+    1. 优先通过当前进程 PID 精准定位原生窗口；
+    2. 支持中英文标题模糊匹配 (兼容 HTML <title>FGO Q Battle Config Editor [V5]</title> 导致的原生标题变更)
+    """
+    hwnds = []
+    user32 = ctypes.windll.user32
+    def callback(hwnd, extra):
+        if not user32.IsWindow(hwnd) or not user32.IsWindowVisible(hwnd):
+            return True
+        if target_pid:
+            pid = ctypes.c_ulong()
+            user32.GetWindowThreadProcessId(hwnd, ctypes.byref(pid))
+            if pid.value == target_pid:
+                rect = RECT()
+                user32.GetWindowRect(hwnd, ctypes.byref(rect))
+                # 过滤可能伴生出的辅助微型无边框消息窗口
+                if (rect.right - rect.left) > 200 and (rect.bottom - rect.top) > 200:
+                    hwnds.append(hwnd)
+                return True
+
+        length = user32.GetWindowTextLengthW(hwnd)
+        if length > 0:
+            buff = ctypes.create_unicode_buffer(length + 1)
+            user32.GetWindowTextW(hwnd, buff, length + 1)
+            title = buff.value
+            if "FGO" in title and ("配置" in title or "Editor" in title or "Battle" in title):
+                hwnds.append(hwnd)
+        return True
+
+    WNDENUMPROC = ctypes.WINFUNCTYPE(ctypes.c_bool, ctypes.c_int, ctypes.c_int)
+    user32.EnumWindows(WNDENUMPROC(callback), 0)
+    return hwnds
+
+def activate_existing_window(window_title="FGO 战斗配置编辑器 (V5)"):
+    """激活并前置已存在的同名窗口，并确保窗口处于有效显示器可见范围内"""
+    try:
+        user32 = ctypes.windll.user32
+        hwnds = find_editor_windows()
+        if hwnds:
+            for hwnd in hwnds:
+                # 9 = SW_RESTORE (恢复最小化的窗口)
+                user32.ShowWindow(hwnd, 9)
+                # 检查多屏越界自愈，若处于已断开的副屏坐标空间，自动拉回主屏幕可见区域
+                ensure_window_within_active_monitors(hwnd)
+                user32.SetForegroundWindow(hwnd)
+            return True
+    except Exception:
+        pass
+    return False
+
+def acquire_single_instance(mutex_name=r"Local\FGO_Q_Editor_SingleInstance_Mutex"):
+    """尝试获取本地用户单例互斥锁，已存在则返回 False"""
+    global _SINGLE_INSTANCE_MUTEX
+    try:
+        kernel32 = ctypes.windll.kernel32
+        mutex = kernel32.CreateMutexW(None, False, mutex_name)
+        last_error = kernel32.GetLastError()
+        ERROR_ALREADY_EXISTS = 183
+        if last_error == ERROR_ALREADY_EXISTS:
+            if mutex:
+                kernel32.CloseHandle(mutex)
+            return False
+        _SINGLE_INSTANCE_MUTEX = mutex
+        return True
+    except Exception:
+        return True
+
 class NativeApi:
     def resizeWindow(self, w=1600, h=1020):
         global CURRENT_WINDOW
@@ -50,11 +192,11 @@ class NativeApi:
 if EDITOR_DIR not in sys.path:
     sys.path.insert(0, EDITOR_DIR)
 
-def is_server_healthy(port):
+def is_server_healthy(port, timeout=2.5):
     """验证目标端口上的配置服务是否已正常响应 HTTP 请求"""
     try:
         req = urllib.request.Request(f"http://127.0.0.1:{port}/api/config")
-        with urllib.request.urlopen(req, timeout=0.8) as resp:
+        with urllib.request.urlopen(req, timeout=timeout) as resp:
             return resp.status == 200
     except Exception:
         return False
@@ -124,6 +266,50 @@ def ensure_server_running():
         if is_server_healthy(PORT):
             break
 
+def start_server_watchdog():
+    """后台守护线程：实时监控后端 8099 服务健康状态，若因旧实例关闭或异常导致服务中断，自动无缝复活拉起"""
+    def _watchdog_loop():
+        time.sleep(2.0)
+        consecutive_fails = 0
+        while True:
+            try:
+                if not is_server_healthy(PORT, timeout=2.5):
+                    consecutive_fails += 1
+                    # 连续失败 3 次 (约 10 秒) 才判定为假死并复活拉起，避免模块热重载或高负载瞬间被误杀
+                    if consecutive_fails >= 3:
+                        ensure_server_running()
+                        consecutive_fails = 0
+                else:
+                    consecutive_fails = 0
+            except Exception:
+                pass
+            time.sleep(3.0)
+
+    t = threading.Thread(target=_watchdog_loop, daemon=True)
+    t.start()
+
+def start_monitor_bounds_watchdog(interval=2.5):
+    """后台守护线程：实时检测窗口是否因显示器热拔插/关闭而漂移到屏幕外，若脱离活动显示器则自动平移拉回主屏"""
+    current_pid = os.getpid()
+    def _watchdog_loop():
+        time.sleep(3.0)
+        user32 = ctypes.windll.user32
+        while True:
+            try:
+                # 优先匹配当前进程的主窗口，若为降级模式则兜底全局扫描匹配
+                hwnds = find_editor_windows(target_pid=current_pid)
+                if not hwnds:
+                    hwnds = find_editor_windows()
+                for hwnd in hwnds:
+                    if user32.IsWindowVisible(hwnd) and not user32.IsIconic(hwnd):
+                        ensure_window_within_active_monitors(hwnd)
+            except Exception:
+                pass
+            time.sleep(interval)
+
+    t = threading.Thread(target=_watchdog_loop, daemon=True)
+    t.start()
+
 def launch_native_webview(debug=False):
     """使用 pywebview 启动原生独立桌面窗口"""
     import webview
@@ -145,14 +331,23 @@ def launch_native_webview(debug=False):
     )
     CURRENT_WINDOW = window
 
-    # 注册窗口显示后安全调整尺寸的事件（避免后台子线程直接操作未初始化原生句柄导致崩溃/白屏）
+    # 注册窗口显示后安全调整尺寸与屏幕安全边界校验的事件
     def on_shown():
         try:
             window.resize(1600, 1020)
         except Exception:
             pass
+        try:
+            for hwnd in find_editor_windows(target_pid=os.getpid()):
+                ensure_window_within_active_monitors(hwnd)
+        except Exception:
+            pass
 
     window.events.shown += on_shown
+    # 启动后台服务自愈守护，确保多窗口关闭或服务中断时秒级复活
+    start_server_watchdog()
+    # 启动多显示器边界自愈守护，显示器断开/关闭时自动拉回主屏幕
+    start_monitor_bounds_watchdog()
     # 启动 GUI 事件循环，强制使用独立隔离环境 (private_mode=True)，彻底杜绝 EBWebView 目录锁冲突导致的 0x800700AA 白屏
     webview.start(private_mode=True, debug=debug)
 
@@ -175,6 +370,8 @@ def find_chromium_browser():
 
 def launch_app_mode():
     """降级方案：使用 Edge / Chrome 的 --app 独立窗口模式运行"""
+    start_server_watchdog()
+    start_monitor_bounds_watchdog()
     browser_exe = find_chromium_browser()
     if browser_exe:
         user_data_dir = os.path.join(EDITOR_DIR, ".app_profile")
@@ -197,7 +394,7 @@ def main():
     # 如果指定了 --browser 参数，则以后台服务+默认浏览器标签页模式启动
     if "--browser" in sys.argv:
         # 确保后台 server.py 作为独立持久进程拉起
-        if not is_port_open(PORT):
+        if not is_server_healthy(PORT):
             python_exe = sys.executable
             if python_exe.lower().endswith("python.exe"):
                 cand = python_exe[:-10] + "pythonw.exe"
@@ -214,13 +411,19 @@ def main():
             )
             for _ in range(20):
                 time.sleep(0.1)
-                if is_port_open(PORT):
+                if is_server_healthy(PORT):
                     break
         try:
             os.startfile(APP_URL)
         except Exception:
             subprocess.Popen(f'explorer "{APP_URL}"', shell=True)
         return
+
+    # 单例模式防重复启动检测：若已存在 Editor 窗口，激活并前置旧窗口，安全退出避免双实例端口与数据冲突
+    if not acquire_single_instance():
+        print("[Launcher] 检测到 Editor 实例已在运行中，正在激活已有窗口...", flush=True)
+        activate_existing_window("FGO 战斗配置编辑器 (V5)")
+        sys.exit(0)
 
     ensure_server_running()
     

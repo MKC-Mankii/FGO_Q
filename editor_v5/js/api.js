@@ -64,7 +64,15 @@ export function updateSyncStatus(type, label, tooltip) {
 export function updateSaveButtonState() {
     const btn = $('saveBtn');
     if (!btn) return;
-    if (btn.disabled) return;
+    if (window.__CONFIG_LOAD_FAILED) {
+        btn.disabled = true;
+        btn.classList.remove('has-changes');
+        btn.title = '配置文件加载失败，为防止示例配置覆盖真实数据，保存已安全锁定。请点击重新载入。';
+        return;
+    }
+    if (btn.disabled && btn.textContent !== TEXT_CONFIG.masthead.btnSaving) {
+        btn.disabled = false;
+    }
 
     if (isConfigDirty()) {
         if (!btn.classList.contains('has-changes')) {
@@ -107,6 +115,7 @@ export async function loadConfigFromBackend(onSuccess) {
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const data = await res.json();
         if (data.text) {
+            window.__CONFIG_LOAD_FAILED = false;
             parseConfigFileText(data.text, appState.data);
             const activeGroup = Number(appState.data.runnerSettings?.activeGroup);
             appState.curGroupIdx = (!isNaN(activeGroup) && activeGroup >= 0 && activeGroup < appState.data.groups.length) ? activeGroup : 3;
@@ -136,14 +145,11 @@ export async function loadConfigFromBackend(onSuccess) {
             updateSaveButtonState();
         }
     } catch (err) {
+        window.__CONFIG_LOAD_FAILED = true;
         console.warn(TEXT_CONFIG.messages.autoLoadFailWarn, err);
-        getCurSchemeRounds();
-        commitChanges();
-        const fallbackText = generateConfigText(appState.data);
-        setInitialSnapshot(appState.data);
-        setLastSavedConfigText(fallbackText);
         updateSaveButtonState();
-        updateSyncStatus('pending', '⚠️ 本地缓存', '【未连接到后端服务】\n• 无法连接本地 Python 服务 (端口 8098)\n• 当前使用内存初始配置，保存等高级功能受限');
+        updateSyncStatus('pending', '❌ 加载失败', '【未连接到后端服务】\n• 无法连接本地 Python 服务 (端口 8099)\n• 为防止示例配置覆盖真实数据，保存与自动同步已安全锁定！\n• 请点击右上角「重新载入」重试');
+        toast('❌ 配置文件读取失败，为防止配置被覆盖已锁定保存功能！请检查服务或重载。', 6000);
         if (typeof onSuccess === 'function') onSuccess();
     }
 }
@@ -490,7 +496,7 @@ export async function checkAdbStatus(getConfigTextCallback) {
             }
 
             // 核心条件：只有当保存过且此前模拟器未连接（存在待补推标记）时，才自动触发一次补推！
-            if (hasPendingSimulatorSync) {
+            if (hasPendingSimulatorSync && !window.__CONFIG_LOAD_FAILED) {
                 hasPendingSimulatorSync = false; // 消费待补推标记
                 if (typeof getConfigTextCallback === 'function') {
                     const text = getConfigTextCallback();
@@ -564,6 +570,11 @@ export function startAdbAutoWatcher(getConfigTextCallback) {
 
 // 保存配置到本地文件（支持后端自动备份快照与模拟器 ADB 直推）
 export async function saveConfigToBackend(configText) {
+    if (window.__CONFIG_LOAD_FAILED) {
+        toast('⚠️ 配置文件此前加载失败，保存功能已安全锁定！请点击右上角「重新载入」恢复。', 5000);
+        return { success: false, message: 'Config load failed, save locked.' };
+    }
+
     const btn = $('saveBtn');
     const originalText = btn ? btn.textContent : '';
 
@@ -839,15 +850,25 @@ export function updateRunnerUI(data) {
 
         if (isExtra) {
             const countText = totalRounds > 0 ? `第 ${round}/${totalRounds} 次` : `第 ${round} 次`;
+            let extraActionBadge = '';
+            if (data && data.action) {
+                const match = data.action.match(/\[(.*?)\]/);
+                if (match) {
+                    extraActionBadge = `[${match[1]}]`;
+                } else if (/强化|再临|灵基|突破|整备|抽卡|召唤|友情|无限池|圣杯|转临/i.test(data.action)) {
+                    extraActionBadge = `[${data.action.replace(/^Extra\s*/i, '').replace(/\s*第\s*\d+.*$/i, '').trim().slice(0, 6)}]`;
+                }
+            }
+
             if (stopBtn) {
                 stopBtn.style.display = 'inline-flex';
                 updateStopButtonState({
                     icon: '⏹',
                     actionText: '停止整备',
                     roundText: countText,
-                    actionDetail: data.action ? data.action.replace(/^Extra\s*/i, '').slice(0, 10) : '',
+                    actionDetail: extraActionBadge,
                     disabled: false,
-                    title: `点击停止整备任务 (${countText})，脚本将在当前安全动作后退出并返回待命`
+                    title: `点击停止整备任务 (${countText}${extraActionBadge ? ` · ${extraActionBadge}` : ''})，脚本将在当前安全动作后退出并返回待命`
                 });
             }
             if (configLockBanner) {
@@ -1394,6 +1415,10 @@ export async function triggerRunTask(mode = 'BATTLE', getConfigTextCallback) {
     const stopBtn = $('stopBattleBtn');
 
     // 0. 主动失焦当前聚焦的输入控件，提交输入事件
+    if (window.__CONFIG_LOAD_FAILED) {
+        toast('❌ 配置文件尚未成功载入，已拒绝启动以防覆盖配置！请先重新载入配置。', 5000);
+        return;
+    }
     if (document.activeElement && typeof document.activeElement.blur === 'function') {
         document.activeElement.blur();
     }
