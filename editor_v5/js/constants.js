@@ -8,9 +8,9 @@ export const initialData = {
         battleCount: 30,        // 连续战斗次数
         appleEnable: 0,         // 是否吃苹果补充体力 (0=不吃, 1=银苹果, 2=金苹果)
         manualChooseFriend: 0,  // 是否人工选助战 (0=自动找图, 1=人工选择)
-        forceColorCard: 0,      // 是否强制选择对应色卡 (0=关, 1=开)
         debugScreenshotEnable: 0, // 是否保存调试截屏 (0=关, 1=开)
-        debugFriendOnly: 0        // 助战调试模式: 仅选助战不进战斗 (0=关, 1=开)
+        debugFriendOnly: 0,       // 助战调试模式: 仅选助战不进战斗 (0=关, 1=开)
+        extraDryRun: 1            // 防点安全锁/仿真测试模式 (0=真实点击, 1=只找图不点击)
     },
     // Extra 辅助运行配置 (强化与抽卡模式)
     extraSettings: {
@@ -19,7 +19,7 @@ export const initialData = {
         skillMaxLevel: 9,       // 技能强化上限 (1~10)
         skillAutoThree: 1,      // 技能强化是否强化全部技能 (0=关, 1=开)
         heroAutoAscend: 1,      // 从者强化是否自动灵基再临 (0=关, 1=开)
-        heroAutoGrail: 0        // 从者强化是否自动圣杯转临 (0=关, 1=开)
+        heroAutoGrail: 1        // 从者强化是否自动圣杯转临 (0=关, 1=100上限, 2=无上限)
     },
     groups: [
         {

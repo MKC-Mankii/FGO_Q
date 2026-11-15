@@ -1552,8 +1552,8 @@
     flex: 1;
     min-width: 0;
     display: flex;
-    flex-direction: column;
-    gap: 2px;
+    align-items: center;
+    gap: 4px;
 }
 
 .scheme-item-top {
@@ -1956,7 +1956,11 @@
     right: 20px;
     bottom: 20px;
     width: 360px;
+    min-width: 280px;
     max-width: calc(100vw - 32px);
+    height: 190px;
+    min-height: 150px;
+    max-height: calc(100vh - 32px);
     background: #ffffff;
     border: 1px solid #cbd5e0;
     border-radius: 8px;
@@ -1965,7 +1969,7 @@
     display: none;
     flex-direction: column;
     gap: 6px;
-    padding: 8px 12px 10px 12px;
+    padding: 8px 12px 10px 14px;
     overflow: hidden;
     font-family: inherit;
     animation: monitorSlideUp 0.15s cubic-bezier(0.16, 1, 0.3, 1);
@@ -1973,6 +1977,62 @@
 
 .runner-monitor-panel.show {
     display: flex !important;
+}
+
+.runner-monitor-panel.is-resizing {
+    animation: none !important;
+    transition: none !important;
+    user-select: none !important;
+    -webkit-user-select: none !important;
+}
+
+body.monitor-resizing {
+    user-select: none !important;
+    -webkit-user-select: none !important;
+}
+
+/* 窗口拉伸缩放手柄规范 (支持左上角及上/左边缘拉伸) */
+.monitor-resize-handle {
+    position: absolute;
+    z-index: 30;
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: none;
+}
+
+.monitor-resize-handle.nw {
+    top: 0;
+    left: 0;
+    width: 16px;
+    height: 16px;
+    cursor: nwse-resize;
+    display: flex;
+    align-items: flex-start;
+    justify-content: flex-start;
+    padding: 2px 0 0 2px;
+    color: var(--line, #cbd5e1);
+    transition: color 0.15s ease;
+}
+
+.monitor-resize-handle.nw:hover,
+.runner-monitor-panel.is-resizing .monitor-resize-handle.nw {
+    color: var(--darkblue, #4487DF);
+}
+
+.monitor-resize-handle.n {
+    top: 0;
+    left: 16px;
+    right: 120px;
+    height: 6px;
+    cursor: ns-resize;
+}
+
+.monitor-resize-handle.w {
+    top: 16px;
+    left: 0;
+    bottom: 0;
+    width: 6px;
+    cursor: ew-resize;
 }
 
 @keyframes monitorSlideUp {
@@ -1991,6 +2051,7 @@
     justify-content: space-between;
     align-items: center;
     line-height: 1;
+    flex-shrink: 0;
 }
 
 .monitor-top-left {
@@ -2062,6 +2123,7 @@
     display: flex;
     align-items: center;
     gap: 6px;
+    flex-shrink: 0;
 }
 
 .monitor-panel-progress .monitor-progress-bar {
@@ -2097,7 +2159,9 @@
     font-family: Consolas, "Fira Code", monospace;
     font-size: 11px;
     line-height: 1.45;
-    height: 125px;
+    flex: 1 1 auto;
+    min-height: 60px;
+    height: 100%;
     overflow-y: auto;
     white-space: pre-wrap;
     word-break: break-all;
@@ -2332,38 +2396,23 @@
 .running-lock-banner {
     display: flex;
     align-items: center;
-    gap: 12px;
-    padding: 10px 16px;
-    border-radius: 8px;
+    gap: 8px;
+    padding: 4px 12px;
+    border-radius: 6px;
     background: var(--lightyellow, #fef9de);
     border: 1px solid var(--yellow, #f9e179);
     border-left: 4px solid var(--darkyellow, #f1bd4c);
     color: #975a16;
-    font-size: 13px;
+    font-size: 12px;
     font-weight: 600;
+    line-height: 1.3;
     box-shadow: var(--shadow, 0 1px 3px rgba(0, 0, 0, 0.05));
 }
 .running-lock-banner .banner-icon {
-    font-size: 16px;
+    font-size: 13px;
 }
 .running-lock-banner .banner-text {
     flex: 1;
-}
-.running-lock-banner .banner-stop-btn {
-    padding: 5px 14px;
-    background: linear-gradient(135deg, #e7615c, #c53030);
-    color: white;
-    border: none;
-    border-radius: 5px;
-    font-weight: 700;
-    font-size: 12px;
-    cursor: pointer;
-    box-shadow: 0 2px 6px rgba(231, 97, 92, 0.35);
-    transition: all 0.15s ease;
-}
-.running-lock-banner .banner-stop-btn:hover {
-    background: linear-gradient(135deg, #ef4444, #b91c1c);
-    transform: translateY(-1px);
 }
 
 /* Extra 顶部运行参数控制栏 (Mooncell 白底筛选器面板) */
@@ -2654,6 +2703,28 @@
 
 .extra-card-setting .card-select:hover {
     border-color: var(--darkblue, #4487df);
+}
+
+.extra-card-checks {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.extra-card-check-opt {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-main, #1f2937);
+    cursor: pointer;
+    user-select: none;
+    transition: color 0.15s ease;
+}
+
+.extra-card-check-opt:hover {
+    color: var(--accent-color, #4a90e2);
 }
 
 /* 技能等级直接点击式分段药丸按钮 (Segmented Pills) */

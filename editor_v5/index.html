@@ -327,20 +327,18 @@
                         <span class="runner-toggle-text">🤝 人工选助战</span>
                     </label>
                 </div>
-                <div class="runner-setting-control">
-                    <label class="runner-toggle-label" title="是否强制选择指令指定的色卡（红/蓝/绿）（默认关）">
-                        <input type="checkbox" id="cfgForceColorCard" class="runner-checkbox">
-                        <span class="runner-toggle-text">🎨 强制对应色卡</span>
-                    </label>
-                </div>
                 <div class="runner-setting-control runner-debug-dropdown-wrap" id="runnerDebugDropdownWrap">
-                    <button type="button" class="runner-debug-btn" id="runnerDebugDropdownBtn" title="点击展开/收起调试选项（调试截图、助战调试）">
+                    <button type="button" class="runner-debug-btn" id="runnerDebugDropdownBtn" title="点击展开/收起调试选项（防点安全锁、调试截图、助战调试）">
                         <span class="runner-debug-icon">🐞</span>
                         <span class="runner-debug-title" id="runnerDebugSummary">调试功能</span>
                         <span class="runner-debug-badge" id="runnerDebugBadge" style="display:none;">0</span>
                         <span class="runner-debug-arrow">▾</span>
                     </button>
                     <div class="runner-debug-menu" id="runnerDebugMenu" style="display:none;">
+                        <label class="runner-debug-item" title="防点安全锁 (仿真测试模式)：正常执行找图与流程流转，但在真实点击动作前进行拦截保护，防止误点与消耗材料">
+                            <input type="checkbox" id="cfgExtraDryRun" class="runner-checkbox">
+                            <span class="runner-debug-item-text">🔒 防点安全锁 (仿真不点击)</span>
+                        </label>
                         <label class="runner-debug-item" title="是否在关键场景（如从者宝具提取特征）自动保存全屏调试截图（默认关）">
                             <input type="checkbox" id="cfgDebugScreenshot" class="runner-checkbox">
                             <span class="runner-debug-item-text">📸 调试截图</span>
@@ -357,10 +355,9 @@
         <!-- 战术配置时序视图 -->
         <div id="configViewMain">
             <!-- 运行中跨功能互斥警示条 (仅在整备正在进行时呈现) -->
-            <div id="configRunningLockBanner" class="running-lock-banner" style="display: none; margin: 10px 16px 0 16px;">
+            <div id="configRunningLockBanner" class="running-lock-banner" style="display: none; margin: 8px 16px 0 16px;">
                 <span class="banner-icon">⚠️</span>
-                <span class="banner-text" id="configLockBannerText">整备任务正在执行中，战斗功能已锁定。请先停止当前任务。</span>
-                <button class="banner-stop-btn" id="bannerStopExtraBtn">⏹ 停止整备</button>
+                <span class="banner-text" id="configLockBannerText">整备运行中，战斗功能已锁定</span>
             </div>
         <main class="layout">
             <!-- 侧边栏：方案列表 -->
@@ -701,8 +698,7 @@
             <!-- 运行中跨功能互斥警示条 (仅在战斗正在进行时呈现) -->
             <div id="extraRunningLockBanner" class="running-lock-banner" style="display: none;">
                 <span class="banner-icon">⚠️</span>
-                <span class="banner-text" id="extraLockBannerText">战斗正在执行中，整备功能已锁定。请先停止战斗。</span>
-                <button class="banner-stop-btn" id="bannerStopBattleBtn">⏹ 停止战斗</button>
+                <span class="banner-text" id="extraLockBannerText">战斗运行中，整备功能已锁定</span>
             </div>
 
             <!-- 运行参数栏 -->
@@ -760,8 +756,18 @@
                             <input type="checkbox" id="cfgExtraHeroAutoAscend" checked style="cursor: pointer; width: 17px; height: 17px; accent-color: var(--accent-color, #4a90e2); margin: 0;">
                         </div>
                         <div class="extra-card-setting">
-                            <label for="cfgExtraHeroAutoGrail" class="card-setting-label" style="cursor: pointer; user-select: none; flex: 1;">🏆 自动圣杯转临:</label>
-                            <input type="checkbox" id="cfgExtraHeroAutoGrail" style="cursor: pointer; width: 17px; height: 17px; accent-color: var(--accent-color, #4a90e2); margin: 0;">
+                            <span class="card-setting-label" style="user-select: none;">🏆 自动圣杯转临:</span>
+                            <div class="extra-card-checks">
+                                <label class="extra-card-check-opt" title="达到 100 级即停止自动圣杯转临（防超 100 级）">
+                                    <input type="checkbox" id="cfgExtraHeroGrail100" class="runner-checkbox" style="cursor: pointer; width: 16px; height: 16px; margin: 0; accent-color: var(--accent-color, #4a90e2);">
+                                    <span>100上限</span>
+                                </label>
+                                <label class="extra-card-check-opt" title="不限制等级，持续进行圣杯转临">
+                                    <input type="checkbox" id="cfgExtraHeroGrailInf" class="runner-checkbox" style="cursor: pointer; width: 16px; height: 16px; margin: 0; accent-color: var(--accent-color, #4a90e2);">
+                                    <span>无上限</span>
+                                </label>
+                            </div>
+                            <input type="hidden" id="cfgExtraHeroAutoGrail" value="1">
                         </div>
                     </div>
                     <div class="extra-card-footer">
@@ -836,19 +842,9 @@
                             <label for="cfgStarMapAutoSwipe" class="card-setting-label" style="cursor: pointer; user-select: none; flex: 1;">🔄 全图自动滑动巡航:</label>
                             <input type="checkbox" id="cfgStarMapAutoSwipe" checked style="cursor: pointer; width: 17px; height: 17px; accent-color: var(--accent, #4487df); margin: 0;">
                         </div>
-                        <div class="star-map-action-box">
-                            <button type="button" class="button star-map-btn-start" id="btnStartStarMap">
-                                <span class="btn-icon">🚀</span>
-                                <span class="btn-text">开始自动解放</span>
-                            </button>
-                            <button type="button" class="button star-map-btn-stop" id="btnStopStarMap" disabled>
-                                <span class="btn-icon">⏹</span>
-                                <span class="btn-text">停止</span>
-                            </button>
-                        </div>
                         <div id="starMapStatusBanner" class="star-map-status-banner">
                             <span id="starMapStatusIcon">⚪</span>
-                            <span id="starMapStatusText" class="star-map-status-text">待命中（进入星图界面后点击开始）</span>
+                            <span id="starMapStatusText" class="star-map-status-text">待命中（进入星图界面后点击顶部「运行整备」）</span>
                             <span id="starMapCountBadge" class="star-map-count-badge" style="display: none;">已解放: 0</span>
                         </div>
                     </div>
@@ -1330,6 +1326,17 @@
 
     <!-- 右下角极简脚本监控浮层 (无蒙层，超紧凑) -->
     <div class="runner-monitor-panel" id="runnerMonitorPanel" style="display:none;">
+        <!-- 窗口拉伸缩放手柄 (左上角 + 上边缘 + 左边缘) -->
+        <div class="monitor-resize-handle nw" id="monitorResizeHandleNW" title="按住拖拽调节窗口大小（双击恢复默认）">
+            <svg class="resize-corner-grip" width="10" height="10" viewBox="0 0 10 10" aria-hidden="true">
+                <line x1="1" y1="8" x2="8" y2="1" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" />
+                <line x1="1" y1="5" x2="5" y2="1" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" />
+                <line x1="1" y1="2" x2="2" y2="1" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" />
+            </svg>
+        </div>
+        <div class="monitor-resize-handle n" id="monitorResizeHandleN" title="按住拖拽调节窗口高度"></div>
+        <div class="monitor-resize-handle w" id="monitorResizeHandleW" title="按住拖拽调节窗口宽度"></div>
+
         <!-- 第一行：左上角状态图标 + 状态/轮次 + 同步时间，右上角虚浮操作按钮 (同一行) -->
         <div class="monitor-top-row">
             <div class="monitor-top-left">
@@ -1366,7 +1373,7 @@
     <!-- 原生 ES 模块主入口 -->
     <script src="js/calibration.js?v=20261023_arrownudge"></script>
     <script type="module" src="js/friends.js?v=20261009_v8"></script>
-    <script type="module" src="js/main.js?v=20261019_apple_v2"></script>
+    <script type="module" src="js/main.js?v=20261114_resize"></script>
 </body>
 
 </html>

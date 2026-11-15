@@ -1072,17 +1072,21 @@ class ConfigEditorHandler(http.server.SimpleHTTPRequestHandler):
 
                         scene_candidates = [
 
+                            ("star_map", "职阶星图解放", "STAR_MAP_SAND.png", [755, 0, 825, 50]),
+
                             ("hero", "从者强化", "ENHANCE_HERO.png", [880, 5, 1300, 70]),
 
                             ("equip", "礼装强化", "ENHANCE_EQUIP.png", [880, 5, 1300, 70]),
 
                             ("skill", "技能强化", "ENHANCE_SKILL.png", [880, 5, 1300, 70]),
 
+                            ("skill", "追加技能强化", "ENHANCE_SKILL_APPEND.png", [1000, 5, 1250, 75]),
+
                             ("friend_pool", "友情点召唤", "POOLFRIEND_CONTINUE.png", [720, 720, 990, 800]),
 
-                            ("roll_100", "无限池抽卡", "ROLL100.png", [330, 370, 620, 610]),
+                            ("friend_pool", "友情点召唤", "POOLFRIEND_ICON.png", [590, 625, 645, 675]),
 
-                            ("roll_10", "无限池抽卡", "ROLL10.png", [330, 370, 620, 610]),
+                            ("roll_100", "无限池抽卡", "ROLL100.png", [330, 370, 620, 610]),
 
                             ("battle", "战斗中", "ATTACK_BTN.png", [1200, 700, 1350, 750])
 

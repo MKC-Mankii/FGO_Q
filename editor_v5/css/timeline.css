@@ -462,12 +462,7 @@
     background: #f9ffea;
     border-color: #b9e66b;
     color: #14532d;
-    cursor: pointer;
-}
-
-.timeline-chip.attack:hover {
-    border-color: var(--quick);
-    background: #f1fed8;
+    cursor: default;
 }
 
 .attack-chip-title {

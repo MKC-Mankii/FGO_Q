@@ -11,30 +11,30 @@ ShowMessage "【提示】这是配置文件！请启动【fgo_battle_v5_runner�
 ' 优先级：FRIEND_Gx_y > FRIEND_Gx > friend（全局字段，目前未在此文件配置）。
 
 ' ==================== 全局运行配置 (RUNNER CONFIG) ====================
-Dim RUN_MODE = 1  ' 当前运行主模式: 0=战术战斗(Battle), 1=Extra辅助(Extra)
-Dim ACTION_GROUP_INDEX = 4  ' 当前生效大组: 0=test, 1=campaign, 2=caber, 3=grand, 4=ordeal
-Dim BATTLE_COUNT = 3  ' 连续战斗次数
+Dim RUN_MODE = 0  ' 当前运行主模式: 0=战术战斗(Battle), 1=Extra辅助(Extra)
+Dim ACTION_GROUP_INDEX = 3  ' 当前生效大组: 0=test, 1=campaign, 2=caber, 3=grand, 4=ordeal
+Dim BATTLE_COUNT = 1  ' 连续战斗次数
 Dim APPLE_ENABLE = 0  ' 是否吃苹果补充体力 (0=关/不吃, 1=银苹果, 2=金苹果)
 Dim MANUAL_CHOOSE_FRIEND = 0  ' 是否人工选助战 (0=自动找图, 1=人工选择)
-Dim FORCE_COLOR_CARD = 0  ' 是否强制选择对应色卡 (0=关, 1=开)
 Dim DEBUG_SCREENSHOT_ENABLE = 0  ' 是否保存调试截屏 (0=关, 1=开)
 Dim DEBUG_FRIEND_ONLY = 0  ' 助战调试模式: 仅选助战不进战斗 (0=关, 1=开)
+Dim EXTRA_DRY_RUN = 0  ' 防点安全锁/仿真测试模式 (1=开启防点保护/只识别不点击, 0=正常真实点击)
 
 ' --- Extra 辅助运行配置 ---
 Dim EXTRA_ACTION_COUNT = 30  ' Extra 连续执行次数上限
 Dim EXTRA_SKILL_MAX_LEVEL = 10  ' 技能强化目标等级 (1~10)
 Dim EXTRA_SKILL_AUTO_THREE = 1  ' 技能强化是否强化全部技能 (0=关, 1=开)
 Dim EXTRA_HERO_AUTO_ASCEND = 1  ' 从者强化是否自动灵基再临 (0=关, 1=开)
-Dim EXTRA_HERO_AUTO_GRAIL = 0  ' 从者强化是否自动圣杯转临 (0=关, 1=开)
+Dim EXTRA_HERO_AUTO_GRAIL = 1  ' 从者强化是否自动圣杯转临 (0=关, 1=100上限, 2=无上限)
 
 ' ==================== 兼容与兜底字段 ====================
-Dim CFG_ACTION_GROUP_INDEX = 4
-Dim MANUAL_BATTLE_COUNT = 3
+Dim CFG_ACTION_GROUP_INDEX = 3
+Dim MANUAL_BATTLE_COUNT = 1
 Dim MANUAL_APPLE_ENABLE = 0
-Dim MANUAL_FORCE_COLOR_CARD = 0
 Dim MANUAL_DEBUG_SCREENSHOT_ENABLE = 0
 Dim MANUAL_DEBUG_FRIEND_ONLY = 0
-Dim EXTRA_ENABLE = 1
+Dim MANUAL_EXTRA_DRY_RUN = 0
+Dim EXTRA_ENABLE = 0
 Dim ACTIVITY_REWARD = 0
 
 ' -----------------------------
@@ -117,7 +117,7 @@ Dim DSL_G2_4 = "s10, 20, 40, 53, 63, 70, 80, 90, 33 | a8, 4, 5;m33, 13 | a8, 4, 
 ' -----------------------------
 ' 大组 3: grand（戴冠战关卡）
 Dim ACTIVITY_REWARD_G3 = 0
-Dim ACTION_ROUND_INDEX_G3 = 7
+Dim ACTION_ROUND_INDEX_G3 = 3
 ' 方案 1: 剑
 Dim ACTIVITY_REWARD_G3_1 = 0
 Dim FRIEND_G3_1 = "sparrow"
@@ -128,41 +128,46 @@ Dim ACTIVITY_REWARD_G3_2 = 0
 Dim FRIEND_G3_2 = "Cba"
 Dim PAGE_TURNS_G3_2 = 0
 Dim DSL_G3_2 = "s10, 30 | m30014, 10 | s10, 20, 40, 50, 60, 70, 83, 90 | a7, 8, A"
-' 方案 3: 骑
+' 方案 3: 弓 凛
 Dim ACTIVITY_REWARD_G3_3 = 0
-Dim FRIEND_G3_3 = "keli"
+Dim FRIEND_G3_3 = "a_tiamat"
 Dim PAGE_TURNS_G3_3 = 0
-Dim DSL_G3_3 = "s90, 70 | m30034, 10 | s80, 70, 60, 50, 40, 32, 22, 10 | a6, 7, Q"
-' 方案 4: 杀
+Dim DSL_G3_3 = "s10, 20, 30, 40, 50, 60, 70, 80, 90 | m20 | a8, H2, H3;m10 | a7, B, B"
+' 方案 4: 骑
 Dim ACTIVITY_REWARD_G3_4 = 0
-Dim FRIEND_G3_4 = "heshang"
+Dim FRIEND_G3_4 = "keli"
 Dim PAGE_TURNS_G3_4 = 0
-Dim DSL_G3_4 = "m21, 31 | s10, 20, 30, 41, 51, 61, 20, 71, 80, 90 | aH1A!>H1!>H3!, 6, 8"
-' 方案 5: 骑2
+Dim DSL_G3_4 = "s90, 70 | m30034, 10 | s80, 70, 60, 50, 40, 32, 22, 10 | a6, 7, Q"
+' 方案 5: 杀
 Dim ACTIVITY_REWARD_G3_5 = 0
-Dim FRIEND_G3_5 = "keli"
+Dim FRIEND_G3_5 = "heshang"
 Dim PAGE_TURNS_G3_5 = 0
-Dim DSL_G3_5 = "s80, 70, 60, 50, 40, 22, 10 | m12 | a6, 7, Q"
-' 方案 6: 狂
+Dim DSL_G3_5 = "m21, 31 | s10, 20, 30, 41, 51, 61, 20, 71, 80, 90 | aH1A!>H1!>H3!, 6, 8"
+' 方案 6: 骑2
 Dim ACTIVITY_REWARD_G3_6 = 0
-Dim FRIEND_G3_6 = "Bdai"
+Dim FRIEND_G3_6 = "keli"
 Dim PAGE_TURNS_G3_6 = 0
-Dim DSL_G3_6 = "s10, 40, 52, 60, 70, 83, 90 | m22 | a7, 8, A"
-' 方案 7: EX1
+Dim DSL_G3_6 = "s80, 70, 60, 50, 40, 22, 10 | m12 | a6, 7, Q"
+' 方案 7: 狂
 Dim ACTIVITY_REWARD_G3_7 = 0
-Dim FRIEND_G3_7 = "princess"
+Dim FRIEND_G3_7 = "Bdai"
 Dim PAGE_TURNS_G3_7 = 0
-Dim DSL_G3_7 = "s12, 20, 32, 40, 50, 60, 70, 80 | m30014, 10 | s30 | a8, 7, B"
-' 方案 8: EX2
+Dim DSL_G3_7 = "s10, 40, 52, 60, 70, 83, 90 | m22 | a7, 8, A"
+' 方案 8: EX1
 Dim ACTIVITY_REWARD_G3_8 = 0
-Dim FRIEND_G3_8 = "aobao"
-Dim PAGE_TURNS_G3_8 = 0
-Dim DSL_G3_8 = "s70, 82, 92, 60, 50, 40, 20 | m22 | a7, B, B"
-' 方案 9: heshang
+Dim FRIEND_G3_8 = "princess"
+Dim PAGE_TURNS_G3_8 = 2
+Dim DSL_G3_8 = "s12, 20, 32, 40, 50, 60, 70, 80 | m30014, 10 | s30 | a8, 7, B"
+' 方案 9: EX2
 Dim ACTIVITY_REWARD_G3_9 = 0
-Dim FRIEND_G3_9 = "heshang"
+Dim FRIEND_G3_9 = "aobao"
 Dim PAGE_TURNS_G3_9 = 0
-Dim DSL_G3_9 = "aH1A!>H1!>H3!, 6, 8"
+Dim DSL_G3_9 = "s70, 82, 92, 60, 50, 40, 20 | m22 | a7, B, B"
+' 方案 10: heshang
+Dim ACTIVITY_REWARD_G3_10 = 0
+Dim FRIEND_G3_10 = "heshang"
+Dim PAGE_TURNS_G3_10 = 0
+Dim DSL_G3_10 = "aH1A!>H1!>H3!, 6, 8"
 
 ' -----------------------------
 ' 大组 4: ordeal（白纸化地球 Ordeal Call）
@@ -217,6 +222,7 @@ Dim ATT_Mary = "Attachment:friendMary1.png|Attachment:friendMary2.png"
 Dim ATT_Keli = "Attachment:friendKeli1.png|Attachment:friendKeli2.png|Attachment:friendKeli3.png"
 ' [待标定] 助战 bdai (狂呆) 暂无已标定图片，跳过 ATT 声明
 Dim ATT_Heshang = "Attachment:friendHeshang3.png"
+Dim ATT_A_tiamat = "Attachment:friendA_tiamat2.png"
 
 ' ==============================================================================
 ' 🎯 屏幕标定与视觉目标配置 (TARGETS & COORDINATES CONFIG)
@@ -388,6 +394,8 @@ Dim ENHANCE_HERO_RECOMMAND_TAR = Array(1240, 150, 1370, 208, "Attachment:ENHANCE
 Dim ENHANCE_HERO_RECOMMAND_CONFIRM_TAR = Array(880, 680, 1006, 745, "Attachment:ENHANCE_HERO_RECOMMAND_CONFIRM.png")
 Dim ENHANCE_HERO_ENHANCE_TAR = Array(1340, 716, 1438, 798, "Attachment:ENHANCE_HERO_ENHANCE.png")
 Dim ENHANCE_HERO_ENHANCE_CONFIRM_TAR = Array(877, 632, 1006, 698, "Attachment:ENHANCE_HERO_ENHANCE_CONFIRM.png")
+Dim ENHANCE_HERO_TEMP_CONFIRM_TAR = Array(877, 590, 1006, 660, "Attachment:ENHANCE_HERO_TEMP_CONFIRM.png|Attachment:ENHANCE_HERO_ENHANCE_CONFIRM.png")
+Dim TAP_ENHANCE_HERO_TEMP_CONFIRM = Array(943, 633)
 Dim ENHANCE_HERO_REFUND_CLOSE_TAR = Array(550, 580, 890, 680, "Attachment:ENHANCE_HERO_REFUND_CLOSE.png")
 Dim TAP_ENHANCE_HERO_REFUND_CLOSE = Array(686, 614)
 Dim ENHANCE_HERO_TO_ASCEND_TAR = Array(1050, 580, 1320, 680, "Attachment:ENHANCE_HERO_TO_ASCEND.png")
@@ -407,7 +415,7 @@ Dim TAP_ENHANCE_ASCEND_BTN = Array(1391, 739)
 Dim TAP_ENHANCE_ASCEND_CONFIRM = Array(943, 662)
 Dim TAP_ENHANCE_ASCEND_TO_HERO = Array(1180, 321)
 Dim TAP_ENHANCE_ASCEND_BACK = Array(60, 40)
-Dim TAP_ENHANCE_BLIND_SKIP = Array(940, 660)
+Dim TAP_ENHANCE_BLIND_SKIP = Array(1060, 760)
 
 Dim POOLFRIEND_CONTINUE_TAR = Array(720, 720, 990, 800, "Attachment:POOLFRIEND_CONTINUE.png")
 Dim POOLFRIEND_GO_TAR = Array(830, 600, 1080, 670, "Attachment:POOLFRIEND_GO.png")
@@ -417,8 +425,8 @@ Dim ENHANCE_EQUIP_ENHANCE_TAR = Array(1340, 716, 1438, 798, "Attachment:ENHANCE_
 Dim ENHANCE_EQUIP_ENHANCE_CONFIRM_TAR = Array(877, 632, 1006, 698, "Attachment:ENHANCE_EQUIP_ENHANCE_CONFIRM.png")
 
 Dim ENHANCE_SKILL_TAR = Array(880, 5, 1300, 70, "Attachment:ENHANCE_SKILL.png")
-Dim ENHANCE_SKILL_ENHANCE_TAR = Array(1185, 725, 1230, 785, "Attachment:ENHANCE_SKILL_ENHANCE.png")
-Dim ENHANCE_SKILL_ENHANCE_CONFIRM_TAR = Array(820, 640, 890, 690, "Attachment:ENHANCE_SKILL_ENHANCE_CONFIRM.png")
+Dim ENHANCE_SKILL_ENHANCE_TAR = Array(1210, 710, 1360, 800, "Attachment:ENHANCE_SKILL_ENHANCE.png")
+Dim ENHANCE_SKILL_ENHANCE_CONFIRM_TAR = Array(875, 590, 1020, 680, "Attachment:ENHANCE_SKILL_ENHANCE_CONFIRM.png")
 Dim ENHANCE_SKILL_ENHANCE_L10_TAR = Array(450, 490, 610, 630, "Attachment:ENHANCE_SKILL_ENHANCE_L10.png")
 Dim ENHANCE_SKILL_CLICK_COORD = Array(1100, 765)
 Dim ENHANCE_SKILL_MAX_L10_TAR = Array(1150, 720, 1410, 800, "Attachment:ENHANCE_SKILL_MAX_L10.png")
@@ -426,3 +434,6 @@ Dim TAP_ENHANCE_SKILL_1 = Array(532, 286)
 Dim TAP_ENHANCE_SKILL_2 = Array(852, 286)
 Dim TAP_ENHANCE_SKILL_3 = Array(1172, 286)
 Dim ENHANCE_SKILL_HERO_UNSELECTED_TAR = Array(140, 560, 300, 630, "Attachment:ENHANCE_SKILL_HERO_UNSELECTED.png")
+
+Dim MODAL_CLOSE_TAR = Array(580, 620, 850, 720, "Attachment:AGAIN_ALERT_CLOSE.png")
+Dim TAP_MODAL_CLOSE = Array(663, 684)

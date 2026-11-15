@@ -11,7 +11,6 @@ Dim CFG_ACTION_GROUP_INDEX = 0
 Dim MANUAL_BATTLE_COUNT = 0
 Dim MANUAL_APPLE_ENABLE = 0
 Dim MANUAL_CHOOSE_FRIEND = 0
-Dim MANUAL_FORCE_COLOR_CARD = 0
 Dim MANUAL_DEBUG_SCREENSHOT_ENABLE = 0
 
 ' --- Extra 杈呭姪鍔熻兘涓庡叏灞杩愯屾ā寮 ---
@@ -21,7 +20,8 @@ Dim EXTRA_ACTION_COUNT = 30  ' Extra 杩炵画鎵ц屾℃暟涓婇檺
 Dim EXTRA_SKILL_MAX_LEVEL = 9  ' 鎶鑳藉己鍖栫洰鏍囦笂闄 (1~10)
 Dim EXTRA_SKILL_AUTO_THREE = 1  ' 鎶鑳藉己鍖栨槸鍚﹂『搴忓己鍖3涓鎶鑳 (0=鍏, 1=寮)
 Dim EXTRA_HERO_AUTO_ASCEND = 1  ' 浠庤呭己鍖栨槸鍚﹁嚜鍔ㄧ伒鍩哄啀涓 (0=鍏, 1=寮)
-Dim EXTRA_HERO_AUTO_GRAIL = 0   ' 浠庤呭己鍖栨槸鍚﹁嚜鍔ㄥ湥鏉杞涓 (0=鍏, 1=寮)
+Dim EXTRA_HERO_AUTO_GRAIL = 1   ' 从者强化是否自动圣杯转临 (0=关, 1=100上限, 2=无上限)
+Dim EXTRA_DRY_RUN = 1   ' Extra 仿真防点测试模式 (1=开启防点保护/只识别不点击, 0=正常真实点击)
 Dim CURRENT_EXTRA_ACTION_NAME = ""  ' 褰撳墠姝ｅ湪鎵ц岀殑 Extra 鍔ㄤ綔绫诲瀷
 
 Dim CFG_CONFIG_PATH = ""
@@ -38,7 +38,6 @@ Dim CFG_ACTIVITY_REWARD = 1
 Dim BATTLE_COUNT = 0
 Dim CHOOSE_FRIEND_MANUAL = 0
 Dim APPLE_ENABLE = 0  ' 鏄鍚﹀悆鑻规灉琛ュ厖浣撳姏 (0=鍏/涓嶅悆, 1=閾惰嫻鏋, 2=閲戣嫻鏋)
-Dim FORCE_COLOR_CARD = 0
 Dim DEBUG_SCREENSHOT_ENABLE = 0
 Dim DEBUG_FRIEND_ONLY = 0
 Dim MANUAL_DEBUG_FRIEND_ONLY = 0
@@ -548,11 +547,11 @@ Sub ApplyConfigTargets()
 	PREPARE_FRIEND_TITLE_TAR = ParseTarget(CfgGet("prepare_friend_title_tar", ""), PREPARE_FRIEND_TITLE_TAR)
 	PREPARE_FRIEND_REFRESH_TAR = ParseTarget(CfgGet("prepare_friend_refresh_tar", ""), PREPARE_FRIEND_REFRESH_TAR)
 	PREPARE_FRIEND_SCROLLBAR_X = CLng(CfgGet("prepare_friend_scrollbar_x", 1412))
-	PREPARE_FRIEND_SCROLLBAR_BASE_Y = CLng(CfgGet("prepare_friend_scrollbar_base_y", 265))
-	If PREPARE_FRIEND_SCROLLBAR_BASE_Y <= 232 Then
-		PREPARE_FRIEND_SCROLLBAR_BASE_Y = 265
+	PREPARE_FRIEND_SCROLLBAR_BASE_Y = CLng(CfgGet("prepare_friend_scrollbar_base_y", 245))
+	If PREPARE_FRIEND_SCROLLBAR_BASE_Y <= 180 Then
+		PREPARE_FRIEND_SCROLLBAR_BASE_Y = 245
 	End If
-	PREPARE_FRIEND_SCROLLBAR_STEP_Y = CLng(CfgGet("prepare_friend_scrollbar_step_y", 35))
+	PREPARE_FRIEND_SCROLLBAR_STEP_Y = CLng(CfgGet("prepare_friend_scrollbar_step_y", 45))
 	PREPARE_FRIEND_PAGE_SWIPE_DELAY = CLng(CfgGet("prepare_friend_page_swipe_delay", 1000))
 	Dim friendAreaVal = CfgGet("prepare_friend_area", "")
 	If Len(friendAreaVal) > 0 Then
@@ -596,6 +595,8 @@ Sub ApplyConfigTargets()
 	TAP_ENHANCE_HERO_REFUND_CLOSE = ParseCoord(CfgGet("tap_enhance_hero_refund_close", ""), TAP_ENHANCE_HERO_REFUND_CLOSE)
 	ENHANCE_HERO_TO_ASCEND_TAR = ParseTarget(CfgGet("enhance_hero_to_ascend_tar", ""), ENHANCE_HERO_TO_ASCEND_TAR)
 	ENHANCE_HERO_TO_GRAIL_TAR = ParseTarget(CfgGet("enhance_hero_to_grail_tar", ""), ENHANCE_HERO_TO_GRAIL_TAR)
+	ENHANCE_HERO_LV100_TAR = ParseTarget(CfgGet("enhance_hero_lv100_tar", ""), ENHANCE_HERO_LV100_TAR)
+	ENHANCE_GRAIL_HERO_LV100_TAR = ParseTarget(CfgGet("enhance_grail_hero_lv100_tar", ""), ENHANCE_GRAIL_HERO_LV100_TAR)
 	ENHANCE_ASCEND_TAR = ParseTarget(CfgGet("enhance_ascend_tar", ""), ENHANCE_ASCEND_TAR)
 	ENHANCE_GRAIL_TAR = ParseTarget(CfgGet("enhance_grail_tar", ""), ENHANCE_GRAIL_TAR)
 	ENHANCE_GRAIL_CONFIRM_TAR = ParseTarget(CfgGet("enhance_grail_confirm_tar", ""), ENHANCE_GRAIL_CONFIRM_TAR)
@@ -627,12 +628,23 @@ Sub ApplyConfigTargets()
 	End If
 	POOLFRIEND_CONTINUE_TAR = ParseTarget(CfgGet("poolfriend_continue_tar", ""), POOLFRIEND_CONTINUE_TAR)
 	POOLFRIEND_GO_TAR = ParseTarget(CfgGet("poolfriend_go_tar", ""), POOLFRIEND_GO_TAR)
+	POOLFRIEND_ICON_TAR = ParseTarget(CfgGet("poolfriend_icon_tar", ""), POOLFRIEND_ICON_TAR)
+	POOLFRIEND_LIMIT_TAR = ParseTarget(CfgGet("poolfriend_limit_tar", ""), POOLFRIEND_LIMIT_TAR)
+	POOLFRIEND_RIGHT_COORD = ParseCoord(CfgGet("poolfriend_right_coord", ""), POOLFRIEND_RIGHT_COORD)
+	POOLFRIEND_MID_COORD = ParseCoord(CfgGet("poolfriend_mid_coord", ""), POOLFRIEND_MID_COORD)
 	ENHANCE_EQUIP_TAR = ParseTarget(CfgGet("enhance_equip_tar", ""), ENHANCE_EQUIP_TAR)
 	ENHANCE_EQUIP_ENHANCE_TAR = ParseTarget(CfgGet("enhance_equip_enhance_tar", ""), ENHANCE_EQUIP_ENHANCE_TAR)
+	ENHANCE_EQUIP_ENHANCE_GRAY_TAR = ParseTarget(CfgGet("enhance_equip_enhance_gray_tar", ""), ENHANCE_EQUIP_ENHANCE_GRAY_TAR)
 	ENHANCE_EQUIP_ENHANCE_CONFIRM_TAR = ParseTarget(CfgGet("enhance_equip_enhance_confirm_tar", ""), ENHANCE_EQUIP_ENHANCE_CONFIRM_TAR)
 	ENHANCE_SKILL_TAR = ParseTarget(CfgGet("enhance_skill_tar", ""), ENHANCE_SKILL_TAR)
 	ENHANCE_SKILL_ENHANCE_TAR = ParseTarget(CfgGet("enhance_skill_enhance_tar", ""), ENHANCE_SKILL_ENHANCE_TAR)
+	If ENHANCE_SKILL_ENHANCE_TAR[3] < 1380 Then
+		ENHANCE_SKILL_ENHANCE_TAR = Array(1340, 716, 1438, 798, "Attachment:ENHANCE_SKILL_ENHANCE.png")
+	End If
 	ENHANCE_SKILL_ENHANCE_CONFIRM_TAR = ParseTarget(CfgGet("enhance_skill_enhance_confirm_tar", ""), ENHANCE_SKILL_ENHANCE_CONFIRM_TAR)
+	If ENHANCE_SKILL_ENHANCE_CONFIRM_TAR[2] > 630 Then
+		ENHANCE_SKILL_ENHANCE_CONFIRM_TAR = Array(875, 590, 1020, 680, "Attachment:ENHANCE_SKILL_ENHANCE_CONFIRM.png")
+	End If
 	ENHANCE_SKILL_ENHANCE_L10_TAR = ParseTarget(CfgGet("enhance_skill_enhance_l10_tar", ""), ENHANCE_SKILL_ENHANCE_L10_TAR)
 	ENHANCE_SKILL_CLICK_COORD = ParseCoord(CfgGet("enhance_skill_click_coord", ""), ENHANCE_SKILL_CLICK_COORD)
 	ENHANCE_SKILL_MAX_L10_TAR = ParseTarget(CfgGet("enhance_skill_max_l10_tar", ""), ENHANCE_SKILL_MAX_L10_TAR)
@@ -640,6 +652,7 @@ Sub ApplyConfigTargets()
 	TAP_ENHANCE_SKILL_2 = ParseCoord(CfgGet("tap_enhance_skill_2", ""), TAP_ENHANCE_SKILL_2)
 	TAP_ENHANCE_SKILL_3 = ParseCoord(CfgGet("tap_enhance_skill_3", ""), TAP_ENHANCE_SKILL_3)
 	ENHANCE_SKILL_HERO_UNSELECTED_TAR = ParseTarget(CfgGet("enhance_skill_hero_unselected_tar", ""), ENHANCE_SKILL_HERO_UNSELECTED_TAR)
+	ENHANCE_SKILL_APPEND_TAR = ParseTarget(CfgGet("enhance_skill_append_tar", ""), ENHANCE_SKILL_APPEND_TAR)
 End Sub
 
 Sub ReloadConfig()
@@ -753,18 +766,28 @@ Sub ReloadConfig()
 		Next
 	End If
 
+	Dim callerRunMode = RUN_MODE
 	RUN_MODE = CInt(CfgGet("run_mode", CfgGet("extra_enable", "0")))
+	If callerRunMode = 1 Then
+		RUN_MODE = 1
+	End If
 	EXTRA_ENABLE = RUN_MODE
 	EXTRA_ACTION_COUNT = CInt(CfgGet("extra_action_count", "30"))
 	EXTRA_SKILL_MAX_LEVEL = CInt(CfgGet("extra_skill_max_level", "9"))
 	EXTRA_SKILL_AUTO_THREE = CInt(CfgGet("extra_skill_auto_three", "1"))
 	EXTRA_HERO_AUTO_ASCEND = CInt(CfgGet("extra_hero_auto_ascend", "1"))
 	EXTRA_HERO_AUTO_GRAIL = CInt(CfgGet("extra_hero_auto_grail", "0"))
+	EXTRA_DRY_RUN = CInt(CfgGet("extra_dry_run", "1"))
+	If RUN_MODE = 1 Then
+		EXTRA_ENABLE = 1
+		CAN_RUN = true
+		ApplyConfigTargets()
+		Exit Sub
+	End If
 	CFG_ACTION_GROUP_INDEX = CInt(CfgGet("action_group_index", CfgGet("cfg_action_group_index", "0")))
 	MANUAL_BATTLE_COUNT = CInt(CfgGet("battle_count", CfgGet("manual_battle_count", "0")))
 	MANUAL_APPLE_ENABLE = CInt(CfgGet("apple_enable", CfgGet("manual_apple_enable", "0")))
 	MANUAL_CHOOSE_FRIEND = CInt(CfgGet("manual_choose_friend", CfgGet("choose_friend_manual", "0")))
-	MANUAL_FORCE_COLOR_CARD = CInt(CfgGet("force_color_card", CfgGet("manual_force_color_card", "0")))
 	MANUAL_DEBUG_SCREENSHOT_ENABLE = CInt(CfgGet("debug_screenshot_enable", CfgGet("manual_debug_screenshot_enable", CfgGet("debug_enable", "0"))))
 
 	CFG_FRIEND = CStr(CfgGet("friend", ""))
@@ -774,7 +797,6 @@ Sub ReloadConfig()
 	BATTLE_COUNT = CInt(MANUAL_BATTLE_COUNT)
 	CHOOSE_FRIEND_MANUAL = CInt(MANUAL_CHOOSE_FRIEND)
 	APPLE_ENABLE = CInt(MANUAL_APPLE_ENABLE)
-	FORCE_COLOR_CARD = CInt(MANUAL_FORCE_COLOR_CARD)
 	MANUAL_DEBUG_FRIEND_ONLY = CInt(CfgGet("debug_friend_only", CfgGet("manual_debug_friend_only", "0")))
 	DEBUG_SCREENSHOT_ENABLE = CInt(MANUAL_DEBUG_SCREENSHOT_ENABLE)
 	DEBUG_FRIEND_ONLY = CInt(MANUAL_DEBUG_FRIEND_ONLY)
@@ -785,7 +807,7 @@ Sub ReloadConfig()
 
 	ApplyConfigTargets()
 
-	TracePrint "CONFIG PARSED", "group=", CFG_ACTION_GROUP_INDEX, "index=", CFG_ACTION_INDEX, "battle_count=", BATTLE_COUNT, "friend=", CFG_FRIEND, "manual_choose_friend=", CHOOSE_FRIEND_MANUAL, "force_color_card=", FORCE_COLOR_CARD, "debug_screenshot=", DEBUG_SCREENSHOT_ENABLE
+	TracePrint "CONFIG PARSED", "group=", CFG_ACTION_GROUP_INDEX, "index=", CFG_ACTION_INDEX, "battle_count=", BATTLE_COUNT, "friend=", CFG_FRIEND, "manual_choose_friend=", CHOOSE_FRIEND_MANUAL, "debug_screenshot=", DEBUG_SCREENSHOT_ENABLE, "debug_friend_only=", DEBUG_FRIEND_ONLY
 
 	If CFG_ACTION_GROUP_INDEX < 0 Then
 		TracePrint "CONFIG ACTION_ROUND_GROUP_INDEX INVALID, STOP"
@@ -899,8 +921,8 @@ Sub ReloadConfig()
 
 	If RUN_MODE = 0 Then
 		If Not HAS_FRIEND_CONFIG And CHOOSE_FRIEND_MANUAL <= 0 Then
-			' 鑻ュ綋鍓嶅凡澶勪簬鎴樻枟鍐咃紙鎶鑳界晫闈锛夋垨缂栭槦纭璁ょ晫闈锛屽厑璁稿厤鍔╂垬閰嶇疆鐩存帴鎵ц
-			If CheckImg2(BATTLE_HERO_SKILL_CHECK_TAR) <> null Or CheckImg2(START_TAR) <> null Then
+			' 若当前已处于战斗内（技能界面）或编队确认界面（且不在助战选择界面），允许免助战配置直接执行
+			If CheckImg2(BATTLE_HERO_SKILL_CHECK_TAR) <> null Or (Not IsOnFriendSelectScreen() And CheckImg2(START_TAR) <> null) Then
 				TracePrint "Already in battle or team screen (Attack/Start found), bypass empty friend check"
 			Else
 				TracePrint "FRIEND CONFIG INVALID OR EMPTY, STOP"
@@ -919,11 +941,11 @@ Dim BATTLE_SKILL_SPEEDUP_COORD = Array(1100, 770)
 Dim ATT_EQUIP_Goodness = "Attachment:friend_equip_goodness.png"
 
 Dim PREPARE_FRIEND_EQUIP_TAR = Array(40, 180, 920, 800, ATT_EQUIP_Goodness)
-Dim PREPARE_FRIEND_TITLE_TAR = Array(1150, 0, 1435, 80, "Attachment:PREPARE_FRIEND_TITLE.png")
+Dim PREPARE_FRIEND_TITLE_TAR = Array(1150, 0, 1255, 80, "Attachment:PREPARE_FRIEND_TITLE.png")
 Dim PREPARE_FRIEND_REFRESH_TAR = Array(980, 85, 1110, 175, "Attachment:PREPARE_FRIEND_REFRESH.png")
 Dim PREPARE_FRIEND_SCROLLBAR_X = 1412
-Dim PREPARE_FRIEND_SCROLLBAR_BASE_Y = 265
-Dim PREPARE_FRIEND_SCROLLBAR_STEP_Y = 35
+Dim PREPARE_FRIEND_SCROLLBAR_BASE_Y = 245
+Dim PREPARE_FRIEND_SCROLLBAR_STEP_Y = 45
 Dim PREPARE_FRIEND_PAGE_SWIPE_DELAY = 1000
 
 
@@ -1130,7 +1152,7 @@ Dim APPLE_CONFIRM_COORD = Array(944, 660)
 Dim APPLE_CLOSE_COORD = Array(720, 695)
 
 ' ==================== EXTRA TARGETS ====================
-Dim INFINITE_ROLL_TAR = Array(330, 370, 620, 610, "Attachment:ROLL100.png|Attachment:ROLL100-1.png|Attachment:ROLL10.png|Attachment:ROLL10-1.png")
+Dim INFINITE_ROLL_TAR = Array(330, 370, 620, 610, "Attachment:ROLL100.png")
 Dim INFINITE_ROLL_FAST_COORD = Array(300, 400)
 
 Dim ENHANCE_HERO_TAR = Array(880, 5, 1300, 70, "Attachment:ENHANCE_HERO.png")
@@ -1144,6 +1166,8 @@ Dim ENHANCE_HERO_REFUND_CLOSE_TAR = Array(550, 580, 890, 680, "Attachment:ENHANC
 Dim TAP_ENHANCE_HERO_REFUND_CLOSE = Array(686, 614)
 Dim ENHANCE_HERO_TO_ASCEND_TAR = Array(1050, 580, 1320, 680, "Attachment:ENHANCE_HERO_TO_ASCEND.png")
 Dim ENHANCE_HERO_TO_GRAIL_TAR = Array(1050, 580, 1320, 680, "Attachment:ENHANCE_HERO_TO_GRAIL.png")
+Dim ENHANCE_HERO_LV100_TAR = Array(470, 505, 580, 565, "Attachment:ENHANCE_HERO_LV100.png")
+Dim ENHANCE_GRAIL_HERO_LV100_TAR = Array(470, 230, 580, 290, "Attachment:ENHANCE_GRAIL_HERO_LV100.png")
 Dim ENHANCE_ASCEND_TAR = Array(880, 5, 1300, 70, "Attachment:ENHANCE_ASCEND.png")
 Dim ENHANCE_GRAIL_TAR = Array(1050, 5, 1420, 70, "Attachment:ENHANCE_GRAIL.png")
 Dim ENHANCE_GRAIL_CONFIRM_TAR = Array(877, 632, 1006, 698, "Attachment:ENHANCE_GRAIL_CONFIRM.png|Attachment:ENHANCE_HERO_ENHANCE_CONFIRM.png")
@@ -1165,14 +1189,19 @@ Dim TAP_MODAL_CLOSE = Array(663, 684)
 
 Dim POOLFRIEND_CONTINUE_TAR = Array(720, 720, 990, 800, "Attachment:POOLFRIEND_CONTINUE.png")
 Dim POOLFRIEND_GO_TAR = Array(830, 600, 1080, 670, "Attachment:POOLFRIEND_GO.png")
+Dim POOLFRIEND_ICON_TAR = Array(590, 625, 645, 675, "Attachment:POOLFRIEND_ICON.png")
+Dim POOLFRIEND_LIMIT_TAR = Array(920, 495, 1180, 565, "Attachment:POOLFRIEND_LIMIT.png")
+Dim POOLFRIEND_RIGHT_COORD = Array(963, 582)
+Dim POOLFRIEND_MID_COORD = Array(719, 582)
 
 Dim ENHANCE_EQUIP_TAR = Array(880, 5, 1300, 70, "Attachment:ENHANCE_EQUIP.png")
 Dim ENHANCE_EQUIP_ENHANCE_TAR = Array(1340, 716, 1438, 798, "Attachment:ENHANCE_EQUIP_ENHANCE.png")
+Dim ENHANCE_EQUIP_ENHANCE_GRAY_TAR = Array(1340, 716, 1438, 798, "Attachment:ENHANCE_EQUIP_ENHANCE_GRAY.png")
 Dim ENHANCE_EQUIP_ENHANCE_CONFIRM_TAR = Array(877, 632, 1006, 698, "Attachment:ENHANCE_EQUIP_ENHANCE_CONFIRM.png")
 
 Dim ENHANCE_SKILL_TAR = Array(880, 5, 1300, 70, "Attachment:ENHANCE_SKILL.png")
-Dim ENHANCE_SKILL_ENHANCE_TAR = Array(1185, 725, 1230, 785, "Attachment:ENHANCE_SKILL_ENHANCE.png")
-Dim ENHANCE_SKILL_ENHANCE_CONFIRM_TAR = Array(820, 640, 890, 690, "Attachment:ENHANCE_SKILL_ENHANCE_CONFIRM.png")
+Dim ENHANCE_SKILL_ENHANCE_TAR = Array(1340, 716, 1438, 798, "Attachment:ENHANCE_SKILL_ENHANCE.png")
+Dim ENHANCE_SKILL_ENHANCE_CONFIRM_TAR = Array(875, 590, 1020, 680, "Attachment:ENHANCE_SKILL_ENHANCE_CONFIRM.png")
 Dim ENHANCE_SKILL_ENHANCE_L10_TAR = Array(450, 490, 610, 630, "Attachment:ENHANCE_SKILL_ENHANCE_L10.png")
 Dim ENHANCE_SKILL_CLICK_COORD = Array(1100, 765)
 Dim ENHANCE_SKILL_MAX_L10_TAR = Array(1150, 720, 1410, 800, "Attachment:ENHANCE_SKILL_MAX_L10.png")
@@ -1180,6 +1209,7 @@ Dim TAP_ENHANCE_SKILL_1 = Array(532, 286)
 Dim TAP_ENHANCE_SKILL_2 = Array(852, 286)
 Dim TAP_ENHANCE_SKILL_3 = Array(1172, 286)
 Dim ENHANCE_SKILL_HERO_UNSELECTED_TAR = Array(140, 560, 300, 630, "Attachment:ENHANCE_SKILL_HERO_UNSELECTED.png")
+Dim ENHANCE_SKILL_APPEND_TAR = Array(1000, 5, 1250, 75, "Attachment:ENHANCE_SKILL_APPEND.png")
 
 
 
@@ -1723,16 +1753,29 @@ End Function
 Function PageTurnByScrollbar(turnIndex)
 	Dim startY = PREPARE_FRIEND_SCROLLBAR_BASE_Y + (turnIndex - 1) * PREPARE_FRIEND_SCROLLBAR_STEP_Y
 	Dim endY = PREPARE_FRIEND_SCROLLBAR_BASE_Y + turnIndex * PREPARE_FRIEND_SCROLLBAR_STEP_Y
-	BattlePrint("鎵ц屽彸渚ф粴鍔ㄦ潯缈婚〉: 绗 " & turnIndex & " 娆★紝浠 (" & PREPARE_FRIEND_SCROLLBAR_X & "," & startY & ") 骞虫粦鎷栨嫿鍒 (" & PREPARE_FRIEND_SCROLLBAR_X & "," & endY & ")")
+	BattlePrint("执行右侧滚动条翻页: 第 " & turnIndex & " 次，从 (" & PREPARE_FRIEND_SCROLLBAR_X & "," & startY & ") 平滑拖拽到 (" & PREPARE_FRIEND_SCROLLBAR_X & "," & endY & ")")
 	TouchDown PREPARE_FRIEND_SCROLLBAR_X, startY, 1
-	Delay 120
-	TouchMove PREPARE_FRIEND_SCROLLBAR_X, endY, 1, 250
-	Delay 300
+	Delay 100
+
+	' 按照游戏机制规范: 15步高频插值连续发送TouchMove，产生真正的ACTION_MOVE轨迹，100%激活Unity Scrollbar OnDrag
+	Dim stepCount = 15
+	Dim s
+	For s = 1 To stepCount
+		Dim curY = Int(startY + (endY - startY) * s / stepCount)
+		TouchMove PREPARE_FRIEND_SCROLLBAR_X, curY, 1
+		Delay 25
+	Next
+
+	Delay 150
 	TouchUp 1
 	Delay PREPARE_FRIEND_PAGE_SWIPE_DELAY
 End Function
 
 // do Battle >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+Function IsOnFriendSelectScreen()
+	IsOnFriendSelectScreen = (CheckImg2(PREPARE_FRIEND_TITLE_TAR) <> null Or CheckImg2(PREPARE_FRIEND_REFRESH_TAR) <> null)
+End Function
+
 Function WaitFriendScreenReady()
 	WaitFriendScreenReady = false
 	Dim waitMs = 0
@@ -1828,7 +1871,7 @@ Function ChooseFriend()
 	Dim TapPointY = Point[2]
 	// todo check friend equip
 	Delay 100
-	CheckAndTapImg2(PREPARE_FRIEND_TAR, null)
+	tap TapPointX, TapPointY
 End Function
 
 Function HandleEatApple()
@@ -1936,8 +1979,18 @@ Function CheckBattleStart()
 			End If
 		End If
 
-		Dim StartPoint = CheckImg2(START_TAR)
+		Dim StartPoint = null
+		If Not IsOnFriendSelectScreen() Then
+			StartPoint = CheckImg2(START_TAR)
+		End If
 		If StartPoint <> null Then
+			If DEBUG_FRIEND_ONLY > 0 Then
+				BattlePrint("【助战调试】已停在队伍确认界面（检测到开始任务按钮），根据配置停止进入战斗。")
+				USER_STOP_REQUESTED = true
+				ABORT_REASON = "【助战调试完成】已选定助战，已安全停机"
+				CheckBattleStart = false
+				Exit Function
+			End If
 			TracePrint "Battle Start: START found (team confirm screen), tap START"
 			tap StartPoint[1], StartPoint[2]
 			Delay 1200
@@ -2142,175 +2195,6 @@ Function SelectFallbackCard()
 	Next
 	TracePrint "Fallback all chosen, default tap card 5"
 	tap BATTLE_ATTACK_CARD_COORDS[5][1], BATTLE_ATTACK_CARD_COORDS[5][2]
-End Function
-
-Function SelectPriorityBusterCard()
-	Dim PriorityCount = BATTLE_ATTACK_CARD_PRIORITY_COUNT
-	Dim BusterCards = Array()
-	Dim BusterCount = 0
-	Dim i
-	For i = 1 To 5
-		If BATTLE_CARD_CHOSEN[i] = 0 Then
-			Dim cx = BATTLE_ATTACK_CARD_COORDS[i][1]
-			Dim busterArea = Array(cx - 130, 460, cx + 130, 750, "Attachment:BATTLE_ATTACK_CARD_BUSTER.png")
-			Dim getBuster = CheckImg2(busterArea)
-			If getBuster <> null Then
-				BusterCount = BusterCount + 1
-				BusterCards[BusterCount] = i
-			End If
-		End If
-	Next
-	
-	If BusterCount = 0 Then
-		If FORCE_COLOR_CARD > 0 Then
-			TracePrint "No Buster Card found, force wait: fallback to default"
-			CheckAndTapImg2(BATTLE_ATTACK_CARD_BUSTER_TAR, null)
-			Exit Function
-		Else
-			TracePrint "No Buster Card found, fallback to 54321"
-			SelectFallbackCard()
-			Exit Function
-		End If
-	End If
-	
-	Dim p
-	If PriorityCount >= 1 Then
-		For p = 1 To PriorityCount
-			If BATTLE_ATTACK_CARD_PRIORITY_TARS[p] <> null Then
-				Dim b
-				For b = 1 To BusterCount
-					Dim cIdx = BusterCards[b]
-					cx = BATTLE_ATTACK_CARD_COORDS[cIdx][1]
-					Dim heroTar = Array(cx - 100, 350, cx + 100, 550, BATTLE_ATTACK_CARD_PRIORITY_TARS[p])
-					Dim getHero = CheckPriorityImg(heroTar, BATTLE_ATTACK_CARD_PRIORITY_SIM)
-					If getHero <> null Then
-						TracePrint "Found Priority Buster Card:", BATTLE_ATTACK_CARD_PRIORITY_TARS[p], "at card", cIdx, "sim", BATTLE_ATTACK_CARD_PRIORITY_SIM
-						BATTLE_CARD_CHOSEN[cIdx] = 1
-						tap BATTLE_ATTACK_CARD_COORDS[cIdx][1], BATTLE_ATTACK_CARD_COORDS[cIdx][2]
-						Exit Function
-					End If
-				Next
-			End If
-		Next
-	End If
-	
-	' Fallback
-	Dim firstBusterIdx = BusterCards[1]
-	TracePrint "No priority matched, tap first Buster Card:", firstBusterIdx
-	BATTLE_CARD_CHOSEN[firstBusterIdx] = 1
-	tap BATTLE_ATTACK_CARD_COORDS[firstBusterIdx][1], BATTLE_ATTACK_CARD_COORDS[firstBusterIdx][2]
-End Function
-
-Function SelectPriorityArtsCard()
-	Dim PriorityCount = BATTLE_ATTACK_CARD_ARTS_PRIORITY_COUNT
-	Dim ArtsCards = Array()
-	Dim ArtsCount = 0
-	Dim i
-	For i = 1 To 5
-		If BATTLE_CARD_CHOSEN[i] = 0 Then
-			Dim cx = BATTLE_ATTACK_CARD_COORDS[i][1]
-			Dim artsArea = Array(cx - 130, 460, cx + 130, 750, "Attachment:BATTLE_ATTACK_CARD_ARTS.png")
-			Dim getArts = CheckImg2(artsArea)
-			If getArts <> null Then
-				ArtsCount = ArtsCount + 1
-				ArtsCards[ArtsCount] = i
-			End If
-		End If
-	Next
-
-	If ArtsCount = 0 Then
-		If FORCE_COLOR_CARD > 0 Then
-			TracePrint "No Arts Card found, force wait: fallback to default"
-			CheckAndTapImg2(BATTLE_ATTACK_CARD_ARTS_TAR, null)
-			Exit Function
-		Else
-			TracePrint "No Arts Card found, fallback to 54321"
-			SelectFallbackCard()
-			Exit Function
-		End If
-	End If
-
-	Dim p
-	If PriorityCount >= 1 Then
-		For p = 1 To PriorityCount
-			If BATTLE_ATTACK_CARD_ARTS_PRIORITY_TARS[p] <> null Then
-				Dim a
-				For a = 1 To ArtsCount
-					Dim cIdx = ArtsCards[a]
-					cx = BATTLE_ATTACK_CARD_COORDS[cIdx][1]
-					Dim heroTar = Array(cx - 100, 350, cx + 100, 550, BATTLE_ATTACK_CARD_ARTS_PRIORITY_TARS[p])
-					Dim getHero = CheckPriorityImg(heroTar, BATTLE_ATTACK_CARD_ARTS_PRIORITY_SIM)
-					If getHero <> null Then
-						TracePrint "Found Priority Arts Card:", BATTLE_ATTACK_CARD_ARTS_PRIORITY_TARS[p], "at card", cIdx, "sim", BATTLE_ATTACK_CARD_ARTS_PRIORITY_SIM
-						BATTLE_CARD_CHOSEN[cIdx] = 1
-						tap BATTLE_ATTACK_CARD_COORDS[cIdx][1], BATTLE_ATTACK_CARD_COORDS[cIdx][2]
-						Exit Function
-					End If
-				Next
-			End If
-		Next
-	End If
-
-	Dim firstArtsIdx = ArtsCards[1]
-	TracePrint "No priority matched, tap first Arts Card:", firstArtsIdx
-	BATTLE_CARD_CHOSEN[firstArtsIdx] = 1
-	tap BATTLE_ATTACK_CARD_COORDS[firstArtsIdx][1], BATTLE_ATTACK_CARD_COORDS[firstArtsIdx][2]
-End Function
-
-Function SelectPriorityQuickCard()
-	Dim PriorityCount = BATTLE_ATTACK_CARD_QUICK_PRIORITY_COUNT
-	Dim QuickCards = Array()
-	Dim QuickCount = 0
-	Dim i
-	For i = 1 To 5
-		If BATTLE_CARD_CHOSEN[i] = 0 Then
-			Dim cx = BATTLE_ATTACK_CARD_COORDS[i][1]
-			Dim quickArea = Array(cx - 130, 460, cx + 130, 750, "Attachment:BATTLE_ATTACK_CARD_QUICK.png")
-			Dim getQuick = CheckImg2(quickArea)
-			If getQuick <> null Then
-				QuickCount = QuickCount + 1
-				QuickCards[QuickCount] = i
-			End If
-		End If
-	Next
-
-	If QuickCount = 0 Then
-		If FORCE_COLOR_CARD > 0 Then
-			TracePrint "No Quick Card found, force wait: fallback to default"
-			CheckAndTapImg2(BATTLE_ATTACK_CARD_QUICK_TAR, null)
-			Exit Function
-		Else
-			TracePrint "No Quick Card found, fallback to 54321"
-			SelectFallbackCard()
-			Exit Function
-		End If
-	End If
-
-	Dim p
-	If PriorityCount >= 1 Then
-		For p = 1 To PriorityCount
-			If BATTLE_ATTACK_CARD_QUICK_PRIORITY_TARS[p] <> null Then
-				Dim q
-				For q = 1 To QuickCount
-					Dim cIdx = QuickCards[q]
-					cx = BATTLE_ATTACK_CARD_COORDS[cIdx][1]
-					Dim heroTar = Array(cx - 100, 350, cx + 100, 550, BATTLE_ATTACK_CARD_QUICK_PRIORITY_TARS[p])
-					Dim getHero = CheckPriorityImg(heroTar, BATTLE_ATTACK_CARD_QUICK_PRIORITY_SIM)
-					If getHero <> null Then
-						TracePrint "Found Priority Quick Card:", BATTLE_ATTACK_CARD_QUICK_PRIORITY_TARS[p], "at card", cIdx, "sim", BATTLE_ATTACK_CARD_QUICK_PRIORITY_SIM
-						BATTLE_CARD_CHOSEN[cIdx] = 1
-						tap BATTLE_ATTACK_CARD_COORDS[cIdx][1], BATTLE_ATTACK_CARD_COORDS[cIdx][2]
-						Exit Function
-					End If
-				Next
-			End If
-		Next
-	End If
-
-	Dim firstQuickIdx = QuickCards[1]
-	TracePrint "No priority matched, tap first Quick Card:", firstQuickIdx
-	BATTLE_CARD_CHOSEN[firstQuickIdx] = 1
-	tap BATTLE_ATTACK_CARD_COORDS[firstQuickIdx][1], BATTLE_ATTACK_CARD_COORDS[firstQuickIdx][2]
 End Function
 
 Function TryTapFirstColorCard(colorImg, colorName)
@@ -2989,18 +2873,30 @@ Function DoBattle()
 	If CheckImg2(BATTLE_HERO_SKILL_CHECK_TAR) <> null Then
 		TracePrint "Already in battle (Attack found), skip ChooseFriend and start actions directly"
 		inBattleDirectly = true
-	ElseIf CheckImg2(START_TAR) <> null Then
+	ElseIf Not IsOnFriendSelectScreen() And CheckImg2(START_TAR) <> null Then
 		TracePrint "In team confirm screen (Start found), skip ChooseFriend"
+		If DEBUG_FRIEND_ONLY > 0 Then
+			BattlePrint("【助战调试】当前已处于队伍确认界面，根据配置停止进入战斗。")
+			USER_STOP_REQUESTED = true
+			ABORT_REASON = "【助战调试完成】已选定助战，已安全停机"
+			Exit Function
+		End If
 	ElseIf CHOOSE_FRIEND_MANUAL <= 0 Then
 		ChooseFriend()
 		If DEBUG_FRIEND_ONLY > 0 Then
-			BattlePrint("銆愬姪鎴樿皟璇曘戝凡鎴愬姛瀹屾垚鍔╂垬閫夋嫨涓庣炕椤垫祴璇曪紒鏍规嵁閰嶇疆鍋滄㈣繘鍏ユ垬鏂椼")
+			BattlePrint("【助战调试】已成功完成助战选择与翻页测试！根据配置停止进入战斗。")
 			USER_STOP_REQUESTED = true
-			ABORT_REASON = "銆愬姪鎴樿皟璇曞畬鎴愩戝凡閫夊畾鍔╂垬锛屽凡瀹夊叏鍋滄"
+			ABORT_REASON = "【助战调试完成】已选定助战，已安全停机"
 			Exit Function
 		End If
 	Else
 		TracePrint "Manual choose friend mode (CHOOSE_FRIEND_MANUAL>0), skip ChooseFriend"
+		If DEBUG_FRIEND_ONLY > 0 Then
+			BattlePrint("【助战调试】人工选助战模式下已跳过选择，根据配置停止进入战斗。")
+			USER_STOP_REQUESTED = true
+			ABORT_REASON = "【助战调试完成】人工选助战模式已安全停机"
+			Exit Function
+		End If
 	End If
 	If USER_STOP_REQUESTED Or CheckStopSignal() Then
 		Exit Function
@@ -3187,22 +3083,21 @@ Function DetectExtraMethodIndex()
 		DetectExtraMethodIndex = 1
 		Exit Function
 	End If
-	ScenePoint = CheckImg2(ENHANCE_HERO_TEMP_CONFIRM_TAR)
-	If ScenePoint <> null Then
-		DetectExtraMethodIndex = 1
-		Exit Function
-	End If
 
-
-	' 2=DoEquipEnhance (绀艰呭己鍖)
+	' 2=DoEquipEnhance (礼装强化)
 	ScenePoint = CheckImg2(ENHANCE_EQUIP_TAR)
 	If ScenePoint <> null Then
 		DetectExtraMethodIndex = 2
 		Exit Function
 	End If
 
-	' 3=DoSkillEnhance (鎶鑳藉己鍖)
+	' 3=DoSkillEnhance (技能强化 / 追加技能强化)
 	ScenePoint = CheckImg2(ENHANCE_SKILL_TAR)
+	If ScenePoint <> null Then
+		DetectExtraMethodIndex = 3
+		Exit Function
+	End If
+	ScenePoint = CheckImg2(ENHANCE_SKILL_APPEND_TAR)
 	If ScenePoint <> null Then
 		DetectExtraMethodIndex = 3
 		Exit Function
@@ -3218,17 +3113,33 @@ Function DetectExtraMethodIndex()
 		Exit Function
 	End If
 
-	' 4=DoFriendPool (鍙嬫儏姹)
+	' 4=DoFriendPool (友情池)
 	ScenePoint = CheckImg2(POOLFRIEND_CONTINUE_TAR)
 	If ScenePoint <> null Then
 		DetectExtraMethodIndex = 4
 		Exit Function
 	End If
+	ScenePoint = CheckImg2(POOLFRIEND_ICON_TAR)
+	If ScenePoint <> null Then
+		DetectExtraMethodIndex = 4
+		Exit Function
+	End If
 
-	' 5=DoRoll (鏃犻檺姹)
+	' 5=DoRoll (无限池)
 	ScenePoint = CheckImg2(INFINITE_ROLL_TAR)
 	If ScenePoint <> null Then
 		DetectExtraMethodIndex = 5
+		Exit Function
+	End If
+
+	' 容错兜底：若处于临时从者确认弹窗中
+	ScenePoint = CheckImg2(ENHANCE_HERO_TEMP_CONFIRM_TAR)
+	If ScenePoint <> null Then
+		If CheckImg2(ENHANCE_SKILL_TAR) <> null Then
+			DetectExtraMethodIndex = 3
+		Else
+			DetectExtraMethodIndex = 1
+		End If
 		Exit Function
 	End If
 
@@ -3237,17 +3148,21 @@ End Function
 
 Function GetExtraMethodActionName(DetectedMethodIndex)
 	If DetectedMethodIndex = 1 Then
-		GetExtraMethodActionName = "浠庤呭己鍖"
+		GetExtraMethodActionName = "从者强化"
 	ElseIf DetectedMethodIndex = 2 Then
-		GetExtraMethodActionName = "绀艰呭己鍖"
+		GetExtraMethodActionName = "礼装强化"
 	ElseIf DetectedMethodIndex = 3 Then
-		GetExtraMethodActionName = "鎶鑳藉己鍖"
+		If CheckImg2(ENHANCE_SKILL_APPEND_TAR) <> null Then
+			GetExtraMethodActionName = "追加技能强化"
+		Else
+			GetExtraMethodActionName = "技能强化"
+		End If
 	ElseIf DetectedMethodIndex = 4 Then
-		GetExtraMethodActionName = "鍙嬫儏鐐瑰彫鍞"
+		GetExtraMethodActionName = "友情点召唤"
 	ElseIf DetectedMethodIndex = 5 Then
-		GetExtraMethodActionName = "鏃犻檺姹犳娊鍗"
+		GetExtraMethodActionName = "无限池抽卡"
 	Else
-		GetExtraMethodActionName = "鏈鐭ュ満鏅"
+		GetExtraMethodActionName = "未知场景"
 	End If
 End Function
 
@@ -3272,23 +3187,12 @@ Sub SkipHeroEnhanceAnim()
 		' 0) 妫鏌ユ槸鍚﹀嚭鐜扮礌鏉愯繑杩樺脊绐 (澶ф垚鍔/鏋佸ぇ鎴愬姛杈惧埌涓婇檺杩旇繕绱犳潗)
 		Dim refundCloseCoord = CheckImg2(ENHANCE_HERO_REFUND_CLOSE_TAR)
 		If refundCloseCoord <> null Then
-			TracePrint "寮哄寲鍔ㄧ敾涓妫娴嬪埌绱犳潗杩旇繕寮圭獥锛岀偣鍑诲叧闂鎸夐挳 ->", refundCloseCoord[1], refundCloseCoord[2]
+			TracePrint "强化动画中检测到素材返还弹窗，点击关闭按钮 ->", refundCloseCoord[1], refundCloseCoord[2]
 			tap refundCloseCoord[1], refundCloseCoord[2]
 			Delay 800
 		End If
 
-		Dim modalCloseAnim = CheckImg2(MODAL_CLOSE_TAR)
-		If modalCloseAnim <> null Then
-			TracePrint "强化动画: 检测到误触打开的素材/详情弹窗，点击「关闭」 ->", modalCloseAnim[1], modalCloseAnim[2]
-			If TAP_MODAL_CLOSE <> null Then
-				tap TAP_MODAL_CLOSE[1], TAP_MODAL_CLOSE[2]
-			Else
-				tap modalCloseAnim[1] + 21, modalCloseAnim[2] + 17
-			End If
-			Delay 500
-		End If
-
-		' 1) 浼樺厛妫鏌ユ槸鍚﹀嚭鐜版弧绾х獊鐮村紩瀵 (鍓嶅線鐏靛熀鍐嶄复)
+		' 1) 优先检查是否出现满级突破引导 (前往灵基再临)
 		' 1.5) 鏄鍚﹀凡杈炬渶缁堢瓑绾т笂闄 (鍓嶅線鍦ｆ澂杞涓)
 		Dim toGrailCoord = CheckImg2(ENHANCE_HERO_TO_GRAIL_TAR)
 		If toGrailCoord <> null Then
@@ -3373,7 +3277,7 @@ Function DoHeroAscendFlow()
 		If TAP_ENHANCE_ASCEND_TO_HERO <> null Then
 			tap TAP_ENHANCE_ASCEND_TO_HERO[1], TAP_ENHANCE_ASCEND_TO_HERO[2]
 		Else
-			tap returnBtnPre[1] + 100, returnBtnPre[2] + 16
+			tap returnBtnPre[1] + 28, returnBtnPre[2] + 15
 		End If
 		Delay 1000
 
@@ -3404,18 +3308,6 @@ Function DoHeroAscendFlow()
 		Exit Function
 	End If
 
-	' 1.5 容错：检查是否误触打开了素材详情等提示弹窗，检测并点击「关闭」
-	Dim modalClosePre = CheckImg2(MODAL_CLOSE_TAR)
-	If modalClosePre <> null Then
-		TracePrint "灵基再临: 容错检测到素材/详情弹窗，点击「关闭」 ->", modalClosePre[1], modalClosePre[2]
-		If TAP_MODAL_CLOSE <> null Then
-			tap TAP_MODAL_CLOSE[1], TAP_MODAL_CLOSE[2]
-		Else
-			tap modalClosePre[1] + 21, modalClosePre[2] + 17
-		End If
-		Delay 600
-	End If
-
 	' 2. 检查是否已处于临时从者提示弹窗或确认弹窗状态（容错）
 	Dim tempAscendPre = CheckImg2(ENHANCE_HERO_TEMP_CONFIRM_TAR)
 	If tempAscendPre <> null Then
@@ -3443,7 +3335,7 @@ Function DoHeroAscendFlow()
 			If TAP_ENHANCE_ASCEND_TO_HERO <> null Then
 				tap TAP_ENHANCE_ASCEND_TO_HERO[1], TAP_ENHANCE_ASCEND_TO_HERO[2]
 			Else
-				tap toHeroFallback[1] + 100, toHeroFallback[2] + 16
+				tap toHeroFallback[1] + 28, toHeroFallback[2] + 15
 			End If
 			Delay 1200
 			DoHeroAscendFlow = true
@@ -3461,6 +3353,12 @@ Function DoHeroAscendFlow()
 		Dim clickRetry = 0
 		Do While clickRetry < 4
 			TracePrint "点击右下角再临「强化」按钮 ->", ascendBtnCoord[1], ascendBtnCoord[2]
+			If EXTRA_DRY_RUN = 1 Then
+				TracePrint "[DRY-RUN 仿真安全模式] 拦截点击灵基再临「强化」执行按钮 ->", ascendBtnCoord[1], ascendBtnCoord[2]
+				UpdateRunnerStatus "IDLE", "仿真模式：已拦截灵基再临强化点击"
+				DoHeroAscendFlow = false
+				Exit Function
+			End If
 			UpdateRunnerStatus "RUNNING", "灵基再临中: 正在点击执行再临..."
 			tap ascendBtnCoord[1], ascendBtnCoord[2]
 			Delay 800
@@ -3503,6 +3401,12 @@ Function DoHeroAscendFlow()
 	End If
 
 	TracePrint "点击灵基再临确认弹窗「决定」按钮 ->", confirmCoord[1], confirmCoord[2]
+	If EXTRA_DRY_RUN = 1 Then
+		TracePrint "[DRY-RUN 仿真安全模式] 拦截点击灵基再临「二次确认决定」按钮 ->", confirmCoord[1], confirmCoord[2]
+		UpdateRunnerStatus "IDLE", "仿真模式：已拦截再临二次确认点击"
+		DoHeroAscendFlow = false
+		Exit Function
+	End If
 	If TAP_ENHANCE_ASCEND_CONFIRM <> null Then
 		tap TAP_ENHANCE_ASCEND_CONFIRM[1], TAP_ENHANCE_ASCEND_CONFIRM[2]
 	Else
@@ -3529,14 +3433,6 @@ Function DoHeroAscendFlow()
 			foundReturnBtn = true
 			TracePrint "灵基再临: 检测到「前往强化从者」快捷按钮 ->", returnBtnCoord[1], returnBtnCoord[2]
 			Exit Do
-		End If
-
-		' 容错：若误触打开了素材详情等提示弹窗，检测并点击关闭
-		Dim modalCloseAscend = CheckImg2(MODAL_CLOSE_TAR)
-		If modalCloseAscend <> null Then
-			TracePrint "灵基再临: 检测到误触打开的素材/详情弹窗，点击「关闭」 ->", modalCloseAscend[1], modalCloseAscend[2]
-			tap modalCloseAscend[1] + 21, modalCloseAscend[2] + 17
-			Delay 500
 		End If
 
 		' 盲点加速 (底部空白安全区 1060, 760)
@@ -3629,6 +3525,17 @@ Function DoHeroGrailFlow()
 	TracePrint "成功进入圣杯转临界面，等待数据加载..."
 	Delay 800
 
+	' 1.1 转临界面二次防守：若设置了 100 级上限 (EXTRA_HERO_AUTO_GRAIL = 1)，核验转临结果下方当前等级是否已是 100 级
+	If EXTRA_HERO_AUTO_GRAIL = 1 Then
+		Dim lv100GrailCoord = CheckImg2(ENHANCE_GRAIL_HERO_LV100_TAR)
+		If lv100GrailCoord <> null Then
+			TracePrint "圣杯转临二次防守: 检测到转临结果等级已达 100 级且设置了 100 上限，安全拦截转临并终止！"
+			UpdateRunnerStatus "IDLE", "从者已达 100 级上限，停止圣杯转临"
+			DoHeroGrailFlow = false
+			Exit Function
+		End If
+	End If
+
 	' 1.2 容错：检查是否已处于圣杯转临完成界面（出现「前往强化从者」按钮）
 	Dim grailReturnBtnPre = CheckImg2(ENHANCE_ASCEND_TO_HERO_TAR)
 	If grailReturnBtnPre <> null Then
@@ -3668,18 +3575,6 @@ Function DoHeroGrailFlow()
 		Exit Function
 	End If
 
-	' 1.5 容错：检查是否误触打开了素材详情等提示弹窗，检测并点击「关闭」
-	Dim modalCloseGrailPre = CheckImg2(MODAL_CLOSE_TAR)
-	If modalCloseGrailPre <> null Then
-		TracePrint "圣杯转临: 容错检测到素材/详情弹窗，点击「关闭」 ->", modalCloseGrailPre[1], modalCloseGrailPre[2]
-		If TAP_MODAL_CLOSE <> null Then
-			tap TAP_MODAL_CLOSE[1], TAP_MODAL_CLOSE[2]
-		Else
-			tap modalCloseGrailPre[1] + 21, modalCloseGrailPre[2] + 17
-		End If
-		Delay 600
-	End If
-
 	' 2. 检查是否已处于临时从者提示弹窗或确认弹窗状态（容错）
 	Dim tempGrailPre = CheckImg2(ENHANCE_HERO_TEMP_CONFIRM_TAR)
 	If tempGrailPre <> null Then
@@ -3710,7 +3605,7 @@ Function DoHeroGrailFlow()
 			If TAP_ENHANCE_ASCEND_TO_HERO <> null Then
 				tap TAP_ENHANCE_ASCEND_TO_HERO[1], TAP_ENHANCE_ASCEND_TO_HERO[2]
 			Else
-				tap toHeroFallback[1] + 100, toHeroFallback[2] + 16
+				tap toHeroFallback[1] + 28, toHeroFallback[2] + 15
 			End If
 			Delay 1200
 			DoHeroGrailFlow = true
@@ -3744,6 +3639,12 @@ Function DoHeroGrailFlow()
 		Dim clickRetry = 0
 		Do While clickRetry < 4
 			TracePrint "点击圣杯转临「强化」按钮 ->", grailBtnCoord[1], grailBtnCoord[2]
+			If EXTRA_DRY_RUN = 1 Then
+				TracePrint "[DRY-RUN 仿真安全模式] 拦截点击圣杯转临「强化」执行按钮 ->", grailBtnCoord[1], grailBtnCoord[2]
+				UpdateRunnerStatus "IDLE", "仿真模式：已拦截圣杯转临强化点击"
+				DoHeroGrailFlow = false
+				Exit Function
+			End If
 			UpdateRunnerStatus "RUNNING", "圣杯转临: 正在点击执行..."
 			tap grailBtnCoord[1], grailBtnCoord[2]
 			Delay 800
@@ -3787,7 +3688,13 @@ Function DoHeroGrailFlow()
 		Exit Function
 	End If
 
-	TracePrint "鐐瑰嚮纭璁ゃ屽喅瀹氥嶆寜閽 ->", confirmCoord[1], confirmCoord[2]
+	TracePrint "点击确认「决定」按钮 ->", confirmCoord[1], confirmCoord[2]
+	If EXTRA_DRY_RUN = 1 Then
+		TracePrint "[DRY-RUN 仿真安全模式] 拦截点击圣杯转临「二次确认决定」按钮 ->", confirmCoord[1], confirmCoord[2]
+		UpdateRunnerStatus "IDLE", "仿真模式：已拦截转临二次确认点击"
+		DoHeroGrailFlow = false
+		Exit Function
+	End If
 	If TAP_ENHANCE_GRAIL_CONFIRM <> null Then
 		tap TAP_ENHANCE_GRAIL_CONFIRM[1], TAP_ENHANCE_GRAIL_CONFIRM[2]
 	Else
@@ -3795,33 +3702,25 @@ Function DoHeroGrailFlow()
 	End If
 	Delay 600
 
-	' 4. 盲点快速跳过动画并探测「前往强化从者」按钮
+	' 4. 盲点快速跳过动画并准确探测「前往强化从者」按钮
 	TracePrint "已确认，开始盲点跳过圣杯转临动画..."
 	UpdateRunnerStatus "RUNNING", "圣杯转临: 跳过动画..."
 
 	Dim animRetry = 0
 	Dim foundReturnBtn = false
 	Dim returnBtnCoord = null
-	Do While animRetry < 240
+	Do While animRetry < 100
 		If USER_STOP_REQUESTED Or CheckStopSignal() Then
 			DoHeroGrailFlow = false
 			Exit Function
 		End If
 
-		' 优先检查是否出现「前往强化从者」快捷返回按钮
+		' 4.1 准确检查是否出现「前往强化从者」快捷按钮
 		returnBtnCoord = CheckImg2(ENHANCE_ASCEND_TO_HERO_TAR)
 		If returnBtnCoord <> null Then
 			foundReturnBtn = true
-			TracePrint "圣杯转临: 检测到「前往强化从者」快捷按钮 ->", returnBtnCoord[1], returnBtnCoord[2]
+			TracePrint "圣杯转临: 准确检测到「前往强化从者」快捷按钮 ->", returnBtnCoord[1], returnBtnCoord[2]
 			Exit Do
-		End If
-
-		' 容错：若误触打开了素材详情等提示弹窗，检测并点击关闭
-		Dim modalCloseGrailLoop = CheckImg2(MODAL_CLOSE_TAR)
-		If modalCloseGrailLoop <> null Then
-			TracePrint "圣杯转临: 检测到误触打开的素材/详情弹窗，点击「关闭」 ->", modalCloseGrailLoop[1], modalCloseGrailLoop[2]
-			tap modalCloseGrailLoop[1] + 21, modalCloseGrailLoop[2] + 17
-			Delay 500
 		End If
 
 		' 盲点安全区快速跳过动画 (底部空白安全区 1060, 760)
@@ -3833,50 +3732,53 @@ Function DoHeroGrailFlow()
 		End If
 	Loop
 
-	' 5. 鐐瑰嚮蹇鎹锋寜閽杩斿洖寮哄寲 (鑻ヨ秴鏃跺垯浣跨敤宸︿笂瑙掕繑鍥炴寜閽鍏滃簳)
-	If foundReturnBtn Then
-		TracePrint "鐐瑰嚮銆屽墠寰寮哄寲浠庤呫嶅揩鎹锋寜閽杩斿洖寮哄寲 ->", returnBtnCoord[1], returnBtnCoord[2]
-		UpdateRunnerStatus "RUNNING", "鍦ｆ澂杞涓存垚鍔燂紝姝ｅ湪杩斿洖寮哄寲..."
-		If TAP_ENHANCE_ASCEND_TO_HERO <> null Then
-			tap TAP_ENHANCE_ASCEND_TO_HERO[1], TAP_ENHANCE_ASCEND_TO_HERO[2]
-		Else
-			tap returnBtnCoord[1] + 100, returnBtnCoord[2] + 16
-		End If
-		Delay 1000
+	' 5. 若超时未准确检测到按钮，按安全策略直接报错停机，严禁盲目固定兜底
+	If Not foundReturnBtn Then
+		TracePrint "圣杯转临超时: 持续 25 秒未准确识别到「前往强化从者」按钮，安全停机！"
+		UpdateRunnerStatus "IDLE", "圣杯转临未检测到前往强化按钮，安全停止"
+		ABORT_REASON = "圣杯转临未检测到前往强化按钮，安全停止"
+		USER_STOP_REQUESTED = true
+		DoHeroGrailFlow = false
+		Exit Function
+	End If
 
-		' 纭璁ゆ槸鍚︽垚鍔熻繑鍥炲己鍖栦富鐣岄潰
-		Dim waitBack = 0
-		Do While waitBack < 25
-			If USER_STOP_REQUESTED Or CheckStopSignal() Then
-				Exit Do
-			End If
-			If CheckImg2(ENHANCE_HERO_TAR) <> null Then
-				TracePrint "宸叉垚鍔熻繑鍥炰粠鑰呭己鍖栫晫闈锛岃浆涓撮棴鐜瀹屾垚"
-				DoHeroGrailFlow = true
-				Exit Function
-			End If
-			If waitBack Mod 5 = 4 Then
-				returnBtnCoord = CheckImg2(ENHANCE_ASCEND_TO_HERO_TAR)
-				If returnBtnCoord <> null Then
-					If TAP_ENHANCE_ASCEND_TO_HERO <> null Then
-						tap TAP_ENHANCE_ASCEND_TO_HERO[1], TAP_ENHANCE_ASCEND_TO_HERO[2]
-					Else
-						tap returnBtnCoord[1] + 100, returnBtnCoord[2] + 16
-					End If
-				End If
-			End If
-			Delay 300
-			waitBack = waitBack + 1
-		Loop
-	Else
-		TracePrint "绛夊緟蹇鎹疯繑鍥炴寜閽瓒呮椂锛屽皾璇曠偣鍑诲乏涓婅掕繑鍥炴寜閽"
-		Dim backCoord = CheckImg2(ENHANCE_ASCEND_BACK_TAR)
-		If backCoord <> null Then
-			tap backCoord[1], backCoord[2]
-		Else
-			tap TAP_ENHANCE_ASCEND_BACK[1], TAP_ENHANCE_ASCEND_BACK[2]
+	' 6. 准确检测到按钮，点击返回从者强化
+	TracePrint "点击「前往强化从者」快捷按钮返回强化 ->", returnBtnCoord[1] + 28, returnBtnCoord[2] + 15
+	UpdateRunnerStatus "RUNNING", "圣杯转临成功，正在返回强化从者..."
+	tap returnBtnCoord[1] + 28, returnBtnCoord[2] + 15
+	Delay 1000
+
+	' 7. 严格确认是否成功返回强化主界面，杜绝外层死循环
+	Dim waitBack = 0
+	Dim backSuccess = false
+	Do While waitBack < 30
+		If USER_STOP_REQUESTED Or CheckStopSignal() Then
+			Exit Do
 		End If
-		Delay 1000
+		If CheckImg2(ENHANCE_HERO_TAR) <> null Then
+			TracePrint "已成功从圣杯转临返回从者强化界面，转临闭环完成"
+			backSuccess = true
+			Exit Do
+		End If
+		If waitBack Mod 6 = 5 Then
+			' 容错重试：若仍处于转临完成界面，重试点击
+			returnBtnCoord = CheckImg2(ENHANCE_ASCEND_TO_HERO_TAR)
+			If returnBtnCoord <> null Then
+				TracePrint "重试点击「前往强化从者」按钮 ->", returnBtnCoord[1] + 28, returnBtnCoord[2] + 15
+				tap returnBtnCoord[1] + 28, returnBtnCoord[2] + 15
+			End If
+		End If
+		Delay 300
+		waitBack = waitBack + 1
+	Loop
+
+	If Not backSuccess Then
+		TracePrint "圣杯转临点击返回后超时未进入从者强化主界面，按安全策略报错停机！"
+		UpdateRunnerStatus "IDLE", "转临后未成功返回强化主界面，安全停止"
+		ABORT_REASON = "转临后未成功返回强化主界面，安全停止"
+		USER_STOP_REQUESTED = true
+		DoHeroGrailFlow = false
+		Exit Function
 	End If
 
 	DoHeroGrailFlow = true
@@ -3892,7 +3794,7 @@ Function DoEnhance()
 		If TAP_ENHANCE_ASCEND_TO_HERO <> null Then
 			tap TAP_ENHANCE_ASCEND_TO_HERO[1], TAP_ENHANCE_ASCEND_TO_HERO[2]
 		Else
-			tap toHeroEntry[1] + 100, toHeroEntry[2] + 16
+			tap toHeroEntry[1] + 28, toHeroEntry[2] + 15
 		End If
 		Delay 1200
 		Exit Function
@@ -3908,20 +3810,15 @@ Function DoEnhance()
 		Delay 500
 	End If
 
-	Dim modalCloseEntry = CheckImg2(MODAL_CLOSE_TAR)
-	If modalCloseEntry <> null Then
-		TracePrint "容错检测到素材/详情弹窗，点击关闭按钮 ->", modalCloseEntry[1], modalCloseEntry[2]
-		If TAP_MODAL_CLOSE <> null Then
-			tap TAP_MODAL_CLOSE[1], TAP_MODAL_CLOSE[2]
-		Else
-			tap modalCloseEntry[1] + 21, modalCloseEntry[2] + 17
-		End If
-		Delay 600
-	End If
-
 	Dim confirmEntry = CheckImg2(ENHANCE_HERO_ENHANCE_CONFIRM_TAR)
 	If confirmEntry <> null Then
 		TracePrint "容错：检测到停留在强化确认弹窗，点击「决定」按钮 ->", confirmEntry[1], confirmEntry[2]
+		If EXTRA_DRY_RUN = 1 Then
+			TracePrint "[DRY-RUN 仿真安全模式] 拦截容错强化确认点击 ->", confirmEntry[1], confirmEntry[2]
+			UpdateRunnerStatus "IDLE", "仿真模式：已拦截容错强化确认点击"
+			HasTicket = false
+			Exit Function
+		End If
 		tap confirmEntry[1] + 43, confirmEntry[2] + 19
 		Delay 600
 		UpdateRunnerStatus "RUNNING", "跳过强化动画中 (第 " & CurrentBattleCount & "/" & EXTRA_ACTION_COUNT & " 次)..."
@@ -3994,8 +3891,14 @@ Function DoEnhance()
 	Dim toAscendCoord = CheckImg2(ENHANCE_HERO_TO_ASCEND_TAR)
 	If toAscendCoord <> null Then
 		If EXTRA_HERO_AUTO_ASCEND = 1 Then
-			TracePrint "妫娴嬪埌銆屽墠寰鐏靛熀鍐嶄复銆嶅紩瀵硷紝銆愯嚜鍔ㄧ伒鍩哄啀涓淬戝凡寮鍚锛屾墽琛岃烦杞绐佺牬..."
-			UpdateRunnerStatus "RUNNING", "浠庤呭凡杈鹃樁娈垫弧绾э紝姝ｅ湪璺宠浆鐏靛熀鍐嶄复..."
+			TracePrint "检测到「前往灵基再临」引导，【自动灵基再临】已开启，执行跳转突破..."
+			UpdateRunnerStatus "RUNNING", "从者已达阶段满级，正在跳转灵基再临..."
+			If EXTRA_DRY_RUN = 1 Then
+				TracePrint "[DRY-RUN 仿真安全模式] 拦截点击「前往灵基再临」 ->", toAscendCoord[1], toAscendCoord[2]
+				UpdateRunnerStatus "IDLE", "仿真模式：已拦截点击「前往灵基再临」"
+				HasTicket = false
+				Exit Function
+			End If
 			tap toAscendCoord[1], toAscendCoord[2]
 			Delay 1000
 
@@ -4013,24 +3916,41 @@ Function DoEnhance()
 		End If
 	End If
 
-	' 2.5 鍦ｆ澂杞涓村垎鏀锛氭槸鍚﹀嚭鐜般屽墠寰鍦ｆ澂杞涓淬 (宸茶揪鏈缁堢瓑绾т笂闄)
+	' 2.5 圣杯转临分支：是否出现「前往圣杯转临」 (已达当前等级上限)
 	Dim toGrailCoord = CheckImg2(ENHANCE_HERO_TO_GRAIL_TAR)
 	If toGrailCoord <> null Then
-		If EXTRA_HERO_AUTO_GRAIL = 1 Then
-			TracePrint "妫娴嬪埌銆屽墠寰鍦ｆ澂杞涓淬嶏紝鑷鍔ㄥ湥鏉杞涓村凡寮鍚锛屾墽琛岃烦杞杞涓..."
-			UpdateRunnerStatus "RUNNING", "宸茶揪婊＄骇锛岃烦杞鍦ｆ澂杞涓..."
+		If EXTRA_HERO_AUTO_GRAIL = 1 Or EXTRA_HERO_AUTO_GRAIL = 2 Then
+			' 强化界面防守：若设置了 100 级上限 (EXTRA_HERO_AUTO_GRAIL = 1)，核验强化结果下方当前等级是否已是 100 级
+			If EXTRA_HERO_AUTO_GRAIL = 1 Then
+				Dim lv100Coord = CheckImg2(ENHANCE_HERO_LV100_TAR)
+				If lv100Coord <> null Then
+					TracePrint "强化防守: 检测到强化结果等级已达到 100 级且设置了 100 上限，停止圣杯转临与强化"
+					UpdateRunnerStatus "IDLE", "从者已达 100 级上限，强化结束"
+					HasTicket = false
+					Exit Function
+				End If
+			End If
+
+			TracePrint "检测到「前往圣杯转临」，自动圣杯转临已开启，执行跳转转临..."
+			UpdateRunnerStatus "RUNNING", "已达满级，跳转圣杯转临..."
+			If EXTRA_DRY_RUN = 1 Then
+				TracePrint "[DRY-RUN 仿真安全模式] 拦截点击「前往圣杯转临」 ->", toGrailCoord[1], toGrailCoord[2]
+				UpdateRunnerStatus "IDLE", "仿真模式：已拦截点击「前往圣杯转临」"
+				HasTicket = false
+				Exit Function
+			End If
 			tap toGrailCoord[1], toGrailCoord[2]
 			Delay 1000
 
 			Dim grailResult = DoHeroGrailFlow()
 			If Not grailResult Then
-				TracePrint "鍦ｆ澂杞涓存湭鎴愬姛瀹屾垚锛岀粓姝㈠悗缁寮哄寲"
+				TracePrint "圣杯转临未成功完成，终止后续强化"
 				HasTicket = false
 			End If
 			Exit Function
 		Else
-			TracePrint "浠庤呭凡杈炬渶缁堢瓑绾т笂闄愶紙鏄剧ず銆愬墠寰鍦ｆ澂杞涓淬戯級锛岃嚜鍔ㄥ湥鏉杞涓存湭寮鍚锛屽己鍖栨祦绋嬪渾婊＄粨鏉"
-			UpdateRunnerStatus "IDLE", "浠庤呭凡杈炬弧绾(闇鍦ｆ澂杞涓)"
+			TracePrint "从者已达等级上限（显示【前往圣杯转临】），自动圣杯转临未开启，强化流程圆满结束"
+			UpdateRunnerStatus "IDLE", "从者已达满级(需圣杯转临)"
 			HasTicket = false
 			Exit Function
 		End If
@@ -4062,7 +3982,13 @@ Function DoEnhance()
 	End If
 
 	' 4. 鐐瑰嚮銆屽己鍖栥嶆寜閽
-	TracePrint "浠庤呭己鍖: 鐐瑰嚮銆屽己鍖栥嶆寜閽 ->", enhanceCoord[1], enhanceCoord[2]
+	TracePrint "从者强化: 准备点击「强化」按钮 ->", enhanceCoord[1], enhanceCoord[2]
+	If EXTRA_DRY_RUN = 1 Then
+		TracePrint "[DRY-RUN 仿真安全模式] 拦截点击「强化」按钮 ->", enhanceCoord[1], enhanceCoord[2]
+		UpdateRunnerStatus "IDLE", "仿真模式：已拦截点击强化（真实点击已屏蔽）"
+		HasTicket = false
+		Exit Function
+	End If
 	UpdateRunnerStatus "RUNNING", "浠庤呭己鍖栨墽琛屼腑 (绗 " & CurrentBattleCount & "/" & EXTRA_ACTION_COUNT & " 娆)..."
 	tap enhanceCoord[1], enhanceCoord[2]
 	Delay 500
@@ -4104,23 +4030,261 @@ Function DoEnhance()
 End Function
 
 Function DoFriendPool()
-	CheckAndTapImg2(POOLFRIEND_CONTINUE_TAR, null)
-	Delay 500
-	CheckAndTapImg2(POOLFRIEND_GO_TAR, null)
+	' 0) 前置安全检测：是否已处于仓库上限弹窗
+	If CheckImg2(POOLFRIEND_LIMIT_TAR) <> null Then
+		TracePrint "【友情池】检测到「灵基」按钮，仓库已达上限，停止召唤！"
+		HasTicket = false
+		ABORT_REASON = "Extra [友情点召唤] 停止：仓库已达上限"
+		UpdateRunnerStatus "IDLE", ABORT_REASON
+		Exit Function
+	End If
+
+	' 1) 区分「结算界面继续召唤」与「初始界面发起召唤」
+	Dim contPt = CheckImg2(POOLFRIEND_CONTINUE_TAR)
+	If contPt <> null Then
+		TracePrint "【友情池】结算界面点击继续召唤 ->", contPt[1], contPt[2]
+		tap contPt[1], contPt[2]
+	ElseIf CheckImg2(POOLFRIEND_ICON_TAR) <> null Then
+		' 确认处于友情池初始界面，再点击右侧召唤按钮
+		TracePrint "【友情池】初始界面点击右侧召唤按钮 ->", POOLFRIEND_RIGHT_COORD[1], POOLFRIEND_RIGHT_COORD[2]
+		tap POOLFRIEND_RIGHT_COORD[1], POOLFRIEND_RIGHT_COORD[2]
+		Delay 500
+		' 如果过500ms确认弹窗和上限弹窗都没出现，说明右侧按钮可能不存在，补点中间召唤按钮
+		If CheckImg2(POOLFRIEND_GO_TAR) = null And CheckImg2(POOLFRIEND_LIMIT_TAR) = null Then
+			TracePrint "【友情池】500ms未检测到弹窗，点击中间召唤按钮 ->", POOLFRIEND_MID_COORD[1], POOLFRIEND_MID_COORD[2]
+			tap POOLFRIEND_MID_COORD[1], POOLFRIEND_MID_COORD[2]
+			Delay 500
+		End If
+	Else
+		' 既不在结算界面，也不在友情池初始界面 -> 立即停止，严禁盲点其他池子！
+		TracePrint "【友情池】未检测到友情池结算或初始界面，停止执行！"
+		HasTicket = false
+		ABORT_REASON = "Extra [友情点召唤] 停止：未处于友情池界面"
+		UpdateRunnerStatus "IDLE", ABORT_REASON
+		Exit Function
+	End If
+
+	' 2) 等待并处理弹窗（确认召唤「决定」 OR 仓库上限「灵基保管室」）
+	Dim modalWait = 0
+	Dim modalHandled = false
+	Do While modalWait < 30
+		If USER_STOP_REQUESTED Or CheckStopSignal() Then
+			Exit Function
+		End If
+		If CheckImg2(POOLFRIEND_LIMIT_TAR) <> null Then
+			TracePrint "【友情池】检测到「灵基」按钮，仓库已达上限，停止召唤！"
+			HasTicket = false
+			ABORT_REASON = "Extra [友情点召唤] 停止：仓库已达上限"
+			UpdateRunnerStatus "IDLE", ABORT_REASON
+			Exit Function
+		End If
+		Dim goPt = CheckImg2(POOLFRIEND_GO_TAR)
+		If goPt <> null Then
+			TracePrint "【友情池】检测到确认弹窗「决定」，点击 ->", goPt[1], goPt[2]
+			tap goPt[1], goPt[2]
+			modalHandled = true
+			Exit Do
+		End If
+		Delay 300
+		modalWait = modalWait + 1
+	Loop
+
+	If Not modalHandled Then
+		TracePrint "【友情池】等待召唤确认弹窗超时（可能友情点不足或未处于召唤界面），停止"
+		HasTicket = false
+		ABORT_REASON = "Extra [友情点召唤] 停止：未检测到召唤弹窗"
+		UpdateRunnerStatus "IDLE", ABORT_REASON
+		Exit Function
+	End If
+
+	' 3) 跳过召唤过场动画，直到回到结算界面出现「继续召唤」
 	Delay 800
 	CheckNoImgAndTap2(POOLFRIEND_CONTINUE_TAR, POOLFRIEND_CONTINUE_TAR)
 End Function
 
 Function DoEquipEnhance()
-	CheckAndTapImg2(ENHANCE_EQUIP_ENHANCE_TAR, null)
-	Delay 500
-	CheckAndTapImg2(ENHANCE_EQUIP_ENHANCE_CONFIRM_TAR, null)
-	Delay 500
-	CheckNoImgAndTap2(ENHANCE_EQUIP_ENHANCE_TAR, ENHANCE_EQUIP_ENHANCE_CONFIRM_TAR)
+	Dim refundSeen = false
+	Dim refundCloseEntry = CheckImg2(ENHANCE_HERO_REFUND_CLOSE_TAR)
+	If refundCloseEntry <> null Then
+		TracePrint "礼装强化入口容错: 检测到素材返还弹窗，点击「关闭」按钮 ->", refundCloseEntry[1], refundCloseEntry[2]
+		tap refundCloseEntry[1] + 35, refundCloseEntry[2] + 18
+		Delay 800
+		refundSeen = true
+	End If
+
+	If Not refundSeen Then
+		Dim enhanceCoord = null
+		Dim checkRetry = 0
+		Do While checkRetry < 6
+			If USER_STOP_REQUESTED Or CheckStopSignal() Then
+				Exit Function
+			End If
+			If CheckImg2(ENHANCE_EQUIP_ENHANCE_GRAY_TAR) <> null Then
+				TracePrint "礼装强化: 检测到「强化」按钮已变灰 (素材不足/未选择或已满级)，停止强化"
+				ABORT_REASON = "礼装强化已停止: 强化按钮已变灰 (素材不足/未选择或已满级)"
+				HasTicket = false
+				Exit Function
+			End If
+			enhanceCoord = CheckImg2(ENHANCE_EQUIP_ENHANCE_TAR)
+			If enhanceCoord <> null Then
+				Exit Do
+			End If
+			Delay 300
+			checkRetry = checkRetry + 1
+		Loop
+
+		If enhanceCoord = null Then
+			TracePrint "礼装强化: 未检测到可点击的「强化」按钮，安全停止"
+			ABORT_REASON = "礼装强化已停止: 未检测到可点击的强化按钮"
+			HasTicket = false
+			Exit Function
+		End If
+
+		If EXTRA_DRY_RUN = 1 Then
+			TracePrint "[DRY-RUN 仿真安全模式] 拦截点击礼装「强化」按钮 ->", enhanceCoord[1], enhanceCoord[2]
+			UpdateRunnerStatus "IDLE", "仿真模式：已拦截点击礼装强化"
+			HasTicket = false
+			Exit Function
+		End If
+
+		tap enhanceCoord[1], enhanceCoord[2]
+		Delay 500
+		CheckAndTapImg2(ENHANCE_EQUIP_ENHANCE_CONFIRM_TAR, null)
+		Delay 500
+	End If
+
+	Dim waitRetry = 0
+	Do While true
+		If USER_STOP_REQUESTED Or CheckStopSignal() Then
+			Exit Function
+		End If
+		Dim refundCloseCoord = CheckImg2(ENHANCE_HERO_REFUND_CLOSE_TAR)
+		If refundCloseCoord <> null Then
+			TracePrint "礼装强化: 动画中检测到素材返还弹窗，点击「关闭」按钮 ->", refundCloseCoord[1], refundCloseCoord[2]
+			tap refundCloseCoord[1] + 35, refundCloseCoord[2] + 18
+			Delay 800
+			refundSeen = true
+		End If
+		If CheckImg2(ENHANCE_EQUIP_ENHANCE_GRAY_TAR) <> null Then
+			TracePrint "礼装强化: 动画结束后检测到「强化」按钮已变灰 (素材不足或已满级)，停止强化"
+			ABORT_REASON = "礼装强化已停止: 强化按钮已变灰 (素材不足/未选择或已满级)"
+			HasTicket = false
+			Exit Function
+		End If
+		If CheckImg2(ENHANCE_EQUIP_ENHANCE_TAR) <> null Then
+			Exit Do
+		End If
+		If refundSeen And CheckImg2(ENHANCE_EQUIP_TAR) <> null Then
+			TracePrint "礼装强化: 素材返还弹窗关闭并已返回礼装强化界面 (已满级)，停止强化"
+			ABORT_REASON = "礼装强化已停止: 礼装已满级 (已关闭素材返还弹窗)"
+			HasTicket = false
+			Exit Function
+		End If
+		tap ENHANCE_EQUIP_ENHANCE_CONFIRM_TAR[1], ENHANCE_EQUIP_ENHANCE_CONFIRM_TAR[2]
+		Delay 300
+		waitRetry = waitRetry + 1
+		If waitRetry Mod 10 = 0 Then
+			UpdateRunnerStatus "RUNNING", "Extra [" & CURRENT_EXTRA_ACTION_NAME & "] 等待动画(" & Int(waitRetry * 0.3) & "s)..."
+		End If
+		If waitRetry >= AWARD_NEXT_MAX_RETRY Then
+			TracePrint "礼装强化: 等待返回强化界面超时"
+			HasTicket = false
+			Exit Function
+		End If
+	Loop
+End Function
+
+' 检测右下角「强化」按钮是否可见（兼容按钮表面周期性白色流光导致的容差波动）
+Function IsSkillEnhanceBtnVisible()
+	IsSkillEnhanceBtnVisible = false
+	If CheckImg2(ENHANCE_SKILL_ENHANCE_TAR) <> null Then
+		IsSkillEnhanceBtnVisible = true
+		Exit Function
+	End If
+	If CheckPriorityImgEx(ENHANCE_SKILL_ENHANCE_TAR, 0.80, "303030") <> null Then
+		IsSkillEnhanceBtnVisible = true
+	End If
+End Function
+
+' 立即连点跳过技能/追加技能强化动画，并在回到强化界面时立即停手
+Function SkipSkillEnhanceAnim()
+	SkipSkillEnhanceAnim = false
+	UpdateRunnerStatus "RUNNING", "技能强化: 连点加速动画中..."
+
+	' 阶段1：点击决定后立即高频连点（120ms/次 × 8 ≈ 1s），确保第一时间进入加速
+	Dim burstTap
+	For burstTap = 1 To 8
+		If USER_STOP_REQUESTED Or CheckStopSignal() Then
+			Exit Function
+		End If
+		tap ENHANCE_SKILL_CLICK_COORD[1], ENHANCE_SKILL_CLICK_COORD[2]
+		Delay 120
+	Next
+
+	' 阶段2：每轮检查是否已回到强化界面（必须连续2次间隔>=350ms检测到，防止动画间隙闪帧误判；同时覆盖可点/置灰两种强化按钮状态）
+	Dim animRound = 0
+	Dim readyHitCount = 0
+	Do While animRound < 30
+		If USER_STOP_REQUESTED Or CheckStopSignal() Then
+			Exit Function
+		End If
+
+		Dim hitType = 0
+		If IsSkillEnhanceBtnVisible() Then
+			hitType = 1
+		ElseIf CheckImg2(ENHANCE_EQUIP_ENHANCE_GRAY_TAR) <> null Then
+			hitType = 2
+		ElseIf CheckImg2(ENHANCE_SKILL_MAX_L10_TAR) <> null Then
+			hitType = 3
+		ElseIf CheckImg2(ENHANCE_SKILL_HERO_UNSELECTED_TAR) <> null Then
+			hitType = 4
+		End If
+
+		If hitType > 0 Then
+			readyHitCount = readyHitCount + 1
+			If readyHitCount >= 2 Then
+				If hitType = 4 Then
+					TracePrint "技能强化动画结束(2次确认): 从者已自动取消选中 (全部满级)"
+					HasTicket = false
+					Exit Function
+				ElseIf hitType = 3 Then
+					TracePrint "技能强化动画结束(2次确认): 当前技能已达10级满级"
+				ElseIf hitType = 2 Then
+					TracePrint "技能强化动画结束(2次确认): 强化按钮已置灰 (不可点击)"
+				Else
+					TracePrint "技能强化动画结束(2次确认): 强化按钮已恢复可点击状态"
+				End If
+				SkipSkillEnhanceAnim = true
+				Exit Function
+			End If
+			' 第1次检测到：可能是动画间隙闪帧，暂停350ms后进行第2次确认（期间不点击）
+			Delay 350
+		Else
+			readyHitCount = 0
+			Dim subTap
+			For subTap = 1 To 4
+				If USER_STOP_REQUESTED Or CheckStopSignal() Then
+					Exit Function
+				End If
+				tap ENHANCE_SKILL_CLICK_COORD[1], ENHANCE_SKILL_CLICK_COORD[2]
+				Delay 120
+			Next
+			animRound = animRound + 1
+		End If
+	Loop
 End Function
 
 Function DoSkillEnhance(MaxLevel)
-	If EXTRA_SKILL_AUTO_THREE = 1 Then
+	Dim autoThree = EXTRA_SKILL_AUTO_THREE
+	If autoThree = 1 Then
+		' 检测是否为追加技能强化 (右上角带「追加」两字)
+		If CheckImg2(ENHANCE_SKILL_APPEND_TAR) <> null Then
+			TracePrint "【追加技能强化】检测到右上角「追加」标识，当前处于追加技能强化界面(5技能)。因从者币及强化材料极其珍贵，禁止自动强化全部技能，默认仅强化当前选中的技能(等同于未勾选强化全部技能)！"
+			autoThree = 0
+		End If
+	End If
+
+	If autoThree = 1 Then
 		' --- 3鎶鑳介『搴忚繛缁寮哄寲 ---
 		TracePrint "=== 鍚鍔3鎶鑳介『搴忓己鍖栨祦绋 (鐩鏍囦笂闄: Lv" & MaxLevel & ") ==="
 
@@ -4177,20 +4341,32 @@ Function DoSkillEnhance(MaxLevel)
 						Exit Function
 					End If
 
-					' 0) 婊＄骇鍙栨秷閫変腑鍒ゆ柇: 妫鏌ヤ粠鑰呮槸鍚﹀凡鑷鍔ㄥ彇娑堥変腑 (鍏ㄩ儴鎶鑳芥弧绾)
+					' 0) 容错检查：若残留临时从者提示弹窗，点击「决定」
+					Dim tempCoordPre = CheckImg2(ENHANCE_HERO_TEMP_CONFIRM_TAR)
+					If tempCoordPre <> null Then
+						TracePrint "技能强化: 容错检测到残留临时从者提示弹窗，点击「决定」按钮 ->", tempCoordPre[1], tempCoordPre[2]
+						If TAP_ENHANCE_HERO_TEMP_CONFIRM <> null Then
+							tap TAP_ENHANCE_HERO_TEMP_CONFIRM[1], TAP_ENHANCE_HERO_TEMP_CONFIRM[2]
+						Else
+							tap tempCoordPre[1] + 43, tempCoordPre[2] + 19
+						End If
+						Delay 600
+					End If
+
+					' 0.5) 满级取消选中判断: 检查从者是否已自动取消选中 (全部技能满级)
 					If CheckImg2(ENHANCE_SKILL_HERO_UNSELECTED_TAR) <> null Then
-						TracePrint "鎶鑳 " & k & " 妫娴嬪埌浠庤呭凡鍙栨秷閫変腑 (鎵鏈夋妧鑳藉潎宸茶揪10绾ф弧绾)锛屽己鍖栧叏閮ㄥ畬鎴"
+						TracePrint "技能 " & k & " 检测到从者已取消选中 (所有技能均已达10级满级)，强化全部完成"
 						HasTicket = false
 						Exit Function
 					End If
 
-					' 1) 婊＄骇鍒ゆ柇: 妫鏌ュ彸涓嬭掓槸鍚︽樉绀恒屾棤娉曠户缁寮哄寲銆
+					' 1) 满级判断: 检查右下角是否显示「无法继续强化」
 					If CheckImg2(ENHANCE_SKILL_MAX_L10_TAR) <> null Then
 						isMaxL10 = true
 						Exit Do
 					End If
 
-					' 2) 鐩鏍囩瓑绾у垽鏂: 鑻ョ洰鏍囦笉鏄10绾(濡侺v9)锛屾鏌ョ礌鏉愭爮鏄鍚﹀嚭鐜颁紶鎵跨粨鏅
+					' 2) 目标等级判断: 若目标不是10级(如Lv9)，检查素材栏是否出现传承结晶
 					If MaxLevel <> 10 Then
 						If CheckImg2(ENHANCE_SKILL_ENHANCE_L10_TAR) <> null Then
 							isLoreTarget = true
@@ -4198,8 +4374,8 @@ Function DoSkillEnhance(MaxLevel)
 						End If
 					End If
 
-					' 3) 妫鏌ャ屽己鍖栥嶆寜閽
-					If CheckImg2(ENHANCE_SKILL_ENHANCE_TAR) <> null Then
+					' 3) 检查「强化」按钮
+					If IsSkillEnhanceBtnVisible() Then
 						canEnhance = true
 						Exit Do
 					End If
@@ -4209,45 +4385,48 @@ Function DoSkillEnhance(MaxLevel)
 				Loop
 
 				If isMaxL10 Then
-					TracePrint "鎶鑳 " & k & " 妫娴嬪埌銆屾棤娉曠户缁寮哄寲銆(10绾ф弧绾)锛岃ユ妧鑳藉己鍖栧畬姣"
+					TracePrint "技能 " & k & " 检测到「无法继续强化」(10级满级)，该技能强化完毕"
 					skillFinished = true
 					Exit Do
 				End If
 
 				If isLoreTarget Then
-					TracePrint "鎶鑳 " & k & " 妫娴嬪埌浼犳壙缁撴櫠(宸茶揪璁惧畾鐩鏍 Lv" & MaxLevel & ")锛岃ユ妧鑳藉己鍖栧畬姣"
+					TracePrint "技能 " & k & " 检测到传承结晶(已达设定目标 Lv" & MaxLevel & ")，该技能强化完毕"
 					skillFinished = true
 					Exit Do
 				End If
 
 				If Not canEnhance Then
-					' 鑻ュ己鍖栨寜閽鏈鎵惧埌锛屽啀娆＄‘璁ゆ槸鍚︿粠鑰呭凡鍙栨秷閫変腑
+					' 若强化按钮未找到，再次确认是否从者已取消选中
 					If CheckImg2(ENHANCE_SKILL_HERO_UNSELECTED_TAR) <> null Then
-						TracePrint "浠庤呭凡鍙栨秷閫変腑 (鎵鏈夋妧鑳藉潎宸茶揪10绾ф弧绾)锛屽己鍖栧叏閮ㄥ畬鎴"
+						TracePrint "从者已取消选中 (所有技能均已达10级满级)，强化全部完成"
 						HasTicket = false
 						Exit Function
 					End If
-					TracePrint "鎶鑳 " & k & " 鏈鎵惧埌寮哄寲鎸夐挳(鍙鑳界己灏戠礌鏉/QP鎴栫綉缁滃姞杞借秴鏃)锛岃烦杩囪ユ妧鑳"
+					TracePrint "技能 " & k & " 未找到强化按钮(可能缺少素材/QP或网络加载超时)，跳过该技能"
 					skillFinished = true
 					Exit Do
 				End If
 
-				' 4) 鎵ц岀偣鍑汇屽己鍖栥嶆寜閽
-				Dim enhanceCoord = CheckImg2(ENHANCE_SKILL_ENHANCE_TAR)
-				If enhanceCoord <> null Then
-					tap enhanceCoord[1], enhanceCoord[2]
-				Else
-					tap 1206, 756
+				' 4) 执行点击「强化」按钮（若确认弹窗未打开）
+				If CheckImg2(ENHANCE_SKILL_ENHANCE_CONFIRM_TAR) = null Then
+					Dim enhanceCoord = CheckImg2(ENHANCE_SKILL_ENHANCE_TAR)
+					If enhanceCoord <> null Then
+						tap enhanceCoord[1], enhanceCoord[2]
+					Else
+						tap 1206, 756
+					End If
+					Delay 500
 				End If
-				Delay 500
 
-				' 5) 绛夊緟骞剁偣鍑汇岀‘璁ゃ嶅脊绐楋紙甯﹁秴鏃讹紝鏉滅粷姝婚攣锛
+				' 5) 等待并点击「确认」弹窗（带超时防死锁）
 				Dim confirmCoord = null
 				Dim waitConfirm = 0
-				Do While waitConfirm < 12
+				Do While waitConfirm < 16
 					If USER_STOP_REQUESTED Or CheckStopSignal() Then
 						Exit Function
 					End If
+
 					confirmCoord = CheckImg2(ENHANCE_SKILL_ENHANCE_CONFIRM_TAR)
 					If confirmCoord <> null Then
 						Exit Do
@@ -4257,69 +4436,15 @@ Function DoSkillEnhance(MaxLevel)
 				Loop
 
 				If confirmCoord = null Then
-					TracePrint "鎶鑳 " & k & " 鏈鑳藉脊鍑烘垨璇嗗埆鍒板己鍖栫‘璁ゆ嗭紝閲嶈瘯褰撳墠鎶鑳界姸鎬"
+					TracePrint "技能 " & k & " 未能弹出或识别到强化确认框，重试当前技能状态"
 					Delay 400
 				Else
 					tap confirmCoord[1], confirmCoord[2]
-					TracePrint "宸茬偣鍑诲己鍖栫‘璁ゆ嗭紝寮濮嬫寔缁鐩茬偣璺宠繃鍗囩骇鍔ㄧ敾..."
-					Delay 400
-
-					' 闃舵 A锛氱函鐩茬偣璺宠繃闃舵 (鎸佺画蹇閫熺偣鍑诲睆骞曡烦杩囧厜鏁堛佸彴璇嶄笌鍔ㄧ敾锛屼笉鍦ㄦゆ湡闂村垽鏂鎵惧浘闃茶鍒)
-					' 鍙傝冨疄娴嬭楁椂绾︿负 2.5~3 绉掞紝姝ゅ勬寔缁鐐瑰嚮 8 娆 (绾 2.4 绉)
-					Dim blindTap
-					For blindTap = 1 To 8
-						If USER_STOP_REQUESTED Or CheckStopSignal() Then
-							Exit Function
-						End If
-						tap ENHANCE_SKILL_CLICK_COORD[1], ENHANCE_SKILL_CLICK_COORD[2]
-						Delay 300
-					Next
-
-					' 闃舵 B锛氬畨鍏ㄩ棿闅斿悗鐨勯槻鎶栫ǔ瀹氬垽瀹氶樁娈 (杈圭偣杈规娴嬫槸鍚︾湡姝ｅ洖鍒板氨缁鐘舵)
-					Dim animRetry = 0
-					Dim isAnimFinished = false
-					Do While animRetry < 30
-						If USER_STOP_REQUESTED Or CheckStopSignal() Then
-							Exit Function
-						End If
-
-						' 0) 妫娴嬫槸鍚﹀凡鑷鍔ㄥ彇娑堥変腑浠庤 (3涓鎶鑳藉叏閮ㄥ崌鑷10绾ф弧绾у悗鑷鍔ㄥ彇娑堥変腑)
-						If CheckImg2(ENHANCE_SKILL_HERO_UNSELECTED_TAR) <> null Then
-							Delay 350
-							If CheckImg2(ENHANCE_SKILL_HERO_UNSELECTED_TAR) <> null Then
-								TracePrint "鍗囩骇鍔ㄧ敾缁撴潫纭璁: 妫娴嬪埌浠庤呭凡鑷鍔ㄥ彇娑堥変腑 (3涓鎶鑳藉叏閮ㄦ弧绾)锛屽己鍖栧叏閮ㄥ畬鎴"
-								HasTicket = false
-								Exit Function
-							End If
-						End If
-
-						' 1) 浼樺厛妫娴 10 绾ф弧绾 (鏃犳硶缁х画寮哄寲)
-						If CheckImg2(ENHANCE_SKILL_MAX_L10_TAR) <> null Then
-							Delay 350
-							' 浜屾＄‘璁ら槻鎶栵細鑻ュ啀娆℃娴嬩緷鐒跺瓨鍦锛岀‘璁ょ晫闈㈢ǔ瀹氬勪簬婊＄骇鐘舵
-							If CheckImg2(ENHANCE_SKILL_MAX_L10_TAR) <> null Then
-								TracePrint "鍗囩骇鍔ㄧ敾缁撴潫纭璁: 褰撳墠鎶鑳藉凡鍗囪嚦10绾ф弧绾"
-								isAnimFinished = true
-								Exit Do
-							End If
-						End If
-
-						' 2) 妫娴嬪己鍖栨寜閽鏄鍚︾ǔ瀹氶噸鏂板嚭鐜 (鏈婊＄骇缁х画寮哄寲)
-						If CheckImg2(ENHANCE_SKILL_ENHANCE_TAR) <> null Then
-							Delay 350
-							' 浜屾＄‘璁ら槻鎶栵細鑻ュ啀娆℃娴嬩緷鐒跺瓨鍦锛岀‘璁ょ晫闈㈢ǔ瀹氭仮澶嶅氨缁
-							If CheckImg2(ENHANCE_SKILL_ENHANCE_TAR) <> null Then
-								TracePrint "鍗囩骇鍔ㄧ敾缁撴潫纭璁: 寮哄寲鎸夐挳宸茬ǔ瀹氶噸鏂板嚭鐜"
-								isAnimFinished = true
-								Exit Do
-							End If
-						End If
-
-						' 缁х画鐐瑰嚮浠ユ帹杩涘彲鑳芥畫鐣欑殑绛夌骇鎻愬崌鎻愮ず妗嗘垨闀垮彴璇
-						tap ENHANCE_SKILL_CLICK_COORD[1], ENHANCE_SKILL_CLICK_COORD[2]
-						Delay 300
-						animRetry = animRetry + 1
-					Loop
+					TracePrint "已点击强化确认框，开始持续盲点跳过升级动画..."
+					Dim isAnimFinished = SkipSkillEnhanceAnim()
+					If Not HasTicket Or USER_STOP_REQUESTED Or CheckStopSignal() Then
+						Exit Function
+					End If
 
 					If Not isAnimFinished Then
 						' 瓒呮椂鍚庢渶鍚庣‘璁や竴娆℃槸鍚︽湭閫変腑浠庤
@@ -4349,62 +4474,82 @@ Function DoSkillEnhance(MaxLevel)
 		TracePrint "=== 3涓鎶鑳介『搴忓己鍖栧叏閮ㄥ畬鎴 ==="
 		HasTicket = false
 	Else
-		' --- 鍗曟妧鑳藉己鍖 (鍘熼昏緫鍏煎瑰櫒) ---
+		' --- 单技能强化 (原逻辑兼容器 / 追加技能强化) ---
 		If CheckImg2(ENHANCE_SKILL_HERO_UNSELECTED_TAR) <> null Then
-			TracePrint "妫娴嬪埌宸︿晶鏈閫変腑浠庤咃紝鍗曟妧鑳藉己鍖栫粨鏉"
+			TracePrint "检测到左侧未选中从者，单技能强化结束"
 			HasTicket = false
 			Exit Function
 		End If
-		ContinuousCheckImg(ENHANCE_SKILL_ENHANCE_TAR)
 		If CheckImg2(ENHANCE_SKILL_MAX_L10_TAR) <> null Then
 			HasTicket = false
-			TracePrint "ENHANCE_SKILL_MAX_L10_STOP: 褰撳墠鎶鑳藉凡杈10绾ф弧绾"
+			TracePrint "ENHANCE_SKILL_MAX_L10_STOP: 当前技能已达10级满级"
 			Exit Function
 		End If
 		If MaxLevel <> 10 Then
 			Dim CheckSkillEnhance10TarSuccess = CheckImg2(ENHANCE_SKILL_ENHANCE_L10_TAR)
 			If CheckSkillEnhance10TarSuccess <> null Then
 				HasTicket = false
-				TracePrint "ENHANCE_SKILL_10_STOP: 褰撳墠鎶鑳藉凡杈捐惧畾绛夌骇 Lv" & MaxLevel
+				TracePrint "ENHANCE_SKILL_10_STOP: 当前技能已达设定等级 Lv" & MaxLevel
 				Exit Function
 			End If
 		End If
-		CheckAndTapImg2(ENHANCE_SKILL_ENHANCE_TAR, null)
-		CheckAndTapImg2(ENHANCE_SKILL_ENHANCE_CONFIRM_TAR, null)
-		Delay 400
-		Dim legacyBlindTap
-		For legacyBlindTap = 1 To 8
+		If Not IsSkillEnhanceBtnVisible() Then
+			ContinuousCheckImg(ENHANCE_SKILL_ENHANCE_TAR)
+		End If
+		' 容错检查：若残留临时从者提示弹窗，优先点击「决定」
+		Dim singleTempPre = CheckImg2(ENHANCE_HERO_TEMP_CONFIRM_TAR)
+		If singleTempPre <> null Then
+			TracePrint "技能强化(单技能): 容错检测到临时从者提示弹窗，点击「决定」按钮 ->", singleTempPre[1], singleTempPre[2]
+			If TAP_ENHANCE_HERO_TEMP_CONFIRM <> null Then
+				tap TAP_ENHANCE_HERO_TEMP_CONFIRM[1], TAP_ENHANCE_HERO_TEMP_CONFIRM[2]
+			Else
+				tap singleTempPre[1] + 43, singleTempPre[2] + 19
+			End If
+			Delay 600
+		End If
+
+		If CheckImg2(ENHANCE_SKILL_ENHANCE_CONFIRM_TAR) = null Then
+			Dim singleEnhanceCoord = CheckImg2(ENHANCE_SKILL_ENHANCE_TAR)
+			If singleEnhanceCoord <> null Then
+				tap singleEnhanceCoord[1], singleEnhanceCoord[2]
+			Else
+				tap 1206, 756
+			End If
+			Delay 500
+		End If
+
+		' 等待并点击「确认」弹窗
+		Dim singleConfirmCoord = null
+		Dim singleWait = 0
+		Do While singleWait < 16
 			If USER_STOP_REQUESTED Or CheckStopSignal() Then
 				Exit Function
 			End If
-			tap ENHANCE_SKILL_CLICK_COORD[1], ENHANCE_SKILL_CLICK_COORD[2]
-			Delay 300
-		Next
-		Dim legacyAnimRetry = 0
-		Do While legacyAnimRetry < 30
-			If USER_STOP_REQUESTED Or CheckStopSignal() Then
-				Exit Function
+
+			singleConfirmCoord = CheckImg2(ENHANCE_SKILL_ENHANCE_CONFIRM_TAR)
+			If singleConfirmCoord <> null Then
+				Exit Do
 			End If
-			If CheckImg2(ENHANCE_SKILL_HERO_UNSELECTED_TAR) <> null Then
-				HasTicket = false
-				Exit Function
-			End If
-			If CheckImg2(ENHANCE_SKILL_MAX_L10_TAR) <> null Then
-				Delay 350
-				If CheckImg2(ENHANCE_SKILL_MAX_L10_TAR) <> null Then
-					Exit Do
-				End If
-			End If
-			If CheckImg2(ENHANCE_SKILL_ENHANCE_TAR) <> null Then
-				Delay 350
-				If CheckImg2(ENHANCE_SKILL_ENHANCE_TAR) <> null Then
-					Exit Do
-				End If
-			End If
-			tap ENHANCE_SKILL_CLICK_COORD[1], ENHANCE_SKILL_CLICK_COORD[2]
-			Delay 300
-			legacyAnimRetry = legacyAnimRetry + 1
+			Delay 250
+			singleWait = singleWait + 1
 		Loop
+
+		If singleConfirmCoord <> null Then
+			tap singleConfirmCoord[1], singleConfirmCoord[2]
+		Else
+			TracePrint "技能强化(单技能): 未能弹出或识别到强化确认框，重试"
+			Exit Function
+		End If
+		Dim singleAnimOk = SkipSkillEnhanceAnim()
+		If Not HasTicket Or USER_STOP_REQUESTED Or CheckStopSignal() Then
+			Exit Function
+		End If
+		If CheckImg2(ENHANCE_EQUIP_ENHANCE_GRAY_TAR) <> null Then
+			TracePrint "技能强化(单技能): 检测到强化按钮已置灰 (素材或QP不足)，安全停止"
+			ABORT_REASON = "技能强化已停止: 强化按钮已置灰 (素材或QP不足)"
+			HasTicket = false
+			Exit Function
+		End If
 	End If
 End Function
 
@@ -4433,12 +4578,14 @@ Sub StartExtraLoop()
 	USER_STOP_REQUESTED = false
 	ABORT_REASON = ""
 	CURRENT_SUB_ROUND_NUM = 0
-	UpdateRunnerStatus "RUNNING", "Extra 杈呭姪鍚鍔ㄤ腑..."
+	UpdateRunnerStatus "RUNNING", "Extra 辅助启动中..."
 
 	Dim detectedIndex = DetectExtraMethodIndex()
 	If detectedIndex = 0 Then
 		TracePrint "AUTO DETECT FAILED: NO MATCHED SCENE"
-		UpdateRunnerStatus "IDLE", "鏈妫娴嬪埌瀵瑰簲 Extra 鍦烘櫙(浠庤/绀艰/鎶鑳藉己鍖栨垨鍙嬫儏姹/鏃犻檺姹)"
+		HasTicket = false
+		ABORT_REASON = "未检测到对应 Extra 场景(从者/礼装/技能强化或友情池/无限池)"
+		UpdateRunnerStatus "IDLE", ABORT_REASON
 		Exit Sub
 	End If
 
@@ -4453,7 +4600,7 @@ Sub StartExtraLoop()
 		End If
 
 		CurrentBattleCount = CurrentBattleCount + 1
-		UpdateRunnerStatus "RUNNING", "Extra [" & actionName & "] 绗 " & CurrentBattleCount & "/" & EXTRA_ACTION_COUNT & " 娆"
+		UpdateRunnerStatus "RUNNING", "Extra [" & actionName & "] 第 " & CurrentBattleCount & "/" & EXTRA_ACTION_COUNT & " 次"
 
 		DoSelectedExtraActionWithIndex(detectedIndex)
 
@@ -4473,11 +4620,11 @@ Sub StartExtraLoop()
 	If Len(ABORT_REASON) > 0 Then
 		UpdateRunnerStatus "IDLE", ABORT_REASON
 	ElseIf USER_STOP_REQUESTED Then
-		UpdateRunnerStatus "IDLE", "Extra宸插仠姝 (宸插畬鎴 " & CurrentBattleCount & " 娆)"
+		UpdateRunnerStatus "IDLE", "Extra已停止 (已完成 " & CurrentBattleCount & " 次)"
 	ElseIf Not HasTicket Then
-		UpdateRunnerStatus "IDLE", "Extra宸茬粨鏉: 鏉愭枡/绁ㄥ埜鑰楀敖鎴栧凡婊＄骇"
+		UpdateRunnerStatus "IDLE", "Extra已结束: 材料/票券耗尽或已满级"
 	Else
-		UpdateRunnerStatus "IDLE", "Extra浠诲姟鍏ㄩ儴瀹屾垚 (" & EXTRA_ACTION_COUNT & " 娆)"
+		UpdateRunnerStatus "IDLE", "Extra任务全部完成 (" & EXTRA_ACTION_COUNT & " 次)"
 	End If
 End Sub
 
@@ -4558,8 +4705,15 @@ Sub MainStandbyLoop()
 					zm.FileWrite cmdPath, ""
 					ABORT_REASON = ""
 					USER_STOP_REQUESTED = false
-					UpdateRunnerStatus "RUNNING", "浠诲姟鍑嗗囦腑..."
+					UpdateRunnerStatus "RUNNING", "任务准备中..."
 
+					If cmdText = "START_EXTRA" Then
+						RUN_MODE = 1
+					ElseIf cmdText = "START_BATTLE" Then
+						RUN_MODE = 0
+					Else
+						RUN_MODE = -1
+					End If
 					ReloadConfig()
 
 					Dim targetRunMode = RUN_MODE

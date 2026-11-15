@@ -1174,6 +1174,7 @@ export function doImportDsl(isNewScheme) {
 
         if (isNewScheme) {
             const newScheme = {
+                name: '',
                 friend: group.schemes[appState.curSchemeIdx]?.friend || group.defaultFriend || '',
                 dsl: compiledDsl,
                 _parsedRounds: parsedRounds

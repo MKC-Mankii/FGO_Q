@@ -208,9 +208,9 @@ export function generateConfigText(stateData) {
     const battleCount = (typeof rs.battleCount === 'number' && !isNaN(rs.battleCount) && rs.battleCount > 0) ? rs.battleCount : 30;
     const appleEnable = (typeof rs.appleEnable === 'number' && !isNaN(rs.appleEnable)) ? rs.appleEnable : (rs.appleEnable ? 1 : 0);
     const manualChooseFriend = rs.manualChooseFriend ? 1 : 0;
-    const forceColorCard = rs.forceColorCard ? 1 : 0;
     const debugScreenshotEnable = rs.debugScreenshotEnable ? 1 : 0;
     const debugFriendOnly = rs.debugFriendOnly ? 1 : 0;
+    const extraDryRun = (rs.extraDryRun !== undefined) ? (rs.extraDryRun ? 1 : 0) : ((es.extraDryRun !== undefined) ? (es.extraDryRun ? 1 : 0) : 1);
     const extraActionCount = (typeof es.actionCount === 'number' && es.actionCount > 0) ? es.actionCount : 30;
     const extraSkillMaxLevel = (typeof es.skillMaxLevel === 'number') ? es.skillMaxLevel : 9;
     const extraSkillAutoThree = (typeof es.skillAutoThree === 'number') ? es.skillAutoThree : 1;
@@ -236,24 +236,24 @@ export function generateConfigText(stateData) {
         `Dim BATTLE_COUNT = ${battleCount}  ' 连续战斗次数`,
         `Dim APPLE_ENABLE = ${appleEnable}  ' 是否吃苹果补充体力 (0=关/不吃, 1=银苹果, 2=金苹果)`,
         `Dim MANUAL_CHOOSE_FRIEND = ${manualChooseFriend}  ' 是否人工选助战 (0=自动找图, 1=人工选择)`,
-        `Dim FORCE_COLOR_CARD = ${forceColorCard}  ' 是否强制选择对应色卡 (0=关, 1=开)`,
         `Dim DEBUG_SCREENSHOT_ENABLE = ${debugScreenshotEnable}  ' 是否保存调试截屏 (0=关, 1=开)`,
-        `Dim DEBUG_FRIEND_ONLY = ${debugFriendOnly}  ' 助战调试模式: 仅选助战不进战斗 (0=关, 1=开)`, 
+        `Dim DEBUG_FRIEND_ONLY = ${debugFriendOnly}  ' 助战调试模式: 仅选助战不进战斗 (0=关, 1=开)`,
+        `Dim EXTRA_DRY_RUN = ${extraDryRun}  ' 防点安全锁/仿真测试模式 (1=开启防点保护/只识别不点击, 0=正常真实点击)`,
         "",
         "' --- Extra 辅助运行配置 ---",
         `Dim EXTRA_ACTION_COUNT = ${extraActionCount}  ' Extra 连续执行次数上限`,
         `Dim EXTRA_SKILL_MAX_LEVEL = ${extraSkillMaxLevel}  ' 技能强化目标等级 (1~10)`,
         `Dim EXTRA_SKILL_AUTO_THREE = ${extraSkillAutoThree}  ' 技能强化是否强化全部技能 (0=关, 1=开)`,
         `Dim EXTRA_HERO_AUTO_ASCEND = ${extraHeroAutoAscend}  ' 从者强化是否自动灵基再临 (0=关, 1=开)`,
-        `Dim EXTRA_HERO_AUTO_GRAIL = ${extraHeroAutoGrail}  ' 从者强化是否自动圣杯转临 (0=关, 1=开)`,
+        `Dim EXTRA_HERO_AUTO_GRAIL = ${extraHeroAutoGrail}  ' 从者强化是否自动圣杯转临 (0=关, 1=100上限, 2=无上限)`,
         "",
         "' ==================== 兼容与兜底字段 ====================",
         `Dim CFG_ACTION_GROUP_INDEX = ${activeGroup}`,
         `Dim MANUAL_BATTLE_COUNT = ${battleCount}`,
         `Dim MANUAL_APPLE_ENABLE = ${appleEnable}`,
-        `Dim MANUAL_FORCE_COLOR_CARD = ${forceColorCard}`,
         `Dim MANUAL_DEBUG_SCREENSHOT_ENABLE = ${debugScreenshotEnable}`,
-        `Dim MANUAL_DEBUG_FRIEND_ONLY = ${debugFriendOnly}`, 
+        `Dim MANUAL_DEBUG_FRIEND_ONLY = ${debugFriendOnly}`,
+        `Dim MANUAL_EXTRA_DRY_RUN = ${extraDryRun}`,
         `Dim EXTRA_ENABLE = ${runMode}`,
         "Dim ACTIVITY_REWARD = 0"
     ];
@@ -273,7 +273,7 @@ export function generateConfigText(stateData) {
         g.schemes.forEach((s, sIdx) => {
             const sNum = sIdx + 1;
             const dsl = s.dsl || '';
-            const sName = s.name || s.friend || '';
+            const sName = (s.name || '').trim();
             if (sName) {
                 out.push(`' 方案 ${sNum}: ${sName}`);
             }
@@ -345,8 +345,7 @@ export function parseConfigFileText(text, stateData) {
         activeGroup: 3,
         battleCount: 30,
         appleEnable: 0,
-        manualChooseFriend: 0,
-        forceColorCard: 0
+        manualChooseFriend: 0
     };
 
     stateData.extraSettings = stateData.extraSettings || {
@@ -408,11 +407,6 @@ export function parseConfigFileText(text, stateData) {
         stateData.runnerSettings.manualChooseFriend = Number(chooseFriendVal);
     }
 
-    const forceColorVal = getVal('FORCE_COLOR_CARD') || getVal('MANUAL_FORCE_COLOR_CARD');
-    if (forceColorVal !== '' && !isNaN(Number(forceColorVal))) {
-        stateData.runnerSettings.forceColorCard = Number(forceColorVal);
-    }
-
     const debugScreenshotVal = getVal('DEBUG_SCREENSHOT_ENABLE') || getVal('MANUAL_DEBUG_SCREENSHOT_ENABLE') || getVal('DEBUG_ENABLE');
     if (debugScreenshotVal !== '' && !isNaN(Number(debugScreenshotVal))) {
         stateData.runnerSettings.debugScreenshotEnable = Number(debugScreenshotVal);
@@ -421,6 +415,11 @@ export function parseConfigFileText(text, stateData) {
     const debugFriendVal = getVal('DEBUG_FRIEND_ONLY') || getVal('MANUAL_DEBUG_FRIEND_ONLY');
     if (debugFriendVal !== '' && !isNaN(Number(debugFriendVal))) {
         stateData.runnerSettings.debugFriendOnly = Number(debugFriendVal);
+    }
+
+    const extraDryRunVal = getVal('EXTRA_DRY_RUN') || getVal('MANUAL_EXTRA_DRY_RUN');
+    if (extraDryRunVal !== '' && !isNaN(Number(extraDryRunVal))) {
+        stateData.runnerSettings.extraDryRun = Number(extraDryRunVal);
     }
 
     stateData.groups.forEach(g => {
@@ -447,7 +446,7 @@ export function parseConfigFileText(text, stateData) {
             const pageTurnsRaw = getVal(`PAGE_TURNS_G${gNum}_${sNum}`);
             const pageTurns = (pageTurnsRaw !== '' && !isNaN(Number(pageTurnsRaw))) ? Math.max(0, parseInt(pageTurnsRaw, 10)) : 0;
             const nameMatch = text.match(new RegExp(`'\\s*(?:方案|Scheme)\\s*${sNum}\\s*[:：]\\s*([^\\r\\n]+)[\\r\\n]+(?:Dim\\s+ACTIVITY_REWARD_G${gNum}_${sNum}|Dim\\s+FRIEND_G${gNum}_${sNum}|Dim\\s+PAGE_TURNS_G${gNum}_${sNum}|Dim\\s+DSL_G${gNum}_${sNum})`, 'i'));
-            const schemeName = nameMatch ? nameMatch[1].trim() : '';
+            const schemeName = nameMatch ? nameMatch[1].trim().replace(/^(?:方案|Scheme)\s*(?:\d+\s*)?[:：]\s*/i, '') : '';
             if (dsl || (gNum === 0 && sNum <= 3) || sNum <= g.schemes.length) {
                 if (dsl) {
                     let normalizedDsl = dsl;
@@ -462,7 +461,7 @@ export function parseConfigFileText(text, stateData) {
                         normalizedDsl = dsl;
                     }
                     parsedSchemes.push({
-                        name: schemeName || fr || '',
+                        name: schemeName || '',
                         friend: fr,
                         pageTurns: pageTurns,
                         dsl: normalizedDsl,

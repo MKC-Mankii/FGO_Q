@@ -1239,6 +1239,50 @@
       "tap_coord": null,
       "description": "源自原生工程识别定义: POOLFRIEND_GO"
     },
+    "POOLFRIEND_ICON": {
+      "key": "POOLFRIEND_ICON",
+      "name": "友情池中间按钮友情点图标",
+      "category": "enhance",
+      "file": "POOLFRIEND_ICON.png",
+      "anchor": "bottom_center",
+      "search_area": [
+        590,
+        625,
+        645,
+        675
+      ],
+      "crop_area": null,
+      "area": [
+        590,
+        625,
+        645,
+        675
+      ],
+      "tap_coord": null,
+      "description": "友情池初始界面中间召唤按钮下方「消耗 友情点」的绿色握手图标内核"
+    },
+    "POOLFRIEND_LIMIT": {
+      "key": "POOLFRIEND_LIMIT",
+      "name": "友情池仓库上限 (灵基)",
+      "category": "enhance",
+      "file": "POOLFRIEND_LIMIT.png",
+      "anchor": "bottom_right",
+      "search_area": [
+        920,
+        495,
+        1180,
+        565
+      ],
+      "crop_area": null,
+      "area": [
+        920,
+        495,
+        1180,
+        565
+      ],
+      "tap_coord": null,
+      "description": "仓库上限弹窗的「灵基保管室」按钮核心特征「灵基」二字"
+    },
     "ROLL10-1": {
       "key": "ROLL10-1",
       "name": "抽卡无限池: ROLL10-1",
@@ -3142,6 +3186,50 @@
       ],
       "description": "从者达当前满级时右下角显示的「前往圣杯转临」按钮"
     },
+    "ENHANCE_HERO_LV100": {
+      "key": "ENHANCE_HERO_LV100",
+      "name": "从者强化: 强化结果100级",
+      "category": "enhance",
+      "file": "ENHANCE_HERO_LV100.png",
+      "anchor": "center",
+      "search_area": [
+        470,
+        505,
+        580,
+        565
+      ],
+      "crop_area": null,
+      "area": [
+        470,
+        505,
+        580,
+        565
+      ],
+      "tap_coord": null,
+      "description": "强化界面强化结果下方「等级」文字右侧100数字（防守检测）"
+    },
+    "ENHANCE_GRAIL_HERO_LV100": {
+      "key": "ENHANCE_GRAIL_HERO_LV100",
+      "name": "从者强化: 转临结果100级",
+      "category": "enhance",
+      "file": "ENHANCE_GRAIL_HERO_LV100.png",
+      "anchor": "center",
+      "search_area": [
+        470,
+        230,
+        580,
+        290
+      ],
+      "crop_area": null,
+      "area": [
+        470,
+        230,
+        580,
+        290
+      ],
+      "tap_coord": null,
+      "description": "转临界面转临结果下方「等级」文字右侧100数字（二次防守检测）"
+    },
     "ENHANCE_GRAIL": {
       "key": "ENHANCE_GRAIL",
       "name": "从者强化: 圣杯转临界面",
@@ -3936,18 +4024,23 @@
       "area": [
         1150,
         0,
-        1435,
+        1255,
         80
       ],
       "search_area": [
         1150,
         0,
-        1435,
+        1255,
         80
       ],
-      "crop_area": null,
+      "crop_area": [
+        1175,
+        20,
+        1207,
+        48
+      ],
       "tap_coord": null,
-      "description": "助战选择界面右上角「助战选择」标题特征图"
+      "description": "助战选择界面右上角「助」字特征图"
     },
     "PREPARE_FRIEND_REFRESH": {
       "key": "PREPARE_FRIEND_REFRESH",
@@ -3988,6 +4081,77 @@
         265
       ],
       "description": "助战选择列表右侧滚动条：X=1412，初始滑块中心Y=265，每翻一页(2个完整卡片)向下位移33像素"
+    },
+    "friendA_tiamat1": {
+      "key": "friendA_tiamat1",
+      "name": "助战: 弓提亚马特 1",
+      "category": "friend",
+      "file": "friendA_tiamat1.png",
+      "anchor": "top_left",
+      "search_area": [
+        40,
+        180,
+        920,
+        800
+      ],
+      "crop_area": null,
+      "area": [
+        40,
+        180,
+        920,
+        800
+      ],
+      "tap_coord": null,
+      "description": "助战特征图: 弓提亚马特"
+    },
+    "friendA_tiamat2": {
+      "key": "friendA_tiamat2",
+      "name": "助战: 弓提亚马特 2",
+      "category": "friend",
+      "file": "friendA_tiamat2.png",
+      "anchor": "top_left",
+      "search_area": [
+        40,
+        180,
+        920,
+        800
+      ],
+      "crop_area": [
+        163,
+        511,
+        201,
+        537
+      ],
+      "area": [
+        40,
+        180,
+        920,
+        800
+      ],
+      "tap_coord": null,
+      "description": "助战特征图: 弓提亚马特"
+    },
+    "friendA_tiamat3": {
+      "key": "friendA_tiamat3",
+      "name": "助战: 弓提亚马特 3",
+      "category": "friend",
+      "file": "friendA_tiamat3.png",
+      "anchor": "top_left",
+      "search_area": [
+        40,
+        180,
+        920,
+        800
+      ],
+      "crop_area": null,
+      "area": [
+        40,
+        180,
+        920,
+        800
+      ],
+      "tap_coord": null,
+      "description": "助战特征图: 弓提亚马特"
     }
   }
 }

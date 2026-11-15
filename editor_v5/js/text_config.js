@@ -52,10 +52,10 @@ export const TEXT_CONFIG = {
         appleEnableTitle: "体力不足时是否自动吃苹果补充：默认不吃，中间银苹果，右边金苹果",
         manualFriendLabel: "🤝 人工选助战",
         manualFriendTitle: "开启后跳过助战特征识别，等待玩家人工选择（默认关）",
-        forceColorLabel: "🎨 强制选色卡",
-        forceColorTitle: "是否强制选择指令指定的色卡（红/蓝/绿）（默认关）",
         debugScreenshotLabel: "📸 调试截图",
-        debugScreenshotTitle: "是否在关键场景（如从者宝具提取特征）自动保存全屏调试截图（默认关）"
+        debugScreenshotTitle: "是否在关键场景（如从者宝具提取特征）自动保存全屏调试截图（默认关）",
+        dryRunLabel: "🔒 防点安全锁",
+        dryRunTitle: "防点安全锁 (仿真测试模式)：正常执行找图与流程流转，但在真实点击动作前进行拦截保护，防止误点与消耗材料（默认开）"
     },
 
     // 2. 战场选项卡与设置 (Group Tabs & Info)

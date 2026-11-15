@@ -1509,11 +1509,9 @@
 
         // 2. 检查未勾选编辑的另一范围框：
         // 若当前处于 search 模式，但用户点击了画面中可见的截图选区 (cropArea)，智能选中并切换到 crop 编辑模式
+        // 注意：当处于 crop 编辑模式且显示 searchArea 时，绝不能拦截 searchArea 内部的点击，否则无法在匹配范围内框选截图选区
         if (otherMode === 'crop' && otherRect && isInsideRect(cx, cy, otherRect)) {
             return { action: 'select_mode', target: 'crop', cursor: 'pointer' };
-        }
-        if (otherRect && isInsideRect(cx, cy, otherRect)) {
-            return { action: null, target: null, cursor: 'default' };
         }
 
         // 3. 空白区域 (重新框选绘制当前处于编辑状态的目标)

@@ -196,6 +196,18 @@
       ],
       "description": "河上彦斋",
       "shortLabel": "河上"
+    },
+    {
+      "key": "a_tiamat",
+      "name": "弓提亚马特",
+      "builtin": false,
+      "images": [
+        "friendA_tiamat1.png",
+        "friendA_tiamat2.png",
+        "friendA_tiamat3.png"
+      ],
+      "description": "",
+      "shortLabel": "弓提亚马特"
     }
   ]
 }

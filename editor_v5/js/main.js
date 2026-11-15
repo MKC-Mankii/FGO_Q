@@ -1,7 +1,7 @@
 import { appState, getCurGroup, getCurScheme, resetStateToInitial } from './state.js';
 import { CARD_INFO } from './constants.js';
 import { getCurSchemeRounds, commitChanges, generateConfigText, resetCurSchemeRoundsToInitial, createDefaultRound, compileSchemeDsl, extractDslFromText, getBaseCardCode } from './dsl.js';
-import { $, toast, loadConfigFromBackend, saveConfigToBackend, shutdownServer, checkAdbStatus, startAdbAutoWatcher, setPendingSimulatorSync, updateSyncStatus, triggerRunBattle, triggerRunExtra, triggerStopBattle, detectExtraScene, startRunnerStatusWatcher, checkRunnerStatus, toggleRunnerMonitorPanel, openRunnerMonitorPanel, closeRunnerMonitorPanel, updateRunnerMonitorPanel, launchRunner, navigateFgoToHome, readyEnvironment, cancelReadyEnvironment, refreshAdbDevices, startStarMapUnlock, stopStarMapUnlock, pollStarMapProgress } from './api.js';
+import { $, toast, loadConfigFromBackend, saveConfigToBackend, shutdownServer, checkAdbStatus, startAdbAutoWatcher, setPendingSimulatorSync, updateSyncStatus, triggerRunBattle, triggerRunExtra, triggerStopBattle, detectExtraScene, startRunnerStatusWatcher, checkRunnerStatus, toggleRunnerMonitorPanel, openRunnerMonitorPanel, closeRunnerMonitorPanel, updateRunnerMonitorPanel, initRunnerMonitorResize, launchRunner, navigateFgoToHome, readyEnvironment, cancelReadyEnvironment, refreshAdbDevices, startStarMapUnlock, stopStarMapUnlock, pollStarMapProgress } from './api.js';
 import { TEXT_CONFIG, formatText } from './text_config.js';
 
 import { loadFriends } from './friends.js';
@@ -608,6 +608,7 @@ function initEventBindings() {
             const group = getCurGroup();
             const defaultRound = createDefaultRound();
             group.schemes.push({
+                name: "",
                 friend: "",
                 pageTurns: 0,
                 dsl: compileSchemeDsl([defaultRound]),
@@ -810,16 +811,6 @@ function initEventBindings() {
         };
     }
 
-    const cfgForceColorCard = $('cfgForceColorCard');
-    if (cfgForceColorCard) {
-        cfgForceColorCard.onchange = e => {
-            if (!appState.data.runnerSettings) appState.data.runnerSettings = {};
-            appState.data.runnerSettings.forceColorCard = e.target.checked ? 1 : 0;
-            renderConfigPreview();
-            toast(e.target.checked ? '🎨 已开启强制对应色卡' : 'ℹ️ 已关闭强制对应色卡');
-        };
-    }
-
     const cfgDebugScreenshot = $('cfgDebugScreenshot');
     if (cfgDebugScreenshot) {
         cfgDebugScreenshot.onchange = e => {
@@ -839,6 +830,17 @@ function initEventBindings() {
             updateRunnerDebugSummary();
             renderConfigPreview();
             toast(e.target.checked ? '👥 已开启助战调试 (仅选助战不进战斗)' : 'ℹ️ 已关闭助战调试');
+        };
+    }
+
+    const cfgExtraDryRun = $('cfgExtraDryRun');
+    if (cfgExtraDryRun) {
+        cfgExtraDryRun.onchange = e => {
+            if (!appState.data.runnerSettings) appState.data.runnerSettings = {};
+            appState.data.runnerSettings.extraDryRun = e.target.checked ? 1 : 0;
+            updateRunnerDebugSummary();
+            renderConfigPreview();
+            toast(e.target.checked ? '🔒 已开启防点安全锁 (仿真找图不点击)' : '⚠️ 已关闭防点安全锁 (将执行真实点击)');
         };
     }
 
@@ -931,16 +933,6 @@ function initEventBindings() {
         };
     }
 
-    // 互斥条上的快速停止按键
-    const bannerStopBattleBtn = $('bannerStopBattleBtn');
-    if (bannerStopBattleBtn) {
-        bannerStopBattleBtn.onclick = () => triggerStopBattle();
-    }
-    const bannerStopExtraBtn = $('bannerStopExtraBtn');
-    if (bannerStopExtraBtn) {
-        bannerStopExtraBtn.onclick = () => triggerStopBattle();
-    }
-
     // Extra 参数事件监听
     const cfgExtraActionCount = $('cfgExtraActionCount');
     if (cfgExtraActionCount) {
@@ -974,12 +966,41 @@ function initEventBindings() {
         };
     }
 
+    const updateGrailSetting = (val) => {
+        if (!appState.data.extraSettings) appState.data.extraSettings = {};
+        appState.data.extraSettings.heroAutoGrail = val;
+        const chk100 = $('cfgExtraHeroGrail100');
+        const chkInf = $('cfgExtraHeroGrailInf');
+        const hidden = $('cfgExtraHeroAutoGrail');
+        if (chk100) chk100.checked = (val === 1);
+        if (chkInf) chkInf.checked = (val === 2);
+        if (hidden) hidden.value = String(val);
+        renderConfigPreview();
+    };
+
+    const cfgExtraHeroGrail100 = $('cfgExtraHeroGrail100');
+    if (cfgExtraHeroGrail100) {
+        cfgExtraHeroGrail100.onchange = e => {
+            const nextVal = e.target.checked ? 1 : 0;
+            updateGrailSetting(nextVal);
+            toast(nextVal === 1 ? '🏆 已开启自动圣杯转临：100上限' : 'ℹ️ 已关闭自动圣杯转临');
+        };
+    }
+
+    const cfgExtraHeroGrailInf = $('cfgExtraHeroGrailInf');
+    if (cfgExtraHeroGrailInf) {
+        cfgExtraHeroGrailInf.onchange = e => {
+            const nextVal = e.target.checked ? 2 : 0;
+            updateGrailSetting(nextVal);
+            toast(nextVal === 2 ? '🏆 已开启自动圣杯转临：无上限' : 'ℹ️ 已关闭自动圣杯转临');
+        };
+    }
+
     const cfgExtraHeroAutoGrail = $('cfgExtraHeroAutoGrail');
-    if (cfgExtraHeroAutoGrail) {
+    if (cfgExtraHeroAutoGrail && cfgExtraHeroAutoGrail.tagName === 'SELECT') {
         cfgExtraHeroAutoGrail.onchange = e => {
-            if (!appState.data.extraSettings) appState.data.extraSettings = {};
-            appState.data.extraSettings.heroAutoGrail = e.target.checked ? 1 : 0;
-            renderConfigPreview();
+            const val = parseInt(e.target.value, 10) || 0;
+            updateGrailSetting(val);
         };
     }
 
@@ -1037,20 +1058,6 @@ function initEventBindings() {
     if (btnDetectScene) {
         btnDetectScene.onclick = () => {
             detectExtraScene();
-        };
-    }
-
-    // 职阶星图自动解放按钮绑定
-    const btnStartStarMap = $('btnStartStarMap');
-    if (btnStartStarMap) {
-        btnStartStarMap.onclick = () => {
-            startStarMapUnlock();
-        };
-    }
-    const btnStopStarMap = $('btnStopStarMap');
-    if (btnStopStarMap) {
-        btnStopStarMap.onclick = () => {
-            stopStarMapUnlock();
         };
     }
 
@@ -1144,6 +1151,9 @@ function initEventBindings() {
             updateRunnerMonitorPanel(data);
         };
     }
+
+    // 初始化脚本监控面板左上角拉伸缩放及边缘拉伸
+    initRunnerMonitorResize();
 
     // 重新从磁盘读取配置
     const reloadBtn = $('reloadBtn');
@@ -1271,6 +1281,7 @@ function bootstrapApp() {
     loadConfigFromBackend(render);
     startAdbAutoWatcher(getCurrentConfigText);
     startRunnerStatusWatcher();
+    pollStarMapProgress({ resumeOnly: true });
 }
 
 document.addEventListener('DOMContentLoaded', bootstrapApp);

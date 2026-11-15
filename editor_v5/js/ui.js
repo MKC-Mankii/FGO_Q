@@ -14,7 +14,13 @@ export function getFriendLabel(key) {
 }
 
 export function getSchemeDisplayName(s, idx) {
-    return s.name || s.friend || formatText(TEXT_CONFIG.sidebar.defaultSchemeName, { index: idx + 1 });
+    let name = (s && s.name) ? String(s.name).trim() : '';
+    // 去除可能带有的“方案：”或“方案:”前缀，直接展示方案名的值
+    name = name.replace(/^(?:方案|Scheme)\s*(?:\d+\s*)?[:：]\s*/i, '');
+    if (!name) {
+        name = formatText(TEXT_CONFIG.sidebar.defaultSchemeName, { index: idx + 1 });
+    }
+    return name;
 }
 
 export function getStepLabel(st) {
@@ -57,8 +63,7 @@ export function renderRunnerSettings() {
         activeGroup: 3,
         battleCount: 30,
         appleEnable: 0,
-        manualChooseFriend: 0,
-        forceColorCard: 0
+        manualChooseFriend: 0
     };
 
     const selGroup = $('cfgActiveGroup');
@@ -100,11 +105,6 @@ export function renderRunnerSettings() {
         chkFriend.checked = Boolean(rs.manualChooseFriend);
     }
 
-    const chkColor = $('cfgForceColorCard');
-    if (chkColor) {
-        chkColor.checked = Boolean(rs.forceColorCard);
-    }
-
     const chkDebug = $('cfgDebugScreenshot');
     if (chkDebug) {
         chkDebug.checked = Boolean(rs.debugScreenshotEnable);
@@ -115,13 +115,18 @@ export function renderRunnerSettings() {
         chkDebugFriend.checked = Boolean(rs.debugFriendOnly);
     }
 
+    const chkDryRun = $('cfgExtraDryRun');
+    if (chkDryRun) {
+        chkDryRun.checked = Boolean(rs.extraDryRun !== undefined ? rs.extraDryRun : 1);
+    }
+
     updateRunnerDebugSummary();
 }
 
 // 更新调试功能按钮的高亮与徽标
 export function updateRunnerDebugSummary() {
     const rs = appState.data.runnerSettings || {};
-    const count = (rs.debugScreenshotEnable ? 1 : 0) + (rs.debugFriendOnly ? 1 : 0);
+    const count = (rs.debugScreenshotEnable ? 1 : 0) + (rs.debugFriendOnly ? 1 : 0) + (rs.extraDryRun ? 1 : 0);
     const badge = $('runnerDebugBadge');
     const btn = $('runnerDebugDropdownBtn');
     if (badge) {
@@ -172,9 +177,23 @@ export function renderExtraSettings() {
         chkHeroAscend.checked = (es.heroAutoAscend ?? 1) === 1;
     }
 
-    const chkHeroGrail = $('cfgExtraHeroAutoGrail');
-    if (chkHeroGrail) {
-        chkHeroGrail.checked = (es.heroAutoGrail ?? 0) === 1;
+    const grailVal = es.heroAutoGrail ?? 1;
+    const chkGrail100 = $('cfgExtraHeroGrail100');
+    if (chkGrail100) {
+        chkGrail100.checked = (grailVal === 1);
+    }
+    const chkGrailInf = $('cfgExtraHeroGrailInf');
+    if (chkGrailInf) {
+        chkGrailInf.checked = (grailVal === 2);
+    }
+
+    const elHeroGrail = $('cfgExtraHeroAutoGrail');
+    if (elHeroGrail) {
+        if (elHeroGrail.tagName === 'SELECT') {
+            elHeroGrail.value = String(grailVal);
+        } else {
+            elHeroGrail.value = String(grailVal);
+        }
     }
     }
 }
@@ -313,13 +332,10 @@ export function renderSchemeList() {
                  title="${escapeHtml(itemTitle)}">
                 <span class="drag-handle" title="${escapeHtml(TEXT_CONFIG.sidebar.dragHandleTitle)}">⋮⋮</span>
                 <div class="scheme-item-content">
-                    <div class="scheme-item-top">
-                        <span class="scheme-item-index">${idx + 1}.</span>
-                        <span class="scheme-item-name">${escapeHtml(displayName)}</span>
-                        ${hasReward ? `<span class="scheme-item-reward-badge" title="已开启活动点数领取">🎁</span>` : ''}
-                        ${isDefault ? `<span class="scheme-item-default-badge" title="${escapeHtml(TEXT_CONFIG.sidebar.defaultTag || '默认方案')}">${TEXT_CONFIG.sidebar.defaultBadge || '⭐'}</span>` : ''}
-                    </div>
-                    <div class="scheme-item-sub">${escapeHtml(friendText)}</div>
+                    <span class="scheme-item-index">${idx + 1}.</span>
+                    <span class="scheme-item-name">${escapeHtml(displayName)}</span>
+                    ${hasReward ? `<span class="scheme-item-reward-badge" title="已开启活动点数领取">🎁</span>` : ''}
+                    ${isDefault ? `<span class="scheme-item-default-badge" title="${escapeHtml(TEXT_CONFIG.sidebar.defaultTag || '默认方案')}">${TEXT_CONFIG.sidebar.defaultBadge || '⭐'}</span>` : ''}
                 </div>
                 <button type="button" 
                         class="scheme-item-del-btn ${isConfirming ? 'is-confirming' : ''} ${isOnlyOne ? 'is-disabled' : ''}"
@@ -385,7 +401,7 @@ export function startEditSchemeName() {
     $('schemeNameEdit').style.display = 'inline-flex';
 
     const input = $('schemeNameInput');
-    input.value = curScheme.name || curScheme.friend || formatText(TEXT_CONFIG.sidebar.defaultSchemeName, { index: appState.curSchemeIdx + 1 });
+    input.value = curScheme.name || formatText(TEXT_CONFIG.sidebar.defaultSchemeName, { index: appState.curSchemeIdx + 1 });
     input.focus();
     input.select();
 }
@@ -441,12 +457,7 @@ export function renderSchemeDetails() {
     friendSelect.value = matchedOpt ? matchedOpt.value : curFriendVal;
 
     friendSelect.onchange = e => {
-        const oldFriend = curScheme.friend || '';
         curScheme.friend = e.target.value;
-        if (!curScheme._customName || !curScheme.name || curScheme.name === oldFriend) {
-            curScheme.name = curScheme.friend;
-        }
-        $('schemeNameText').textContent = getSchemeDisplayName(curScheme, appState.curSchemeIdx);
         renderSchemeList();
         renderConfigPreview();
     };
@@ -575,7 +586,7 @@ export function renderWavesBoard(highlightTarget = null) {
         if (r.attack && r.attack.length) {
             const badgesHtml = formatAttackCardsBadgesHtml(r.attack);
             attackHtml = `
-                <div class="timeline-chip attack" onclick="window.editRoundAttack(${waveIdx}, event)" title="${escapeHtml(TEXT_CONFIG.timeline.chipAttackEditTitle)}">
+                <div class="timeline-chip attack">
                     <span class="attack-chip-title">${escapeHtml(TEXT_CONFIG.timeline.chipAttackTitle)}</span>
                     <div class="attack-mini-cards">${badgesHtml}</div>
                     <button class="remove-btn" onclick="window.removeAttack(${waveIdx}, event)" title="${escapeHtml(TEXT_CONFIG.timeline.chipAttackRemoveTitle)}">×</button>
@@ -933,8 +944,6 @@ export function setRoundAttackDOM(waveIdx, attackCards) {
         } else {
             const newChip = document.createElement('div');
             newChip.className = 'timeline-chip attack just-added';
-            newChip.setAttribute('onclick', `window.editRoundAttack(${waveIdx}, event)`);
-            newChip.setAttribute('title', TEXT_CONFIG.timeline.chipAttackEditTitle);
             newChip.innerHTML = `
                 <span class="attack-chip-title">${escapeHtml(TEXT_CONFIG.timeline.chipAttackTitle)}</span>
                 <div class="attack-mini-cards">${badgesHtml}</div>

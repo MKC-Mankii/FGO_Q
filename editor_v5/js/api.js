@@ -695,8 +695,6 @@ export function updateRunnerUI(data) {
     const stopBtn = $('stopBattleBtn');
     const extraLockBanner = $('extraRunningLockBanner');
     const configLockBanner = $('configRunningLockBanner');
-    const extraLockText = $('extraLockBannerText');
-    const configLockText = $('configLockBannerText');
 
     if (!indicator) return;
 
@@ -802,6 +800,21 @@ export function updateRunnerUI(data) {
         }
     }
 
+    if (isStarMapRunning && newState !== 'RUNNING') {
+        if (twinGroup) twinGroup.style.display = 'none';
+        if (stopBtn) {
+            stopBtn.style.display = 'inline-flex';
+            updateStopButtonState({
+                icon: '⏹',
+                actionText: '停止星图',
+                roundText: starMapLiberatedCount > 0 ? `已解放 ${starMapLiberatedCount} 个` : '星图解放中',
+                disabled: isStarMapStopping,
+                title: '点击停止 Editor 原生星图自动解放引擎'
+            });
+        }
+        return;
+    }
+
     // 3. 根据新状态渲染顶部界面与分体/合体按钮 (indicator 隐藏，就绪环境专钮专用)
     if (indicator) indicator.style.display = 'none';
 
@@ -849,14 +862,30 @@ export function updateRunnerUI(data) {
         const subRound = (data && data.sub_round) || 0;
 
         if (isExtra) {
-            const countText = totalRounds > 0 ? `第 ${round}/${totalRounds} 次` : `第 ${round} 次`;
+            const countText = totalRounds > 0 ? `${round}/${totalRounds} 次` : `${round} 次`;
+            let extraActionFull = '';
             let extraActionBadge = '';
             if (data && data.action) {
                 const match = data.action.match(/\[(.*?)\]/);
                 if (match) {
-                    extraActionBadge = `[${match[1]}]`;
+                    extraActionFull = match[1].trim();
                 } else if (/强化|再临|灵基|突破|整备|抽卡|召唤|友情|无限池|圣杯|转临/i.test(data.action)) {
-                    extraActionBadge = `[${data.action.replace(/^Extra\s*/i, '').replace(/\s*第\s*\d+.*$/i, '').trim().slice(0, 6)}]`;
+                    extraActionFull = data.action.replace(/^Extra\s*/i, '').replace(/\s*第\s*\d+.*$/i, '').trim();
+                }
+                if (extraActionFull) {
+                    const shortMap = [
+                        [/友情|友池/, '友情'],
+                        [/无限|奖池|抽池/, '抽池'],
+                        [/礼装/, '礼装'],
+                        [/追加/, '追加'],
+                        [/技能/, '技能'],
+                        [/再临/, '再临'],
+                        [/圣杯|转临/, '圣杯'],
+                        [/从者|强化/, '从者'],
+                    ];
+                    const matched = shortMap.find(([re]) => re.test(extraActionFull));
+                    const shortText = matched ? matched[1] : extraActionFull.slice(0, 2);
+                    extraActionBadge = `[${shortText}]`;
                 }
             }
 
@@ -868,16 +897,13 @@ export function updateRunnerUI(data) {
                     roundText: countText,
                     actionDetail: extraActionBadge,
                     disabled: false,
-                    title: `点击停止整备任务 (${countText}${extraActionBadge ? ` · ${extraActionBadge}` : ''})，脚本将在当前安全动作后退出并返回待命`
+                    title: `点击停止整备任务 (${countText}${extraActionFull ? ` · [${extraActionFull}]` : ''})，脚本将在当前安全动作后退出并返回待命`
                 });
             }
-            if (configLockBanner) {
-                configLockBanner.style.display = 'flex';
-                if (configLockText) configLockText.textContent = `整备任务正在执行中 [${data.action || '进行中'}]，战斗功能已锁定。请先停止当前任务。`;
-            }
+            if (configLockBanner) configLockBanner.style.display = 'flex';
             if (extraLockBanner) extraLockBanner.style.display = 'none';
         } else {
-            const roundText = totalRounds > 0 ? `第 ${round}/${totalRounds} 轮` : `第 ${round} 轮`;
+            const roundText = totalRounds > 0 ? `${round}/${totalRounds} 轮` : `${round} 轮`;
             const subRoundText = subRound > 0 ? `${subRound}/3 面` : '';
 
             if (stopBtn) {
@@ -891,10 +917,7 @@ export function updateRunnerUI(data) {
                     title: `点击停止战斗 (${roundText}${subRoundText ? ` · ${subRoundText}` : ''})，脚本将在当前安全动作后退出并返回待命`
                 });
             }
-            if (extraLockBanner) {
-                extraLockBanner.style.display = 'flex';
-                if (extraLockText) extraLockText.textContent = `战斗正在执行中 (${roundText})，整备功能已锁定。请先停止战斗。`;
-            }
+            if (extraLockBanner) extraLockBanner.style.display = 'flex';
             if (configLockBanner) configLockBanner.style.display = 'none';
         }
 
@@ -913,7 +936,7 @@ export function updateRunnerUI(data) {
             stopBtn.style.display = 'inline-flex';
             const round = (data && data.round) || 1;
             const totalRounds = (data && data.total_rounds) || 0;
-            const roundText = totalRounds > 0 ? `第 ${round}/${totalRounds} 轮` : (round > 0 ? `第 ${round} 轮` : '');
+            const roundText = totalRounds > 0 ? `${round}/${totalRounds} 轮` : (round > 0 ? `${round} 轮` : '');
             updateStopButtonState({
                 icon: '⏳',
                 actionText: '正在停止...',
@@ -1050,10 +1073,161 @@ export function updateRunnerMonitorPanel(data) {
     }
 }
 
+// 恢复已存储的面板尺寸 (限制在视口有效范围内)
+export function restoreRunnerMonitorSize() {
+    const panel = $('runnerMonitorPanel');
+    if (!panel) return;
+    try {
+        const raw = localStorage.getItem('fgo_runner_monitor_size');
+        if (raw) {
+            const parsed = JSON.parse(raw);
+            const minWidth = 280;
+            const maxWidth = Math.max(minWidth, window.innerWidth - 32);
+            const minHeight = 150;
+            const maxHeight = Math.max(minHeight, window.innerHeight - 32);
+            if (typeof parsed.width === 'number') {
+                const w = Math.min(maxWidth, Math.max(minWidth, Math.round(parsed.width)));
+                panel.style.width = `${w}px`;
+            }
+            if (typeof parsed.height === 'number') {
+                const h = Math.min(maxHeight, Math.max(minHeight, Math.round(parsed.height)));
+                panel.style.height = `${h}px`;
+            }
+        }
+    } catch (_) {}
+}
+
+// 初始化调试监控窗口的左上角及边缘拉伸缩放
+export function initRunnerMonitorResize() {
+    const panel = $('runnerMonitorPanel');
+    const handleNW = $('monitorResizeHandleNW');
+    const handleN = $('monitorResizeHandleN');
+    const handleW = $('monitorResizeHandleW');
+    if (!panel || !handleNW) return;
+
+    restoreRunnerMonitorSize();
+
+    let isResizing = false;
+    let resizeMode = null; // 'both' | 'height' | 'width'
+    let startX = 0;
+    let startY = 0;
+    let startWidth = 0;
+    let startHeight = 0;
+
+    const startResize = (e, mode) => {
+        if (e.button !== 0) return; // 仅限鼠标左键
+        e.preventDefault();
+        e.stopPropagation();
+
+        isResizing = true;
+        resizeMode = mode;
+        startX = e.clientX;
+        startY = e.clientY;
+
+        const rect = panel.getBoundingClientRect();
+        startWidth = rect.width;
+        startHeight = rect.height;
+
+        panel.classList.add('is-resizing');
+        document.body.classList.add('monitor-resizing');
+        if (mode === 'both') {
+            document.body.style.cursor = 'nwse-resize';
+        } else if (mode === 'height') {
+            document.body.style.cursor = 'ns-resize';
+        } else if (mode === 'width') {
+            document.body.style.cursor = 'ew-resize';
+        }
+
+        if (e.target && e.target.setPointerCapture && e.pointerId !== undefined) {
+            try { e.target.setPointerCapture(e.pointerId); } catch (_) {}
+        }
+
+        window.addEventListener('pointermove', onPointerMove, { passive: false });
+        window.addEventListener('pointerup', onPointerUp);
+        window.addEventListener('pointercancel', onPointerUp);
+    };
+
+    const onPointerMove = (e) => {
+        if (!isResizing) return;
+        e.preventDefault();
+
+        // 窗口固定在屏幕右下角 (right: 20px, bottom: 20px)
+        // 鼠标向左拖动时宽度增加；向右拖动时宽度收缩
+        const deltaX = startX - e.clientX;
+        // 鼠标向上拖动时高度增加；向下拖动时高度收缩
+        const deltaY = startY - e.clientY;
+
+        const minWidth = 280;
+        const maxWidth = Math.max(minWidth, window.innerWidth - 32);
+        const minHeight = 150;
+        const maxHeight = Math.max(minHeight, window.innerHeight - 32);
+
+        if (resizeMode === 'both' || resizeMode === 'width') {
+            const targetWidth = Math.min(maxWidth, Math.max(minWidth, Math.round(startWidth + deltaX)));
+            panel.style.width = `${targetWidth}px`;
+        }
+
+        if (resizeMode === 'both' || resizeMode === 'height') {
+            const targetHeight = Math.min(maxHeight, Math.max(minHeight, Math.round(startHeight + deltaY)));
+            panel.style.height = `${targetHeight}px`;
+        }
+    };
+
+    const onPointerUp = (e) => {
+        if (!isResizing) return;
+        isResizing = false;
+        panel.classList.remove('is-resizing');
+        document.body.classList.remove('monitor-resizing');
+        document.body.style.cursor = '';
+
+        window.removeEventListener('pointermove', onPointerMove);
+        window.removeEventListener('pointerup', onPointerUp);
+        window.removeEventListener('pointercancel', onPointerUp);
+
+        try {
+            const rect = panel.getBoundingClientRect();
+            localStorage.setItem('fgo_runner_monitor_size', JSON.stringify({
+                width: Math.round(rect.width),
+                height: Math.round(rect.height)
+            }));
+        } catch (_) {}
+    };
+
+    handleNW.addEventListener('pointerdown', (e) => startResize(e, 'both'));
+    if (handleN) handleN.addEventListener('pointerdown', (e) => startResize(e, 'height'));
+    if (handleW) handleW.addEventListener('pointerdown', (e) => startResize(e, 'width'));
+
+    // 双击左上角手柄重置为默认大小
+    handleNW.addEventListener('dblclick', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        panel.style.width = '';
+        panel.style.height = '';
+        try {
+            localStorage.removeItem('fgo_runner_monitor_size');
+        } catch (_) {}
+        toast('已恢复调试窗口默认尺寸');
+    });
+
+    // 浏览器视口变小时自动限制尺寸防止溢出屏幕
+    window.addEventListener('resize', () => {
+        const rect = panel.getBoundingClientRect();
+        const maxWidth = window.innerWidth - 32;
+        const maxHeight = window.innerHeight - 32;
+        if (rect.width > maxWidth) {
+            panel.style.width = `${Math.max(280, maxWidth)}px`;
+        }
+        if (rect.height > maxHeight) {
+            panel.style.height = `${Math.max(150, maxHeight)}px`;
+        }
+    });
+}
+
 // 展开右下角简易脚本监控面板
 export async function openRunnerMonitorPanel() {
     const panel = $('runnerMonitorPanel');
     if (!panel) return;
+    restoreRunnerMonitorSize();
     panel.style.display = 'flex';
     panel.classList.add('show');
 
@@ -1532,11 +1706,36 @@ export async function triggerRunBattle(getConfigTextCallback) {
 }
 
 export async function triggerRunExtra(getConfigTextCallback) {
+    if (isStarMapRunning) {
+        toast('ℹ️ 星图自动解放已经在执行中！\n若需终止，请点击右上角的「⏹ 停止星图」。', 3500);
+        return;
+    }
+
+    // 1. 优先确认模拟器连通性
+    let currentData = null;
+    try {
+        currentData = await checkRunnerStatus();
+    } catch (_) {}
+
+    if (!currentData || !currentData.connected) {
+        toast('⚠️ 模拟器尚未连接，无法启动整备！\n请先开启模拟器并确保连通。', 4500);
+        return;
+    }
+
+    // 2. 优先由 Editor 探测是否处于 Editor 原生支持的整备场景（当前：职阶星图）
+    const sceneRes = await detectExtraScene({ silent: true });
+    if (sceneRes && sceneRes.success && sceneRes.scene === 'star_map') {
+        await startStarMapUnlock();
+        return;
+    }
+
+    // 3. 未命中 Editor 原生场景，回退至按键精灵 Runner 整备逻辑
     return triggerRunTask('EXTRA', getConfigTextCallback);
 }
 
 // 探测 Extra 模拟器当前界面
-export async function detectExtraScene() {
+export async function detectExtraScene(options = {}) {
+    const { silent = false } = options;
     const badge = $('extraSceneBadge');
     const desc = $('extraDetectorDesc');
     const btn = $('btnDetectScene');
@@ -1560,7 +1759,7 @@ export async function detectExtraScene() {
                 desc.textContent = msg;
                 desc.title = msg;
             }
-            toast(`🎯 探测到当前界面：【${res.name}】`);
+            if (!silent) toast(`🎯 探测到当前界面：【${res.name}】`);
         } else if (res.scene === 'error' || !res.success) {
             if (badge) {
                 badge.className = 'scene-badge warn';
@@ -1571,7 +1770,7 @@ export async function detectExtraScene() {
                 desc.textContent = msg;
                 desc.title = msg;
             }
-            toast(`⚠️ ${res.name || '探测提示'}: ${msg}`, 4000);
+            if (!silent) toast(`⚠️ ${res.name || '探测提示'}: ${msg}`, 4000);
         } else {
             if (badge) {
                 badge.className = 'scene-badge unknown';
@@ -1582,7 +1781,7 @@ export async function detectExtraScene() {
                 desc.textContent = msg;
                 desc.title = msg;
             }
-            toast(msg, 3500);
+            if (!silent) toast(msg, 3500);
         }
         return res;
     } catch (e) {
@@ -1602,11 +1801,26 @@ export async function detectExtraScene() {
     }
 }
 
-// 网页直控：停止战斗
+// 网页直控：停止战斗 / 停止整备 / 停止星图
 export async function triggerStopBattle() {
     const stopBtn = $('stopBattleBtn');
     const runBtn = $('runBattleBtn');
     const twinGroup = $('twinRunGroup');
+
+    if (isStarMapRunning) {
+        isStarMapStopping = true;
+        if (stopBtn) {
+            updateStopButtonState({
+                icon: '⏳',
+                actionText: '正在停止...',
+                roundText: '等待星图退出',
+                disabled: true,
+                title: '停止指令已下发，星图解放将在当前动作后停止'
+            });
+        }
+        await stopStarMapUnlock();
+        return;
+    }
 
     isStoppingBattle = true;
     if (stopBtn) {
@@ -1734,6 +1948,29 @@ window.closeConfirmModal = closeConfirmModal;
 // 职阶星图自动解放 (Editor 原生极速 ADB 引擎)
 // ==========================================
 let _starMapPollTimer = null;
+let isStarMapRunning = false;
+let isStarMapStopping = false;
+let starMapLiberatedCount = 0;
+
+function syncTopBarForStarMap(running, liberatedCount = 0) {
+    const twinGroup = $('twinRunGroup');
+    const stopBtn = $('stopBattleBtn');
+    if (running) {
+        if (twinGroup) twinGroup.style.display = 'none';
+        if (stopBtn) {
+            stopBtn.style.display = 'inline-flex';
+            updateStopButtonState({
+                icon: isStarMapStopping ? '⏳' : '⏹',
+                actionText: isStarMapStopping ? '正在停止...' : '停止星图',
+                roundText: isStarMapStopping ? '等待星图退出' : (liberatedCount > 0 ? `已解放 ${liberatedCount} 个` : '星图解放中'),
+                disabled: isStarMapStopping,
+                title: '点击停止 Editor 原生星图自动解放引擎'
+            });
+        }
+    } else {
+        checkRunnerStatus();
+    }
+}
 
 export async function startStarMapUnlock() {
     const btnStart = $('btnStartStarMap');
@@ -1744,6 +1981,11 @@ export async function startStarMapUnlock() {
     const banner = $('starMapStatusBanner');
     const autoSwipeCheck = $('cfgStarMapAutoSwipe');
     const autoSwipe = autoSwipeCheck ? autoSwipeCheck.checked : true;
+
+    isStarMapRunning = true;
+    isStarMapStopping = false;
+    starMapLiberatedCount = 0;
+    syncTopBarForStarMap(true, 0);
 
     if (btnStart) btnStart.disabled = true;
     if (btnStop) btnStop.disabled = false;
@@ -1759,6 +2001,9 @@ export async function startStarMapUnlock() {
         });
         const res = await resp.json();
         if (!res.success) {
+            isStarMapRunning = false;
+            isStarMapStopping = false;
+            syncTopBarForStarMap(false);
             toast(`❌ 启动失败: ${res.message || '未知错误'}`);
             if (btnStart) btnStart.disabled = false;
             if (btnStop) btnStop.disabled = true;
@@ -1770,6 +2015,9 @@ export async function startStarMapUnlock() {
         toast('🚀 星图自动解放已启动');
         pollStarMapProgress();
     } catch (e) {
+        isStarMapRunning = false;
+        isStarMapStopping = false;
+        syncTopBarForStarMap(false);
         toast(`❌ 网络请求失败: ${e.message}`);
         if (btnStart) btnStart.disabled = false;
         if (btnStop) btnStop.disabled = true;
@@ -1781,6 +2029,7 @@ export async function startStarMapUnlock() {
 
 export async function stopStarMapUnlock() {
     const btnStop = $('btnStopStarMap');
+    isStarMapStopping = true;
     if (btnStop) btnStop.disabled = true;
     try {
         await fetch('/api/star_map/stop', { method: 'POST' });
@@ -1790,10 +2039,13 @@ export async function stopStarMapUnlock() {
     }
 }
 
-export function pollStarMapProgress() {
+export function pollStarMapProgress({ resumeOnly = false } = {}) {
     if (_starMapPollTimer) clearInterval(_starMapPollTimer);
+    let firstTick = true;
 
     const tick = async () => {
+        const isInitialResumeTick = firstTick && resumeOnly;
+        firstTick = false;
         const btnStart = $('btnStartStarMap');
         const btnStop = $('btnStopStarMap');
         const statusIcon = $('starMapStatusIcon');
@@ -1805,6 +2057,13 @@ export function pollStarMapProgress() {
             const resp = await fetch('/api/star_map/status', { cache: 'no-cache' });
             const data = await resp.json();
 
+            if (!data.running && isInitialResumeTick) {
+                clearInterval(_starMapPollTimer);
+                _starMapPollTimer = null;
+                return;
+            }
+
+            starMapLiberatedCount = data.liberated_count || 0;
             if (countBadge) {
                 if (data.liberated_count > 0) {
                     countBadge.style.display = 'inline-block';
@@ -1815,14 +2074,19 @@ export function pollStarMapProgress() {
             }
 
             if (data.running) {
+                isStarMapRunning = true;
+                syncTopBarForStarMap(true, starMapLiberatedCount);
                 if (btnStart) btnStart.disabled = true;
-                if (btnStop) btnStop.disabled = false;
+                if (btnStop) btnStop.disabled = isStarMapStopping;
                 if (banner) banner.className = 'star-map-status-banner is-running';
                 if (statusIcon) statusIcon.textContent = '⚡';
                 if (statusText) statusText.textContent = data.message || '正在解放中...';
             } else {
                 clearInterval(_starMapPollTimer);
                 _starMapPollTimer = null;
+                isStarMapRunning = false;
+                isStarMapStopping = false;
+                syncTopBarForStarMap(false);
                 if (btnStart) btnStart.disabled = false;
                 if (btnStop) btnStop.disabled = true;
 
@@ -1843,7 +2107,7 @@ export function pollStarMapProgress() {
                 } else {
                     if (banner) banner.className = 'star-map-status-banner';
                     if (statusIcon) statusIcon.textContent = '⚪';
-                    if (statusText) statusText.textContent = '待命中（进入星图界面后点击开始）';
+                    if (statusText) statusText.textContent = '待命中（进入星图界面后点击顶部「运行整备」）';
                 }
             }
         } catch (e) {
