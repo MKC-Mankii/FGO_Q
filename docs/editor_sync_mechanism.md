@@ -213,6 +213,25 @@ Editor V5 严格区分了两类视觉素材，避免相互污染：
   * 用于 Editor V5 自身自动化流程（ADB 截图识别游戏标题、公告叉号、游玩指引、更新弹窗等）；
   * 仅在 PC 端 Python 进程中由 OpenCV 加载，不需要推送到模拟器内。
 
+### 4.7 CLI / 脚本直推规范与设备标识注意事项
+
+当修改了 `Q/battle_v5_runner.q` 或图像资产、需要通过命令行直接触发部署时，应按以下方式调用 [`ensure_v5_runner_deployed`](file:///f:/2nd%20Accra/Git/Github/FGO_Q/editor_v5/adb_sync.py#L2601)：
+
+```bash
+python -c "import editor_v5.adb_sync as s; print(s.ensure_v5_runner_deployed(force=True))"
+```
+
+> [!CAUTION]
+> **切勿硬编码或手填 `device='emulator-5554'`**：
+> * `editor_v5.adb_sync` 内部优先使用模拟器自带 ADB（如雷电 `E:\leidian\LDPlayer9\adb.exe`），其识别的设备名通常为 `127.0.0.1:5555`，与系统 `PATH` 中通用 `adb devices` 显示的 `emulator-5554` **不一致**。
+> * 注意函数签名为 `ensure_v5_runner_deployed(adb=None, device=None, force=False)`：
+>   1. 不可将设备名作为第一位置参数传入（会被误当作 `adb` 路径）；
+>   2. 不可传入不匹配的 `device='emulator-5554'`，否则内部 `adb -s` 会因找不到对应序列号而跳过实际推送，造成“看似执行但模拟器文件时间戳未变”的假象。
+> * **正确做法**：直接省略 `adb` 与 `device` 参数，仅传 `force=True`，由 `get_selected_device(adb)` 自动解析当前在线设备；推送完成后建议执行以下命令核验文件时间戳与大小是否已更新：
+>   ```bash
+>   adb shell "ls -la /sdcard/FGO_Q/battle_v5_runner.mq /sdcard/MobileAnJian/Script/fgo_battle_v5_runner*"
+>   ```
+
 ---
 
 ## 5. 底层通信与端口隔离机制

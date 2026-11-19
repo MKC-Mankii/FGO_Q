@@ -13,8 +13,8 @@ ShowMessage "【提示】这是配置文件！请启动【fgo_battle_v5_runner�
 ' ==================== 全局运行配置 (RUNNER CONFIG) ====================
 Dim RUN_MODE = 0  ' 当前运行主模式: 0=战术战斗(Battle), 1=Extra辅助(Extra)
 Dim ACTION_GROUP_INDEX = 3  ' 当前生效大组: 0=test, 1=campaign, 2=caber, 3=grand, 4=ordeal
-Dim BATTLE_COUNT = 1  ' 连续战斗次数
-Dim APPLE_ENABLE = 0  ' 是否吃苹果补充体力 (0=关/不吃, 1=银苹果, 2=金苹果)
+Dim BATTLE_COUNT = 30  ' 连续战斗次数
+Dim APPLE_ENABLE = 1  ' 是否吃苹果补充体力 (0=关/不吃, 1=银苹果, 2=金苹果)
 Dim MANUAL_CHOOSE_FRIEND = 0  ' 是否人工选助战 (0=自动找图, 1=人工选择)
 Dim DEBUG_SCREENSHOT_ENABLE = 0  ' 是否保存调试截屏 (0=关, 1=开)
 Dim DEBUG_FRIEND_ONLY = 0  ' 助战调试模式: 仅选助战不进战斗 (0=关, 1=开)
@@ -25,12 +25,12 @@ Dim EXTRA_ACTION_COUNT = 30  ' Extra 连续执行次数上限
 Dim EXTRA_SKILL_MAX_LEVEL = 10  ' 技能强化目标等级 (1~10)
 Dim EXTRA_SKILL_AUTO_THREE = 1  ' 技能强化是否强化全部技能 (0=关, 1=开)
 Dim EXTRA_HERO_AUTO_ASCEND = 1  ' 从者强化是否自动灵基再临 (0=关, 1=开)
-Dim EXTRA_HERO_AUTO_GRAIL = 1  ' 从者强化是否自动圣杯转临 (0=关, 1=100上限, 2=无上限)
+Dim EXTRA_HERO_AUTO_GRAIL = 2  ' 从者强化是否自动圣杯转临 (0=关, 1=100上限, 2=无上限)
 
 ' ==================== 兼容与兜底字段 ====================
 Dim CFG_ACTION_GROUP_INDEX = 3
-Dim MANUAL_BATTLE_COUNT = 1
-Dim MANUAL_APPLE_ENABLE = 0
+Dim MANUAL_BATTLE_COUNT = 30
+Dim MANUAL_APPLE_ENABLE = 1
 Dim MANUAL_DEBUG_SCREENSHOT_ENABLE = 0
 Dim MANUAL_DEBUG_FRIEND_ONLY = 0
 Dim MANUAL_EXTRA_DRY_RUN = 0
@@ -132,7 +132,7 @@ Dim DSL_G3_2 = "s10, 30 | m30014, 10 | s10, 20, 40, 50, 60, 70, 83, 90 | a7, 8, 
 Dim ACTIVITY_REWARD_G3_3 = 0
 Dim FRIEND_G3_3 = "a_tiamat"
 Dim PAGE_TURNS_G3_3 = 0
-Dim DSL_G3_3 = "s10, 20, 30, 40, 50, 60, 70, 80, 90 | m20 | a8, H2, H3;m10 | a7, B, B"
+Dim DSL_G3_3 = "s10, 20, 30, 40, 60, 50, 70, 80, 90 | a6, 8, H1Q>H2Q>H2B>*;m12 | a7, B, B;a3, 4, 5"
 ' 方案 4: 骑
 Dim ACTIVITY_REWARD_G3_4 = 0
 Dim FRIEND_G3_4 = "keli"
@@ -222,7 +222,7 @@ Dim ATT_Mary = "Attachment:friendMary1.png|Attachment:friendMary2.png"
 Dim ATT_Keli = "Attachment:friendKeli1.png|Attachment:friendKeli2.png|Attachment:friendKeli3.png"
 ' [待标定] 助战 bdai (狂呆) 暂无已标定图片，跳过 ATT 声明
 Dim ATT_Heshang = "Attachment:friendHeshang3.png"
-Dim ATT_A_tiamat = "Attachment:friendA_tiamat2.png"
+Dim ATT_A_tiamat = "Attachment:friendA_tiamat1.png|Attachment:friendA_tiamat2.png|Attachment:friendA_tiamat3.png"
 
 ' ==============================================================================
 ' 🎯 屏幕标定与视觉目标配置 (TARGETS & COORDINATES CONFIG)

@@ -860,6 +860,7 @@ export function updateRunnerUI(data) {
         const round = (data && data.round) || 1;
         const totalRounds = (data && data.total_rounds) || 0;
         const subRound = (data && data.sub_round) || 0;
+        const totalSubRounds = (data && data.total_sub_rounds) || 0;
 
         if (isExtra) {
             const countText = totalRounds > 0 ? `${round}/${totalRounds} 次` : `${round} 次`;
@@ -904,7 +905,9 @@ export function updateRunnerUI(data) {
             if (extraLockBanner) extraLockBanner.style.display = 'none';
         } else {
             const roundText = totalRounds > 0 ? `${round}/${totalRounds} 轮` : `${round} 轮`;
-            const subRoundText = subRound > 0 ? `${subRound}/3 面` : '';
+            const subRoundText = subRound > 0
+                ? (totalSubRounds > 0 ? `${subRound}/${totalSubRounds}T` : `${subRound}T`)
+                : '';
 
             if (stopBtn) {
                 stopBtn.style.display = 'inline-flex';

@@ -42,8 +42,8 @@
 
 ## 脚本代码部署与同步规范 (Script Deployment & Simulator Sync Guidelines)
 
-- **修改脚本代码强制即时推送模拟器与 PC 助手**：
-  凡修改了 `Q/battle_v5_config.q`、`Q/battle_v5_runner.q` 或相关脚本逻辑与资源后，**必须立即调用 `editor_v5.adb_sync` 将最新代码与配置推送至在线模拟器**（覆盖 `/sdcard/FGO_Q/` 与 `/sdcard/MobileAnJian/Script/`）及本地 PC 手机助手目录，并清理 `/sdcard/MobileAnJian/MQTemp/*.lc` 编译缓存，确保模拟器端按键精灵执行时立即可用最新逻辑，严禁修改后遗漏推送。
+- **更新 runner / 脚本代码强制即时同步推送模拟器与 PC 助手**：
+  凡修改了 `Q/battle_v5_runner.q`、`Q/battle_v5_config.q` 或相关脚本逻辑与资源后，**必须立即调用 `editor_v5.adb_sync` 将最新代码与配置同步推送至在线模拟器**（覆盖 `/sdcard/FGO_Q/` 与 `/sdcard/MobileAnJian/Script/`）及本地 PC 手机助手目录，并清理 `/sdcard/MobileAnJian/MQTemp/*.lc` 编译缓存；若涉及找图模板图片（`images/attached images/*.png`）的增删改，还须同步更新模拟器 `/sdcard/FGO_Q/images/` 与 `.atc` 附件包，确保模拟器端按键精灵执行时立即可用最新逻辑，严禁修改后遗漏推送。
 
 
 

@@ -60,6 +60,7 @@ Dim HAS_FRIEND_CONFIG = false
 Dim USER_STOP_REQUESTED = false
 Dim ABORT_REASON = ""
 Dim CURRENT_SUB_ROUND_NUM = 0
+Dim TOTAL_SUB_ROUND_NUM = 0
 Dim STOP_CHECK_COUNTER = 0
 
 Sub CfgSet(cfgKey, cfgVal)
@@ -294,6 +295,7 @@ Sub UpdateRunnerStatus(stateText, actionText)
 	              "round=" & roundStr & Chr(10) & _
 	              "total_rounds=" & totalStr & Chr(10) & _
 	              "sub_round=" & CURRENT_SUB_ROUND_NUM & Chr(10) & _
+	              "total_sub_rounds=" & TOTAL_SUB_ROUND_NUM & Chr(10) & _
 	              "action=" & actionText & Chr(10) & _
 	              "time=" & DateTime.Format() & Chr(10) & _
 	              "msg=" & actionText
@@ -861,6 +863,7 @@ Sub ReloadConfig()
 		TracePrint "SELECTED DSL HEAD:", Left(CStr(selectedDsl), 120)
 		CurrentBattleSequence = BuildRoundsFromFlatText(selectedDsl)
 		AllActionRound = ParseBattleSequence(CurrentBattleSequence)
+		TOTAL_SUB_ROUND_NUM = UBound(AllActionRound) + 1
 	End If
 
 	If Len(selectedFriendKey) > 0 Then
@@ -1069,7 +1072,7 @@ Dim BATTLE_ATTACK_CARD_SECON_TAPED_TARS = Array(_
 	Array(700, 227, 727, 238, "Attachment:BATTLE_ATTACK_CARD_7_SECOND_TAPED.png|Attachment:BATTLE_ATTACK_CARD_7_SECOND_TAPED2.png"),_
 	Array(960, 227, 987, 238, "Attachment:BATTLE_ATTACK_CARD_8_SECOND_TAPED.png")_
  )
-Dim BATTLE_ATTACK_CARD_BUSTER_TAR = Array(55, 460, 1390, 690, "Attachment:BATTLE_ATTACK_CARD_BUSTER.png")
+Dim BATTLE_ATTACK_CARD_BUSTER_TAR = Array(55, 575, 1390, 665, "Attachment:BATTLE_ATTACK_CARD_BUSTER.png")
 Dim BATTLE_ATTACK_CARD_PRIORITY_TARS = Array()
 BATTLE_ATTACK_CARD_PRIORITY_TARS[1] = null
 BATTLE_ATTACK_CARD_PRIORITY_TARS[2] = null
@@ -1079,12 +1082,12 @@ Dim BATTLE_ATTACK_CARD_PRIORITY_SIM = 0.78
 Dim BATTLE_HERO_SAMPLED = Array(0, 0, 0, 0)
 
 
-Dim BATTLE_ATTACK_CARD_ARTS_TAR = Array(55, 460, 1390, 690, "Attachment:BATTLE_ATTACK_CARD_ARTS.png")
+Dim BATTLE_ATTACK_CARD_ARTS_TAR = Array(55, 575, 1390, 665, "Attachment:BATTLE_ATTACK_CARD_ARTS.png")
 Dim BATTLE_ATTACK_CARD_ARTS_PRIORITY_TARS = Array()
 Dim BATTLE_ATTACK_CARD_ARTS_PRIORITY_COUNT = 0
 Dim BATTLE_ATTACK_CARD_ARTS_PRIORITY_SIM = 0.78
 
-Dim BATTLE_ATTACK_CARD_QUICK_TAR = Array(55, 460, 1390, 690, "Attachment:BATTLE_ATTACK_CARD_QUICK.png")
+Dim BATTLE_ATTACK_CARD_QUICK_TAR = Array(55, 575, 1390, 665, "Attachment:BATTLE_ATTACK_CARD_QUICK.png")
 Dim BATTLE_ATTACK_CARD_QUICK_PRIORITY_TARS = Array()
 Dim BATTLE_ATTACK_CARD_QUICK_PRIORITY_COUNT = 0
 Dim BATTLE_ATTACK_CARD_QUICK_PRIORITY_SIM = 0.78
@@ -1247,6 +1250,21 @@ Function BattlePrint(Msg)
 	zm.FileWrite "/sdcard/FGO_Q/runner_log.txt", zm.FileRead("/sdcard/FGO_Q/runner_log.txt") & Chr(10) & DateTime.Format() & " " & Msg
 End Function
 
+' 间隔 500ms 两次确认是否已返回主界面/地图菜单，避免战斗中蓝色按钮闪光误判
+Function IsOutMenuConfirmed()
+	IsOutMenuConfirmed = false
+	If CheckImg2(AGAIN_BATTLE_OUT_MENU_TAR) = null Then
+		Exit Function
+	End If
+	Delay 500
+	If USER_STOP_REQUESTED Or CheckStopSignal() Then
+		Exit Function
+	End If
+	If CheckImg2(AGAIN_BATTLE_OUT_MENU_TAR) <> null Then
+		IsOutMenuConfirmed = true
+	End If
+End Function
+
 Function IsBattleEndDetected()
 	Dim ConfirmIndex
 	Dim LastTiePoint
@@ -1319,7 +1337,7 @@ Function WaitRoundReadyOrBattleEnd()
 
 		' 寮傚父鍦烘櫙鎺㈡祴锛堝傚凡鎰忓栭鍥炲湴鍥撅級
 		If WaitedMs >= 6000 And (HeartbeatCounter Mod 15 = 0) Then
-			If CheckImg2(AGAIN_BATTLE_OUT_MENU_TAR) <> null Then
+			If IsOutMenuConfirmed() Then
 				AbortBattle "妫娴嬪埌宸茶繑鍥炰富鐣岄潰/鍦板浘鑿滃崟锛岃嚜鍔ㄧ粨鏉熸垬鏂"
 				WaitRoundReadyOrBattleEnd = false
 				Exit Function
@@ -1398,7 +1416,7 @@ Function ContinuousCheckImgTimeout(Target, MaxWaitCount)
 		End If
 		' 寮傚父鍦烘櫙鎺㈡祴锛堝�宸插湪涓荤晫闈�/鍦板浘锛屾垨浣撳姏寮圭獥鍑虹幇锛�
 		If waitCount >= 8 And (waitCount Mod 4 = 0) Then
-			If CheckImg2(AGAIN_BATTLE_OUT_MENU_TAR) <> null Then
+			If IsOutMenuConfirmed() Then
 				AbortBattle "妫€娴嬪埌宸茶繑鍥炰富鐣岄潰/鍦板浘鑿滃崟锛岃嚜鍔ㄧ粨鏉熸垬鏂�"
 				ContinuousCheckImgTimeout = null
 				Exit Function
@@ -1458,7 +1476,7 @@ Function WaitAwardTieScreen()
 		End If
 		' 4. 寮傚父鍦烘櫙锛氬凡鎰忓�杩斿洖涓荤晫闈�/鍦板浘
 		If waitCount >= 10 And (waitCount Mod 6 = 0) Then
-			If CheckImg2(AGAIN_BATTLE_OUT_MENU_TAR) <> null Then
+			If IsOutMenuConfirmed() Then
 				AbortBattle "妫€娴嬪埌宸茶繑鍥炰富鐣岄潰/鍦板浘鑿滃崟锛岃嚜鍔ㄧ粨鏉熸垬鏂�"
 				WaitAwardTieScreen = false
 				Exit Function
@@ -1778,11 +1796,11 @@ End Function
 
 Function WaitFriendScreenReady()
 	WaitFriendScreenReady = false
-	Dim waitMs = 0
-	Dim maxWaitMs = 30000 ' 最长等待 30 秒网络与动画加载
+	Dim startTime = Time()
+	Dim maxWaitSec = 30 ' 最长等待 30 秒真实时间（网络与动画加载）
 	Dim HeartbeatCounter = 0
 
-	Do While waitMs < maxWaitMs
+	Do While (Time() - startTime) < maxWaitSec
 		If USER_STOP_REQUESTED Or CheckStopSignal() Then
 			Exit Function
 		End If
@@ -1808,11 +1826,10 @@ Function WaitFriendScreenReady()
 
 		HeartbeatCounter = HeartbeatCounter + 1
 		If HeartbeatCounter Mod 6 = 0 Then
-			UpdateRunnerStatus "RUNNING", "等待进入助战选择界面(" & Int(waitMs / 1000) & "s)..."
+			UpdateRunnerStatus "RUNNING", "等待进入助战选择界面(" & (Time() - startTime) & "s)..."
 		End If
 
 		Delay 250
-		waitMs = waitMs + 250
 	Loop
 End Function
 
@@ -1834,14 +1851,23 @@ Function ChooseFriend()
 			Exit Function
 		End If
 
-		' 鍦ㄥ綋鍓嶉〉闈㈡娴嬫寚瀹氬姪鎴橈紙閲嶈瘯2娆￠槻寰娴鍔锛
+		' 仅在首次翻页前(curPageTurn=0)启用重试机制：间隔500ms，最多尝试3次；翻页后仅检测1次
+		Dim maxCheckRetry = 1
+		If curPageTurn = 0 Then
+			maxCheckRetry = 3
+		End If
 		Dim checkRetry = 0
-		For checkRetry = 1 To 2
+		For checkRetry = 1 To maxCheckRetry
 			Point = CheckImg2(PREPARE_FRIEND_TAR)
 			If Point <> null Then
 				Exit For
 			End If
-			Delay 250
+			If checkRetry < maxCheckRetry Then
+				Delay 500
+				If USER_STOP_REQUESTED Or CheckStopSignal() Then
+					Exit Function
+				End If
+			End If
 		Next
 
 		If Point <> null Then
@@ -1972,7 +1998,7 @@ Function CheckBattleStart()
 		End If
 
 		If checkWaitCount >= 10 And (checkWaitCount Mod 5 = 0) Then
-			If CheckImg2(AGAIN_BATTLE_OUT_MENU_TAR) <> null Then
+			If IsOutMenuConfirmed() Then
 				AbortBattle "妫娴嬪埌宸茶繑鍥炰富鐣岄潰/鍦板浘鑿滃崟锛屾棤娉曞紑濮嬫垬鏂楋紝宸茶嚜鍔ㄧ粨鏉熸垬鏂"
 				CheckBattleStart = false
 				Exit Function
@@ -2511,29 +2537,60 @@ Function SelectHeroPriorityCard(heroNum, preferredColor)
 End Function
 
 Function DetectBattleCards()
-	Dim i
+	Dim i, retryRound, needRetry
 	For i = 1 To 5
 		BATTLE_CARD_COLORS[i] = ""
 		BATTLE_CARD_IS_CRIT_100[i] = 0
-		Dim cx = BATTLE_ATTACK_CARD_COORDS[i][1]
-		Dim xCol1 = cx - 130 : If xCol1 < 0 Then xCol1 = 0
-		Dim xCol2 = cx + 130 : If xCol2 > 1439 Then xCol2 = 1439
-
-		' 1. 鑹插崱绫诲瀷璇嗗埆 (Buster / Arts / Quick)
-		Dim bArea = Array(xCol1, 460, xCol2, 750, "Attachment:BATTLE_ATTACK_CARD_BUSTER.png")
-		If CheckImg2(bArea) <> null Then
-			BATTLE_CARD_COLORS[i] = "B"
-		Else
-			Dim aArea = Array(xCol1, 460, xCol2, 750, "Attachment:BATTLE_ATTACK_CARD_ARTS.png")
-			If CheckImg2(aArea) <> null Then
-				BATTLE_CARD_COLORS[i] = "A"
+	Next
+	For retryRound = 1 To 3
+		needRetry = False
+		For i = 1 To 5
+			If BATTLE_CARD_COLORS[i] = "" Then
+				Dim cx = BATTLE_ATTACK_CARD_COORDS[i][1]
+				Dim xCol1 = cx - 80 : If xCol1 < 0 Then xCol1 = 0
+				Dim xCol2 = cx + 80 : If xCol2 > 1439 Then xCol2 = 1439
+				Dim bArea = Array(xCol1, 570, xCol2, 670, "Attachment:BATTLE_ATTACK_CARD_BUSTER.png|Attachment:BATTLE_ATTACK_CARD_BUSTER_2.png")
+				If CheckPriorityImgEx(bArea, 0.72, "282828") <> null Then
+					BATTLE_CARD_COLORS[i] = "B"
+				Else
+					Dim aArea = Array(xCol1, 570, xCol2, 670, "Attachment:BATTLE_ATTACK_CARD_ARTS.png")
+					If CheckPriorityImgEx(aArea, 0.72, "282828") <> null Then
+						BATTLE_CARD_COLORS[i] = "A"
+					Else
+						Dim qArea = Array(xCol1, 570, xCol2, 670, "Attachment:BATTLE_ATTACK_CARD_QUICK.png")
+						If CheckPriorityImgEx(qArea, 0.72, "282828") <> null Then
+							BATTLE_CARD_COLORS[i] = "Q"
+						Else
+							needRetry = True
+						End If
+					End If
+				End If
+			End If
+		Next
+		If Not needRetry Then Exit For
+		If retryRound < 3 Then Delay 250
+	Next
+	For i = 1 To 5
+		If BATTLE_CARD_COLORS[i] = "" Then
+			Dim fcx = BATTLE_ATTACK_CARD_COORDS[i][1]
+			Dim fcX1 = fcx - 45 : If fcX1 < 0 Then fcX1 = 0
+			Dim fcX2 = fcx + 45 : If fcX2 > 1439 Then fcX2 = 1439
+			Dim fx, fy
+			FindColor fcX1, 600, fcX2, 645, "0014EB-1E281E", 0, 0.9, fx, fy
+			If fx > -1 And fy > -1 Then
+				BATTLE_CARD_COLORS[i] = "B"
 			Else
-				Dim qArea = Array(xCol1, 460, xCol2, 750, "Attachment:BATTLE_ATTACK_CARD_QUICK.png")
-				If CheckImg2(qArea) <> null Then
-					BATTLE_CARD_COLORS[i] = "Q"
+				FindColor fcX1, 600, fcX2, 645, "EB960A-1E3020", 0, 0.9, fx, fy
+				If fx > -1 And fy > -1 Then
+					BATTLE_CARD_COLORS[i] = "A"
+				Else
+					FindColor fcX1, 600, fcX2, 645, "00EB50-1E1E30", 0, 0.9, fx, fy
+					If fx > -1 And fy > -1 Then BATTLE_CARD_COLORS[i] = "Q"
 				End If
 			End If
 		End If
+	Next
+	For i = 1 To 5
 
 		' 2. 100% 婊℃毚鍑荤巼璇嗗埆
 		' 閲囩敤鍙屾ā鏉匡細鏍囧噯'1'(BATTLE_ATTACK_CARD_100.png)涓庣洿绗旀牳蹇(BATTLE_ATTACK_CARD_100_2.png)
@@ -2908,6 +2965,7 @@ Function DoBattle()
 	End If
 
 	Dim RoundCount = UBound(AllActionRound)+1
+	TOTAL_SUB_ROUND_NUM = RoundCount
 	For RoundIndex = 1 To RoundCount
 		If USER_STOP_REQUESTED Or CheckStopSignal() Then
 			Exit For
@@ -3027,9 +3085,10 @@ Function DoBattle()
 	' Apple?
 	BattlePrint("apple?")
 	If CurrentBattleCount < BATTLE_COUNT And HasTicket And Not USER_STOP_REQUESTED Then
-		Dim appleWaitCount = 0
+		Dim appleStartTime = Time()
+		Dim appleMaxWaitSec = 30
 		Dim CheckAppleAlertSuccess = null
-		Do While appleWaitCount < 10
+		Do While (Time() - appleStartTime) < appleMaxWaitSec
 			If USER_STOP_REQUESTED Or CheckStopSignal() Then
 				Exit Do
 			End If
@@ -3037,7 +3096,7 @@ Function DoBattle()
 			If CheckAppleAlertSuccess <> null Then
 				Exit Do
 			End If
-			If CheckImg2(AGAIN_BATTLE_OUT_MENU_TAR) <> null Then
+			If IsOutMenuConfirmed() Then
 				TracePrint "Back to menu during apple check"
 				HasTicket = false
 				Exit Do
@@ -3047,7 +3106,6 @@ Function DoBattle()
 				Exit Do
 			End If
 			Delay 300
-			appleWaitCount = appleWaitCount + 1
 		Loop
 
 		If CheckAppleAlertSuccess <> null Then
@@ -3098,11 +3156,6 @@ Function DetectExtraMethodIndex()
 		Exit Function
 	End If
 	ScenePoint = CheckImg2(ENHANCE_SKILL_APPEND_TAR)
-	If ScenePoint <> null Then
-		DetectExtraMethodIndex = 3
-		Exit Function
-	End If
-	ScenePoint = CheckImg2(ENHANCE_SKILL_ENHANCE_TAR)
 	If ScenePoint <> null Then
 		DetectExtraMethodIndex = 3
 		Exit Function
@@ -4578,6 +4631,7 @@ Sub StartExtraLoop()
 	USER_STOP_REQUESTED = false
 	ABORT_REASON = ""
 	CURRENT_SUB_ROUND_NUM = 0
+	TOTAL_SUB_ROUND_NUM = 0
 	UpdateRunnerStatus "RUNNING", "Extra 辅助启动中..."
 
 	Dim detectedIndex = DetectExtraMethodIndex()

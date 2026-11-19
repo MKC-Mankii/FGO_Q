@@ -6006,6 +6006,8 @@ def get_runner_status(device=None):
 
         sub_round = int(fields.get("sub_round", 0)) if fields.get("sub_round", "0").isdigit() else 0
 
+        total_sub_rounds = int(fields.get("total_sub_rounds", 0)) if fields.get("total_sub_rounds", "0").isdigit() else 0
+
         action = fields.get("action", "")
 
         time_text = fields.get("time", "")
@@ -6141,6 +6143,8 @@ def get_runner_status(device=None):
             "total_rounds": total_rounds,
 
             "sub_round": sub_round,
+
+            "total_sub_rounds": total_sub_rounds,
 
             "action": action,
 
